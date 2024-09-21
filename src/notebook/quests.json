@@ -1,0 +1,12 @@
+{
+    "get_compass": {
+        "active": true,
+        "name": "Get Compass",
+        "stages": {
+            "stage_one": {
+                "active": true,
+                "text": "The Old Man has told you that if you need a compass, to go to the explorers guild and talk to the teller at the fron desk. They might ask for something in return though."
+            }
+        }
+    }
+}

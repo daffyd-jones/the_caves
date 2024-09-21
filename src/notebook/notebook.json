@@ -1,0 +1,35 @@
+{
+    "quests": {
+        "get_compass": {
+            "active": false,
+            "name": "Get Compass",
+            "stages": {
+                "stage_one": {
+                    "active": false,
+                    "text": "The Old Man has told you that if you need a compass, to go to the explorers guild and talk to the teller at the fron desk. They might ask for something in return though."
+                }
+            }
+        }
+    },
+    "places": {
+        "cave_entrance": {
+            "active": false,
+            "name": "Cave Entrance",
+            "text": "The entrance to the cave system. There is a settlement there that acts as a waypoint for supplies and a reststop for explorers. The settlement has a few shops such where one could get weapons, items, or armor."
+        }
+    },
+    "people": {
+        "old_man": {
+            "active": false,
+            "name": "Old Man",
+            "desc": "The old man is an aged explorer that is looking for the lost city. He seems nice and provides some helpful tips."
+        }
+    },
+    "lore": {
+        "the_cave": {
+            "active": false,
+            "name": "The Shifting Caves",
+            "desc": "The Shifting Caves are an ever changing system of caves rumored to contain a lost city. For years explorers have gotten lost in the caves looking for the lost city. The caves change over time, so getting lost is easy. There are methods that people have developed over time to help navigate the caves and find their way to the surface, but the danger is always there. The cave is full of danger and monsters, but the allure of discovery keeps the caves an active place."
+        }
+    }
+}

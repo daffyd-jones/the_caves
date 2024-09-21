@@ -1,0 +1,1389 @@
+//gamestate
+use crate::enums::{Cells, Enemies, Items, NPCs, ItemOpt, GUIMode, InterSteps, InterOpt, GameMode, FightSteps, Interactable, EncOpt};
+use crate::map::{Map, MAP_W, MAP_H};
+use crate::player::Player;
+use crate::enemy::{Enemy};
+use crate::npc::{NPC, new_comm_npc, new_conv_npc, new_quest_npc};
+use crate::lsystems::LSystems;
+use crate::gui::GUI;
+// use crate::gui_man_draw::GUI;
+use crate::item::Item;
+use crate::notebook::Notebook;
+
+use ratatui::crossterm::event::{read, Event, KeyCode, KeyEvent, poll};
+use ratatui::crossterm::terminal;
+use ratatui::crossterm::event::KeyEventKind::{Press, Release};
+use std::io::stdout;
+use rand::Rng;
+use rand::prelude::SliceRandom;
+use ratatui::Terminal;
+use ratatui::backend::CrosstermBackend;
+use ratatui::prelude::Line;
+use ratatui::widgets::{Block, Borders, Paragraph, Wrap, Padding};
+use ratatui::layout::{Layout, Constraint, Direction, Margin};
+use ratatui::style::{Color, Style};
+use ratatui::text::{Text, Span};
+use ratatui::widgets::Row;
+use ratatui::widgets::Table;
+use ratatui::widgets::Cell;
+
+use std::time::{Duration, Instant};
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
+use serde_json::Value;
+use std::fs;
+
+use std::collections::HashMap;
+use std::collections::HashSet;
+
+fn place_enemies(mut map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
+    let mut enemies = HashMap::new();
+    let mut rng = rand::thread_rng();
+    let etype = Enemies::Bug;
+    let m_h = map.len() - 1;
+    let m_w = map[0].len() - 1;
+    for i in 0..50 {
+        loop {
+            let x = rng.gen_range(10..m_w-10);
+            let y = rng.gen_range(10..m_h-10);
+            if map[y][x] == Cells::Empty {
+                let mut temp_vec = Vec::new();
+                temp_vec.push(Items::BugBits);
+                let e_temp = Enemy::new(etype, "Bug".to_string(), x, y, 20, 15, 5, 5, temp_vec);
+                enemies.insert((x, y), e_temp);
+                break;
+            }
+        }
+    }
+    enemies
+}
+
+fn place_npcs(mut map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Box<dyn NPC>> {
+    let data1 = fs::read_to_string("src/npcs/cave_npcs.json");
+    log::info!("{:?}", &data1);
+    let cnpc_data: HashMap<String, Value> = match data1 {
+        Ok(content) => serde_json::from_str(&content)?,
+        Err(e) => {
+            log::info!("{:?}", e);
+            HashMap::new()
+        },
+    };
+    let mut npcs = HashMap::new();
+    let mut rng = rand::thread_rng();
+    let types = vec![NPCs::CommNPC];
+    let types = vec![NPCs::CommNPC, NPCs::ConvNPC, NPCs::QuestNPC];
+    let m_h = map.len() - 1;
+    let m_w = map[0].len() - 1;
+    for i in 0..50 {
+        loop {
+            let x = rng.gen_range(10..m_w-10);
+            let y = rng.gen_range(10..m_h-10);
+            if map[y][x] == Cells::Empty {
+                if let Some(i_type) = types.choose(&mut rng){
+                    let npc = match i_type {
+                        NPCs::CommNPC => {
+                            let sname = cnpc_data["names"][0];
+                            let comm = cnpc_data["comments"][0];
+                            new_comm_npc(sname, x, y, comm)
+                        },
+                        NPCs::ConvNPC => {
+                            let sname = cnpc_data["names"][0];
+                            let conv = cnpc_data["convos"][0];
+                            new_conv_npc(sname, x, y, conv)
+                        },
+                        NPCs::QuestNPC => {
+                            let sname = cnpc_data["names"][0];
+                            let quest = cnpc_data["quests"][0];
+                            new_quest_npc(sname, x, y, quest)
+                        },
+                        _ => todo!(),
+                    };
+                    npcs.insert((x, y), Box::new(npcs));
+                    break;
+                }
+            }
+        }
+    }
+    npcs
+}
+
+fn init_items(mut map: Vec<Vec<Cells>>, enemies: HashMap<(usize, usize), Enemy>) -> HashMap<(usize, usize), Item> {
+    let mut items = HashMap::new();
+    let mut rng = rand::thread_rng();
+    let types = vec![Items::Rock, Items::EdibleRoot];
+    let m_h = map.len() - 1;
+    let m_w = map[0].len() - 1;
+    for i in 0..200 {
+        loop {
+            let x = rng.gen_range(10..m_w-10);
+            let y = rng.gen_range(10..m_h-10);
+            if map[y][x] == Cells::Empty && !enemies.contains_key(&(x, y)) {
+                if let Some(i_type) = types.choose(&mut rng){
+                    let itm = match i_type {
+                        Items::EdibleRoot => {
+                            Item::new_edible_root(x, y)
+                        },
+                        Items::Rock => {
+                            Item::new_rock(x, y)
+                        },
+                        _ => todo!(),
+                    };
+                    items.insert((x, y), itm);
+                    break;
+                }
+            }
+        }
+    }
+    items
+}
+
+fn map_to_string(cells: &Vec<Vec<Cells>>) -> String {
+    let mut map_string = String::new();
+    map_string.push('\n');
+    for row in cells {
+        for cell in row {
+            let symbol = match cell {
+                Cells::Empty => ' ',
+                Cells::Dirt1 => '\'',
+                Cells::Dirt2 => '.',
+                Cells::Grass1 => ',',
+                Cells::Grass2 => '\'',
+                Cells::Rock => '*',
+                Cells::Wall => '▒',
+                Cells::Tunnel => '@',
+                // Cells::Player => '&',
+                // Cells::Enemy => '!',
+            };
+            map_string.push_str(&symbol.to_string());
+        }
+        map_string.push('\n');
+    }
+    map_string
+}
+
+pub struct GameState {
+    game_mode: GameMode,
+    notebook: Notebook,
+    gui: GUI,
+    map: Map,
+    player: Player,
+    dist_fo: (i64, i64, i64, i64),
+    level: u32,
+    l_systems: LSystems,
+    l_rate: u64,
+    enemies: HashMap<(usize, usize), Enemy>,
+    enemy_rate: u16,
+    items: HashMap<(usize, usize), Item>,
+    // item_drop: Vec<((usize, usize), Item)>,
+    npcs: HashMap<(usize, usize), Box<dyn NPC>>,
+    key_debounce_dur: Duration,
+    last_event_time: Instant,
+    interactee: Interactable,
+    enc: EncOpt,
+    // info_mode: GUIMode,
+    // cursor_pos: (usize, usize),
+    // npcs: Vec<NPC>,
+    // items: Vec<Item>,
+    // changes: HashMap <(usize, usize), char>
+}
+
+impl GameState {
+    pub fn new() -> Self {
+        // let stdout = stdout();
+        // let backend = CrosstermBackend::new(stdout);
+        // let mut terminal = Terminal::new(backend).unwrap();
+        // terminal.clear().unwrap();
+        // terminal.hide_cursor().unwrap();
+        let gui = GUI::new();
+        let mut map = Map::new();
+        let x = map.px.clone();
+        let y = map.py.clone();
+        let player = Player::new(x, y);
+        let mut l_systems = LSystems::new();
+        let enemies = place_enemies(map.cells.clone());
+        let items = init_items(map.cells.clone(), enemies.clone());
+        let npcs = place_npcs(map.cells.clone());
+        let notebook = Notebook::new().unwrap();
+        // let mut item_drop = Vec::new();
+        // item_drop.push(((0, 0), Item::default()));
+        // let print_map = map_to_string(&map);
+        // log::info!("\n{}", print_map);
+        // log::info!("\n{:?}", enemies);
+        // map.cells = temp_map;
+        let l_rate = 100 as u64;
+        Self {
+            game_mode: GameMode::Play,
+            notebook,
+            gui,
+            map,
+            player,
+            dist_fo: (0, 0, 0, 0),
+            level: 0,
+            l_systems,
+            l_rate,
+            enemies,
+            enemy_rate: 0,
+            items,
+            // item_drop,
+            npcs,
+            key_debounce_dur: Duration::from_millis(80),
+            last_event_time: Instant::now(),
+            interactee: Interactable::Null,
+            enc: EncOpt::Null,
+        }
+    }
+
+
+    fn collision(&mut self, dir: &str) -> bool {
+        match dir {
+            "UP" => {
+                let map_coll = self.map.cells[self.player.y - 1][self.player.x] == Cells::Wall;
+                let item_coll = self.items.contains_key(&(self.player.x, self.player.y - 1));
+                map_coll || item_coll
+            },
+            "DN" => {
+                let map_coll = self.map.cells[self.player.y + 1][self.player.x] == Cells::Wall;
+                let item_coll = self.items.contains_key(&(self.player.x, self.player.y + 1));
+                map_coll || item_coll
+            },
+            "LF" => {
+                let map_coll = self.map.cells[self.player.y][self.player.x - 1] == Cells::Wall;
+                let item_coll = self.items.contains_key(&(self.player.x - 1, self.player.y));
+                map_coll || item_coll
+            },
+            "RT" => {
+                let map_coll = self.map.cells[self.player.y][self.player.x + 1] == Cells::Wall;
+                let item_coll = self.items.contains_key(&(self.player.x + 1, self.player.y));
+                map_coll || item_coll
+            },
+            _ => false
+        }
+    }
+
+    fn e_collision(&mut self, dir: &str, entity: Enemy) -> bool {
+        match dir {
+            "UP" => {
+                let map_coll = self.map.cells[entity.y - 1][entity.x] == Cells::Wall;
+                let item_coll = self.items.contains_key(&(entity.x, entity.y - 1));
+                map_coll || item_coll
+            },
+            "DN" => {
+                let map_coll = self.map.cells[entity.y + 1][entity.x] == Cells::Wall;
+                let item_coll = self.items.contains_key(&(entity.x, entity.y + 1));
+                map_coll || item_coll
+            },
+            "LF" => {
+                let map_coll = self.map.cells[entity.y][entity.x - 1] == Cells::Wall;
+                let item_coll = self.items.contains_key(&(entity.x - 1, entity.y));
+                map_coll || item_coll
+            },
+            "RT" => {
+                let map_coll = self.map.cells[entity.y][entity.x + 1] == Cells::Wall;
+                let item_coll = self.items.contains_key(&(entity.x + 1, entity.y));
+                map_coll || item_coll
+            },
+            _ => false
+        }
+    }
+
+    fn update_enemies(&mut self) {
+        let mut e_temp = self.enemies.clone();
+        let mut new_e = HashMap::new();
+        let mh = self.map.cells.len();
+        let mw = self.map.cells[0].len();
+        for ((x, y), mut e) in &mut e_temp {
+            // log::info!("esteps: {}, eCx: {}, ey: {}", e.steps.clone(), x.clone(), y.clone());
+            // e.update();
+            let (xx, yy) = if e.steps < 5 {
+                e.steps += 1;
+                if *y == 0 || self.e_collision("UP", e.clone()) {(*x, *y)} else {
+                    e.mmove("UP");
+                    (*x, y - 1)
+                }
+            } else if e.steps >= 5 && e.steps < 10 {
+                e.steps += 1;
+                if *x == 0 || self.e_collision("LF", e.clone()) {(*x, *y)} else {
+                    e.mmove("LF");
+                    (x - 1, *y)
+                }
+            } else if e.steps >= 10 && e.steps < 15 {
+                e.steps += 1;
+                if *y >= mh-5 || self.e_collision("DN", e.clone()) {(*x, *y)} else {
+                    e.mmove("DN");
+                    (*x, y + 1)
+                }
+            } else if e.steps >= 15 && e.steps < 20 {
+                e.steps += 1;
+                if *x >= mw-5 || self.e_collision("RT", e.clone()) {(*x, *y)} else {
+                    e.mmove("RT");
+                    (x + 1, *y)
+                }
+            } else if e.steps == 20 {
+                e.steps = 0;
+                (*x, *y)
+            } else {(*x, *y)};
+            new_e.insert((xx, yy), e.clone());
+        }
+        // self.enemies = new_e.into_iter().map(|(k, v)| (k, v.clone())).collect();
+        self.enemies = new_e;
+    }
+
+    fn shift_enemies(&mut self, dir: &str) {
+        let temp_e = self.enemies.clone();
+        let mut new_e = HashMap::new();
+        let mw = self.map.cells[0].len();
+        let mh = self.map.cells.len();
+        for ((x, y), mut e) in temp_e {
+            match dir {
+                "UP" => if y < mh - 5 {
+                    e.y+=1;
+                    new_e.insert((x, y+1), e.clone());
+                    // log::info!("new key {:?}", (x, y+1));
+                    // log::info!("new en {:?}", e);
+
+                },
+                "DN" => if y > 5 {
+                    e.y-=1;
+                    new_e.insert((x, y-1), e.clone());
+                    // log::info!("new key {:?}", (x, y+1));
+                    // log::info!("new en {:?}", e);
+                },
+                "LF" => if x < mw - 5 {
+                    e.x+=1;
+                    new_e.insert((x+1, y), e.clone());
+                    // log::info!("new key {:?}", (x, y+1));
+                    // log::info!("new en {:?}", e);
+                },
+                "RT" => if x > 5 {
+                    e.x-=1;
+                    new_e.insert((x-1, y), e.clone());
+                    // log::info!("new key {:?}", (x, y+1));
+                    // log::info!("new en {:?}", e);
+                },
+                _ => todo!(),
+            };
+        }
+        self.enemies = new_e;
+    }
+
+    fn shift_items(&mut self, dir: &str) {
+        let temp_i = self.items.clone();
+        let mut new_i = HashMap::new();
+        let mw = self.map.cells[0].len();
+        let mh = self.map.cells.len();
+        for ((x, y), mut i) in temp_i {
+            match dir {
+                "UP" => if y < mh {
+                    i.y+=1;
+                    new_i.insert((x, y+1), i.clone());
+                    // log::info!("new key {:?}", (x, y+1));
+                    // log::info!("new en {:?}", e);
+
+                },
+                "DN" => if y > 0 {
+                    i.y-=1;
+                    new_i.insert((x, y-1), i.clone());
+                    // log::info!("new key {:?}", (x, y+1));
+                    // log::info!("new en {:?}", e);
+                },
+                "LF" => if x < mw {
+                    i.x+=1;
+                    new_i.insert((x+1, y), i.clone());
+                    // log::info!("new key {:?}", (x, y+1));
+                    // log::info!("new en {:?}", e);
+                },
+                "RT" => if x > 0 {
+                    i.x-=1;
+                    new_i.insert((x-1, y), i.clone());
+                    // log::info!("new key {:?}", (x, y+1));
+                    // log::info!("new en {:?}", e);
+                },
+                _ => todo!(),
+            };
+        }
+        self.items = new_i;
+    }
+
+    fn enemy_turn(&mut self, e: Enemy) -> u16 {
+        let (mut atk, mut dmg) = e.fight_turn();
+        let pdef = self.player.get_defence();
+        let dodge = self.player.get_dodge();
+        if atk > pdef {
+            if dodge {
+                self.player.toggle_dodge();
+                dmg /= 2;
+            }
+            self.player.apply_attack(dmg);
+            return dmg;
+        }
+        0
+    }
+
+    fn enemy_drop(&mut self, mut e: Enemy) {
+        let mut drps = e.get_drop();
+        let i = drps.pop();
+        let (x, y) = e.get_pos();
+        let itm = match i {
+            Some(Items::BugBits) => Item::new_bug_bits(x.clone(), y.clone()),
+            _ => todo!(),
+        };
+        self.items.insert((x, y), itm.clone());
+    }
+
+    fn enemy_encounter(&mut self, mut e: Enemy) {
+        //you are in fight
+        let fst = format!("You are being attacked by a {}", e.get_sname());
+        self.gui.reset_cursor();
+        loop {
+            self.gui.encounter_show_content(fst.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let res = self.enc_key(event.code);
+                        if !res {
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        //fight start
+        let mut pstart = true;
+        self.game_mode = GameMode::Fight(FightSteps::Player);
+        let mut fight = true;
+        let mut win = None;
+        while fight {
+            let Interactable::Enemy(mut enemy) = self.interactee.clone() else {todo!()};
+            e = enemy.clone();
+            if !pstart {
+                let enatk = "Enemy is attacking.".to_string();
+                loop {
+                    self.gui.encounter_show_content(enatk.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    if poll(std::time::Duration::from_millis(100)).unwrap() {
+                        if let Event::Key(event) = read().unwrap() {
+                            // log::info!("keykind {:?}", event.kind.clone());
+                            let now = Instant::now();
+                            if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                                self.last_event_time = now;
+                                let res = self.enc_key(event.code);
+                                if !res {
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+                //enemy turn
+                let turn = self.enemy_turn(e.clone());
+                let trn_res = if turn == 0 {
+                    "The enemy attempted an attack, but missed.".to_string()
+                } else {
+                    let fmts = format!("The enemy atacked you for {}hp.", turn.clone());
+                    fmts
+                };
+                self.gui.reset_cursor();
+                loop {
+                    self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    if poll(std::time::Duration::from_millis(100)).unwrap() {
+                        if let Event::Key(event) = read().unwrap() {
+                            // log::info!("keykind {:?}", event.kind.clone());
+                            let now = Instant::now();
+                            if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                                self.last_event_time = now;
+                                let res = self.enc_key(event.code);
+                                if !res {
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+                if self.player.get_health() == 0 {
+                    win = Some(false);
+                    self.game_mode = GameMode::Fight(FightSteps::Null);
+                    break;
+                }
+                self.game_mode = GameMode::Fight(FightSteps::Player);
+            }
+            if pstart {
+                pstart = false;
+            }
+            //player turn
+            //-player choice
+            let popt = self.player.get_enc_opt();
+            self.gui.reset_cursor();
+            loop {
+                self.gui.encounter_user_options(popt.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                if poll(std::time::Duration::from_millis(100)).unwrap() {
+                    if let Event::Key(event) = read().unwrap() {
+                        // log::info!("keykind {:?}", event.kind.clone());
+                        let now = Instant::now();
+                        if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                            self.last_event_time = now;
+                            let res = self.enc_key(event.code);
+                            if !res {
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+            let lturn = self.player.get_last_turn();
+            self.player.set_enc_last_turn((EncOpt::Null, 0));
+            let mut itm = false;
+            let trn_res = match lturn {
+                (EncOpt::Dodge, _) => {
+                    "You dodged in an attempt to evade attack.".to_string()
+                },
+                (EncOpt::Attack, 0) => {
+                    "You attempted an attack, but missed.".to_string()
+                },
+                (EncOpt::Attack, _) => {
+                    let ehp = if e.health > lturn.1 {(e.health - lturn.clone().1)} else {0};
+                    let fmts = format!("You successfully attacked the {} for {}hp. They have an hp of: {}", e.clone().get_sname(), lturn.clone().1, ehp);
+                    fmts
+                },
+                (EncOpt::UseItem, _) => {
+                    itm = true;
+                    "".to_string()
+                },
+                _ => "OOPS!".to_string(),
+
+            };
+            self.gui.reset_cursor();
+            loop {
+                if itm {break;}
+                self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                if poll(std::time::Duration::from_millis(100)).unwrap() {
+                    if let Event::Key(event) = read().unwrap() {
+                        // log::info!("keykind {:?}", event.kind.clone());
+                        let now = Instant::now();
+                        if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                            self.last_event_time = now;
+                            let res = self.enc_key(event.code);
+                            if !res {
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+            let Interactable::Enemy(mut enemy) = self.interactee.clone() else {todo!()};
+            e = enemy.clone();
+            if e.health == 0 {
+                win = Some(true);
+                let epos = e.get_pos();
+                self.enemies.remove(&epos);
+                self.game_mode = GameMode::Fight(FightSteps::Null);
+                break;
+            }
+            self.game_mode = GameMode::Fight(FightSteps::Enemy);
+            //round end
+        }
+        //fight over
+        let win_msg = if win.unwrap() {
+            self.enemy_drop(e.clone());
+            format!("You defeated the {}!", e.get_sname())
+        } else {
+            format!("You were killed by the {}! You are dead", e.get_sname())
+        };
+        self.gui.reset_cursor();
+        loop {
+            self.gui.encounter_show_content(win_msg.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let res = self.inter_key(event.code);
+                        if !res {
+                            break
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn start_interact(&mut self) {
+        let (px, py) = self.player.pos();
+        let adj = vec![(px, (py as isize - 1) as usize), (px, py + 1), ((px as isize - 1) as usize, py), (px + 1, py)];
+        let mut adj_inter = HashMap::new();
+        for (x, y) in &adj {
+            if let Some(item) = self.items.get(&(*x, *y)) {
+                adj_inter.insert((*x, *y), Some(Interactable::Item(item.clone())));
+            }
+            if let Some(enemy) = self.enemies.get(&(*x, *y)) {
+                adj_inter.insert((*x, *y), Some(Interactable::Enemy(enemy.clone())));
+            }
+            if let Some(npc) = self.npcs.get(&(*x, *y)) {
+                adj_inter.insert((*x, *y), Some(Interactable::NPC(npc.clone())));
+            }
+        }
+        if adj_inter.len() > 0 {
+            self.game_mode = GameMode::Interact(InterSteps::AdjOpt);
+            self.gui.set_info_mode(GUIMode::Interact);
+            self.gui.set_interactable(adj_inter);
+        }
+    }
+
+    fn get_interactee(&mut self, pos: (usize, usize)) -> Option<Interactable> {
+        if let Some(item) = self.items.get(&pos) {
+            Some(Interactable::Item(item.clone()))
+        } else if let Some(enemy) = self.enemies.get(&pos) {
+            Some(Interactable::Enemy(enemy.clone()))
+        } else if let Some(npc) = self.npcs.get(&pos) {
+            Some(Interactable::NPC(npc.clone()))
+        } else {
+            Some(Interactable::Null)
+        }
+    }
+
+    fn use_inv_item(&mut self){
+        let (idx, item) = self.gui.get_inv_opt();
+        //gui, using item
+        self.player.apply_item_effect(item.clone());
+        self.player.rem_inv_item(idx);
+        self.gui.set_inventory(self.player.get_inventory());
+        self.gui.reset_cursor();
+        match self.game_mode {
+            GameMode::Play => {
+                loop {
+                    self.gui.item_used_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    if poll(std::time::Duration::from_millis(100)).unwrap() {
+                        if let Event::Key(event) = read().unwrap() {
+                            // log::info!("keykind {:?}", event.kind.clone());
+                            let now = Instant::now();
+                            if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                                self.last_event_time = now;
+                                match event.code {
+                                    KeyCode::Enter => {
+                                        break;
+                                    },
+                                    _ => {},
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            GameMode::Fight(_) => {
+                let itstr = format!("You used the {}", item.clone().get_sname());
+                loop {
+                    self.gui.encounter_show_content(itstr.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    if poll(std::time::Duration::from_millis(100)).unwrap() {
+                        if let Event::Key(event) = read().unwrap() {
+                            // log::info!("keykind {:?}", event.kind.clone());
+                            let now = Instant::now();
+                            if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                                self.last_event_time = now;
+                                match event.code {
+                                    KeyCode::Enter => {
+                                        break;
+                                    },
+                                    _ => {},
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            _ => {},
+        }
+    }
+
+    fn play_key(&mut self, code: KeyCode) -> bool {
+        match code {
+            KeyCode::Up => {
+                if self.collision("UP") {} else {
+                    self.dist_fo.0 += 1;
+                    self.dist_fo.1 -= 1;
+                    if self.player.y - 1 <= self.map.viewport_y + (self.map.viewport_height/7) {
+                        self.shift_enemies("UP");
+                        self.shift_items("UP");
+                        self.map.shift("UP");
+                    } else {
+                        self.player.y -= 1;
+                    }
+                    self.gui.set_dist_fo(self.dist_fo);
+                }
+            },
+            KeyCode::Down => {
+                if self.collision("DN") {} else {
+                    self.dist_fo.1 += 1;
+                    self.dist_fo.0 -= 1;
+                    if self.player.y + 1 >= (self.map.viewport_height + self.map.viewport_y) - (self.map.viewport_height/7) {
+                        self.shift_enemies("DN");
+                        self.shift_items("DN");
+                        self.map.shift("DN");
+                    } else {
+                        self.player.y += 1;
+                    }
+                    self.gui.set_dist_fo(self.dist_fo);
+                }
+            },
+            KeyCode::Left => {
+                if self.collision("LF") {} else {
+                    self.dist_fo.2 += 1;
+                    self.dist_fo.3 -= 1;
+                    if self.player.x - 1 <= self.map.viewport_x + (self.map.viewport_width/7) {
+                        self.shift_enemies("LF");
+                        self.shift_items("LF");
+                        self.map.shift("LF");
+                    } else {
+                        self.player.x -= 1;
+                    }
+                    self.gui.set_dist_fo(self.dist_fo);
+                }
+            },
+            KeyCode::Right => {
+                if self.collision("RT") {} else {
+                    self.dist_fo.3 += 1;
+                    self.dist_fo.2 -= 1;
+                    if self.player.x + 1 >= (self.map.viewport_width + self.map.viewport_x) - (self.map.viewport_width/7) {
+                        self.shift_enemies("RT");
+                        self.shift_items("RT");
+                        self.map.shift("RT");
+                    } else {
+                        self.player.x += 1;
+                    }
+                    self.gui.set_dist_fo(self.dist_fo);
+                }
+            },
+            KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
+            KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
+            KeyCode::Char('q') => {
+                self.gui.set_info_mode(GUIMode::Inventory);
+                self.gui.set_inventory(self.player.get_inventory());
+                self.gui.reset_cursor();
+            },
+            KeyCode::Char('w') => {
+                self.gui.set_info_mode(GUIMode::Map);
+                self.gui.set_dist_fo(self.dist_fo);
+            },
+            KeyCode::Char('e') => self.gui.set_info_mode(GUIMode::Normal),
+            KeyCode::Char('r') => {
+                self.gui.set_info_mode(GUIMode::Notes);
+                self.gui.set_notes(self.notebook.get_active_notes());
+            },
+            KeyCode::Char('a') => self.gui.move_cursor("LF"),
+            KeyCode::Char('s') => self.gui.move_cursor("UP"),
+            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+            KeyCode::Char('f') => self.gui.move_cursor("RT"),
+            KeyCode::Char(' ') => self.start_interact(),
+            KeyCode::Enter => {
+                let gmode = self.gui.get_mode();
+                match gmode {
+                    GUIMode::Normal => {},
+                    GUIMode::Inventory => {
+                        self.use_inv_item();
+                    },
+                    GUIMode::Map => {},
+                    GUIMode::Notes => {
+                        self.gui.menu_lvl("DN");
+                    },
+                    _ => {},
+                }
+            },
+            KeyCode::Backspace => {
+                let gmode = self.gui.get_mode();
+                match gmode {
+                    GUIMode::Normal => {},
+                    GUIMode::Inventory => {},
+                    GUIMode::Map => {},
+                    GUIMode::Notes => {
+                        self.gui.menu_lvl("UP");
+                    },
+                    _ => {},
+                }
+            },
+            KeyCode::Esc => return false,
+            _ => {},
+        }
+        true
+    }
+
+    // fn drop_key(&mut self, code: KeyCode) -> bool {
+    //     match code {
+    //         KeyCode::Up => {
+    //             self.gui.move_cursor("UP");
+    //         },
+    //         KeyCode::Down => {
+    //             self.gui.move_cursor("DN");
+    //         },
+    //         KeyCode::Left => {
+    //             self.gui.move_cursor("LF");
+    //         },
+    //         KeyCode::Right => {
+    //             self.gui.move_cursor("RT");
+    //         },
+    //         KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
+    //         KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
+    //         KeyCode::Char('z') => {
+    //             self.gui.set_info_mode(GUIMode::Normal);
+    //             self.game_mode = GameMode::Play;
+    //         },
+    //         KeyCode::Char('a') => self.gui.move_cursor("LF"),
+    //         KeyCode::Char('s') => self.gui.move_cursor("UP"),
+    //         KeyCode::Char('d') => self.gui.move_cursor("DN"),
+    //         KeyCode::Char('f') => self.gui.move_cursor("RT"),
+    //         KeyCode::Enter => {
+    //             match self.game_mode {
+    //                 GameMode::Interact(InterSteps::AdjOpt) => {
+    //                     self.select_adj();
+    //                     self.game_mode = GameMode::Interact(InterSteps::IntOpt);
+    //                 },
+    //                 GameMode::Interact(InterSteps::IntOpt) => {
+    //                     self.select_opt();
+    //                     self.game_mode = GameMode::Interact(InterSteps::Feedback);
+    //                 },
+    //                 GameMode::Interact(InterSteps::Feedback) => {
+    //                     // self.select_adj();
+    //                     self.game_mode = GameMode::Play;
+    //                 },
+    //                 _ => self.game_mode = GameMode::Play,
+    //             }
+    //
+    //             return false;
+    //         },
+    //         KeyCode::Esc => return false,
+    //         _ => {},
+    //     }
+    //     true
+    // }
+
+    // fn drop_interact(&mut self) {
+    //     self.gui.reset_cursor();
+    //     loop {
+    //         self.gui.inter_adj_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone());
+    //         if poll(std::time::Duration::from_millis(100)).unwrap() {
+    //             if let Event::Key(event) = read().unwrap() {
+    //                 // log::info!("keykind {:?}", event.kind.clone());
+    //                 let now = Instant::now();
+    //                 if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+    //                     self.last_event_time = now;
+    //                     let res = self.inter_key(event.code);
+    //                     if !res {
+    //                         break
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
+    fn select_adj(&mut self) {
+        let (pos, st) = self.gui.get_interactee();
+        let Some(intee) = self.get_interactee(pos) else {todo!()};
+        self.interactee = intee.clone();
+        match intee {
+            Interactable::Item(item) => {
+                // self.item_opt(item.clone());
+                self.gui.set_inter_opt(item.iopts);
+            },
+            Interactable::Enemy(enemy) => {},
+            Interactable::NPC(npc) => {},
+            _ => todo!(),
+        }
+    }
+
+    fn pickup_item(&mut self, item: Item) {
+        self.player.add_to_inv(item.clone());
+        if let Some(itm) = self.items.remove(&(item.x, item.y)) {
+        } else {}
+    }
+
+    fn select_opt(&mut self) {
+        let (opt, _) = self.gui.get_iopt();
+        match opt {
+            InterOpt::Item(item_opt) => {
+                match item_opt {
+                    ItemOpt::PickUp => {
+                        let Interactable::Item(item) = self.interactee.clone() else {todo!()};
+                        self.pickup_item(item);
+                    },
+                    ItemOpt::Drp => {},
+                    ItemOpt::Use => {
+
+                    },
+                    _ => todo!(),
+                }
+            },
+            _ => todo!(),
+        }
+    }
+
+    fn player_attack(&mut self) {
+        let (atk, dmg) = self.player.get_enc_turn();
+        let Interactable::Enemy(mut enemy) = self.interactee.clone() else {todo!()};
+        let endef = enemy.get_defence();
+        if atk > endef {
+            enemy.apply_attack(dmg.clone());
+            self.player.set_enc_last_turn((EncOpt::Attack, dmg));
+            self.interactee = Interactable::Enemy(enemy.clone());
+        } else {
+            self.player.set_enc_last_turn((EncOpt::Attack, 0));
+        }
+
+    }
+
+    fn enc_use_item(&mut self) {
+        // let inventory = self.player.get_inventory();
+        self.gui.set_inventory(self.player.get_inventory());
+        self.gui.reset_cursor();
+        loop {
+            self.gui.encounter_pick_item(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                            match event.code {
+                                KeyCode::Up => self.gui.move_cursor("UP"),
+                                KeyCode::Down => self.gui.move_cursor("DN"),
+                                KeyCode::Left => self.gui.move_cursor("LF"),
+                                KeyCode::Right => self.gui.move_cursor("RT"),
+                                KeyCode::Char('a') => self.gui.move_cursor("LF"),
+                                KeyCode::Char('s') => self.gui.move_cursor("UP"),
+                                KeyCode::Char('d') => self.gui.move_cursor("DN"),
+                                KeyCode::Char('f') => self.gui.move_cursor("RT"),
+                                KeyCode::Enter => {
+                                    self.use_inv_item();
+                                    self.gui.reset_enc_opt();
+                                    self.enc = EncOpt::Null;
+                                    break;
+                                },
+                                _ => {},
+                            }
+                    }
+                }
+            }
+        }
+    }
+
+    fn enc_option(&mut self) {
+        let opt = self.enc.clone();
+        match opt {
+            EncOpt::Attack => {
+                self.player_attack();
+            },
+            EncOpt::UseItem => {
+                self.enc_use_item();
+                self.player.set_enc_last_turn((EncOpt::UseItem, 0));
+            },
+            EncOpt::Dodge => {
+                self.player.toggle_dodge();
+                self.player.set_enc_last_turn((EncOpt::Dodge, 0));
+            },
+            _ => {},
+        }
+    }
+
+    fn enc_key(&mut self, code: KeyCode) -> bool {
+        match code {
+            KeyCode::Up => {
+                self.gui.move_cursor("UP");
+            },
+            KeyCode::Down => {
+                self.gui.move_cursor("DN");
+            },
+            KeyCode::Left => {
+                self.gui.move_cursor("LF");
+            },
+            KeyCode::Right => {
+                self.gui.move_cursor("RT");
+            },
+            KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
+            KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
+            KeyCode::Char('z') => {
+                self.gui.set_info_mode(GUIMode::Normal);
+                self.game_mode = GameMode::Play;
+            },
+            KeyCode::Char('a') => self.gui.move_cursor("LF"),
+            KeyCode::Char('s') => self.gui.move_cursor("UP"),
+            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+            KeyCode::Char('f') => self.gui.move_cursor("RT"),
+            KeyCode::Enter => {
+                match self.game_mode {
+                    GameMode::Fight(FightSteps::Open) => {
+                        // self.select_adj();
+                        // self.game_mode = GameMode::Fight(FightSteps::);
+                    },
+                    GameMode::Fight(FightSteps::Enemy) => {
+                        // self.select_opt();
+                        // self.game_mode = GameMode::Fight(FightSteps::Player);
+                    },
+                    GameMode::Fight(FightSteps::Player) => {
+                        // self.select_opt();
+                        // self.game_mode = GameMode::Fight(FightSteps::Enemy);
+                        // let opt = self.enc.clone();
+                        let opt = self.gui.get_enc_opt();
+                        self.enc = opt.0.clone();
+                        log::info!("opt1 {:?}", opt.clone());
+                        match opt.0 {
+                            _ => self.enc_option(),
+                            // _ => {},
+                        }
+
+                    },
+                    GameMode::Fight(FightSteps::Message) => {
+                        // self.select_adj();
+                        // self.game_mode = GameMode::Play;
+                    },
+                    _ => {},
+                }
+
+                return false;
+            },
+            KeyCode::Esc => {
+                self.game_mode = GameMode::Play;
+                return false;
+            },
+            _ => {},
+        }
+        true
+    }
+
+    fn inter_key(&mut self, code: KeyCode) -> bool {
+        match code {
+            KeyCode::Up => {
+                self.gui.move_cursor("UP");
+            },
+            KeyCode::Down => {
+                self.gui.move_cursor("DN");
+            },
+            KeyCode::Left => {
+                self.gui.move_cursor("LF");
+            },
+            KeyCode::Right => {
+                self.gui.move_cursor("RT");
+            },
+            KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
+            KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
+            KeyCode::Char('z') => {
+                self.gui.set_info_mode(GUIMode::Normal);
+                self.game_mode = GameMode::Play;
+            },
+            KeyCode::Char('a') => self.gui.move_cursor("LF"),
+            KeyCode::Char('s') => self.gui.move_cursor("UP"),
+            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+            KeyCode::Char('f') => self.gui.move_cursor("RT"),
+            KeyCode::Enter => {
+                match self.game_mode {
+                    GameMode::Interact(InterSteps::AdjOpt) => {
+                        self.select_adj();
+                        self.game_mode = GameMode::Interact(InterSteps::IntOpt);
+                    },
+                    GameMode::Interact(InterSteps::IntOpt) => {
+                        self.select_opt();
+                        self.game_mode = GameMode::Interact(InterSteps::Feedback);
+                    },
+                    GameMode::Interact(InterSteps::Feedback) => {
+                        // self.select_adj();
+                        self.game_mode = GameMode::Play;
+                    },
+                    _ => self.game_mode = GameMode::Play,
+                }
+
+                return false;
+            },
+            KeyCode::Esc => return false,
+            _ => {},
+        }
+        true
+    }
+
+    fn play_update(&mut self) -> bool {
+        if poll(std::time::Duration::from_millis(100)).unwrap() {
+            if let Event::Key(event) = read().unwrap() {
+                // log::info!("keykind {:?}", event.kind.clone());
+                let now = Instant::now();
+                if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                    self.last_event_time = now;
+                    return self.play_key(event.code);
+                } else {true}
+            } else {true}
+        } else {true}
+    }
+
+    fn interaction(&mut self) -> bool {
+        self.gui.reset_cursor();
+        loop {
+            self.gui.inter_adj_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let res = self.inter_key(event.code);
+                        if !res {
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        self.gui.reset_cursor();
+        loop {
+            self.gui.inter_opt_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let res = self.inter_key(event.code);
+                        if !res {
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        self.gui.reset_cursor();
+        loop {
+            self.gui.inter_res_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let res = self.inter_key(event.code);
+                        if !res {
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        self.gui.reset_cursor();
+        self.gui.set_info_mode(GUIMode::Normal);
+        true
+    }
+
+    fn check_place_item(&mut self, x: usize, y: usize) -> bool {
+        let mut rng = rand::thread_rng();
+        let types = vec![Items::Rock, Items::EdibleRoot, Items::Apple, Items::MetalScrap];
+        if self.map.cells[y][x] == Cells::Empty && !self.enemies.contains_key(&(x, y)) && !self.items.contains_key(&(x, y)) {
+            if let Some(i_type) = types.choose(&mut rng){
+                let mut prop = HashMap::new();
+                let mut itype = String::new();
+                let mut desc = String::new();
+                let mut iopts = HashMap::new();
+                match i_type {
+                    Items::EdibleRoot => {
+                        prop.insert(String::from("Health"), 5);
+                        itype = String::from("Edible Root");
+                        desc = String::from("Weird looking root, doesnt look very tasty.");
+                        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+                        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+                        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+                    },
+                    Items::Apple => {
+                        prop.insert(String::from("Health"), 10);
+                        prop.insert(String::from("Value"), 5);
+                        itype = String::from("Apple");
+                        desc = String::from("An slightly bruised apple that as been here for a while.");
+                        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+                        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+                        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+                    },
+                    Items::MetalScrap => {
+                        prop.insert(String::from("Health"), 0);
+                        prop.insert(String::from("Value"), 1);
+                        itype = String::from("Metal Scrap");
+                        desc = String::from("Scrap of metal");
+                        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+                        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+                    },
+                    Items::Rock => {
+                        prop.insert(String::from("Health"), 0);
+                        itype = String::from("Rock");
+                        desc = String::from("Its a rock.");
+                        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+                        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+                    },
+                    _ => todo!(),
+                };
+                let i_temp = Item::new(*i_type, itype, desc, iopts, x, y, prop);
+                self.items.insert((x, y), i_temp);
+                return true;
+            }
+        }
+        false
+    }
+
+    fn repop_items(&mut self) {
+        let mut rng = rand::thread_rng();
+        let (vx, vy, vw, vh) = self.map.get_viewport();
+        //xx
+        match (self.map.gen_x, self.map.gen_y) {
+            (x, y) if x < 0 && y == 0 => {
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range(10..vx-5);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x > 0 && y == 0 => {
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if y < 0 && x == 0 => {
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range(10..vy-5);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if y > 0 && x == 0 => {
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+            }, // asdf
+            (x, y) if x > 0 && y > 0 => {
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x > 0 && y < 0 => {
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range(10..vy-5);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x < 0 && y > 0 => {
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range(10..vx-5);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x < 0 && y < 0 => {
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range(10..vx-5);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..50 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range(10..vy-5);
+                        let res = self.check_place_item(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            _ => {},
+        }
+    }
+
+    pub fn update(&mut self) -> bool {
+        let (vw, vh) = self.gui.get_viewport();
+        self.map.set_viewport(vh, vw);
+
+        let res = match self.game_mode {
+            GameMode::Play => self.play_update(),
+            GameMode::Interact(_) => self.interaction(),
+            GameMode::Fight(_) => {
+                let Interactable::Enemy(e) = self.interactee.clone() else {todo!()};
+                self.enemy_encounter(e);
+                true
+            },
+            _ => todo!(),
+        };
+
+        if !res {
+            return false;
+        }
+
+        if self.items.len() < 150 {
+            self.repop_items();
+        }
+
+        let ppos = (self.player.x, self.player.y);
+
+        if let Some(e) = self.enemies.get(&(ppos)) {
+            self.interactee = Interactable::Enemy(e.clone());
+            self.game_mode = GameMode::Fight(FightSteps::Open);
+        }
+
+
+        if self.enemy_rate == 0 {
+            self.update_enemies();
+            self.enemy_rate += 1;
+        } else if self.enemy_rate == 5 {
+            self.enemy_rate = 0;
+        } else {self.enemy_rate += 1;}
+
+        true
+    }
+
+
+    pub fn draw(&mut self) {
+        self.gui.draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+    }
+}

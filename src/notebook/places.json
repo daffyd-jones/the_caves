@@ -1,0 +1,8 @@
+{
+    "cave_entrance": {
+        "active": true,
+        "name": "Cave Entrance",
+        "text": "The entrance to the cave system. There is a settlement there that acts as a waypoint for supplies and a reststop for explorers. The settlement has a few shops such where one could get weapons, items, or armor."
+    }
+}
+

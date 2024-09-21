@@ -1,0 +1,108 @@
+Npc Characters
+
+Caves
++ entities that are in the caves for various reasons, some are
+here to explore, others are lost, some are ghosts.
+- some may have simple quests such as:
+ - looking for lost items
+ - looking for lost npc
+ - getting to settlement
+- some may trigger larger quests by mentioning them:
+ - puzzle ruins
+ - monster quests
+ - cult quests
+ -
+
+
+Settlements
++ npcs that are living in the settlements throughout the caves.
+- some manage the shops, some live there and do things in the caves.
+- some may change locations at certain points
+ - quest progress related
+ - when new settlement is discovered, some may take npcs from other sellements
+    - some npcs could state that they plan on going to location
+    - props: key: (NPC, bool)
+- settlement quests are largely main/major quest related
+ - main: find lost city
+ - major:
+  - cult quest
+  -
+
+
+Main NPCS
++ Old Man
+- helps the player and is also looking for the lost city
+
+
+Head Cultist
++ started cult, wants to use lost tech for power
+
+
+
+
+##Locations##
+
++ Shop Types
+- Item
+- Weapon
+- Armour
+- Enchantments
+- Explorers Guild
+- Cultist Church
+- Clinic
+-
+
+
+To make the locations generative, the locations could be broken into 3 sizes
+and the properties of of the locations populated based on the size of the
+settlement.
+
++ Large
+- Item + 3 shops
+- 1 main quest NPC/Item
+- 1 major quest NPC/Item
+- 1-2 side quest NCP/Item
+
++ Med
+- Item + 2 shops
+- 1 main/major quest npc/item
+- 1 side quest npc/item
+
++ Small
+- Item
+- 1 side quest NPC/Item
+
+
+Settlements
+
++ Settlements
+- CaveOpening
+- Licha
+- Jasper
+- Lapis
+- Lazuli - small town outside Lapis
+- Unakite
+- Pieter/Peter
+- Llanite
+- Gossan
+-
+
+CaveOpening
++ stores
+ - Item Shop / has some armour and weapons
+ - Explorers Guild
+ - Cultist Church
+
+Gossan
++ One of the major settlements close to the surface
++ stores
+- Item Shop
+- Explorers Guild
+- Cultist Church
+-
+
+
+
+
+
+

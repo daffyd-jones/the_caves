@@ -1,0 +1,155 @@
+{
+    "quest": {
+        "start": {
+            "id": "start",
+            "text": "Welcome to the caves! Ive been exploring these caverns for years and its nice to see new people taking up the search! You're here to look for the Lost City right?",
+            "convo": {
+                "a": {
+                    "text": "Ive been looking for dacades, and havent had any luck yet. But Im still hopeful! As you travel the tunnels, you will likely find items with clues, if you piece together the clues, you should be able to find the Lost City! I havent yet, but a sharp young explorer such as yourself might have more luck!",
+                    "next": [
+                        { "text": "Any any idea where I can start looking?", "next": "b" },
+                        { "text": "Can you tell my anything about the caves? ", "next": "c" },
+                        { "text": "Are there monsters or anything in here?", "next": "d" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "b": {
+                    "text": "From what I've found, it could really be anywhere!! Ive found some texts that say thats in the north west of here, but I havent had any luck.",
+                    "next": [
+                        { "text": "Can you tell my anything about the caves? ", "next": "c" },
+                        { "text": "Are there monsters or anything in here? ", "next": "d" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "c": {
+                    "text": "The caves here are pretty wild. They change as you explore, so getting lost is pretty inevitable. Once you have left an area, the caves go and change on you!. ",
+                    "next": [
+                        { "text": "Any any idea where I can start looking? ", "next": "b" },
+                        { "text": "Are there monsters or anything in here? ", "next": "d" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "d": {
+                    "text": "Ya there's scary stuff all over. Most of them I avoid, but I've seen some ghastly creatures sculking around. Theres also some people down here to avoid. Some of the explorers have gone mad exploring the caves and can be unpredictable, and there's some theives and other manner of shady folk as well.",
+                    "next": [
+                        { "text": "Any any idea where I can start looking? ", "next": "b" },
+                        { "text": "Can you tell my anything about the caves? ", "next": "c" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "e": {
+                    "text": "Ok, sounds good! Goodl luck with the exploring! Ill be around here if you want to talk!",
+                    "next": [
+                        { "text": "Thanks!", "next": "null" },
+                    ],
+                    "stage_trigger": "default"
+                }
+            },
+            "item": "item",
+            "next": [
+                { "default": "stage1" },
+            ]
+        },
+        "stage1": {
+            "id": "stage1",
+            "text": "Hey! It looks like you've been doing pretty well! I thought you'd make a good explorer, and I'm happy to see I was right! Ive been looking around here and I found some interesting artifacts.",
+            "convo": {
+                "a": {
+                    "text": "Feel free to have a look around, you might find something that could help you find the Lost City",
+                    "next": [
+                        { "text": "Have you found any cool artifacts so far?", "next": "b" },
+                        { "text": "How'd this stuff get here?", "next": "c" },
+                        { "text": "?", "next": "d" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "b": {
+                    "text": "I've found some cool stuff laying around, mostly just standard items though. I havent found anything that would point the way to the Lost City.",
+                    "next": [
+                        { "text": "How'd this stuff get here? ", "next": "c" },
+                        { "text": "Are there monsters or anything in here? ", "next": "d" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "c": {
+                    "text": "This is all stuff from the Lost City. It seems like as the caves move, things make their way up here. Seems like a good haul too!",
+                    "next": [
+                        { "text": "Any any idea where I can start looking? ", "next": "b" },
+                        { "text": "Are there monsters or anything in here? ", "next": "d" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "d": {
+                    "text": "Ya there's scary stuff all over. Most of them I avoid, but I've seen some ghastly creatures sculking around. Theres also some people down here to avoid. Some of the explorers have gone mad exploring the caves and can be unpredictable, and there's some theives and other manner of shady folk as well.",
+                    "next": [
+                        { "text": "Any any idea where I can start looking? ", "next": "b" },
+                        { "text": "Can you tell my anything about the caves? ", "next": "c" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "e": {
+                    "text": "Ok, sounds good! Goodl luck with the exploring! Ill be around here if you want to talk!",
+                    "next": [
+                        { "text": "Thanks!", "next": "f" },
+                    ],
+                    "stage_trigger": "default"
+                }
+            },
+            "item": "item",
+            "next": [
+                { "default": "stage2" },
+            ]
+        },
+        "stage2": {
+            "id": "stage2",
+            "text": "Oh hey!! good to see you're still alive! This place is pretty cool huh? There's ruins like this all throughout the ",
+            "convo": {
+                "a": {
+                    "text": "Feel free to have a look around, you might find something that could help you find the Lost City",
+                    "next": [
+                        { "text": "Have you found any cool artifacts so far?", "next": "b" },
+                        { "text": "How'd this stuff get here?", "next": "c" },
+                        { "text": "?", "next": "d" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "b": {
+                    "text": "I've found some cool stuff laying around, mostly just standard items though. I havent found anything that would point the way to the Lost City.",
+                    "next": [
+                        { "text": "How'd this stuff get here? ", "next": "c" },
+                        { "text": "Are there monsters or anything in here? ", "next": "d" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "c": {
+                    "text": "This is all stuff from the Lost City. It seems like as the caves move, things make their way up here. Seems like a good haul too!",
+                    "next": [
+                        { "text": "Any any idea where I can start looking? ", "next": "b" },
+                        { "text": "Are there monsters or anything in here? ", "next": "d" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "d": {
+                    "text": "Ya there's scary stuff all over. Most of them I avoid, but I've seen some ghastly creatures sculking around. Theres also some people down here to avoid. Some of the explorers have gone mad exploring the caves and can be unpredictable, and there's some theives and other manner of shady folk as well.",
+                    "next": [
+                        { "text": "Any any idea where I can start looking? ", "next": "b" },
+                        { "text": "Can you tell my anything about the caves? ", "next": "c" },
+                        { "text": "Thank for the help! Im going to start exploring!", "next": "e" }
+                    ]
+                },
+                "e": {
+                    "text": "Ok, sounds good! Goodl luck with the exploring! Ill be around here if you want to talk!",
+                    "next": [
+                        { "text": "Thanks!", "next": "f" },
+                    ],
+                    "stage_trigger": "default"
+                }
+            },
+            "item": "item",
+            "next": [
+                { "default": "stage1" },
+            ]
+        },
+
+    }
+}

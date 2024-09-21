@@ -1,0 +1,30 @@
+
+
+Quests
+ - main: find lost city
+ - major:
+  - cult quest:
+   - some people who live in the caves have started worshiping them
+   - there are cult churches in some bigger settlements.
+   - leader wants to control the mechanism that moves the caves
+   - created a cult to acheive this, though pretends to worship
+   - player interacts at first with small churches that provide them
+   with side quests
+   - the player eventually reaches a settlement that has a larger
+   temple and has the opportunity to interact with more serious
+   cult quests.
+   - the player has an opportunity to join the cultists to get more
+   quests with better reward.
+   - the quests get more and more dark eventually revealing the cults aims
+   - the player is told to go to the settlement where the head temple is
+   - at the head temple, the player meets higher level members that give the
+   player a few quests to test them
+   - the player is eventually trusted and is brought into the inner circle
+   where they meet the head of the temple
+   - here the player is told of the search for the lost city and the mechanism
+   - the cultist asks the player to help with the task and prove their
+   commitment to the cult
+   - the player can either accept or refuse, the player has the abilty to go
+   back on their word later if they do accept.
+   - when the player gets to the lost city and finds the mechanism, they can
+   decide to tell the cultists about it, or warn the city about the cultists
