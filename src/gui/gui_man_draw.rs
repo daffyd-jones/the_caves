@@ -1,8 +1,8 @@
-use crate::enums::{Cells, Enemies, Items, GUIMode, InterSteps, Interactable, InterOpt, EncOpt};
+use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, InterSteps, Interactable, InterOpt, EncOpt};
 use crate::map::Map;
 use crate::player::Player;
 use crate::enemy::{Enemy};
-use crate::npc::{NPC};
+use crate::npc::{NPC, CommNPC};
 use crate::item::Item;
 use crate::notebook::{Quest, Stage, Place, Person, Lore};
 use crate::gui::GUI;
@@ -10,16 +10,8 @@ use crate::gui::draw_map;
 
 use std::collections::HashMap;
 
-use ratatui::crossterm::event::{read, Event, KeyCode, KeyEvent, poll};
-use ratatui::crossterm::terminal;
-use ratatui::crossterm::event::KeyEventKind::{Press, Release};
-use std::io::stdout;
 // use std::time::Duration;
-use rand::Rng;
-use ratatui::Terminal;
-use ratatui::backend::CrosstermBackend;
-use ratatui::prelude::Line;
-use ratatui::prelude::Rect;
+// use rand::Rng;
 use ratatui::widgets::{Block, Borders, Paragraph, Wrap, Padding};
 use ratatui::layout::{Layout, Constraint, Direction, Margin};
 use ratatui::style::{Color, Style};
@@ -31,7 +23,7 @@ use ratatui::widgets::Cell;
 impl GUI {
 
     //ineract start--------
-    pub fn inter_adj_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), Box<dyn NPC>>) {
+    pub fn inter_adj_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -100,7 +92,15 @@ impl GUI {
                 match inter {
                     Interactable::Item(item) => adj_list.push((*pos, item.clone().get_sname())),
                     Interactable::Enemy(enemy) => adj_list.push((*pos, enemy.clone().get_sname())),
-                    Interactable::Item(npc) => adj_list.push((*pos, npc.clone().get_sname())),
+                    Interactable::NPC(npc) => {
+                        match npc {
+                            NPCWrap::CommNPC(comm_npc) => adj_list.push((*pos, comm_npc.clone().get_sname())),
+                            NPCWrap::ConvNPC(conv_npc) => adj_list.push((*pos, conv_npc.clone().get_sname())),
+                            NPCWrap::QuestNPC(quest_npc) => adj_list.push((*pos, quest_npc.clone().get_sname())),
+                           _ => todo!(),
+                        }
+                        // adj_list.push((*pos, npc.clone().get_sname()));
+                    },
                 _ => todo!(),
                 }
             }
@@ -130,7 +130,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn inter_opt_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), Box<dyn NPC>>) {
+    pub fn inter_opt_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -220,7 +220,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn inter_res_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), Box<dyn NPC>>) {
+    pub fn inter_res_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -307,7 +307,7 @@ impl GUI {
 
     //item_used-----
 
-    pub fn item_used_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), Box<dyn NPC>>) {
+    pub fn item_used_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -393,7 +393,7 @@ impl GUI {
 
     //encounter start----
 
-    pub fn encounter_show_content(&mut self, cntnt: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), Box<dyn NPC>>) {
+    pub fn encounter_show_content(&mut self, cntnt: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -609,7 +609,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn encounter_user_options(&mut self, enc_opt: HashMap<EncOpt, String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), Box<dyn NPC>>) {
+    pub fn encounter_user_options(&mut self, enc_opt: HashMap<EncOpt, String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -834,7 +834,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn encounter_pick_item(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), Box<dyn NPC>>) {
+    pub fn encounter_pick_item(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1092,6 +1092,109 @@ impl GUI {
 
 
 
+        }).unwrap();
+    }
+
+
+    pub fn npc_comm_draw(&mut self, comms: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
+        self.terminal.draw(|f| {
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.size());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone());
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+            let npc_str: Vec<&str> = comms.split("#").collect();
+
+            let name = npc_str[0];
+
+            let paragraph_block = Block::default()
+                .title(name)
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+
+            let comm = npc_str[1];
+
+            let npc = Paragraph::new(Span::raw(comm))
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+            let plyr = Paragraph::new(Span::raw(""))
+                .block(table_block);
+            // let mut vec1 = vec![(InterOpt::Null, "".to_string()); 3];
+            // let mut vec2 = vec![(InterOpt::Null, "".to_string()); 3];
+            //
+            // for (idx, (a, b)) in self.inter_opt.iter().enumerate() {
+            //     if idx < 3 {
+            //         vec1[idx] = (a.clone(), b.clone());
+            //     } else {
+            //         vec2[idx - 3] = (a.clone(), b.clone());
+            //     }
+            // }
+            // let inter_opts = vec![vec1.clone(), vec2.clone()];
+            // self.inter_options = (vec1, vec2);
+            // let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
+            //     let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+            //         if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+            //             Cell::from(Span::styled(cell.clone().1, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+            //         } else {
+            //             Cell::from(cell.clone().1)
+            //         }
+            //     }).collect();
+            //     Row::new(cells)
+            // }).collect();
+            // let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50), Constraint::Percentage(50)])
+            //     .block(table_block);
+            f.render_widget(npc, normal_info[0]);
+            f.render_widget(plyr, normal_info[1]);
         }).unwrap();
     }
 

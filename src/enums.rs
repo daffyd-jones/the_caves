@@ -1,7 +1,7 @@
 //enum
 use crate::item::Item;
 use crate::enemy::{Enemy};
-use crate::npc::{NPC};
+use crate::npc::{BaseNPC, CommNPC, ConvNPC, QuestNPC};
 
 // Define the Cell enum
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -60,6 +60,14 @@ pub enum NPCs {
     Null,
 }
 
+#[derive(Clone, PartialEq, Debug)]
+pub enum NPCWrap {
+    CommNPC(CommNPC),
+    ConvNPC(ConvNPC),
+    QuestNPC(QuestNPC),
+    BaseNPC(BaseNPC),
+}
+
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum GUIMode {
     Bug,
@@ -100,7 +108,7 @@ pub enum FightSteps {
 #[derive(Clone, Debug)]
 pub enum Interactable {
     Item(Item),
-    NPC(Box<dyn NPC>),
+    NPC(NPCWrap),
     Enemy(Enemy),
     Null,
 }

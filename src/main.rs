@@ -86,6 +86,8 @@ fn main() {
 
     terminal::enable_raw_mode().unwrap();
 
+    // game_state.start_update_threads();
+
     let mut previous = Instant::now();
     let timestep = Duration::from_millis(1000 / 20); // 60 updates per second
 

@@ -1,21 +1,17 @@
 //gui
-use crate::enums::{Cells, Enemies, Items, NPCs, GUIMode, InterSteps, Interactable, InterOpt, EncOpt};
+use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, Interactable, InterOpt, EncOpt};
 use crate::map::Map;
 use crate::player::Player;
 use crate::enemy::{Enemy};
-use crate::npc::{NPC};
+// use crate::npc::{NPC};
 use crate::item::Item;
 use crate::notebook::{Quest, Stage, Place, Person, Lore};
 mod gui_man_draw;
 
 
 
-use ratatui::crossterm::event::{read, Event, KeyCode, KeyEvent, poll};
-use ratatui::crossterm::terminal;
-use ratatui::crossterm::event::KeyEventKind::{Press, Release};
 use std::io::stdout;
 // use std::time::Duration;
-use rand::Rng;
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
 use ratatui::prelude::Line;
@@ -29,10 +25,10 @@ use ratatui::widgets::Table;
 use ratatui::widgets::Cell;
 
 use std::collections::HashMap;
-use std::collections::HashSet;
+// use std::collections::HashSet;
 
 
-fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<String, Box<dyn NPC>>) -> Paragraph<'a> {
+fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) -> Paragraph<'a> {
     let start_row = map.viewport_y;
     let end_row = (map.viewport_y + map.viewport_height).min(map.cells.len());
     let start_col = map.viewport_x;
@@ -53,11 +49,11 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                         Enemies::CrazedExplorer => ('C', Color::Red),
                         _ => todo!(),
                     }
-                } else if let Some(npc) = npcs.get(&(ix, jy)) {
-                    match npc.base.etype {
-                        NPCs::CommNPC=> ('$', Color::Blue),
-                        NPCs::ConvNPC=> ('$', Color::LightBlue),
-                        NPCs::QuestNPC=> ('$', Color::Cyan),
+                } else if let Some(npcw) = npcs.get(&(ix, jy)) {
+                    match npcw {
+                        NPCWrap::CommNPC(_)=> ('$', Color::Blue),
+                        NPCWrap::ConvNPC(_)=> ('$', Color::LightBlue),
+                        NPCWrap::QuestNPC(_)=> ('$', Color::Cyan),
                         _ => todo!(),
                     }
                 } else if let Some(item) = items.get(&(ix, jy)) {
@@ -231,7 +227,7 @@ impl GUI {
         (inter_option.0, &inter_option.1)
     }
 
-    pub fn get_inv_opt(&mut self) -> ((usize), Item) {
+    pub fn get_inv_opt(&mut self) -> (usize, Item) {
         let temp = self.cursor_pos.0;
         let inv_option = match temp {
             0 => &self.inv_opt.0[self.cursor_pos.1],
@@ -290,7 +286,7 @@ impl GUI {
 
 
 
-    pub fn draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<String, Box<dyn NPC>>) {
+    pub fn draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -328,7 +324,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone());
 
             f.render_widget(paragraph, inner_area);
 
@@ -859,7 +855,7 @@ impl GUI {
                     let mut vec1 = vec!["Quests".to_string(), "Places".to_string(), "People".to_string(), "Lore".to_string()];
                     let mut vec2 = vec!["".to_string(), "".to_string(), "".to_string(), "".to_string()];
 
-                    let inv_table: Vec<Vec<(String)>, > = vec![vec1.clone(), vec2.clone()];
+                    let inv_table: Vec<Vec<String>, > = vec![vec1.clone(), vec2.clone()];
                     self.notes_opt = (vec1, vec2);
                     let rows: Vec<Row> = inv_table.iter().enumerate().map(|(j, row)| {
                         let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {

@@ -179,22 +179,22 @@ impl Notebook {
         let mut ptemp = Vec::new();
         let mut ltemp = Vec::new();
 
-        for (s, q) in &self.quests {
+        for (_s, q) in &self.quests {
             if q.active {
                 qtemp.push(q.clone());
             }
         }
-        for (s, p) in &self.places {
+        for (_s, p) in &self.places {
             if p.active {
                 pltemp.push(p.clone());
             }
         }
-        for (s, p) in &self.people {
+        for (_s, p) in &self.people {
             if p.active {
                 ptemp.push(p.clone());
             }
         }
-        for (s, l) in &self.lore {
+        for (_s, l) in &self.lore {
             if l.active {
                 ltemp.push(l.clone());
             }

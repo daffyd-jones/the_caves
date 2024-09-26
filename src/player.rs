@@ -1,6 +1,6 @@
 //player
 // mod enums;
-use crate::enums::{Items, EncOpt};
+use crate::enums::{EncOpt};
 use crate::item::{Item};
 use std::collections::HashMap;
 use rand::{Rng};
