@@ -10,11 +10,13 @@ use rand::prelude::SliceRandom;
 pub fn new_comm_npc(sname: String, x: usize, y: usize, comms: Vec<String>) -> CommNPC {
     let mut rng = rand::thread_rng();
     let step = rng.gen_range(0..19);
+    let step_grp = rng.gen_range(0..15);
     CommNPC {
         base: BaseNPC {
             ntype: NPCs::CommNPC,
             sname: sname,
             steps: step,
+            step_grp: step_grp,
             x: x,
             y: y,
         },
@@ -25,11 +27,13 @@ pub fn new_comm_npc(sname: String, x: usize, y: usize, comms: Vec<String>) -> Co
 pub fn new_conv_npc(sname: String, x: usize, y: usize, conv: Convo) -> ConvNPC {
     let mut rng = rand::thread_rng();
     let step = rng.gen_range(0..19);
+    let step_grp = rng.gen_range(0..15);
     ConvNPC {
         base: BaseNPC {
             ntype: NPCs::ConvNPC,
             sname: sname,
             steps: step,
+            step_grp: step_grp,
             x: x,
             y: y,
         },
@@ -40,11 +44,13 @@ pub fn new_conv_npc(sname: String, x: usize, y: usize, conv: Convo) -> ConvNPC {
 pub fn new_quest_npc(sname: String, x: usize, y: usize, quest: NQuest) -> QuestNPC {
     let mut rng = rand::thread_rng();
     let step = rng.gen_range(0..19);
+    let step_grp = rng.gen_range(0..15);
     QuestNPC {
         base: BaseNPC {
             ntype: NPCs::QuestNPC,
             sname: sname,
             steps: step,
+            step_grp: step_grp,
             x: x,
             y: y,
         },
@@ -90,6 +96,7 @@ pub trait NPC {
     fn set_steps(&mut self, steps: u8);
     fn inc_steps(&mut self);
     fn get_steps(&mut self) -> u8;
+    fn get_step_grp(&mut self) -> u8;
     fn mmove(&mut self, dir: &str);
 }
 
@@ -116,6 +123,7 @@ pub struct BaseNPC {
     ntype: NPCs,
     sname: String,
     steps: u8,
+    step_grp: u8,
     x: usize,
     y: usize,
 }
@@ -149,6 +157,10 @@ impl NPC for BaseNPC {
         self.steps.clone()
     }
 
+    fn get_step_grp(&mut self) -> u8 {
+        self.step_grp.clone()
+    }
+
     fn mmove(&mut self, dir: &str) {
         match dir {
             "UP" => self.y -= 1,
@@ -162,7 +174,7 @@ impl NPC for BaseNPC {
 
 impl BaseNPC {
     pub fn new() -> Self {
-        Self {ntype: NPCs::Null, sname: "".to_string(), steps: 0, x: 0, y: 0}
+        Self {ntype: NPCs::Null, sname: "".to_string(), steps: 0, step_grp: 0, x: 0, y: 0}
     }
 }
 
@@ -199,6 +211,10 @@ impl NPC for CommNPC {
 
     fn inc_steps(&mut self) {
         self.base.steps += 1;
+    }
+
+    fn get_step_grp(&mut self) -> u8 {
+        self.base.step_grp.clone()
     }
 
     fn mmove(&mut self, dir: &str) {
@@ -257,6 +273,10 @@ impl NPC for ConvNPC {
         self.base.steps += 1;
     }
 
+    fn get_step_grp(&mut self) -> u8 {
+        self.base.step_grp.clone()
+    }
+
     fn mmove(&mut self, dir: &str) {
         match dir {
             "UP" => self.base.y -= 1,
@@ -307,6 +327,10 @@ impl NPC for QuestNPC {
 
     fn inc_steps(&mut self) {
         self.base.steps += 1;
+    }
+
+    fn get_step_grp(&mut self) -> u8 {
+        self.base.step_grp.clone()
     }
 
     fn mmove(&mut self, dir: &str) {

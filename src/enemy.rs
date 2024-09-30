@@ -11,6 +11,7 @@ pub struct Enemy {
     pub x: usize,
     pub y: usize,
     pub steps: u8,
+    step_grp: u8,
     pub cell: Cells,
     pub health: u16,
     pub attack: u16,
@@ -24,7 +25,8 @@ impl Enemy {
         attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
         let mut rng = rand::thread_rng();
         let step = rng.gen_range(0..19);
-        Self {etype, sname, x, y, steps: step, cell:Cells::Empty, health, attack, defence, damage, drop}
+        let step_grp = rng.gen_range(0..15);
+        Self {etype, sname, x, y, steps: step, step_grp: step_grp, cell:Cells::Empty, health, attack, defence, damage, drop}
     }
 
     pub fn get_sname(&mut self) -> String {
@@ -66,6 +68,10 @@ impl Enemy {
 
     pub fn get_drop(&mut self) -> Vec<Items> {
         self.drop.clone()
+    }
+
+    pub fn get_step_grp(&self) -> u8 {
+       self.step_grp.clone()
     }
 
 }

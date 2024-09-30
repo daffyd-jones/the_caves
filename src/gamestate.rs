@@ -220,6 +220,11 @@ fn n_collision(dir: &str, pos: (usize, usize), cells: Vec<Vec<Cells>>) -> bool {
 }
 
 fn npc_move(mut npc: Box<dyn NPC>, map: Vec<Vec<Cells>>, mw: usize, mh: usize, x: usize, y: usize) -> ((usize, usize), Box<dyn NPC>) {
+    let mut rng = rand::thread_rng();
+    let dch = rng.gen_range(0..20);
+    if dch % 4 == 0 {
+        npc.set_steps(dch);
+    }
     let pos = if npc.get_steps() < 5 {
         npc.inc_steps();
         // if y == 0 {(x, y)} else {
@@ -299,7 +304,7 @@ pub struct GameState {
     l_systems: LSystems,
     l_rate: u64,
     enemies: HashMap<(usize, usize), Enemy>,
-    enemy_rate: u16,
+    step_group: u8,
     items: HashMap<(usize, usize), Item>,
     // item_drop: Vec<((usize, usize), Item)>,
     npcs: HashMap<(usize, usize), NPCWrap>,
@@ -350,7 +355,7 @@ impl GameState {
             l_systems,
             l_rate,
             enemies,
-            enemy_rate: 0,
+            step_group: 0,
             items,
             // item_drop,
             npcs,
@@ -461,15 +466,22 @@ impl GameState {
     //     }
     // }
 
-    fn update_enemies(&mut self) {
+    fn update_enemies(&mut self, step: u8) {
         let mut e_temp = self.enemies.clone();
         let mut new_e = HashMap::new();
         let mh = self.map.cells.len();
         let mw = self.map.cells[0].len();
         for ((x, y), mut e) in &mut e_temp {
+            let mut rng = rand::thread_rng();
+            let dch = rng.gen_range(0..20);
+            if dch % 4 == 0 {
+                e.steps = dch;
+            }
             // log::info!("esteps: {}, eCx: {}, ey: {}", e.steps.clone(), x.clone(), y.clone());
             // e.update();
-            let (xx, yy) = if e.steps < 5 {
+            let (xx, yy) = if e.get_step_grp() != step {
+                (*x, *y)
+            } else if e.steps < 5 {
                 e.steps += 1;
                 if *y == 0 || self.e_collision("UP", e.clone()) {(*x, *y)} else {
                     e.mmove("UP");
@@ -539,7 +551,7 @@ impl GameState {
     //     (pos, npc)
     // }
 
-    fn update_npcs(&mut self) {
+    fn update_npcs(&mut self, step: u8) {
         let mut n_temp = self.npcs.clone();
         let mut new_n = HashMap::new();
         let mh = self.map.cells.len();
@@ -549,15 +561,19 @@ impl GameState {
             match n {
                 NPCWrap::CommNPC(npc) => {
                     let mut npc_t = npc.clone();
-                    let npc_b = Box::new(npc_t);
-                    let (pos, mut nnpc) = npc_move(npc_b, self.map.cells.clone(), mw, mh, *x, *y);
-                    match nnpc.get_ntype() {
-                        NPCs::CommNPC => {
-                            if let Some(comm_npc) = nnpc.as_comm_npc() {
-                                new_n.insert(pos, NPCWrap::CommNPC(comm_npc.clone()));
-                            }
-                        },
-                        _ => todo!(),
+                    let mut npc_b = Box::new(npc_t);
+                    if npc_b.get_step_grp() != step {
+                        new_n.insert((*x, *y), NPCWrap::CommNPC(npc.clone()));
+                    } else {
+                        let (pos, mut nnpc) = npc_move(npc_b, self.map.cells.clone(), mw, mh, *x, *y);
+                        match nnpc.get_ntype() {
+                            NPCs::CommNPC => {
+                                if let Some(comm_npc) = nnpc.as_comm_npc() {
+                                    new_n.insert(pos, NPCWrap::CommNPC(comm_npc.clone()));
+                                }
+                            },
+                            _ => todo!(),
+                        }
                     }
                 },
                 _ => todo!(),
@@ -1925,33 +1941,16 @@ impl GameState {
                     let mut game = game_clone.lock().unwrap();
                     // game.update_npcs();
                     log::info!("update npc");
-                    if game.enemy_rate == 1 {
-                        game.update_npcs();
-                        // game.enemy_rate += 1;
-                    } else if game.enemy_rate == 17 {
-                        game.enemy_rate = 0;
-                    } else {game.enemy_rate += 1;}
+                    let step = game.step_group;
+                    game.update_enemies(step.clone());
+                    game.update_npcs(step.clone());
+                    if step < 15 {
+                        game.step_group += 1;
+                    } else {
+                        game.step_group = 0;
+                    }
                 }
-                thread::sleep(Duration::from_millis(4));
-            }
-        });
-
-        let game_clone = Arc::clone(&game_state);
-        thread::spawn(move || {
-            loop {
-                log::info!("update enem pre");
-                {
-                    let mut game = game_clone.lock().unwrap();
-                    // game.update_enemies();
-                    log::info!("update enemies");
-                    if game.enemy_rate % 6 == 0 {
-                        game.update_enemies();
-                        game.enemy_rate += 1;
-                    } else if game.enemy_rate == 17 {
-                        game.enemy_rate = 0;
-                    } else {game.enemy_rate += 1;}
-                }
-                thread::sleep(Duration::from_millis(5));
+                thread::sleep(Duration::from_millis(15));
             }
         });
     }
