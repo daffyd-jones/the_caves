@@ -371,7 +371,6 @@ impl Map {
         // }
         //---
 
-        //consider having shift replace tunnels if dead_tunnels.len > 0
         if self.gen_x.abs() >= ((MAP_W/5)).try_into().unwrap() || self.gen_y.abs() >= ((MAP_H/4)).try_into().unwrap() {
             self.map_fill();
             // let temp_tunnels = self.replace_dead_tunnels(new_tunnels.clone());

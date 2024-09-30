@@ -44,7 +44,7 @@ fn place_enemies(mut map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
     let etype = Enemies::Bug;
     let m_h = map.len() - 1;
     let m_w = map[0].len() - 1;
-    for _ in 0..50 {
+    for _ in 0..100 {
         loop {
             let x = rng.gen_range(10..m_w-10);
             let y = rng.gen_range(10..m_h-10);
@@ -223,28 +223,28 @@ fn npc_move(mut npc: Box<dyn NPC>, map: Vec<Vec<Cells>>, mw: usize, mh: usize, x
     let pos = if npc.get_steps() < 5 {
         npc.inc_steps();
         // if y == 0 {(x, y)} else {
-        if y <= 5 || n_collision("UP", npc.get_pos().clone(), map.clone()) {(x, y)} else {
+        if y <= 10 || n_collision("UP", npc.get_pos().clone(), map.clone()) {(x, y)} else {
             npc.mmove("UP");
             (x, y - 1)
         }
     } else if npc.get_steps() >= 5 && npc.get_steps() < 10 {
         npc.inc_steps();
         // if x == 0 {(x, y)} else {
-        if x <= 5 || n_collision("LF", npc.get_pos().clone(), map.clone()) {(x, y)} else {
+        if x <= 10 || n_collision("LF", npc.get_pos().clone(), map.clone()) {(x, y)} else {
             npc.mmove("LF");
             (x - 1, y)
         }
     } else if npc.get_steps() >= 10 && npc.get_steps() < 15 {
         npc.inc_steps();
         // if y >= mh-5 {(x, y)} else {
-        if y >= mh-5 || n_collision("DN", npc.get_pos().clone(), map.clone()) {(x, y)} else {
+        if y >= mh-10 || n_collision("DN", npc.get_pos().clone(), map.clone()) {(x, y)} else {
             npc.mmove("DN");
             (x, y + 1)
         }
     } else if npc.get_steps() >= 15 && npc.get_steps() < 20 {
         npc.inc_steps();
         // if x >= mw-5 {(x, y)} else {
-        if x >= mw-5 || n_collision("RT", npc.get_pos().clone(), map.clone()) {(x, y)} else {
+        if x >= mw-10 || n_collision("RT", npc.get_pos().clone(), map.clone()) {(x, y)} else {
             npc.mmove("RT");
             (x + 1, y)
         }
@@ -315,7 +315,7 @@ pub struct GameState {
 }
 
 impl GameState {
-    pub fn new() -> Self {
+    pub fn new() -> Arc<Mutex<Self>> {
         // let stdout = stdout();
         // let backend = CrosstermBackend::new(stdout);
         // let mut terminal = Terminal::new(backend).unwrap();
@@ -338,7 +338,8 @@ impl GameState {
         // log::info!("\n{:?}", enemies);
         // map.cells = temp_map;
         let l_rate = 100 as u64;
-        Self {
+
+        Arc::new(Mutex::new(GameState {
             game_mode: GameMode::Play,
             notebook,
             gui,
@@ -353,11 +354,32 @@ impl GameState {
             items,
             // item_drop,
             npcs,
-            key_debounce_dur: Duration::from_millis(80),
+            key_debounce_dur: Duration::from_millis(60),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
             enc: EncOpt::Null,
-        }
+        }))
+
+        // Self {
+        //     game_mode: GameMode::Play,
+        //     notebook,
+        //     gui,
+        //     map,
+        //     player,
+        //     dist_fo: (0, 0, 0, 0),
+        //     level: 0,
+        //     l_systems,
+        //     l_rate,
+        //     enemies,
+        //     enemy_rate: 0,
+        //     items,
+        //     // item_drop,
+        //     npcs,
+        //     key_debounce_dur: Duration::from_millis(80),
+        //     last_event_time: Instant::now(),
+        //     interactee: Interactable::Null,
+        //     enc: EncOpt::Null,
+        // }
     }
 
 
@@ -628,25 +650,25 @@ impl GameState {
         for ((x, y), mut n) in temp_n {
             let mut nbox = box_npc(n);
             match dir {
-                "UP" => if y < mh {
+                "UP" => if y < mh-10 {
                     // n.y+=1;
                     nbox.mmove("DN");
                     let npc_w = wrap_nbox(nbox);
                     new_n.insert((x, y+1), npc_w.clone());
                 },
-                "DN" => if y > 0 {
+                "DN" => if y > 10 {
                     // n.y-=1;
                     nbox.mmove("UP");
                     let npc_w = wrap_nbox(nbox);
                     new_n.insert((x, y-1), npc_w.clone());
                 },
-                "LF" => if x < mw {
+                "LF" => if x < mw-10 {
                     // n.x+=1;
                     nbox.mmove("RT");
                     let npc_w = wrap_nbox(nbox);
                     new_n.insert((x+1, y), npc_w.clone());
                 },
-                "RT" => if x > 0 {
+                "RT" => if x > 10 {
                     // n.x-=1;
                     nbox.mmove("LF");
                     let npc_w = wrap_nbox(nbox);
@@ -1409,7 +1431,7 @@ impl GameState {
     }
 
     fn play_update(&mut self) -> bool {
-        if poll(std::time::Duration::from_millis(100)).unwrap() {
+        if poll(std::time::Duration::from_millis(5)).unwrap() {
             if let Event::Key(event) = read().unwrap() {
                 // log::info!("keykind {:?}", event.kind.clone());
                 let now = Instant::now();
@@ -1457,7 +1479,7 @@ impl GameState {
             }
         }
         self.gui.reset_cursor();
-        self.gui.set_info_mode(GUIMode::Normal);
+        // self.gui.set_info_mode(GUIMode::Normal);
         true
     }
 
@@ -1512,12 +1534,22 @@ impl GameState {
         }
 
         let intee = self.interactee.clone();
-        match intee {
+        let res = match intee {
             Interactable::Item(_) => self.item_interaction(),
             Interactable::NPC(_) => self.npc_interaction(),
+            Interactable::Enemy(e) => {
+                self.game_mode = GameMode::Fight(FightSteps::Open);
+                self.enemy_encounter(e);
+                true
+            },
             Interactable::Null => false,
             _ => todo!(),
+        };
+        self.gui.set_info_mode(GUIMode::Normal);
+        if !res {
+            return false;
         }
+        true
     }
 
     fn check_place_item(&mut self, x: usize, y: usize) -> bool {
@@ -1618,7 +1650,7 @@ impl GameState {
                 }
             }, // asdf
             (x, y) if x > 0 && y > 0 => {
-                for _ in 0..50 {
+                for _ in 0..25 {
                     loop {
                         let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
                         let y = rng.gen_range(10..MAP_H-10);
@@ -1626,7 +1658,7 @@ impl GameState {
                         if res {break;}
                     }
                 }
-                for _ in 0..50 {
+                for _ in 0..25 {
                     loop {
                         let x = rng.gen_range(10..MAP_W-10);
                         let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
@@ -1636,7 +1668,7 @@ impl GameState {
                 }
             },
             (x, y) if x > 0 && y < 0 => {
-                for _ in 0..50 {
+                for _ in 0..25 {
                     loop {
                         let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
                         let y = rng.gen_range(10..MAP_H-10);
@@ -1644,7 +1676,7 @@ impl GameState {
                         if res {break;}
                     }
                 }
-                for _ in 0..50 {
+                for _ in 0..25 {
                     loop {
                         let x = rng.gen_range(10..MAP_W-10);
                         let y = rng.gen_range(10..vy-5);
@@ -1654,7 +1686,7 @@ impl GameState {
                 }
             },
             (x, y) if x < 0 && y > 0 => {
-                for _ in 0..50 {
+                for _ in 0..25 {
                     loop {
                         let x = rng.gen_range(10..vx-5);
                         let y = rng.gen_range(10..MAP_H-10);
@@ -1662,7 +1694,7 @@ impl GameState {
                         if res {break;}
                     }
                 }
-                for _ in 0..50 {
+                for _ in 0..25 {
                     loop {
                         let x = rng.gen_range(10..MAP_W-10);
                         let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
@@ -1672,7 +1704,7 @@ impl GameState {
                 }
             },
             (x, y) if x < 0 && y < 0 => {
-                for _ in 0..50 {
+                for _ in 0..25 {
                     loop {
                         let x = rng.gen_range(10..vx-5);
                         let y = rng.gen_range(10..MAP_H-10);
@@ -1680,7 +1712,7 @@ impl GameState {
                         if res {break;}
                     }
                 }
-                for _ in 0..50 {
+                for _ in 0..25 {
                     loop {
                         let x = rng.gen_range(10..MAP_W-10);
                         let y = rng.gen_range(10..vy-5);
@@ -1693,46 +1725,241 @@ impl GameState {
         }
     }
 
-    // pub fn start_update_threads(&mut self) {
-    //     let game_state = Arc::new(Mutex::new(self));
-    //
-    //     let game_clone = Arc::clone(&game_state);
-    //     thread::spawn(move || {
-    //         loop {
-    //             {
-    //                 let mut game = game_clone.lock().unwrap();
-    //                 if game.enemy_rate == 1 {
-    //                     game.update_npcs();
-    //                     game.enemy_rate += 1;
-    //                 } else if game.enemy_rate == 6 {
-    //                     game.enemy_rate = 0;
-    //                 } else {game.enemy_rate += 1;}
-    //             }
-    //             thread::sleep(Duration::from_millis(100));
-    //         }
-    //     });
-    //
-    //     let game_clone = Arc::clone(&game_state);
-    //     thread::spawn(move || {
-    //         loop {
-    //             {
-    //                 let mut game = game_clone.lock().unwrap();
-    //                 if game.enemy_rate == 0 {
-    //                     game.update_enemies();
-    //                     game.enemy_rate += 1;
-    //                 } else if game.enemy_rate == 6 {
-    //                     game.enemy_rate = 0;
-    //                 } else {game.enemy_rate += 1;}
-    //             }
-    //             thread::sleep(Duration::from_millis(100));
-    //         }
-    //     });
-    // }
+    fn check_place_npcs(&mut self, x: usize, y: usize) -> bool {
+        let data1 = fs::read_to_string("src/npcs/npc_names.json");
+        log::info!("{:?}", &data1);
+        let names: Vec<String> = match data1 {
+            Ok(content) => serde_json::from_str(&content).unwrap(),
+            Err(e) => {
+                log::info!("{:?}", e);
+                Vec::new()
+            },
+        };
+        let data2 = fs::read_to_string("src/npcs/npc_comms.json");
+        log::info!("{:?}", &data2);
+        let comms: Vec<String> = match data2 {
+            Ok(content) => serde_json::from_str(&content).unwrap(),
+            Err(e) => {
+                log::info!("{:?}", e);
+                Vec::new()
+            },
+        };
+        let data3 = fs::read_to_string("src/npcs/npc_convos.json");
+        log::info!("{:?}", &data3);
+        let convos: Vec<Convo> = match data3 {
+            Ok(content) => serde_json::from_str(&content).unwrap(),
+            Err(e) => {
+                log::info!("{:?}", e);
+                Vec::new()
+            },
+        };
+        let data4 = fs::read_to_string("src/npcs/npc_quests.json");
+        log::info!("{:?}", &data4);
+        let quests: HashMap<String, NQuest> = match data4 {
+            Ok(content) => serde_json::from_str(&content).unwrap(),
+            Err(e) => {
+                log::info!("{:?}", e);
+                HashMap::new()
+            },
+        };
+        // let mut npcs = HashMap::new();
+        let mut rng = rand::thread_rng();
+        let types = vec![NPCs::CommNPC];
+        // let types = vec![NPCs::CommNPC, NPCs::ConvNPC, NPCs::QuestNPC];
+        if self.map.cells[y][x] == Cells::Empty && !self.enemies.contains_key(&(x, y)) && !self.items.contains_key(&(x, y)) && !self.npcs.contains_key(&(x, y)) {
+            if let Some(i_type) = types.choose(&mut rng){
+                let npc = match i_type {
+                    NPCs::CommNPC => {
+                        let sname = &names[0];
+                        let comm: Vec<String> = comms.clone();
+                        NPCWrap::CommNPC(new_comm_npc(sname.to_string(), x, y, comm))
+                    },
+                    NPCs::ConvNPC => {
+                        let sname = &names[0];
+                        let conv: Convo = convos[0].clone();
+                        NPCWrap::ConvNPC(new_conv_npc(sname.to_string(), x, y, conv))
+                    },
+                    NPCs::QuestNPC => {
+                        let sname = &names[0];
+                        let quest: NQuest = quests["get_quest"].clone();
+                        NPCWrap::QuestNPC(new_quest_npc(sname.to_string(), x, y, quest))
+                    },
+                    _ => todo!(),
+                };
+                self.npcs.insert((x, y), npc);
+                return true;
+            }
+        }
+        false
+    }
+
+    fn repop_npcs(&mut self) {
+        let mut rng = rand::thread_rng();
+        let (vx, vy, vw, vh) = self.map.get_viewport();
+        //xx
+        match (self.map.gen_x, self.map.gen_y) {
+            (x, y) if x < 0 && y == 0 => {
+                for _ in 0..20 {
+                    loop {
+                        let x = rng.gen_range(10..vx-5);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x > 0 && y == 0 => {
+                for _ in 0..20 {
+                    loop {
+                        let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if y < 0 && x == 0 => {
+                for _ in 0..20 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range(10..vy-5);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if y > 0 && x == 0 => {
+                for _ in 0..20 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+            }, // asdf
+            (x, y) if x > 0 && y > 0 => {
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x > 0 && y < 0 => {
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range(10..vy-5);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x < 0 && y > 0 => {
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..vx-5);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x < 0 && y < 0 => {
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..vx-5);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range(10..vy-5);
+                        let res = self.check_place_npcs(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            _ => {},
+        }
+    }
+
+    pub fn start_update_threads(game_state: Arc<Mutex<Self>>) {
+        // let game_state = Arc::new(Mutex::new(self));
+
+        let game_clone = Arc::clone(&game_state);
+        thread::spawn(move || {
+            loop {
+                log::info!("update npc pre");
+                {
+                    let mut game = game_clone.lock().unwrap();
+                    // game.update_npcs();
+                    log::info!("update npc");
+                    if game.enemy_rate == 1 {
+                        game.update_npcs();
+                        // game.enemy_rate += 1;
+                    } else if game.enemy_rate == 17 {
+                        game.enemy_rate = 0;
+                    } else {game.enemy_rate += 1;}
+                }
+                thread::sleep(Duration::from_millis(4));
+            }
+        });
+
+        let game_clone = Arc::clone(&game_state);
+        thread::spawn(move || {
+            loop {
+                log::info!("update enem pre");
+                {
+                    let mut game = game_clone.lock().unwrap();
+                    // game.update_enemies();
+                    log::info!("update enemies");
+                    if game.enemy_rate % 6 == 0 {
+                        game.update_enemies();
+                        game.enemy_rate += 1;
+                    } else if game.enemy_rate == 17 {
+                        game.enemy_rate = 0;
+                    } else {game.enemy_rate += 1;}
+                }
+                thread::sleep(Duration::from_millis(5));
+            }
+        });
+    }
 
     pub fn update(&mut self) -> bool {
         let (vw, vh) = self.gui.get_viewport();
         self.map.set_viewport(vh, vw);
-
+        log::info!("update");
         let res = match self.game_mode {
             GameMode::Play => self.play_update(),
             GameMode::Interact(_) => self.interaction(),
@@ -1752,6 +1979,10 @@ impl GameState {
             self.repop_items();
         }
 
+        if self.npcs.len() < 30 {
+            self.repop_npcs();
+        }
+
         let ppos = (self.player.x, self.player.y);
 
         if let Some(e) = self.enemies.get(&(ppos)) {
@@ -1760,20 +1991,20 @@ impl GameState {
         }
 
 
-        if self.enemy_rate == 1 {
-            self.update_npcs();
-            self.enemy_rate += 1;
-        } else if self.enemy_rate == 6 {
-            self.enemy_rate = 0;
-        } else {self.enemy_rate += 1;}
-
-
-        if self.enemy_rate == 0 {
-            self.update_enemies();
-            self.enemy_rate += 1;
-        } else if self.enemy_rate == 6 {
-            self.enemy_rate = 0;
-        } else {self.enemy_rate += 1;}
+        // if self.enemy_rate == 1 {
+        //     self.update_npcs();
+        //     self.enemy_rate += 1;
+        // } else if self.enemy_rate == 6 {
+        //     self.enemy_rate = 0;
+        // } else {self.enemy_rate += 1;}
+        //
+        //
+        // if self.enemy_rate == 0 {
+        //     self.update_enemies();
+        //     self.enemy_rate += 1;
+        // } else if self.enemy_rate == 6 {
+        //     self.enemy_rate = 0;
+        // } else {self.enemy_rate += 1;}
 
         true
     }

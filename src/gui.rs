@@ -390,8 +390,16 @@ impl GUI {
                             Span::styled((map.tunnels.len()).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
-                            Span::styled("dtlen: ", Style::default().fg(Color::White)),
-                            Span::styled((map.dead_tunnels.len()).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled("enemies: ", Style::default().fg(Color::White)),
+                            Span::styled((enemies.len()).to_string(), Style::default().fg(Color::Yellow)),
+                        ]),
+                        Row::new(vec![
+                            Span::styled("npcs: ", Style::default().fg(Color::White)),
+                            Span::styled((npcs.len()).to_string(), Style::default().fg(Color::Yellow)),
+                        ]),
+                        Row::new(vec![
+                            Span::styled("items: ", Style::default().fg(Color::White)),
+                            Span::styled((items.len()).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                     ];
 

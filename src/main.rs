@@ -38,7 +38,8 @@ extern crate log;
 use log::{Record, Level, Metadata, SetLoggerError, LevelFilter};
 use std::fs::OpenOptions;
 use std::io::prelude::*;
-use std::sync::Mutex;
+// use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 struct SimpleLogger {
     file: Mutex<std::fs::File>,
@@ -87,9 +88,10 @@ fn main() {
     terminal::enable_raw_mode().unwrap();
 
     // game_state.start_update_threads();
+    GameState::start_update_threads(Arc::clone(&game_state));
 
     let mut previous = Instant::now();
-    let timestep = Duration::from_millis(1000 / 20); // 60 updates per second
+    let timestep = Duration::from_millis(1000 / 15); // 60 updates per second
 
     loop {
         let now = Instant::now();
@@ -97,12 +99,19 @@ fn main() {
 
         if elapsed >= timestep {
             previous = now;
-            game_state.draw();
-            if game_state.update() == false {
-                break;
+            {
+                let mut game_state = game_state.lock().unwrap();
+                game_state.draw();
+            }
+            {
+                let mut game_state = game_state.lock().unwrap();
+                if game_state.update() == false {
+                    break;
+                }
             }
             // Update game state here
         } else {
+            // sleep(Duration::from_millis());
             sleep(timestep - elapsed);
         }
         // game_state.draw();
