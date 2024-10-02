@@ -6,6 +6,7 @@ use crate::enemy::{Enemy};
 use crate::npc::{NPC, BaseNPC, CommNPC, Convo, NQuest, new_comm_npc, new_conv_npc, new_quest_npc};
 use crate::lsystems::LSystems;
 use crate::gui::GUI;
+use crate::settlements::Settlements;
 // use crate::gui_man_draw::GUI;
 use crate::item::Item;
 use crate::notebook::Notebook;
@@ -185,6 +186,7 @@ fn map_to_string(cells: &Vec<Vec<Cells>>) -> String {
                 Cells::Tunnel => '@',
                 // Cells::Player => '&',
                 // Cells::Enemy => '!',
+                _ => todo!(),
             };
             map_string.push_str(&symbol.to_string());
         }
@@ -298,6 +300,7 @@ pub struct GameState {
     notebook: Notebook,
     gui: GUI,
     map: Map,
+    settles: Settlements,
     player: Player,
     dist_fo: (i64, i64, i64, i64),
     level: u32,
@@ -312,20 +315,10 @@ pub struct GameState {
     last_event_time: Instant,
     interactee: Interactable,
     enc: EncOpt,
-    // info_mode: GUIMode,
-    // cursor_pos: (usize, usize),
-    // npcs: Vec<NPC>,
-    // items: Vec<Item>,
-    // changes: HashMap <(usize, usize), char>
 }
 
 impl GameState {
     pub fn new() -> Arc<Mutex<Self>> {
-        // let stdout = stdout();
-        // let backend = CrosstermBackend::new(stdout);
-        // let mut terminal = Terminal::new(backend).unwrap();
-        // terminal.clear().unwrap();
-        // terminal.hide_cursor().unwrap();
         let gui = GUI::new();
         let mut map = Map::new();
         let x = map.px.clone();
@@ -336,19 +329,16 @@ impl GameState {
         let items = init_items(map.cells.clone(), enemies.clone());
         let npcs = place_npcs(map.cells.clone());
         let notebook = Notebook::new().unwrap();
-        // let mut item_drop = Vec::new();
-        // item_drop.push(((0, 0), Item::default()));
-        // let print_map = map_to_string(&map);
-        // log::info!("\n{}", print_map);
-        // log::info!("\n{:?}", enemies);
-        // map.cells = temp_map;
         let l_rate = 100 as u64;
+
+        let settles = Settlements::demo_self();
 
         Arc::new(Mutex::new(GameState {
             game_mode: GameMode::Play,
             notebook,
             gui,
             map,
+            settles,
             player,
             dist_fo: (0, 0, 0, 0),
             level: 0,

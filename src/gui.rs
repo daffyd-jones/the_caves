@@ -7,6 +7,7 @@ use crate::enemy::{Enemy};
 use crate::item::Item;
 use crate::notebook::{Quest, Stage, Place, Person, Lore};
 mod gui_man_draw;
+ use rand::Rng;
 
 
 
@@ -41,7 +42,7 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                 let ix = i + start_col;
                 let jy = j + start_row;
                 if (ix, jy) == (player.x, player.y) {
-                    ('&', Color::Blue)
+                    ('¡', Color::Blue)
                 } else if let Some(enemy) = enemies.get(&(ix, jy)) {
                     match enemy.etype {
                         Enemies::Bug => ('B', Color::Red),
@@ -51,9 +52,9 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                     }
                 } else if let Some(npcw) = npcs.get(&(ix, jy)) {
                     match npcw {
-                        NPCWrap::CommNPC(_)=> ('$', Color::Blue),
-                        NPCWrap::ConvNPC(_)=> ('$', Color::LightBlue),
-                        NPCWrap::QuestNPC(_)=> ('$', Color::Cyan),
+                        NPCWrap::CommNPC(_)=> ('í', Color::Blue),
+                        NPCWrap::ConvNPC(_)=> ('ì', Color::LightBlue),
+                        NPCWrap::QuestNPC(_)=> ('î', Color::Cyan),
                         _ => todo!(),
                     }
                 } else if let Some(item) = items.get(&(ix, jy)) {
@@ -68,13 +69,61 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                 } else {
                     match cell {
                         Cells::Empty => (' ', Color::White),
-                        Cells::Dirt1 => ('\'', Color::DarkGray),
+                        Cells::Dirt1 => ('·', Color::DarkGray),
                         Cells::Dirt2 => ('.', Color::DarkGray),
                         Cells::Grass1 => (',', Color::Green),
                         Cells::Grass2 => ('\'', Color::LightGreen),
                         Cells::Rock => ('*', Color::DarkGray),
-                        Cells::Wall => ('▒', Color::LightCyan),
-                        Cells::Tunnel => ('@', Color::Blue),
+                        Cells::Wall => {
+                            // let mut rng = rand::thread_rng();
+                            // let rnd = rng.gen_range(0..10);
+                            // if rnd < 3 {
+                            //     ('▒', Color::LightCyan)
+                            // } else {
+                            //     ('░', Color::LightCyan)
+                            // }
+                            ('░', Color::LightCyan)
+                        },
+                        Cells::MwH => ('═', Color::LightBlue),
+                        Cells::MwV => ('║', Color::LightBlue),
+                        Cells::MwVL => ('╣', Color::LightBlue),
+                        Cells::MwVR => ('╠', Color::LightBlue),
+                        Cells::MwHU => ('╩', Color::LightBlue),
+                        Cells::MwHD => ('╦', Color::LightBlue),
+                        Cells::MwUL => ('╝', Color::LightBlue),
+                        Cells::MwUR => ('╚', Color::LightBlue),
+                        Cells::MwDL => ('╗', Color::LightBlue),
+                        Cells::MwDR => ('╔', Color::LightBlue),
+                        Cells::MwCR => ('╬', Color::LightBlue),
+                        Cells::SwH => ('─', Color::LightBlue),
+                        Cells::SwV => ('│', Color::LightBlue),
+                        Cells::SwVL => ('┤', Color::LightBlue),
+                        Cells::SwVR => ('├', Color::LightBlue),
+                        Cells::SwHU => ('┴', Color::LightBlue),
+                        Cells::SwHD => ('┬', Color::LightBlue),
+                        Cells::SwUL => ('┘', Color::LightBlue),
+                        Cells::SwUR => ('└', Color::LightBlue),
+                        Cells::SwDL => ('┐', Color::LightBlue),
+                        Cells::SwDR => ('┌', Color::LightBlue),
+                        Cells::SwCR => ('┼', Color::LightBlue),
+                        Cells::Cong => ('≡', Color::LightBlue),
+                        Cells::Deg => ('°', Color::LightBlue),
+                        Cells::Mult => ('×', Color::LightBlue),
+                        Cells::Ced => ('¸', Color::LightBlue),
+                        Cells::Diae => ('¨', Color::LightBlue),
+                        Cells::Inter => ('·', Color::LightBlue),
+                        Cells::Blsq => ('■', Color::LightBlue),
+                        Cells::VBrk => ('¦', Color::LightBlue),
+                        Cells::PlMin => ('±', Color::LightBlue),
+                        Cells::SmZer => ('ø', Color::LightBlue),
+                        Cells::BZer => ('Ø', Color::LightBlue),
+                        Cells::Cop => ('©', Color::LightBlue),
+                        Cells::LBrce => ('{', Color::LightBlue),
+                        Cells::RBrce => ('}', Color::LightBlue),
+                        Cells::LParen => ('(', Color::LightBlue),
+                        Cells::RParen => (')', Color::LightBlue),
+                        Cells::GenCur => ('¤', Color::LightBlue),
+                        _ => ('#', Color::Red),
                     }
                 }
             };

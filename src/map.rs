@@ -171,6 +171,7 @@ impl Map {
                     Cells::Rock => '*',
                     Cells::Wall => '▒',
                     Cells::Tunnel => '@',
+                    _ => ' '
                     // Cells::Player => '&',
                     // Cells::Enemy => '!',
                 };

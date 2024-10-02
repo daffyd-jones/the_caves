@@ -6,7 +6,9 @@ mod enemy;
 mod npc;
 mod item;
 mod gui;
-// mod gui_man_draw;
+mod settlements;
+mod settlement;
+mod shop;
 mod notebook;
 
 // use crossterm::event::{read, Event, KeyCode};

@@ -1,7 +1,7 @@
 //enum
 use crate::item::Item;
 use crate::enemy::{Enemy};
-use crate::npc::{BaseNPC, CommNPC, ConvNPC, QuestNPC};
+use crate::npc::{BaseNPC, CommNPC, ConvNPC, QuestNPC, ShopNPC};
 
 // Define the Cell enum
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -13,11 +13,54 @@ pub enum Cells {
     Dirt2,
     Rock,
     Wall,
-    // Player,
+    Floor,
     Tunnel,
-    // Enemy,
-    // NPC,
-    // Item,
+    Water,
+    MwH,
+    MwV,
+    MwVL,
+    MwVR,
+    MwHU,
+    MwHD,
+    MwUL,
+    MwUR,
+    MwDL,
+    MwDR,
+    MwCR,
+    SwH,
+    SwV,
+    SwVL,
+    SwVR,
+    SwHU,
+    SwHD,
+    SwUL,
+    SwUR,
+    SwDL,
+    SwDR,
+    SwCR,
+    Cong,
+    Deg,
+    Mult,
+    Ced,
+    Diae,
+    Inter,
+    Blsq,
+    VBrk,
+    PlMin,
+    Exup,
+    SmZer,
+    BZer,
+    Cop,
+    NPCM,
+    LBrce,
+    RBrce,
+    LParen,
+    RParen,
+    GenCur,
+    Enemy,
+    NPC,
+    Item,
+    Null
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -57,6 +100,7 @@ pub enum NPCs {
     CommNPC,
     ConvNPC,
     QuestNPC,
+    ShopNPC,
     Null,
 }
 
@@ -65,7 +109,9 @@ pub enum NPCWrap {
     CommNPC(CommNPC),
     ConvNPC(ConvNPC),
     QuestNPC(QuestNPC),
+    ShopNPC(ShopNPC),
     BaseNPC(BaseNPC),
+    Null,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -136,3 +182,22 @@ pub enum EncOpt {
     Null,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub enum Settle {
+    Small,
+    Med,
+    Large,
+    Null,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub enum Shops {
+    Item,
+    Weapon,
+    Armour,
+    Enchantments,
+    ExplorersGuild,
+    CultistChurch,
+    Clinic,
+    Null,
+}

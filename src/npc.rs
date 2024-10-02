@@ -58,6 +58,24 @@ pub fn new_quest_npc(sname: String, x: usize, y: usize, quest: NQuest) -> QuestN
     }
 }
 
+pub fn new_shop_npc(sname: String, x: usize, y: usize, sh_conv: HashMap<String, String>) -> ShopNPC {
+    let mut rng = rand::thread_rng();
+    let step = rng.gen_range(0..19);
+    let step_grp = rng.gen_range(0..15);
+    // let sh_conv = HashMap::new();
+    ShopNPC {
+        base: BaseNPC {
+            ntype: NPCs::ShopNPC,
+            sname: sname,
+            steps: step,
+            step_grp: step_grp,
+            x: x,
+            y: y,
+        },
+        sh_conv: sh_conv,
+    }
+}
+
 //--
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Convo {
@@ -351,3 +369,58 @@ impl QuestNPC {
 }
 
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct ShopNPC {
+    base: BaseNPC,
+    sh_conv: HashMap<String, String>,
+}
+
+impl NPC for ShopNPC {
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
+
+    fn get_ntype(&mut self) -> NPCs {
+        self.base.ntype.clone()
+    }
+
+    fn get_sname(&mut self) -> String {
+        self.base.sname.clone()
+    }
+
+    fn get_pos(&mut self) -> (usize, usize) {
+        (self.base.x, self.base.y)
+    }
+
+    fn set_steps(&mut self, steps: u8) {
+        self.base.steps = steps;
+    }
+
+    fn get_steps(&mut self) -> u8 {
+        self.base.steps.clone()
+    }
+
+    fn inc_steps(&mut self) {
+        self.base.steps += 1;
+    }
+
+    fn get_step_grp(&mut self) -> u8 {
+        self.base.step_grp.clone()
+    }
+
+    fn mmove(&mut self, dir: &str) {
+        match dir {
+            "UP" => self.base.y -= 1,
+            "DN" => self.base.y += 1,
+            "LF" => self.base.x -= 1,
+            "RT" => self.base.x += 1,
+            _ => println!("")
+        }
+    }
+}
+
+impl ShopNPC {
+    pub fn get_sh_conv(&mut self) -> HashMap<String, String> {
+        self.sh_conv.clone()
+    }
+}
