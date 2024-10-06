@@ -29,13 +29,13 @@ use std::collections::HashMap;
 // use std::collections::HashSet;
 
 
-fn draw_map<'a>(mut map: Map, map_vec: Vec<Vec<Cells>>, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) -> Paragraph<'a> {
+fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) -> Paragraph<'a> {
     let start_row = map.viewport_y;
     let end_row = (map.viewport_y + map.viewport_height).min(map.cells.len());
     let start_col = map.viewport_x;
     let end_col = (map.viewport_x + map.viewport_width).min(map.cells[0].len());
     let mut text = Vec::new();
-    for (j, row) in map_vec[start_row..end_row].iter().enumerate() {
+    for (j, row) in map.cells[start_row..end_row].iter().enumerate() {
         let mut line = Vec::new();
         for (i, &cell) in row[start_col..end_col].iter().enumerate() {
             let (symbol, color) = {
@@ -77,6 +77,8 @@ fn draw_map<'a>(mut map: Map, map_vec: Vec<Vec<Cells>>, player: Player, enemies:
                         Cells::Wall => {
                             ('░', Color::LightCyan)
                         },
+                        Cells::NPCM => (' ', Color::White),
+                        Cells::Floor => (' ', Color::White),
                         Cells::MwH => ('═', Color::LightBlue),
                         Cells::MwV => ('║', Color::LightBlue),
                         Cells::MwVL => ('╣', Color::LightBlue),
@@ -328,7 +330,7 @@ impl GUI {
 
 
 
-    pub fn draw(&mut self, mut map: Map, map_vec: Vec<Vec<Cells>>, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
+    pub fn draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -366,7 +368,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), map_vec, player.clone(), enemies.clone(), items.clone(), npcs.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone());
 
             f.render_widget(paragraph, inner_area);
 

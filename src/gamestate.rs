@@ -724,7 +724,7 @@ impl GameState {
         let fst = format!("You are being attacked by a {}", e.get_sname());
         self.gui.reset_cursor();
         loop {
-            self.gui.encounter_show_content(fst.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.encounter_show_content(fst.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -750,7 +750,7 @@ impl GameState {
             if !pstart {
                 let enatk = "Enemy is attacking.".to_string();
                 loop {
-                    self.gui.encounter_show_content(enatk.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.encounter_show_content(enatk.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -775,7 +775,7 @@ impl GameState {
                 };
                 self.gui.reset_cursor();
                 loop {
-                    self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -805,7 +805,7 @@ impl GameState {
             let popt = self.player.get_enc_opt();
             self.gui.reset_cursor();
             loop {
-                self.gui.encounter_user_options(popt.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                self.gui.encounter_user_options(popt.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                 if poll(std::time::Duration::from_millis(100)).unwrap() {
                     if let Event::Key(event) = read().unwrap() {
                         // log::info!("keykind {:?}", event.kind.clone());
@@ -845,7 +845,7 @@ impl GameState {
             self.gui.reset_cursor();
             loop {
                 if itm {break;}
-                self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                 if poll(std::time::Duration::from_millis(100)).unwrap() {
                     if let Event::Key(event) = read().unwrap() {
                         // log::info!("keykind {:?}", event.kind.clone());
@@ -881,7 +881,7 @@ impl GameState {
         };
         self.gui.reset_cursor();
         loop {
-            self.gui.encounter_show_content(win_msg.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.encounter_show_content(win_msg.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -942,7 +942,7 @@ impl GameState {
         match self.game_mode {
             GameMode::Play => {
                 loop {
-                    self.gui.item_used_draw(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.item_used_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -963,7 +963,7 @@ impl GameState {
             GameMode::Fight(_) => {
                 let itstr = format!("You used the {}", item.clone().get_sname());
                 loop {
-                    self.gui.encounter_show_content(itstr.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.encounter_show_content(itstr.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -994,7 +994,7 @@ impl GameState {
                         self.shift_items("UP");
                         self.shift_npcs("UP");
                         self.map.shift("UP");
-                        self.dist_fo.1 -= 1;
+                        self.dist_fo.1 += 1;
                         self.gui.set_dist_fo(self.dist_fo);
                     } else {
                         self.player.y -= 1;
@@ -1008,7 +1008,7 @@ impl GameState {
                         self.shift_items("DN");
                         self.shift_npcs("DN");
                         self.map.shift("DN");
-                        self.dist_fo.1 += 1;
+                        self.dist_fo.1 -= 1;
                         self.gui.set_dist_fo(self.dist_fo);
                     } else {
                         self.player.y += 1;
@@ -1022,7 +1022,7 @@ impl GameState {
                         self.shift_items("LF");
                         self.shift_npcs("LF");
                         self.map.shift("LF");
-                        self.dist_fo.0 -= 1;
+                        self.dist_fo.0 += 1;
                         self.gui.set_dist_fo(self.dist_fo);
                     } else {
                         self.player.x -= 1;
@@ -1036,7 +1036,7 @@ impl GameState {
                         self.shift_items("RT");
                         self.shift_npcs("RT");
                         self.map.shift("RT");
-                        self.dist_fo.0 += 1;
+                        self.dist_fo.0 -= 1;
                         self.gui.set_dist_fo(self.dist_fo);
                     } else {
                         self.player.x += 1;
@@ -1226,7 +1226,7 @@ impl GameState {
         self.gui.set_inventory(self.player.get_inventory());
         self.gui.reset_cursor();
         loop {
-            self.gui.encounter_pick_item(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.encounter_pick_item(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1455,7 +1455,7 @@ impl GameState {
     fn item_interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_opt_draw(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.inter_opt_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1472,7 +1472,7 @@ impl GameState {
         }
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_res_draw(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.inter_res_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1496,7 +1496,7 @@ impl GameState {
         self.gui.reset_cursor();
         let comms = format!("{}#{}", npc.get_sname(), npc.get_comm());
         loop {
-            self.gui.npc_comm_draw(comms.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.npc_comm_draw(comms.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1526,7 +1526,7 @@ impl GameState {
     fn interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_adj_draw(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.inter_adj_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -2009,7 +2009,7 @@ impl GameState {
         true
     }
 
-    fn map_location(&self) -> Vec<Vec<Cells>> {
+    fn map_location(&mut self) {
         if self.location != Location::Null {
             let (lpos, lmap) = match self.location.clone() {
                 Location::Settlement(mut settle) => {
@@ -2031,12 +2031,13 @@ impl GameState {
                 }
             }
             // log::info!("map\n{:?}", map_vec.clone());
-            map_vec.clone()
-        } else {self.map.cells.clone()}
+            self.map.cells = map_vec.clone()
+        }
     }
 
 
     pub fn draw(&mut self) {
-        self.gui.draw(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+        self.map_location();
+        self.gui.draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
     }
 }
