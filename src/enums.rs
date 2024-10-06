@@ -1,6 +1,7 @@
 //enum
 use crate::item::Item;
 use crate::enemy::{Enemy};
+use crate::settlement::{Settlement};
 use crate::npc::{BaseNPC, CommNPC, ConvNPC, QuestNPC, ShopNPC};
 
 // Define the Cell enum
@@ -199,5 +200,12 @@ pub enum Shops {
     ExplorersGuild,
     CultistChurch,
     Clinic,
+    Null,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum Location {
+    Settlement(Settlement),
+    Puzzle,
     Null,
 }

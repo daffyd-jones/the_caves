@@ -1,5 +1,5 @@
 //gamestate
-use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, InterSteps, InterOpt, GameMode, FightSteps, Interactable, EncOpt};
+use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, InterSteps, InterOpt, GameMode, FightSteps, Interactable, EncOpt, Location};
 use crate::map::{Map, MAP_W, MAP_H};
 use crate::player::Player;
 use crate::enemy::{Enemy};
@@ -7,6 +7,7 @@ use crate::npc::{NPC, BaseNPC, CommNPC, Convo, NQuest, new_comm_npc, new_conv_np
 use crate::lsystems::LSystems;
 use crate::gui::GUI;
 use crate::settlements::Settlements;
+use crate::settlement::Settlement;
 // use crate::gui_man_draw::GUI;
 use crate::item::Item;
 use crate::notebook::Notebook;
@@ -302,7 +303,8 @@ pub struct GameState {
     map: Map,
     settles: Settlements,
     player: Player,
-    dist_fo: (i64, i64, i64, i64),
+    dist_fo: (i64, i64),
+    loc_rad: u16,
     level: u32,
     l_systems: LSystems,
     l_rate: u64,
@@ -314,6 +316,8 @@ pub struct GameState {
     key_debounce_dur: Duration,
     last_event_time: Instant,
     interactee: Interactable,
+    location: Location,
+    loc_map: Option<Vec<Vec<Cells>>>,
     enc: EncOpt,
 }
 
@@ -340,7 +344,8 @@ impl GameState {
             map,
             settles,
             player,
-            dist_fo: (0, 0, 0, 0),
+            dist_fo: (0, 0),
+            loc_rad: 500,
             level: 0,
             l_systems,
             l_rate,
@@ -352,6 +357,8 @@ impl GameState {
             key_debounce_dur: Duration::from_millis(60),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
+            location: Location::Null,
+            loc_map: None,
             enc: EncOpt::Null,
         }))
 
@@ -717,7 +724,7 @@ impl GameState {
         let fst = format!("You are being attacked by a {}", e.get_sname());
         self.gui.reset_cursor();
         loop {
-            self.gui.encounter_show_content(fst.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.encounter_show_content(fst.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -743,7 +750,7 @@ impl GameState {
             if !pstart {
                 let enatk = "Enemy is attacking.".to_string();
                 loop {
-                    self.gui.encounter_show_content(enatk.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.encounter_show_content(enatk.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -768,7 +775,7 @@ impl GameState {
                 };
                 self.gui.reset_cursor();
                 loop {
-                    self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -798,7 +805,7 @@ impl GameState {
             let popt = self.player.get_enc_opt();
             self.gui.reset_cursor();
             loop {
-                self.gui.encounter_user_options(popt.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                self.gui.encounter_user_options(popt.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                 if poll(std::time::Duration::from_millis(100)).unwrap() {
                     if let Event::Key(event) = read().unwrap() {
                         // log::info!("keykind {:?}", event.kind.clone());
@@ -838,7 +845,7 @@ impl GameState {
             self.gui.reset_cursor();
             loop {
                 if itm {break;}
-                self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                 if poll(std::time::Duration::from_millis(100)).unwrap() {
                     if let Event::Key(event) = read().unwrap() {
                         // log::info!("keykind {:?}", event.kind.clone());
@@ -874,7 +881,7 @@ impl GameState {
         };
         self.gui.reset_cursor();
         loop {
-            self.gui.encounter_show_content(win_msg.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.encounter_show_content(win_msg.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -935,7 +942,7 @@ impl GameState {
         match self.game_mode {
             GameMode::Play => {
                 loop {
-                    self.gui.item_used_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.item_used_draw(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -956,7 +963,7 @@ impl GameState {
             GameMode::Fight(_) => {
                 let itstr = format!("You used the {}", item.clone().get_sname());
                 loop {
-                    self.gui.encounter_show_content(itstr.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.encounter_show_content(itstr.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -982,62 +989,58 @@ impl GameState {
         match code {
             KeyCode::Up => {
                 if self.collision("UP") {} else {
-                    self.dist_fo.0 += 1;
-                    self.dist_fo.1 -= 1;
                     if self.player.y - 1 <= self.map.viewport_y + (self.map.viewport_height/7) {
                         self.shift_enemies("UP");
                         self.shift_items("UP");
                         self.shift_npcs("UP");
                         self.map.shift("UP");
+                        self.dist_fo.1 -= 1;
+                        self.gui.set_dist_fo(self.dist_fo);
                     } else {
                         self.player.y -= 1;
                     }
-                    self.gui.set_dist_fo(self.dist_fo);
                 }
             },
             KeyCode::Down => {
                 if self.collision("DN") {} else {
-                    self.dist_fo.1 += 1;
-                    self.dist_fo.0 -= 1;
                     if self.player.y + 1 >= (self.map.viewport_height + self.map.viewport_y) - (self.map.viewport_height/7) {
                         self.shift_enemies("DN");
                         self.shift_items("DN");
                         self.shift_npcs("DN");
                         self.map.shift("DN");
+                        self.dist_fo.1 += 1;
+                        self.gui.set_dist_fo(self.dist_fo);
                     } else {
                         self.player.y += 1;
                     }
-                    self.gui.set_dist_fo(self.dist_fo);
                 }
             },
             KeyCode::Left => {
                 if self.collision("LF") {} else {
-                    self.dist_fo.2 += 1;
-                    self.dist_fo.3 -= 1;
                     if self.player.x - 1 <= self.map.viewport_x + (self.map.viewport_width/7) {
                         self.shift_enemies("LF");
                         self.shift_items("LF");
                         self.shift_npcs("LF");
                         self.map.shift("LF");
+                        self.dist_fo.0 -= 1;
+                        self.gui.set_dist_fo(self.dist_fo);
                     } else {
                         self.player.x -= 1;
                     }
-                    self.gui.set_dist_fo(self.dist_fo);
                 }
             },
             KeyCode::Right => {
                 if self.collision("RT") {} else {
-                    self.dist_fo.3 += 1;
-                    self.dist_fo.2 -= 1;
                     if self.player.x + 1 >= (self.map.viewport_width + self.map.viewport_x) - (self.map.viewport_width/7) {
                         self.shift_enemies("RT");
                         self.shift_items("RT");
                         self.shift_npcs("RT");
                         self.map.shift("RT");
+                        self.dist_fo.0 += 1;
+                        self.gui.set_dist_fo(self.dist_fo);
                     } else {
                         self.player.x += 1;
                     }
-                    self.gui.set_dist_fo(self.dist_fo);
                 }
             },
             KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
@@ -1223,7 +1226,7 @@ impl GameState {
         self.gui.set_inventory(self.player.get_inventory());
         self.gui.reset_cursor();
         loop {
-            self.gui.encounter_pick_item(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.encounter_pick_item(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1452,7 +1455,7 @@ impl GameState {
     fn item_interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_opt_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.inter_opt_draw(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1469,7 +1472,7 @@ impl GameState {
         }
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_res_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.inter_res_draw(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1493,7 +1496,7 @@ impl GameState {
         self.gui.reset_cursor();
         let comms = format!("{}#{}", npc.get_sname(), npc.get_comm());
         loop {
-            self.gui.npc_comm_draw(comms.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.npc_comm_draw(comms.clone(), self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1523,7 +1526,7 @@ impl GameState {
     fn interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_adj_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.inter_adj_draw(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1945,6 +1948,25 @@ impl GameState {
         });
     }
 
+    fn location_check(&mut self) {
+        if let Some(settlement) = self.settles.check_location(self.dist_fo.clone(), self.loc_rad.clone()) {
+            self.location = Location::Settlement(settlement);
+        };
+    }
+
+    fn update_settlement(&self, settle: Settlement) {
+        // let map = settle.get_map();
+        // let pos = settle.get_pos();
+    }
+
+    fn update_location(&self) {
+        let location = self.location.clone();
+        match location {
+            Location::Settlement(settle) => self.update_settlement(settle),
+            _ => todo!(),
+        }
+    }
+
     pub fn update(&mut self) -> bool {
         let (vw, vh) = self.gui.get_viewport();
         self.map.set_viewport(vh, vw);
@@ -1979,27 +2001,42 @@ impl GameState {
             self.game_mode = GameMode::Fight(FightSteps::Open);
         }
 
-
-        // if self.enemy_rate == 1 {
-        //     self.update_npcs();
-        //     self.enemy_rate += 1;
-        // } else if self.enemy_rate == 6 {
-        //     self.enemy_rate = 0;
-        // } else {self.enemy_rate += 1;}
-        //
-        //
-        // if self.enemy_rate == 0 {
-        //     self.update_enemies();
-        //     self.enemy_rate += 1;
-        // } else if self.enemy_rate == 6 {
-        //     self.enemy_rate = 0;
-        // } else {self.enemy_rate += 1;}
+        self.location_check();
+        if self.location != Location::Null {
+            self.update_location();
+        }
 
         true
     }
 
+    fn map_location(&self) -> Vec<Vec<Cells>> {
+        if self.location != Location::Null {
+            let (lpos, lmap) = match self.location.clone() {
+                Location::Settlement(mut settle) => {
+                    let p = settle.get_pos();
+                    let m = settle.get_map();
+                    (p, m)
+                },
+                _ => todo!(),
+            };
+            let mut map_vec = self.map.cells.clone();
+            let pos = self.dist_fo;
+            for (i, row) in lmap.iter().enumerate() {
+                for (j, &cell) in row.iter().enumerate() {
+                    let main_i = (pos.1 + i as i64 + lpos.1) as usize;
+                    let main_j = (pos.0 + j as i64 + lpos.0) as usize;
+                    if main_i < map_vec.len() && main_j < map_vec[0].len() {
+                        map_vec[main_i][main_j] = cell;
+                    }
+                }
+            }
+            // log::info!("map\n{:?}", map_vec.clone());
+            map_vec.clone()
+        } else {self.map.cells.clone()}
+    }
+
 
     pub fn draw(&mut self) {
-        self.gui.draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+        self.gui.draw(self.map.clone(), self.map_location(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
     }
 }

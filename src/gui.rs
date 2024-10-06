@@ -29,13 +29,13 @@ use std::collections::HashMap;
 // use std::collections::HashSet;
 
 
-fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) -> Paragraph<'a> {
+fn draw_map<'a>(mut map: Map, map_vec: Vec<Vec<Cells>>, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) -> Paragraph<'a> {
     let start_row = map.viewport_y;
     let end_row = (map.viewport_y + map.viewport_height).min(map.cells.len());
     let start_col = map.viewport_x;
     let end_col = (map.viewport_x + map.viewport_width).min(map.cells[0].len());
     let mut text = Vec::new();
-    for (j, row) in map.cells[start_row..end_row].iter().enumerate() {
+    for (j, row) in map_vec[start_row..end_row].iter().enumerate() {
         let mut line = Vec::new();
         for (i, &cell) in row[start_col..end_col].iter().enumerate() {
             let (symbol, color) = {
@@ -75,13 +75,6 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                         Cells::Grass2 => ('\'', Color::LightGreen),
                         Cells::Rock => ('*', Color::DarkGray),
                         Cells::Wall => {
-                            // let mut rng = rand::thread_rng();
-                            // let rnd = rng.gen_range(0..10);
-                            // if rnd < 3 {
-                            //     ('▒', Color::LightCyan)
-                            // } else {
-                            //     ('░', Color::LightCyan)
-                            // }
                             ('░', Color::LightCyan)
                         },
                         Cells::MwH => ('═', Color::LightBlue),
@@ -155,7 +148,7 @@ pub struct GUI {
     inter_options: (Vec<(InterOpt, String)>, Vec<(InterOpt, String)>),
     inventory: Vec<Item>,
     inv_opt: (Vec<(usize, Item)>, Vec<(usize, Item)>, Vec<(usize, Item)>),
-    dist_fo: (i64, i64, i64, i64),
+    dist_fo: (i64, i64),
     notes_opt: (Vec<String>, Vec<String>),
     active_notes: (Vec<Quest>, Vec<Place>, Vec<Person>, Vec<Lore>),
     enc_opt: (Vec<(EncOpt, String)>, Vec<(EncOpt, String)>),
@@ -218,7 +211,7 @@ impl GUI {
             inter_options,
             inventory,
             inv_opt,
-            dist_fo: (0, 0, 0, 0),
+            dist_fo: (0, 0),
             notes_opt,
             active_notes: (quests, places, people, lore),
             enc_opt,
@@ -236,7 +229,7 @@ impl GUI {
         self.active_notes = notes;
     }
 
-    pub fn set_dist_fo(&mut self, temp: (i64, i64, i64, i64)) {
+    pub fn set_dist_fo(&mut self, temp: (i64, i64)) {
         self.dist_fo = temp;
     }
 
@@ -335,7 +328,7 @@ impl GUI {
 
 
 
-    pub fn draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
+    pub fn draw(&mut self, mut map: Map, map_vec: Vec<Vec<Cells>>, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -373,7 +366,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone());
+            let paragraph = draw_map(map.clone(), map_vec, player.clone(), enemies.clone(), items.clone(), npcs.clone());
 
             f.render_widget(paragraph, inner_area);
 
@@ -703,7 +696,7 @@ impl GUI {
                     log::info!("dist_fo: {:?}", self.dist_fo);
 
                     match self.dist_fo {
-                        ( u, d, l, r) if l > r && l.abs() >= u.abs() && l.abs() >= d.abs() => {
+                        (dx, dy) if dx < 0 && dx.abs() >= dy.abs() => {
                             for y in 0..height {
                                 for x in 0..width {
                                     if y < cen_y && (y + 1) as f32 >= slope * (width - (x + 1)) as f32 {
@@ -720,7 +713,7 @@ impl GUI {
                                 .block(paragraph_block);
                             f.render_widget(compass, upper_region);
                         },
-                        (u, d, l, r) if r > l && r.abs() >= u.abs() && r.abs() >= d.abs() => {
+                        (dx, dy) if dx > 0 && dx.abs() >= dy.abs() => {
                             for y in 0..height {
                                 for x in 0..width {
                                     if y <= cen_y && y as f32 >= slope * x as f32 {
@@ -737,7 +730,7 @@ impl GUI {
                                 .block(paragraph_block);
                             f.render_widget(compass, upper_region);
                         },
-                        (u, d, l, r) if u > d && u.abs() >= l.abs() && u.abs() >= r.abs() => {
+                        (dx, dy) if dy < 0 && dy.abs() >= dx.abs() => {
                             for y in 0..height {
                                 for x in 0..width {
                                     if x < cen_x && y >= cen_y - 1 && (y + 1) as f32 >= slope * (width - (x + 3)) as f32 {
@@ -754,7 +747,7 @@ impl GUI {
                                 .block(paragraph_block);
                             f.render_widget(compass, upper_region);
                         },
-                        (u, d, l, r) if d > u && d.abs() >= l.abs() && d.abs() >= r.abs() => {
+                        (dx, dy) if dy > 0 &&  dy.abs() >= dx.abs() => {
                             for y in 0..height {
                                 for x in 0..width {
                                     if x < cen_x && y < cen_y && y as f32 <= slope * x as f32 {
@@ -771,7 +764,7 @@ impl GUI {
                                 .block(paragraph_block);
                             f.render_widget(compass, upper_region);
                         },
-                        (0, 0, 0, 0) => {
+                        (0, 0) => {
                             for y in 0..height {
                                 for x in 0..width {
                                     let dx = (cen_x as isize - x as isize).abs();

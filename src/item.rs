@@ -2,7 +2,7 @@
 use crate::enums::{Items, InterOpt, ItemOpt};
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Item {
     pub itype: Items,
     pub sname: String,

@@ -3,6 +3,7 @@ use crate::enums::{Shops, NPCWrap};
 use crate::npc::{ShopNPC};
 use crate::item::{Item};
 
+#[derive(Clone, Debug, PartialEq)]
 pub struct Shop {
     sptype: Shops,
     sname: String,
