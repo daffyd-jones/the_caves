@@ -42,7 +42,7 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                 let ix = i + start_col;
                 let jy = j + start_row;
                 if (ix, jy) == (player.x, player.y) {
-                    ('¡', Color::Green)
+                    ('¡', Color::LightYellow)
                 } else if let Some(enemy) = enemies.get(&(ix, jy)) {
                     match enemy.etype {
                         Enemies::Bug => ('B', Color::Red),
@@ -59,11 +59,11 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                     }
                 } else if let Some(item) = items.get(&(ix, jy)) {
                     match item.itype {
-                        Items::Rock => ('o', Color::Cyan),
-                        Items::EdibleRoot => ('o', Color::Cyan),
-                        Items::Apple => ('o', Color::Cyan),
-                        Items::MetalScrap => ('o', Color::Cyan),
-                        Items::BugBits => ('o', Color::Cyan),
+                        Items::Rock => ('o', Color::Yellow),
+                        Items::EdibleRoot => ('o', Color::Yellow),
+                        Items::Apple => ('o', Color::Yellow),
+                        Items::MetalScrap => ('o', Color::Yellow),
+                        Items::BugBits => ('o', Color::Yellow),
                         _ => todo!(),
                     }
                 } else {
@@ -71,36 +71,38 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                         Cells::Empty => (' ', Color::White),
                         Cells::Dirt1 => ('·', Color::DarkGray),
                         Cells::Dirt2 => ('.', Color::DarkGray),
-                        Cells::Grass1 => (',', Color::Green),
-                        Cells::Grass2 => ('\'', Color::LightGreen),
+                        Cells::Grass1 => (',', Color::LightGreen),
+                        Cells::Grass2 => ('\'', Color::LightMagenta),
                         Cells::Rock => ('*', Color::DarkGray),
                         Cells::Wall => {
-                            ('░', Color::LightCyan)
+                            // ('░', Color::LightCyan)
+                            ('▓', Color::LightCyan)
                         },
                         Cells::NPCM => (' ', Color::White),
-                        Cells::Floor => (' ', Color::White),
-                        Cells::MwH => ('═', Color::LightBlue),
-                        Cells::MwV => ('║', Color::LightBlue),
-                        Cells::MwVL => ('╣', Color::LightBlue),
-                        Cells::MwVR => ('╠', Color::LightBlue),
-                        Cells::MwHU => ('╩', Color::LightBlue),
-                        Cells::MwHD => ('╦', Color::LightBlue),
-                        Cells::MwUL => ('╝', Color::LightBlue),
-                        Cells::MwUR => ('╚', Color::LightBlue),
-                        Cells::MwDL => ('╗', Color::LightBlue),
-                        Cells::MwDR => ('╔', Color::LightBlue),
-                        Cells::MwCR => ('╬', Color::LightBlue),
-                        Cells::SwH => ('─', Color::LightBlue),
-                        Cells::SwV => ('│', Color::LightBlue),
-                        Cells::SwVL => ('┤', Color::LightBlue),
-                        Cells::SwVR => ('├', Color::LightBlue),
-                        Cells::SwHU => ('┴', Color::LightBlue),
-                        Cells::SwHD => ('┬', Color::LightBlue),
-                        Cells::SwUL => ('┘', Color::LightBlue),
-                        Cells::SwUR => ('└', Color::LightBlue),
-                        Cells::SwDL => ('┐', Color::LightBlue),
-                        Cells::SwDR => ('┌', Color::LightBlue),
-                        Cells::SwCR => ('┼', Color::LightBlue),
+                        Cells::Floor => ('░', Color::Black),
+                        Cells::Floor2 => ('░', Color::Gray),
+                         Cells::MwH => ('═', Color::DarkGray),
+                         Cells::MwV => ('║', Color::DarkGray),
+                        Cells::MwVL => ('╣', Color::DarkGray),
+                        Cells::MwVR => ('╠', Color::DarkGray),
+                        Cells::MwHU => ('╩', Color::DarkGray),
+                        Cells::MwHD => ('╦', Color::DarkGray),
+                        Cells::MwUL => ('╝', Color::DarkGray),
+                        Cells::MwUR => ('╚', Color::DarkGray),
+                        Cells::MwDL => ('╗', Color::DarkGray),
+                        Cells::MwDR => ('╔', Color::DarkGray),
+                        Cells::MwCR => ('╬', Color::DarkGray),
+                         Cells::SwH => ('─', Color::DarkGray),
+                         Cells::SwV => ('│', Color::DarkGray),
+                        Cells::SwVL => ('┤', Color::DarkGray),
+                        Cells::SwVR => ('├', Color::DarkGray),
+                        Cells::SwHU => ('┴', Color::DarkGray),
+                        Cells::SwHD => ('┬', Color::DarkGray),
+                        Cells::SwUL => ('┘', Color::DarkGray),
+                        Cells::SwUR => ('└', Color::DarkGray),
+                        Cells::SwDL => ('┐', Color::DarkGray),
+                        Cells::SwDR => ('┌', Color::DarkGray),
+                        Cells::SwCR => ('┼', Color::DarkGray),
                         Cells::Cong => ('≡', Color::LightBlue),
                         Cells::Deg => ('°', Color::LightBlue),
                         Cells::Mult => ('×', Color::LightBlue),
@@ -698,7 +700,7 @@ impl GUI {
                     log::info!("dist_fo: {:?}", self.dist_fo);
 
                     match self.dist_fo {
-                        (dx, dy) if dx < 0 && dx.abs() >= dy.abs() => {
+                        (dx, dy) if dx > 0 && dx.abs() >= dy.abs() => {
                             for y in 0..height {
                                 for x in 0..width {
                                     if y < cen_y && (y + 1) as f32 >= slope * (width - (x + 1)) as f32 {
@@ -715,7 +717,7 @@ impl GUI {
                                 .block(paragraph_block);
                             f.render_widget(compass, upper_region);
                         },
-                        (dx, dy) if dx > 0 && dx.abs() >= dy.abs() => {
+                        (dx, dy) if dx < 0 && dx.abs() >= dy.abs() => {
                             for y in 0..height {
                                 for x in 0..width {
                                     if y <= cen_y && y as f32 >= slope * x as f32 {
@@ -732,7 +734,7 @@ impl GUI {
                                 .block(paragraph_block);
                             f.render_widget(compass, upper_region);
                         },
-                        (dx, dy) if dy < 0 && dy.abs() >= dx.abs() => {
+                        (dx, dy) if dy > 0 && dy.abs() >= dx.abs() => {
                             for y in 0..height {
                                 for x in 0..width {
                                     if x < cen_x && y >= cen_y - 1 && (y + 1) as f32 >= slope * (width - (x + 3)) as f32 {
@@ -749,7 +751,7 @@ impl GUI {
                                 .block(paragraph_block);
                             f.render_widget(compass, upper_region);
                         },
-                        (dx, dy) if dy > 0 &&  dy.abs() >= dx.abs() => {
+                        (dx, dy) if dy < 0 &&  dy.abs() >= dx.abs() => {
                             for y in 0..height {
                                 for x in 0..width {
                                     if x < cen_x && y < cen_y && y as f32 <= slope * x as f32 {

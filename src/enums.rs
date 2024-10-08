@@ -15,6 +15,7 @@ pub enum Cells {
     Rock,
     Wall,
     Floor,
+    Floor2,
     Tunnel,
     Water,
     MwH,

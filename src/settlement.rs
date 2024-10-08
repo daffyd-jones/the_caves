@@ -583,8 +583,14 @@ fn parse_map(s_map: &str) -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>)
         for (x, ch) in line.chars().enumerate() {
             let cell = match ch.clone() {
                 '_' => Cells::Empty,
+                ',' => Cells::Grass1,
+                '\'' => Cells::Grass2,
+                '·' => Cells::Dirt1,
+                '.' => Cells::Dirt2,
+                '*' => Cells::Rock,
                 '▒' => Cells::Wall,
                 ' ' => Cells::Floor,
+                '░' => Cells::Floor2,
                 '~' => Cells::Water,
                 '═' => Cells::MwH,
                 '║' => Cells::MwV,

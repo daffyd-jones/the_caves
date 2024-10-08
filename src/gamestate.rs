@@ -1292,7 +1292,7 @@ impl GameState {
         } else {
             self.player.set_enc_last_turn((EncOpt::Attack, 0));
         }
-
+        self.gui.reset_enc_opt();
     }
 
     fn enc_use_item(&mut self) {
@@ -1691,7 +1691,7 @@ impl GameState {
         let mut rng = rand::thread_rng();
         let (vx, vy, vw, vh) = self.map.get_viewport();
         //xx
-        match (self.map.gen_x, self.map.gen_y) {
+        match (self.map.gen_x * - 1, self.map.gen_y * - 1) {
             (x, y) if x < 0 && y == 0 => {
                 for _ in 0..50 {
                     loop {
@@ -1806,46 +1806,24 @@ impl GameState {
             },
             _ => {},
         }
+        // log::info!("{:?}", self.items);
+        let nt = self.items.clone();
+        for n in nt {
+            log::info!("{:?}", n);
+        }
+        log::info!("");
     }
 
     fn check_place_npcs(&mut self, x: usize, y: usize) -> bool {
         let data1 = fs::read_to_string("src/npcs/npc_names.json");
-        log::info!("{:?}", &data1);
+        // log::info!("{:?}", &data1);
         let names: Vec<String> = match data1 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
-                log::info!("{:?}", e);
+                // log::info!("{:?}", e);
                 Vec::new()
             },
         };
-        let data2 = fs::read_to_string("src/npcs/npc_comms.json");
-        log::info!("{:?}", &data2);
-        let comms: Vec<String> = match data2 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                Vec::new()
-            },
-        };
-        let data3 = fs::read_to_string("src/npcs/npc_convos.json");
-        log::info!("{:?}", &data3);
-        let convos: Vec<Convo> = match data3 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                Vec::new()
-            },
-        };
-        let data4 = fs::read_to_string("src/npcs/npc_quests.json");
-        log::info!("{:?}", &data4);
-        let quests: HashMap<String, NQuest> = match data4 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                HashMap::new()
-            },
-        };
-        // let mut npcs = HashMap::new();
         let mut rng = rand::thread_rng();
         let types = vec![NPCs::CommNPC];
         // let types = vec![NPCs::CommNPC, NPCs::ConvNPC, NPCs::QuestNPC];
@@ -1854,16 +1832,43 @@ impl GameState {
                 let npc = match i_type {
                     NPCs::CommNPC => {
                         let sname = &names[0];
+                        let data2 = fs::read_to_string("src/npcs/npc_comms.json");
+                        // log::info!("{:?}", &data2);
+                        let comms: Vec<String> = match data2 {
+                            Ok(content) => serde_json::from_str(&content).unwrap(),
+                            Err(e) => {
+                                // log::info!("{:?}", e);
+                                Vec::new()
+                            },
+                        };
                         let comm: Vec<String> = comms.clone();
                         NPCWrap::CommNPC(new_comm_npc(sname.to_string(), x, y, comm))
                     },
                     NPCs::ConvNPC => {
                         let sname = &names[0];
+                        let data3 = fs::read_to_string("src/npcs/npc_convos.json");
+                        // log::info!("{:?}", &data3);
+                        let convos: Vec<Convo> = match data3 {
+                            Ok(content) => serde_json::from_str(&content).unwrap(),
+                            Err(e) => {
+                                // log::info!("{:?}", e);
+                                Vec::new()
+                            },
+                        };
                         let conv: Convo = convos[0].clone();
                         NPCWrap::ConvNPC(new_conv_npc(sname.to_string(), x, y, conv))
                     },
                     NPCs::QuestNPC => {
                         let sname = &names[0];
+                        let data4 = fs::read_to_string("src/npcs/npc_quests.json");
+                        // log::info!("{:?}", &data4);
+                        let quests: HashMap<String, NQuest> = match data4 {
+                            Ok(content) => serde_json::from_str(&content).unwrap(),
+                            Err(e) => {
+                                // log::info!("{:?}", e);
+                                HashMap::new()
+                            },
+                        };
                         let quest: NQuest = quests["get_quest"].clone();
                         NPCWrap::QuestNPC(new_quest_npc(sname.to_string(), x, y, quest))
                     },
@@ -1880,7 +1885,7 @@ impl GameState {
         let mut rng = rand::thread_rng();
         let (vx, vy, vw, vh) = self.map.get_viewport();
         //xx
-        match (self.map.gen_x, self.map.gen_y) {
+        match (self.map.gen_x * - 1, self.map.gen_y * - 1) {
             (x, y) if x < 0 && y == 0 => {
                 for _ in 0..20 {
                     loop {
@@ -1995,6 +2000,11 @@ impl GameState {
             },
             _ => {},
         }
+        let nt = self.npcs.clone();
+        for n in nt {
+            log::info!("{:?}", n);
+        }
+        log::info!("");
     }
 
     pub fn start_update_threads(game_state: Arc<Mutex<Self>>) {
@@ -2003,11 +2013,11 @@ impl GameState {
         let game_clone = Arc::clone(&game_state);
         thread::spawn(move || {
             loop {
-                log::info!("update npc pre");
+                // log::info!("update npc pre");
                 {
                     let mut game = game_clone.lock().unwrap();
                     // game.update_npcs();
-                    log::info!("update npc");
+                    // log::info!("update npc");
                     let step = game.step_group;
                     if game.game_mode == GameMode::Play {
                         game.update_enemies(step.clone());
@@ -2064,7 +2074,7 @@ impl GameState {
     pub fn update(&mut self) -> bool {
         let (vw, vh) = self.gui.get_viewport();
         self.map.set_viewport(vh, vw);
-        log::info!("update");
+        // log::info!("update");
         let res = match self.game_mode {
             GameMode::Play => self.play_update(),
             GameMode::Interact(_) => self.interaction(),
