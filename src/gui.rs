@@ -42,7 +42,7 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                 let ix = i + start_col;
                 let jy = j + start_row;
                 if (ix, jy) == (player.x, player.y) {
-                    ('¡', Color::Blue)
+                    ('¡', Color::Green)
                 } else if let Some(enemy) = enemies.get(&(ix, jy)) {
                     match enemy.etype {
                         Enemies::Bug => ('B', Color::Red),

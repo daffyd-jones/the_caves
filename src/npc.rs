@@ -111,6 +111,7 @@ pub trait NPC {
     fn get_ntype(&mut self) -> NPCs;
     fn get_sname(&mut self) -> String;
     fn get_pos(&mut self) -> (usize, usize);
+    fn set_pos(&mut self, pos: (usize, usize));
     fn set_steps(&mut self, steps: u8);
     fn inc_steps(&mut self);
     fn get_steps(&mut self) -> u8;
@@ -161,6 +162,11 @@ impl NPC for BaseNPC {
 
     fn get_pos(&mut self) -> (usize, usize) {
         (self.x, self.y)
+    }
+
+    fn set_pos(&mut self, pos: (usize, usize)) {
+        self.x = pos.0;
+        self.y = pos.1;
     }
 
     fn set_steps(&mut self, steps: u8) {
@@ -217,6 +223,11 @@ impl NPC for CommNPC {
 
     fn get_pos(&mut self) -> (usize, usize) {
         (self.base.x, self.base.y)
+    }
+
+    fn set_pos(&mut self, pos: (usize, usize)) {
+        self.base.x = pos.0;
+        self.base.y = pos.1;
     }
 
     fn set_steps(&mut self, steps: u8) {
@@ -279,6 +290,11 @@ impl NPC for ConvNPC {
         (self.base.x, self.base.y)
     }
 
+    fn set_pos(&mut self, pos: (usize, usize)) {
+        self.base.x = pos.0;
+        self.base.y = pos.1;
+    }
+
     fn set_steps(&mut self, steps: u8) {
         self.base.steps = steps;
     }
@@ -333,6 +349,11 @@ impl NPC for QuestNPC {
 
     fn get_pos(&mut self) -> (usize, usize) {
         (self.base.x, self.base.y)
+    }
+
+    fn set_pos(&mut self, pos: (usize, usize)) {
+        self.base.x = pos.0;
+        self.base.y = pos.1;
     }
 
     fn set_steps(&mut self, steps: u8) {
@@ -390,6 +411,11 @@ impl NPC for ShopNPC {
 
     fn get_pos(&mut self) -> (usize, usize) {
         (self.base.x, self.base.y)
+    }
+
+    fn set_pos(&mut self, pos: (usize, usize)) {
+        self.base.x = pos.0;
+        self.base.y = pos.1;
     }
 
     fn set_steps(&mut self, steps: u8) {

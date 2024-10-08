@@ -40,16 +40,38 @@ use std::fs;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+fn gen_broken_range<R: Rng>(rng: &mut R, start1: i32, end1: i32, start2: i32, end2: i32) -> i32 {
+    let range1_len = end1 - start1;
+    let range2_len = end2 - start2;
+    let total_len = range1_len + range2_len;
+
+    let rand_val = rng.gen_range(0..total_len);
+
+    if rand_val < range1_len {
+        start1 + rand_val
+    } else {
+        start2 + (rand_val - range1_len)
+    }
+}
+
 fn place_enemies(mut map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
     let mut enemies = HashMap::new();
     let mut rng = rand::thread_rng();
     let etype = Enemies::Bug;
     let m_h = map.len() - 1;
     let m_w = map[0].len() - 1;
-    for _ in 0..100 {
+    for i in 0..100 {
         loop {
-            let x = rng.gen_range(10..m_w-10);
-            let y = rng.gen_range(10..m_h-10);
+            // let y = rng.gen_range(10..m_h-10);
+            let (x, y) = if i % 2 == 0 {
+                let x = gen_broken_range(&mut rng, 10, (m_w/3) as i32, (m_w/3) as i32 *2, (m_w-10) as i32) as usize;
+                let y = rng.gen_range(10..m_h-10);
+                (x, y)
+            } else {
+                let x = rng.gen_range(10..m_w-10);
+                let y = gen_broken_range(&mut rng, 10, (m_h/3) as i32, (m_h/3) as i32 *2, (m_h-10) as i32) as usize;
+                (x, y)
+            };
             if map[y][x] == Cells::Empty {
                 let mut temp_vec = Vec::new();
                 temp_vec.push(Items::BugBits);
@@ -108,10 +130,19 @@ fn place_npcs(mut map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), NPCWrap> {
     // let types = vec![NPCs::CommNPC, NPCs::ConvNPC, NPCs::QuestNPC];
     let m_h = map.len() - 1;
     let m_w = map[0].len() - 1;
-    for _ in 0..50 {
+    for i in 0..50 {
         loop {
-            let x = rng.gen_range(10..m_w-10);
-            let y = rng.gen_range(10..m_h-10);
+            let (x, y) = if i % 2 == 0 {
+                let x = gen_broken_range(&mut rng, 10, (m_w/3) as i32, (m_w/3) as i32 *2, (m_w-10) as i32) as usize;
+                let y = rng.gen_range(10..m_h-10);
+                (x, y)
+            } else {
+                let x = rng.gen_range(10..m_w-10);
+                let y = gen_broken_range(&mut rng, 10, (m_h/3) as i32, (m_h/3) as i32 *2, (m_h-10) as i32) as usize;
+                (x, y)
+            };
+            // let x = rng.gen_range(10..m_w-10);
+            // let y = rng.gen_range(10..m_h-10);
             if map[y][x] == Cells::Empty {
                 if let Some(i_type) = types.choose(&mut rng){
                     let npc = match i_type {
@@ -147,10 +178,19 @@ fn init_items(mut map: Vec<Vec<Cells>>, enemies: HashMap<(usize, usize), Enemy>)
     let types = vec![Items::Rock, Items::EdibleRoot];
     let m_h = map.len() - 1;
     let m_w = map[0].len() - 1;
-    for _ in 0..200 {
+    for i in 0..200 {
         loop {
-            let x = rng.gen_range(10..m_w-10);
-            let y = rng.gen_range(10..m_h-10);
+            let (x, y) = if i % 2 == 0 {
+                let x = gen_broken_range(&mut rng, 10, (m_w/3) as i32, (m_w/3) as i32 *2, (m_w-10) as i32) as usize;
+                let y = rng.gen_range(10..m_h-10);
+                (x, y)
+            } else {
+                let x = rng.gen_range(10..m_w-10);
+                let y = gen_broken_range(&mut rng, 10, (m_h/3) as i32, (m_h/3) as i32 *2, (m_h-10) as i32) as usize;
+                (x, y)
+            };
+            // let x = rng.gen_range(10..m_w-10);
+            // let y = rng.gen_range(10..m_h-10);
             if map[y][x] == Cells::Empty && !enemies.contains_key(&(x, y)) {
                 if let Some(i_type) = types.choose(&mut rng){
                     let itm = match i_type {
@@ -199,22 +239,26 @@ fn map_to_string(cells: &Vec<Vec<Cells>>) -> String {
 fn n_collision(dir: &str, pos: (usize, usize), cells: Vec<Vec<Cells>>) -> bool {
     match dir {
         "UP" => {
-            let map_coll = cells[pos.1 - 1][pos.0] == Cells::Wall;
+            let map_coll = collision_cells.contains(&cells[pos.1 - 1][pos.0]);
+            // let map_coll = cells[pos.1 - 1][pos.0] == Cells::Wall;
             // let item_coll = self.items.contains_key(&(pos.0, pos.1 - 1));
             map_coll //|| item_coll
         },
         "DN" => {
-            let map_coll = cells[pos.1 + 1][pos.0] == Cells::Wall;
+            let map_coll = collision_cells.contains(&cells[pos.1 + 1][pos.0]);
+            // let map_coll = cells[pos.1 + 1][pos.0] == Cells::Wall;
             // let item_coll = self.items.contains_key(&(pos.0, pos.1 + 1));
             map_coll //|| item_coll
         },
         "LF" => {
-            let map_coll = cells[pos.1][pos.0 - 1] == Cells::Wall;
+            let map_coll = collision_cells.contains(&cells[pos.1][pos.0 - 1]);
+            // let map_coll = cells[pos.1][pos.0 - 1] == Cells::Wall;
             // let item_coll = self.items.contains_key(&(pos.0 - 1, pos.1));
             map_coll //|| item_coll
         },
         "RT" => {
-            let map_coll = cells[pos.1][pos.0 + 1] == Cells::Wall;
+            let map_coll = collision_cells.contains(&cells[pos.1][pos.0 + 1]);
+            // let map_coll = cells[pos.1][pos.0 + 1] == Cells::Wall;
             // let item_coll = self.items.contains_key(&(pos.0 + 1, pos.1));
             map_coll //|| item_coll
         },
@@ -225,7 +269,7 @@ fn n_collision(dir: &str, pos: (usize, usize), cells: Vec<Vec<Cells>>) -> bool {
 fn npc_move(mut npc: Box<dyn NPC>, map: Vec<Vec<Cells>>, mw: usize, mh: usize, x: usize, y: usize) -> ((usize, usize), Box<dyn NPC>) {
     let mut rng = rand::thread_rng();
     let dch = rng.gen_range(0..20);
-    if dch % 4 == 0 {
+    if dch % 5 == 0 {
         npc.set_steps(dch);
     }
     let pos = if npc.get_steps() < 5 {
@@ -294,7 +338,36 @@ fn wrap_nbox(mut nbox: Box<dyn NPC>) -> NPCWrap {
     }
 }
 
-
+const collision_cells: [Cells; 28] = [
+    Cells::Wall,
+    Cells::MwH,
+    Cells::MwV,
+    Cells::MwVL,
+    Cells::MwVR,
+    Cells::MwHU,
+    Cells::MwHD,
+    Cells::MwUL,
+    Cells::MwUR,
+    Cells::MwDL,
+    Cells::MwDR,
+    Cells::MwCR,
+    Cells::SwH,
+    Cells::SwV,
+    Cells::SwVL,
+    Cells::SwVR,
+    Cells::SwHU,
+    Cells::SwHD,
+    Cells::SwUL,
+    Cells::SwUR,
+    Cells::SwDL,
+    Cells::SwDR,
+    Cells::SwCR,
+    Cells::LBrce,
+    Cells::RBrce,
+    Cells::LParen,
+    Cells::RParen,
+    Cells::GenCur,
+];
 
 pub struct GameState {
     game_mode: GameMode,
@@ -327,7 +400,8 @@ impl GameState {
         let mut map = Map::new();
         let x = map.px.clone();
         let y = map.py.clone();
-        let player = Player::new(x, y);
+        let player = Player::new(309, 195);
+        // let player = Player::new(x, y);
         let mut l_systems = LSystems::new();
         let enemies = place_enemies(map.cells.clone());
         let items = init_items(map.cells.clone(), enemies.clone());
@@ -354,7 +428,7 @@ impl GameState {
             items,
             // item_drop,
             npcs,
-            key_debounce_dur: Duration::from_millis(60),
+            key_debounce_dur: Duration::from_millis(20),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
             location: Location::Null,
@@ -388,22 +462,22 @@ impl GameState {
     fn collision(&mut self, dir: &str) -> bool {
         match dir {
             "UP" => {
-                let map_coll = self.map.cells[self.player.y - 1][self.player.x] == Cells::Wall;
+                let map_coll = collision_cells.contains(&self.map.cells[self.player.y - 1][self.player.x]);
                 let item_coll = self.items.contains_key(&(self.player.x, self.player.y - 1));
                 map_coll || item_coll
             },
             "DN" => {
-                let map_coll = self.map.cells[self.player.y + 1][self.player.x] == Cells::Wall;
+                let map_coll = collision_cells.contains(&self.map.cells[self.player.y + 1][self.player.x]);
                 let item_coll = self.items.contains_key(&(self.player.x, self.player.y + 1));
                 map_coll || item_coll
             },
             "LF" => {
-                let map_coll = self.map.cells[self.player.y][self.player.x - 1] == Cells::Wall;
+                let map_coll = collision_cells.contains(&self.map.cells[self.player.y][self.player.x - 1]);
                 let item_coll = self.items.contains_key(&(self.player.x - 1, self.player.y));
                 map_coll || item_coll
             },
             "RT" => {
-                let map_coll = self.map.cells[self.player.y][self.player.x + 1] == Cells::Wall;
+                let map_coll = collision_cells.contains(&self.map.cells[self.player.y][self.player.x + 1]);
                 let item_coll = self.items.contains_key(&(self.player.x + 1, self.player.y));
                 map_coll || item_coll
             },
@@ -414,22 +488,22 @@ impl GameState {
     fn e_collision(&mut self, dir: &str, entity: Enemy) -> bool {
         match dir {
             "UP" => {
-                let map_coll = self.map.cells[entity.y - 1][entity.x] == Cells::Wall;
+                let map_coll = collision_cells.contains(&self.map.cells[entity.y - 1][entity.x]);
                 let item_coll = self.items.contains_key(&(entity.x, entity.y - 1));
                 map_coll || item_coll
             },
             "DN" => {
-                let map_coll = self.map.cells[entity.y + 1][entity.x] == Cells::Wall;
+                let map_coll = collision_cells.contains(&self.map.cells[entity.y + 1][entity.x]);
                 let item_coll = self.items.contains_key(&(entity.x, entity.y + 1));
                 map_coll || item_coll
             },
             "LF" => {
-                let map_coll = self.map.cells[entity.y][entity.x - 1] == Cells::Wall;
+                let map_coll = collision_cells.contains(&self.map.cells[entity.y][entity.x - 1]);
                 let item_coll = self.items.contains_key(&(entity.x - 1, entity.y));
                 map_coll || item_coll
             },
             "RT" => {
-                let map_coll = self.map.cells[entity.y][entity.x + 1] == Cells::Wall;
+                let map_coll = collision_cells.contains(&self.map.cells[entity.y][entity.x + 1]);
                 let item_coll = self.items.contains_key(&(entity.x + 1, entity.y));
                 map_coll || item_coll
             },
@@ -1935,36 +2009,56 @@ impl GameState {
                     // game.update_npcs();
                     log::info!("update npc");
                     let step = game.step_group;
-                    game.update_enemies(step.clone());
-                    game.update_npcs(step.clone());
-                    if step < 15 {
-                        game.step_group += 1;
-                    } else {
-                        game.step_group = 0;
+                    if game.game_mode == GameMode::Play {
+                        game.update_enemies(step.clone());
+                        game.update_npcs(step.clone());
+                        if step < 15 {
+                            game.step_group += 1;
+                        } else {
+                            game.step_group = 0;
+                        }
                     }
                 }
-                thread::sleep(Duration::from_millis(15));
+                thread::sleep(Duration::from_millis(35));
             }
         });
     }
 
     fn location_check(&mut self) {
-        if let Some(settlement) = self.settles.check_location(self.dist_fo.clone(), self.loc_rad.clone()) {
-            self.location = Location::Settlement(settlement);
-        };
+        if self.location == Location::Null {
+            if let Some(settlement) = self.settles.check_location(self.dist_fo.clone(), self.loc_rad.clone()) {
+                self.location = Location::Settlement(settlement);
+            };
+        }
     }
 
-    fn update_settlement(&self, settle: Settlement) {
-        // let map = settle.get_map();
-        // let pos = settle.get_pos();
+    fn update_settlement(&mut self, mut settle: Settlement) -> Location {
+        if !settle.get_npcs_sent() {
+            let lpos = settle.get_pos();
+            let pos = self.dist_fo;
+            let dx = (lpos.0 - pos.0) as usize;
+            let dy = (lpos.1 - pos.1) as usize;
+            if dx < MAP_W && dy < MAP_H {
+                let tnpcs = settle.get_npcs();
+                for ((x, y), n) in tnpcs {
+                    let mut nbox = box_npc(n);
+                    let npos = nbox.get_pos();
+                    nbox.set_pos((npos.0 + dx, npos.1 + dy));
+                    self.npcs.insert((x + dx, y + dy), wrap_nbox(nbox));
+                }
+            }
+            settle.tog_npcs_sent();
+        }
+
+        Location::Settlement(settle.clone())
     }
 
-    fn update_location(&self) {
+    fn update_location(&mut self) {
         let location = self.location.clone();
-        match location {
+        self.location = match location {
             Location::Settlement(settle) => self.update_settlement(settle),
             _ => todo!(),
-        }
+        };
     }
 
     pub fn update(&mut self) -> bool {
@@ -2001,11 +2095,6 @@ impl GameState {
             self.game_mode = GameMode::Fight(FightSteps::Open);
         }
 
-        self.location_check();
-        if self.location != Location::Null {
-            self.update_location();
-        }
-
         true
     }
 
@@ -2037,6 +2126,10 @@ impl GameState {
 
 
     pub fn draw(&mut self) {
+        self.location_check();
+        if self.location != Location::Null {
+            self.update_location();
+        }
         self.map_location();
         self.gui.draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
     }
