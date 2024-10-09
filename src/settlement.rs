@@ -514,7 +514,7 @@ ________________________________________________________________________________
 "#;
 
 
-const cave_o: &str = r#"CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC|EdibleRoot EdibleRoot EdibleRoot EdibleRoot EdibleRoot EdibleRoot EdibleRoot EdibleRoot EdibleRoot EdibleRoot|
+const cave_o: &str = r#"CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple|
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
 ▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_________________________________▒▒▒▒_____________________________________▒▒▒▒____
@@ -572,13 +572,13 @@ ________________________________________________________________________________
 
 const palette: &str = "empty: ' . , ' * | wall: ▒ | other ▓ ░ ~ | pipes: ═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬   ┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │ ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©";
 
-fn parse_map(s_map: &str) -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>) {
+fn parse_map(s_map: &str) -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>, HashMap<(usize, usize), Item>) {
     // let mut cells: Vec<Vec<Cells>> = Vec::new();
     let mut map_codet = s_map.clone().lines().next().unwrap_or("");
     let mut map_code: Vec<&str> = map_codet.split("|").collect();
     let mut cells = vec![vec![Cells::Null; 150]; 50];
     let mut npcs = HashMap::new();
-    // let mut items = HashMap::new();
+    let mut items = HashMap::new();
     for (y, line) in s_map.lines().skip(1).enumerate() {
         for (x, ch) in line.chars().enumerate() {
             let cell = match ch.clone() {
@@ -648,25 +648,37 @@ fn parse_map(s_map: &str) -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>)
                     }
                 }
             }
-            // if ch.clone() == 'o' {
-            //     let item_types = map_code.clone()[0].split(" ").collect();
-            //     for i in item_types {
-            //         match i {
-            //             "EdibleRoot" => {
-            //                 let t_root = Item::new_edible_root(x.clone(), y.clone());
-            //                 items.insert((x.clone(), y.clone()), t_root.clone());
-            //             },
-            //             // "MetalScrap" => {
-            //             //     let t_scrap = Item::new_metal_scrap(x.clone(), y.clone());
-            //             //     items.insert((x.clone(), y.clone()), t_root.clone());
-            //             // },
-            //             _ => todo!(),
-            //         }
-            //     }
-            // }
+            if ch.clone() == 'o' {
+                let item_types: Vec<&str> = map_code.clone()[1].split(" ").collect();
+                for i in item_types {
+                    match i {
+                        "HealthPotion" => {
+                            let ti = Item::new_health_potion(x.clone(), y.clone());
+                            items.insert((x.clone(), y.clone()), ti.clone());
+                        },
+                        "Salve" => {
+                            let ti = Item::new_salve(x.clone(), y.clone());
+                            items.insert((x.clone(), y.clone()), ti.clone());
+                        },
+                        "Dowel" => {
+                            let ti = Item::new_dowel(x.clone(), y.clone());
+                            items.insert((x.clone(), y.clone()), ti.clone());
+                        },
+                        "WoodenBoard" => {
+                            let ti = Item::new_wooden_board(x.clone(), y.clone());
+                            items.insert((x.clone(), y.clone()), ti.clone());
+                        },
+                        "Apple" => {
+                            let ti = Item::new_apple(x.clone(), y.clone());
+                            items.insert((x.clone(), y.clone()), ti.clone());
+                        },
+                        _ => {log::info!("itm {:?}", i);},
+                    }
+                }
+            }
         }
     }
-    (cells, npcs)
+    (cells, npcs, items)
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -686,16 +698,16 @@ impl Settlement {
     }
 
     pub fn demo_settle(pos: (i64, i64), npcs: HashMap<(usize, usize), NPCWrap>) -> Self {
-        let (map, mpcs) = parse_map(cave_o);
+        let (map, mpcs, items) = parse_map(cave_o);
         let mut shops = HashMap::new();
         let mut cnv = HashMap::new();
         cnv.insert("open".to_string(), "Hey there!".to_string());
         let npc = new_shop_npc("Janiel".to_string(), 0, 0, cnv);
-        let npc_b = NPCWrap::ShopNPC(npc);
-        let mut stock = Vec::new();
-        let ti1 = Item::new_edible_root(0, 0);
-        stock.push(ti1);
-        let shop = Shop::new_item_shop("item shop".to_string(), npc_b, stock);
+        let npc_t = NPCWrap::ShopNPC(npc);
+        // let mut stock = Vec::new();
+        // let ti1 = Item::new_edible_root(0, 0);
+        // stock.push(ti1);
+        let shop = Shop::new_item_shop("item shop".to_string(), npc_t, items);
         shops.insert(Shops::Item, shop);
         Self {
             stype: Settle::Small,
@@ -705,6 +717,20 @@ impl Settlement {
             npcs_sent: false,
             shops: shops,
             map: map,
+        }
+    }
+
+    pub fn get_all_shop_items(&mut self) -> Option<HashMap<(usize, usize), Item>> {
+        let mut asi = HashMap::new();
+        for (_, shop) in &self.shops {
+            for ((x, y), i) in shop.get_stock() {
+                asi.insert((x, y), i.clone());
+            }
+        }
+        if asi.len() == 0 {
+            None
+        } else {
+            Some(asi.clone())
         }
     }
 

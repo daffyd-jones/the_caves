@@ -8,6 +8,7 @@ pub struct Item {
     pub sname: String,
     pub desc: String,
     pub iopts: HashMap<InterOpt, String>,
+    pub equip: bool,
     pub x: usize,
     pub y: usize,
     pub properties: HashMap<String, u16>,
@@ -24,6 +25,7 @@ impl Default for Item {
             sname: "".to_string(),
             desc: "".to_string(),
             iopts: h,
+            equip: false,
             x: 0,
             y: 0,
             properties: p,
@@ -32,13 +34,13 @@ impl Default for Item {
 }
 
 impl Item {
-    pub fn new(itype: Items, sname: String, desc: String, iopts: HashMap<InterOpt, String>, x: usize, y: usize, properties: HashMap<String, u16>) -> Self {
-        Self {itype, sname, desc, iopts, x, y, properties}
+    pub fn new(itype: Items, sname: String, desc: String, iopts: HashMap<InterOpt, String>, equip: bool, x: usize, y: usize, properties: HashMap<String, u16>) -> Self {
+        Self {itype, sname, desc, iopts, equip, x, y, properties}
     }
 
     pub fn new_edible_root(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Health"), 5);
+        prop.insert(String::from("Health"), 3);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -48,6 +50,7 @@ impl Item {
             sname: "Edible Root".to_string(),
             desc: "Weird looking root, doesnt look very tasty.".to_string(),
             iopts,
+            equip: false,
             x,
             y,
             properties: prop,
@@ -56,7 +59,7 @@ impl Item {
 
     pub fn new_rock(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Health"), 5);
+        prop.insert(String::from("Health"), 0);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -65,6 +68,7 @@ impl Item {
             sname: "Rock".to_string(),
             desc: "Its a rock.".to_string(),
             iopts,
+            equip: false,
             x,
             y,
             properties: prop,
@@ -83,6 +87,131 @@ impl Item {
             sname: "Bug Parts".to_string(),
             desc: "Parts of a dead bug.".to_string(),
             iopts,
+            equip: false,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_metal_scrap(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("Health"), 0);
+        prop.insert(String::from("Value"), 1);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+
+        Self {
+            itype: Items::MetalScrap,
+            sname: "Metal Scrap".to_string(),
+            desc: "Scrap of metal.".to_string(),
+            iopts,
+            equip: false,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_apple(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("Health"), 5);
+        prop.insert(String::from("Value"), 5);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+
+        Self {
+            itype: Items::Apple,
+            sname: "Apple".to_string(),
+            desc: "A slightly bruised apple that as been here for a while.".to_string(),
+            iopts,
+            equip: false,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_health_potion(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("Health"), 30);
+        prop.insert(String::from("Value"), 50);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        Self {
+            itype: Items::HealthPotion,
+            sname: "Health Potion".to_string(),
+            desc: "Mixture of curdled liquids. Returns vitality to the body.".to_string(),
+            iopts,
+            equip: false,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_salve(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("Health"), 15);
+        prop.insert(String::from("Value"), 30);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+
+        Self {
+            itype: Items::HealthPotion,
+            sname: "Salve".to_string(),
+            desc: "Thick paste for smearing on wounds. It heals better than it smells.".to_string(),
+            iopts,
+            equip: false,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_dowel(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("Damage"), 5);
+        prop.insert(String::from("Value"), 30);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+
+        Self {
+            itype: Items::Dowel,
+            sname: "Dowel".to_string(),
+            desc: "Most of a broomstick. Its sharp at one end.".to_string(),
+            iopts,
+            equip: true,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_wooden_board(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("Defence"), 5);
+        prop.insert(String::from("Value"), 30);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+
+        Self {
+            itype: Items::WoodenBoard,
+            sname: "Wooden Board".to_string(),
+            desc: "A wooden board with a strap attached to it.".to_string(),
+            iopts,
+            equip: true,
             x,
             y,
             properties: prop,
@@ -95,6 +224,15 @@ impl Item {
 
     pub fn get_sname(&mut self) -> String {
         self.sname.clone()
+    }
+
+    pub fn get_pos(&mut self) -> (usize, usize) {
+        (self.x.clone(), self.y.clone())
+    }
+
+    pub fn set_pos(&mut self, pos: (usize, usize)) {
+        self.x = pos.0;
+        self.y = pos.1;
     }
 
     pub fn get_properties(&mut self) -> HashMap<String, u16> {

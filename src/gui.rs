@@ -29,7 +29,7 @@ use std::collections::HashMap;
 // use std::collections::HashSet;
 
 
-fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) -> Paragraph<'a> {
+fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) -> Paragraph<'a> {
     let start_row = map.viewport_y;
     let end_row = (map.viewport_y + map.viewport_height).min(map.cells.len());
     let start_col = map.viewport_x;
@@ -58,6 +58,15 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                         _ => todo!(),
                     }
                 } else if let Some(item) = items.get(&(ix, jy)) {
+                    match item.itype {
+                        Items::Rock => ('o', Color::Yellow),
+                        Items::EdibleRoot => ('o', Color::Yellow),
+                        Items::Apple => ('o', Color::Yellow),
+                        Items::MetalScrap => ('o', Color::Yellow),
+                        Items::BugBits => ('o', Color::Yellow),
+                        _ => todo!(),
+                    }
+                } else if let Some(item) = litems.get(&(ix, jy)) {
                     match item.itype {
                         Items::Rock => ('o', Color::Yellow),
                         Items::EdibleRoot => ('o', Color::Yellow),
@@ -117,9 +126,9 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                         Cells::Cop => ('©', Color::LightBlue),
                         Cells::LBrce => ('{', Color::LightBlue),
                         Cells::RBrce => ('}', Color::LightBlue),
-                        Cells::LParen => ('(', Color::LightBlue),
-                        Cells::RParen => (')', Color::LightBlue),
-                        Cells::GenCur => ('¤', Color::LightBlue),
+                        Cells::LParen => ('(', Color::Magenta),
+                        Cells::RParen => (')', Color::Magenta),
+                        Cells::GenCur => ('¤', Color::LightRed),
                         _ => ('#', Color::Red),
                     }
                 }
@@ -182,7 +191,7 @@ impl GUI {
         let itype = String::new();
         let desc = String::new();
         let iopts = HashMap::new();
-        let i_temp = Item::new(Items::Null, itype, desc, iopts, 0, 0, prop);
+        let i_temp = Item::new(Items::Null, itype, desc, iopts, false, 0, 0, prop);
         let inv_opt = (
             vec![(0, i_temp.clone()); 25],
             vec![(0, i_temp.clone()); 25],
@@ -332,7 +341,7 @@ impl GUI {
 
 
 
-    pub fn draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>) {
+    pub fn draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -370,7 +379,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems);
 
             f.render_widget(paragraph, inner_area);
 
@@ -829,7 +838,7 @@ impl GUI {
                     let itype = String::new();
                     let desc = String::new();
                     let iopts = HashMap::new();
-                    let i_temp = Item::new(Items::Null, itype, desc, iopts, 0, 0, prop);
+                    let i_temp = Item::new(Items::Null, itype, desc, iopts, false, 0, 0, prop);
                     let mut col1 = vec![(0, i_temp.clone()); 25];
                     let mut col2 = vec![(0, i_temp.clone()); 25];
                     let mut col3 = vec![(0, i_temp.clone()); 25];

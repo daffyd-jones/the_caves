@@ -68,19 +68,22 @@ pub enum Cells {
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Items {
     HealthPotion, // +10 health
-    IronSheild, // +10 defence
-    IronSword,
-    MagicRing,
-    WeirdCloak,
-    PhoenixFeather,
     Salve,
-    Antidote,
-    ShadowBoots,
-    BugBits,
+    Dowel,
+    WoodenBoard,
+    IronShield, // +10 defence
+    IronSword,
     MetalScrap,
     Apple,
     EdibleRoot,
+    BugBits,
     Rock,
+    //
+    MagicRing,
+    WeirdCloak,
+    PhoenixFeather,
+    Antidote,
+    ShadowBoots,
     Null,
 }
 

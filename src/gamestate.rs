@@ -338,6 +338,28 @@ fn wrap_nbox(mut nbox: Box<dyn NPC>) -> NPCWrap {
     }
 }
 
+fn loc_shop_items(dist_fo: (i64, i64), loc: Location) -> HashMap<(usize, usize), Item> {
+    match loc {
+        Location::Settlement(mut settle) => {
+            let mut itms = HashMap::new();
+            if let Some(mut sitems) = settle.get_all_shop_items() {
+                let mut spos = settle.get_pos();
+                for ((x, y), mut i) in sitems {
+                    let nx = (dist_fo.0 + x as i64 + spos.0) as usize;
+                    let ny = (dist_fo.1 + y as i64 + spos.1) as usize;
+                    // let ipos = i.get_pos();
+                    i.set_pos((nx.clone(), ny.clone()));
+                    itms.insert((nx.clone(), ny.clone()), i);
+                }
+                itms
+            } else {
+                itms
+            }
+        },
+        _ => todo!(),
+    }
+}
+
 const collision_cells: [Cells; 28] = [
     Cells::Wall,
     Cells::MwH,
@@ -798,7 +820,7 @@ impl GameState {
         let fst = format!("You are being attacked by a {}", e.get_sname());
         self.gui.reset_cursor();
         loop {
-            self.gui.encounter_show_content(fst.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.encounter_show_content(fst.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -824,7 +846,7 @@ impl GameState {
             if !pstart {
                 let enatk = "Enemy is attacking.".to_string();
                 loop {
-                    self.gui.encounter_show_content(enatk.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.encounter_show_content(enatk.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -849,7 +871,7 @@ impl GameState {
                 };
                 self.gui.reset_cursor();
                 loop {
-                    self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -879,7 +901,7 @@ impl GameState {
             let popt = self.player.get_enc_opt();
             self.gui.reset_cursor();
             loop {
-                self.gui.encounter_user_options(popt.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                self.gui.encounter_user_options(popt.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
                 if poll(std::time::Duration::from_millis(100)).unwrap() {
                     if let Event::Key(event) = read().unwrap() {
                         // log::info!("keykind {:?}", event.kind.clone());
@@ -919,7 +941,7 @@ impl GameState {
             self.gui.reset_cursor();
             loop {
                 if itm {break;}
-                self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                self.gui.encounter_show_content(trn_res.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
                 if poll(std::time::Duration::from_millis(100)).unwrap() {
                     if let Event::Key(event) = read().unwrap() {
                         // log::info!("keykind {:?}", event.kind.clone());
@@ -955,7 +977,7 @@ impl GameState {
         };
         self.gui.reset_cursor();
         loop {
-            self.gui.encounter_show_content(win_msg.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.encounter_show_content(win_msg.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1016,7 +1038,7 @@ impl GameState {
         match self.game_mode {
             GameMode::Play => {
                 loop {
-                    self.gui.item_used_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.item_used_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -1037,7 +1059,7 @@ impl GameState {
             GameMode::Fight(_) => {
                 let itstr = format!("You used the {}", item.clone().get_sname());
                 loop {
-                    self.gui.encounter_show_content(itstr.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+                    self.gui.encounter_show_content(itstr.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -1300,7 +1322,7 @@ impl GameState {
         self.gui.set_inventory(self.player.get_inventory());
         self.gui.reset_cursor();
         loop {
-            self.gui.encounter_pick_item(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.encounter_pick_item(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1529,7 +1551,7 @@ impl GameState {
     fn item_interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_opt_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.inter_opt_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1546,7 +1568,7 @@ impl GameState {
         }
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_res_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.inter_res_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1570,7 +1592,7 @@ impl GameState {
         self.gui.reset_cursor();
         let comms = format!("{}#{}", npc.get_sname(), npc.get_comm());
         loop {
-            self.gui.npc_comm_draw(comms.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.npc_comm_draw(comms.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1600,7 +1622,7 @@ impl GameState {
     fn interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_adj_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+            self.gui.inter_adj_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1640,47 +1662,22 @@ impl GameState {
         let types = vec![Items::Rock, Items::EdibleRoot, Items::Apple, Items::MetalScrap];
         if self.map.cells[y][x] == Cells::Empty && !self.enemies.contains_key(&(x, y)) && !self.items.contains_key(&(x, y)) {
             if let Some(i_type) = types.choose(&mut rng){
-                let mut prop = HashMap::new();
-                let mut itype = String::new();
-                let mut desc = String::new();
-                let mut iopts = HashMap::new();
                 match i_type {
                     Items::EdibleRoot => {
-                        prop.insert(String::from("Health"), 5);
-                        itype = String::from("Edible Root");
-                        desc = String::from("Weird looking root, doesnt look very tasty.");
-                        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
-                        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
-                        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+                        self.items.insert((x, y), Item::new_edible_root(x, y));
                     },
                     Items::Apple => {
-                        prop.insert(String::from("Health"), 10);
-                        prop.insert(String::from("Value"), 5);
-                        itype = String::from("Apple");
-                        desc = String::from("An slightly bruised apple that as been here for a while.");
-                        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
-                        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
-                        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+                        self.items.insert((x, y), Item::new_apple(x, y));
+
                     },
                     Items::MetalScrap => {
-                        prop.insert(String::from("Health"), 0);
-                        prop.insert(String::from("Value"), 1);
-                        itype = String::from("Metal Scrap");
-                        desc = String::from("Scrap of metal");
-                        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
-                        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+                        self.items.insert((x, y), Item::new_metal_scrap(x, y));
                     },
                     Items::Rock => {
-                        prop.insert(String::from("Health"), 0);
-                        itype = String::from("Rock");
-                        desc = String::from("Its a rock.");
-                        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
-                        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+                        self.items.insert((x, y), Item::new_rock(x, y));
                     },
                     _ => todo!(),
                 };
-                let i_temp = Item::new(*i_type, itype, desc, iopts, x, y, prop);
-                self.items.insert((x, y), i_temp);
                 return true;
             }
         }
@@ -2060,6 +2057,23 @@ impl GameState {
             settle.tog_npcs_sent();
         }
 
+        // if !settle.get_npcs_sent() {
+        //     let lpos = settle.get_pos();
+        //     let pos = self.dist_fo;
+        //     let dx = (lpos.0 - pos.0) as usize;
+        //     let dy = (lpos.1 - pos.1) as usize;
+        //     if dx < MAP_W && dy < MAP_H {
+        //         let tnpcs = settle.get_npcs();
+        //         for ((x, y), n) in tnpcs {
+        //             let mut nbox = box_npc(n);
+        //             let npos = nbox.get_pos();
+        //             nbox.set_pos((npos.0 + dx, npos.1 + dy));
+        //             self.npcs.insert((x + dx, y + dy), wrap_nbox(nbox));
+        //         }
+        //     }
+        //     settle.tog_npcs_sent();
+        // }
+
         Location::Settlement(settle.clone())
     }
 
@@ -2137,10 +2151,16 @@ impl GameState {
 
     pub fn draw(&mut self) {
         self.location_check();
-        if self.location != Location::Null {
+        let litems = if self.location != Location::Null {
             self.update_location();
-        }
+            loc_shop_items(self.dist_fo.clone(), self.location.clone())
+        } else {
+            HashMap::new()
+        };
+        // let sitems = if self.location == Location::Settlement(_) {
+        //     loc_shop_items(self.dist_fo.clone(), self.location.clone())
+        // }
         self.map_location();
-        self.gui.draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone());
+        self.gui.draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), litems);
     }
 }
