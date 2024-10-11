@@ -165,6 +165,7 @@ pub struct GUI {
     notes_opt: (Vec<String>, Vec<String>),
     active_notes: (Vec<Quest>, Vec<Place>, Vec<Person>, Vec<Lore>),
     enc_opt: (Vec<(EncOpt, String)>, Vec<(EncOpt, String)>),
+    // ysno: Vec<(String, String)>,
 }
 
 
@@ -301,6 +302,10 @@ impl GUI {
             _ => todo!(),
         };
         (enc_option.0, &enc_option.1)
+    }
+
+    pub fn get_ysno(&mut self) -> bool {
+        self.cursor_pos.0 == 0
     }
 
     pub fn set_interactable(&mut self, temp: HashMap<(usize, usize), Option<Interactable>>) {

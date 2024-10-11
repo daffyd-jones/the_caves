@@ -22,7 +22,19 @@ impl Shop {
         }
     }
 
+    pub fn get_sptype(&mut self) -> Shops {
+        self.sptype.clone()
+    }
+
     pub fn get_stock(&self) -> HashMap<(usize, usize), Item> {
         self.stock.clone()
+    }
+
+    pub fn get_npc(&self) -> NPCWrap {
+        self.npc.clone()
+    }
+
+    pub fn remove_item(&mut self, pos: (usize, usize)) {
+        self.stock.remove(&pos);
     }
 }

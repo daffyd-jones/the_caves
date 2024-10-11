@@ -734,6 +734,23 @@ impl Settlement {
         }
     }
 
+    pub fn get_shop_from_item_pos(&mut self, pos: (usize, usize)) -> Option<Shop> {
+        for (sh, s) in &self.shops {
+            for ((x, y), i) in s.get_stock() {
+                 if x == pos.0 && y == pos.1 {
+                 // if (x as i64 + self.pos.0) == pos.0 && (y as i64 + self.pos.1) == pos.1 {
+                    return Some(s.clone());
+                }
+            }
+        }
+        None
+    }
+
+    pub fn update_shop(&mut self, mut shop: Shop) {
+        let stype = shop.get_sptype();
+        self.shops.insert(stype, shop);
+    }
+
     pub fn get_pos(&mut self) -> (i64, i64) {
         self.pos.clone()
     }

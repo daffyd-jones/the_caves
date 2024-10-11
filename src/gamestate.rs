@@ -3,11 +3,12 @@ use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, Inter
 use crate::map::{Map, MAP_W, MAP_H};
 use crate::player::Player;
 use crate::enemy::{Enemy};
-use crate::npc::{NPC, BaseNPC, CommNPC, Convo, NQuest, new_comm_npc, new_conv_npc, new_quest_npc};
+use crate::npc::{NPC, BaseNPC, CommNPC, Convo, Stage, ConOpt, NQuest, new_comm_npc, new_conv_npc, new_quest_npc};
 use crate::lsystems::LSystems;
 use crate::gui::GUI;
 use crate::settlements::Settlements;
 use crate::settlement::Settlement;
+use crate::shop::Shop;
 // use crate::gui_man_draw::GUI;
 use crate::item::Item;
 use crate::notebook::Notebook;
@@ -1008,6 +1009,12 @@ impl GameState {
             if let Some(npc) = self.npcs.get(&(*x, *y)) {
                 adj_inter.insert((*x, *y), Some(Interactable::NPC(npc.clone())));
             }
+            if self.location != Location::Null {
+                let st = loc_shop_items(self.dist_fo.clone(), self.location.clone());
+                if let Some(sitm) = st.get(&(*x, *y)) {
+                    adj_inter.insert((*x, *y), Some(Interactable::ShopItem(sitm.clone())));
+                }
+            }
         }
         if adj_inter.len() > 0 {
             self.game_mode = GameMode::Interact(InterSteps::AdjOpt);
@@ -1019,6 +1026,8 @@ impl GameState {
     fn get_interactee(&mut self, pos: (usize, usize)) -> Option<Interactable> {
         if let Some(item) = self.items.get(&pos) {
             Some(Interactable::Item(item.clone()))
+        } else if let Some(sitem) = loc_shop_items(self.dist_fo.clone(), self.location.clone()).get(&pos) {
+            Some(Interactable::ShopItem(sitem.clone()))
         } else if let Some(enemy) = self.enemies.get(&pos) {
             Some(Interactable::Enemy(enemy.clone()))
         } else if let Some(npc) = self.npcs.get(&pos) {
@@ -1619,6 +1628,151 @@ impl GameState {
 
     }
 
+    fn get_shop_from_item(&mut self, mut item: Item) -> Shop {
+        let ipos = item.get_pos();
+        match self.location.clone() {
+            Location::Settlement(mut settle) => {
+                settle.get_shop_from_item_pos((ipos.0, ipos.1)).unwrap()
+            },
+            _ => todo!(),
+        }
+    }
+
+    // fn convo_step(&mut self) {
+    //
+    // }
+
+    // fn settle_index(&mut self) -> (i64, i64) {
+    //     let pos = self.dist_fo;
+    //     let spos = match location {
+    //         Location::Settlement(settle) => settle.get_pos(),
+    //         _ => todo!(),
+    //     };
+    //     let dx = (spos.0 - pos.0).abs();
+    //     let dy = (spos.1 - pos.1).abs();
+    //     (dx, dy)
+    // }
+
+
+
+    fn buy_item(&mut self) {
+        let mut item = {
+            match self.interactee.clone() {
+                Interactable::ShopItem(sitem) => sitem,
+                _ => todo!(),
+            }
+        };
+        let mut shop = self.get_shop_from_item(item.clone());
+        self.player.add_to_inv(item.clone());
+        let ipos = item.get_pos();
+        shop.remove_item(ipos);
+        let mut loc = match self.location.clone() {
+            Location::Settlement(settle) => settle,
+            _ => todo!(),
+        };
+        loc.update_shop(shop);
+    }
+
+    fn shop_key(&mut self, code: KeyCode) -> (bool, bool) {
+        match code {
+            KeyCode::Up => {
+                self.gui.move_cursor("UP");
+            },
+            KeyCode::Down => {
+                self.gui.move_cursor("DN");
+            },
+            KeyCode::Left => {
+                self.gui.move_cursor("LF");
+            },
+            KeyCode::Right => {
+                self.gui.move_cursor("RT");
+            },
+            KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
+            KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
+            KeyCode::Char('z') => {
+                self.gui.set_info_mode(GUIMode::Normal);
+                self.game_mode = GameMode::Play;
+            },
+            KeyCode::Char('a') => self.gui.move_cursor("LF"),
+            KeyCode::Char('s') => self.gui.move_cursor("UP"),
+            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+            KeyCode::Char('f') => self.gui.move_cursor("RT"),
+            KeyCode::Enter => {
+                let buy = self.gui.get_ysno();
+                if buy {
+                    self.buy_item();
+                    return (false, true);
+                } else {
+                    return (false, false);
+                }
+
+            },
+            _ => {},
+        }
+        (true, false)
+    }
+
+    fn shop_interaction(&mut self, mut sitem: Item) -> bool {
+        let shop = self.get_shop_from_item(sitem.clone());
+        let npc = shop.get_npc();
+        let (sname, sh_convo) = match npc {
+            NPCWrap::ShopNPC(mut snpc) => (snpc.get_sname(), snpc.get_sh_conv()),
+            _ => todo!(),
+        };
+        let iprice = sitem.get_properties()["value"].to_string();
+        let dialogue_temp = &sh_convo["item_desc"];
+        let sh_dialogue = dialogue_temp.replace("{i}", &sitem.get_sname()).replace("{v}", &iprice);
+        // let sh_dialogue = format!(form_dialogue.as_str(), sitem.get_sname(), iprice);
+        // let sh_dialogue = fmt::format(format_args!(format!(dialogue_temp, sitem.sname(), iprice)));
+        let mut buy_item = false;
+        self.gui.reset_cursor();
+        loop {
+            self.gui.shop_convo_draw(sname.clone(), sh_dialogue.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let res = self.shop_key(event.code);
+                        if !res.0 {
+                            buy_item = res.1;
+                            break
+                        }
+                    }
+                }
+            }
+        }
+        let resp_dialogue = {
+            if buy_item {
+                &sh_convo["item_bought"]
+            } else {
+                &sh_convo["item_nbought"]
+            }
+        };
+        self.gui.reset_cursor();
+        loop {
+            self.gui.shop_convo_draw(sname.clone(), resp_dialogue.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Up => {
+                                break;
+                            },
+                            _ => todo!(),
+                        }
+                    }
+                }
+            }
+        }
+        self.game_mode = GameMode::Play;
+        true
+    }
+
     fn interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
@@ -1641,6 +1795,7 @@ impl GameState {
         let intee = self.interactee.clone();
         let res = match intee {
             Interactable::Item(_) => self.item_interaction(),
+            Interactable::ShopItem(si) => self.shop_interaction(si),
             Interactable::NPC(_) => self.npc_interaction(),
             Interactable::Enemy(e) => {
                 self.game_mode = GameMode::Fight(FightSteps::Open);
