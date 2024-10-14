@@ -91,6 +91,7 @@ impl GUI {
                 let Some(inter) = interable else {todo!()};
                 match inter {
                     Interactable::Item(item) => adj_list.push((*pos, item.clone().get_sname())),
+                    Interactable::ShopItem(item) => adj_list.push((*pos, item.clone().get_sname())),
                     Interactable::Enemy(enemy) => adj_list.push((*pos, enemy.clone().get_sname())),
                     Interactable::NPC(npc) => {
                         match npc {
@@ -1258,7 +1259,8 @@ impl GUI {
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
             let paragraph = Paragraph::new(Span::raw(&dialogue))
-                .block(paragraph_block);
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
             // let mut adj_list = vec![];
             let mut vec1 = vec!["Yes", "No"];
             let opts = vec![vec1.clone()];

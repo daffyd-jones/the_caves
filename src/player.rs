@@ -14,6 +14,7 @@ pub struct Player {
     pub attack: u16,
     pub defence: u16,
     pub damage: u16,
+    pub money: u16,
     dodge: bool,
     enc_last_turn: (EncOpt, u16),
     enc_opt: HashMap<EncOpt, String>,
@@ -35,6 +36,7 @@ impl Player {
             attack: 20,
             defence: 10,
             damage: 10,
+            money: 10,
             dodge: false,
             enc_last_turn: (EncOpt::Null, 0),
             enc_opt,
@@ -125,6 +127,14 @@ impl Player {
 
     pub fn move_right(&mut self) {
         self.x += 1;
+    }
+
+    pub fn dec_money(&mut self, amt: u16) -> bool {
+        if amt <= self.money {
+            self.money -= amt;
+            return true;
+        }
+        return false;
     }
 
 }

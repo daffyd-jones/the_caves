@@ -3,7 +3,7 @@ use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, Inter
 use crate::map::{Map, MAP_W, MAP_H};
 use crate::player::Player;
 use crate::enemy::{Enemy};
-use crate::npc::{NPC, BaseNPC, CommNPC, Convo, Stage, ConOpt, NQuest, new_comm_npc, new_conv_npc, new_quest_npc};
+use crate::npc::{NPC, BaseNPC, CommNPC, Convo, Stage, ConOpt, NQuest, new_comm_npc, new_conv_npc, new_quest_npc, new_shop_npc};
 use crate::lsystems::LSystems;
 use crate::gui::GUI;
 use crate::settlements::Settlements;
@@ -1279,6 +1279,7 @@ impl GameState {
                 // self.item_opt(item.clone());
                 self.gui.set_inter_opt(item.iopts);
             },
+            Interactable::ShopItem(sitem) => {},
             Interactable::Enemy(enemy) => {},
             Interactable::NPC(npc) => {},
             Interactable::Null => {},
@@ -1630,9 +1631,20 @@ impl GameState {
 
     fn get_shop_from_item(&mut self, mut item: Item) -> Shop {
         let ipos = item.get_pos();
+        log::info!("shop item \n{:?}", item.clone());
         match self.location.clone() {
             Location::Settlement(mut settle) => {
-                settle.get_shop_from_item_pos((ipos.0, ipos.1)).unwrap()
+                if let Some(shop) = settle.get_shop_from_item_pos((ipos.0 as i64 - self.dist_fo.0, ipos.1 as i64 - self.dist_fo.1)) {
+                    shop
+                } else {
+                    let mut cnv = HashMap::new();
+                    let npc = new_shop_npc("erica".to_string(), 0, 0, cnv);
+                    let npc_t = NPCWrap::ShopNPC(npc);
+                    let mut stock = HashMap::new();
+                    let ti1 = Item::new_edible_root(0, 0);
+                    stock.insert((0, 0), ti1);
+                    Shop::new_item_shop("".to_string(), npc_t, stock)
+                }
             },
             _ => todo!(),
         }
@@ -1663,14 +1675,29 @@ impl GameState {
             }
         };
         let mut shop = self.get_shop_from_item(item.clone());
-        self.player.add_to_inv(item.clone());
-        let ipos = item.get_pos();
-        shop.remove_item(ipos);
-        let mut loc = match self.location.clone() {
-            Location::Settlement(settle) => settle,
-            _ => todo!(),
-        };
-        loc.update_shop(shop);
+        let price = item.get_properties()["value"];
+        let paid = self.player.dec_money(price);
+        if paid {
+            self.player.add_to_inv(item.clone());
+            let ipos = item.get_pos();
+            let mut loc = match self.location.clone() {
+                Location::Settlement(settle) => settle,
+                _ => todo!(),
+            };
+            let lpos = loc.get_pos();
+            shop.set_paid(true);
+            shop.remove_item(((ipos.0 as i64 - lpos.0 - self.dist_fo.0) as usize, (ipos.1 as i64 - lpos.1 - self.dist_fo.1) as usize));
+            loc.update_shop(shop);
+            self.location = Location::Settlement(loc);
+        } else {
+            shop.set_paid(false);
+            let mut loc = match self.location.clone() {
+                Location::Settlement(settle) => settle,
+                _ => todo!(),
+            };
+            loc.update_shop(shop);
+            self.location = Location::Settlement(loc);
+        }
     }
 
     fn shop_key(&mut self, code: KeyCode) -> (bool, bool) {
@@ -1712,9 +1739,11 @@ impl GameState {
         (true, false)
     }
 
-    fn shop_interaction(&mut self, mut sitem: Item) -> bool {
-        let shop = self.get_shop_from_item(sitem.clone());
+    fn shop_item_interaction(&mut self, mut sitem: Item) -> bool {
+        let mut shop = self.get_shop_from_item(sitem.clone());
+        log::info!("shop  \n{:?}", shop.clone());
         let npc = shop.get_npc();
+        log::info!("shop npc \n{:?}", npc.clone());
         let (sname, sh_convo) = match npc {
             NPCWrap::ShopNPC(mut snpc) => (snpc.get_sname(), snpc.get_sh_conv()),
             _ => todo!(),
@@ -1745,7 +1774,11 @@ impl GameState {
         }
         let resp_dialogue = {
             if buy_item {
-                &sh_convo["item_bought"]
+                if shop.get_paid() {
+                    &sh_convo["item_bought"]
+                } else {
+                    &sh_convo["item_broke"]
+                }
             } else {
                 &sh_convo["item_nbought"]
             }
@@ -1760,7 +1793,7 @@ impl GameState {
                     if now.duration_since(self.last_event_time) > self.key_debounce_dur {
                         self.last_event_time = now;
                         match event.code {
-                            KeyCode::Up => {
+                            KeyCode::Enter => {
                                 break;
                             },
                             _ => todo!(),
@@ -1795,7 +1828,7 @@ impl GameState {
         let intee = self.interactee.clone();
         let res = match intee {
             Interactable::Item(_) => self.item_interaction(),
-            Interactable::ShopItem(si) => self.shop_interaction(si),
+            Interactable::ShopItem(si) => self.shop_item_interaction(si),
             Interactable::NPC(_) => self.npc_interaction(),
             Interactable::Enemy(e) => {
                 self.game_mode = GameMode::Fight(FightSteps::Open);

@@ -40,7 +40,7 @@ impl Item {
 
     pub fn new_edible_root(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Health"), 3);
+        prop.insert(String::from("health"), 3);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -59,7 +59,7 @@ impl Item {
 
     pub fn new_rock(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Health"), 0);
+        prop.insert(String::from("health"), 0);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -77,7 +77,7 @@ impl Item {
 
     pub fn new_bug_bits(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Health"), 1);
+        prop.insert(String::from("health"), 1);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -96,8 +96,8 @@ impl Item {
 
     pub fn new_metal_scrap(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Health"), 0);
-        prop.insert(String::from("Value"), 1);
+        prop.insert(String::from("health"), 0);
+        prop.insert(String::from("value"), 1);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -116,8 +116,8 @@ impl Item {
 
     pub fn new_apple(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Health"), 5);
-        prop.insert(String::from("Value"), 5);
+        prop.insert(String::from("health"), 5);
+        prop.insert(String::from("value"), 5);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -137,8 +137,8 @@ impl Item {
 
     pub fn new_health_potion(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Health"), 30);
-        prop.insert(String::from("Value"), 50);
+        prop.insert(String::from("health"), 30);
+        prop.insert(String::from("value"), 50);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -157,8 +157,8 @@ impl Item {
 
     pub fn new_salve(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Health"), 15);
-        prop.insert(String::from("Value"), 30);
+        prop.insert(String::from("health"), 15);
+        prop.insert(String::from("value"), 30);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -178,8 +178,8 @@ impl Item {
 
     pub fn new_dowel(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Damage"), 5);
-        prop.insert(String::from("Value"), 30);
+        prop.insert(String::from("damage"), 5);
+        prop.insert(String::from("value"), 30);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -199,8 +199,8 @@ impl Item {
 
     pub fn new_wooden_board(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("Defence"), 5);
-        prop.insert(String::from("Value"), 30);
+        prop.insert(String::from("defence"), 5);
+        prop.insert(String::from("value"), 30);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));

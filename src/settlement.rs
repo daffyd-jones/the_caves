@@ -701,7 +701,10 @@ impl Settlement {
         let (map, mpcs, items) = parse_map(cave_o);
         let mut shops = HashMap::new();
         let mut cnv = HashMap::new();
-        cnv.insert("open".to_string(), "Hey there!".to_string());
+        cnv.insert("item_desc".to_string(), "Hey that {i} over there goes for {v}. Let me know if you want to buy it.".to_string());
+        cnv.insert("item_broke".to_string(), "Uh oh! it looks like you dont have enough money for that.".to_string());
+        cnv.insert("item_bought".to_string(), "Hey!! Thanks for the sale!! Have a good day!!.".to_string());
+        cnv.insert("item_nbought".to_string(), "Not interested? Thats fine, have a good day!!".to_string());
         let npc = new_shop_npc("Janiel".to_string(), 0, 0, cnv);
         let npc_t = NPCWrap::ShopNPC(npc);
         // let mut stock = Vec::new();
@@ -734,11 +737,11 @@ impl Settlement {
         }
     }
 
-    pub fn get_shop_from_item_pos(&mut self, pos: (usize, usize)) -> Option<Shop> {
+    pub fn get_shop_from_item_pos(&mut self, pos: (i64, i64)) -> Option<Shop> {
         for (sh, s) in &self.shops {
             for ((x, y), i) in s.get_stock() {
-                 if x == pos.0 && y == pos.1 {
-                 // if (x as i64 + self.pos.0) == pos.0 && (y as i64 + self.pos.1) == pos.1 {
+                 // if x  && y == (pos.1 - self.pos.1) {
+                 if (x as i64 + self.pos.0) == pos.0 && (y as i64 + self.pos.1) == pos.1 {
                     return Some(s.clone());
                 }
             }

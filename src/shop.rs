@@ -10,6 +10,7 @@ pub struct Shop {
     sname: String,
     npc: NPCWrap,
     stock: HashMap<(usize, usize), Item>,
+    paid: bool,
 }
 
 impl Shop {
@@ -17,8 +18,9 @@ impl Shop {
         Self {
             sptype: Shops::Item,
             sname: sname,
-            npc: NPCWrap::Null,
+            npc: npc,
             stock: stock,
+            paid: true,
         }
     }
 
@@ -35,6 +37,17 @@ impl Shop {
     }
 
     pub fn remove_item(&mut self, pos: (usize, usize)) {
-        self.stock.remove(&pos);
+        log::info!("rem item pos\n{:?}", pos.clone());
+        log::info!("pre rem stock\n{:?}", self.stock.clone());
+        let rem = self.stock.remove(&pos);
+        log::info!("shop item rem\n{:?}", rem.clone());
+    }
+
+    pub fn set_paid(&mut self, paid: bool) {
+        self.paid = paid;
+    }
+
+    pub fn get_paid(&mut self) -> bool {
+        self.paid.clone()
     }
 }

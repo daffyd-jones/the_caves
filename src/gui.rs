@@ -492,22 +492,22 @@ impl GUI {
                             Span::styled("Health: ", Style::default().fg(Color::White)),
                             Span::styled(player.health.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
-                        // Row::new(vec![
-                        //     Span::styled("py: ", Style::default().fg(Color::White)),
-                        //     Span::styled(player.y.to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
-                        // Row::new(vec![
-                        //     Span::styled("vx: ", Style::default().fg(Color::White)),
-                        //     Span::styled(map.viewport_x.to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
-                        // Row::new(vec![
-                        //     Span::styled("vy: ", Style::default().fg(Color::White)),
-                        //     Span::styled(map.viewport_y.to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
-                        // Row::new(vec![
-                        //     Span::styled("vw: ", Style::default().fg(Color::White)),
-                        //     Span::styled(map.viewport_width.to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
+                        Row::new(vec![
+                            Span::styled("Attack: ", Style::default().fg(Color::White)),
+                            Span::styled(player.attack.to_string(), Style::default().fg(Color::Yellow)),
+                        ]),
+                        Row::new(vec![
+                            Span::styled("Defence: ", Style::default().fg(Color::White)),
+                            Span::styled(player.defence.to_string(), Style::default().fg(Color::Yellow)),
+                        ]),
+                        Row::new(vec![
+                            Span::styled("Damage: ", Style::default().fg(Color::White)),
+                            Span::styled(player.damage.to_string(), Style::default().fg(Color::Yellow)),
+                        ]),
+                        Row::new(vec![
+                            Span::styled("Money: ", Style::default().fg(Color::White)),
+                            Span::styled(player.money.to_string(), Style::default().fg(Color::Yellow)),
+                        ]),
                         // Row::new(vec![
                         //     Span::styled("vh: ", Style::default().fg(Color::White)),
                         //     Span::styled(map.viewport_height.to_string(), Style::default().fg(Color::Yellow)),
