@@ -35,6 +35,11 @@ impl Settlements {
         return None;
     }
 
+    pub fn update_settlement(&mut self, mut settle: Settlement) {
+        let spos = settle.get_pos();
+        self.settlements.insert(spos, settle);
+    }
+
 }
 
 

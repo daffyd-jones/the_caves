@@ -110,7 +110,27 @@ i ï î ì í
 
 
 
-
+    {
+        "id": "ruins"
+    },
+    {
+        "id": "lost_city"
+    },
+    {
+        "id": "money"
+    },
+    {
+        "id": "monsters"
+    },
+    {
+        "id": "ecology"
+    },
+    {
+        "id": "treasure"
+    },
+    {
+        "id": "explorers_guild"
+    }
 
 
 

@@ -79,21 +79,21 @@ pub fn new_shop_npc(sname: String, x: usize, y: usize, sh_conv: HashMap<String, 
 //--
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Convo {
-    id: String,
+    pub id: String,
     #[serde(flatten)]
-    stages: HashMap<String, Stage>,
+    pub stages: HashMap<String, Stage>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Stage {
-    text: String,
-    opts: Vec<ConOpt>,
+    pub text: String,
+    pub opts: Vec<ConOpt>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ConOpt {
-    text: String,
-    next: String,
+    pub text: String,
+    pub next: String,
 }
 //--
 

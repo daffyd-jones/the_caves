@@ -25,35 +25,14 @@
         "3": {
             "text": "Really?! I mean you do you, but keep me out of it.",
             "opts": [
-                {"text": "", "next": "e"}
+                {"text": "ok", "next": "e"}
             ]
         },
         "4": {
             "text": "See that you do.",
             "opts": [
-                {"text": "", "next": "e"}
+                {"text": "ok", "next": "e"}
             ]
         }
-    },
-    {
-        "id": "ruins"
-    },
-    {
-        "id": "lost_city"
-    },
-    {
-        "id": "money"
-    },
-    {
-        "id": "monsters"
-    },
-    {
-        "id": "ecology"
-    },
-    {
-        "id": "treasure"
-    },
-    {
-        "id": "explorers_guild"
     }
 ]

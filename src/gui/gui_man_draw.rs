@@ -61,7 +61,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -83,7 +83,8 @@ impl GUI {
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
             let paragraph = Paragraph::new(Span::raw("What would you like to interct with?"))
-                .block(paragraph_block);
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
             let mut adj_list = vec![];
             let mut vec1 = vec![((0 as usize, 0 as usize), "".to_string()); 3];
             let mut vec2 = vec![((0 as usize, 0 as usize), "".to_string()); 3];
@@ -169,7 +170,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -259,7 +260,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -346,7 +347,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -433,7 +434,7 @@ impl GUI {
                 self.viewport_dim = (in_w, in_h);
             }
 
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -648,7 +649,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -873,7 +874,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1135,7 +1136,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1199,6 +1200,90 @@ impl GUI {
         }).unwrap();
     }
 
+    pub fn npc_conv_draw(&mut self, name: String, text: String, opts_vec: Vec<String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+        self.terminal.draw(|f| {
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.size());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+
+            let paragraph_block = Block::default()
+                .title(name)
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+
+            // let comm = npc_str[1];
+
+            let npc = Paragraph::new(Span::raw(text))
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+
+            let rows: Vec<Row> = opts_vec.iter().enumerate().map(|(j, cell)| {
+                if j == self.cursor_pos.1 {
+                    Row::new(vec![Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))])
+                } else {
+                    Row::new(vec![Cell::from(Span::raw(cell.clone()))])
+
+                }
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(100)])
+                .block(table_block);
+            f.render_widget(npc, normal_info[0]);
+            f.render_widget(table, normal_info[1]);
+        }).unwrap();
+    }
+
     pub fn shop_convo_draw(&mut self, sname: String, dialogue: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
@@ -1237,7 +1322,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone());
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 

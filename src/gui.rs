@@ -29,7 +29,7 @@ use std::collections::HashMap;
 // use std::collections::HashSet;
 
 
-fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) -> Paragraph<'a> {
+fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, ani_cnt: u8) -> Paragraph<'a> {
     let start_row = map.viewport_y;
     let end_row = (map.viewport_y + map.viewport_height).min(map.cells.len());
     let start_col = map.viewport_x;
@@ -73,6 +73,18 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                         Items::Apple => ('o', Color::Yellow),
                         Items::MetalScrap => ('o', Color::Yellow),
                         Items::BugBits => ('o', Color::Yellow),
+                        Items::BugBits => ('o', Color::Yellow),
+                        Items::BugBits => ('o', Color::Yellow),
+                        Items::BugBits => ('o', Color::Yellow),
+                        Items::BugBits => ('o', Color::Yellow),
+                        Items::BugBits => ('o', Color::Yellow),
+                        Items::BugBits => ('o', Color::Yellow),
+                        Items::HealthPotion => ('o', Color::Yellow), // +10 health
+                        Items::Salve => ('o', Color::Yellow),
+                        Items::Dowel => ('o', Color::Yellow),
+                        Items::WoodenBoard => ('o', Color::Yellow),
+                        Items::IronShield => ('o', Color::Yellow), // +10 defence
+                        Items::IronSword => ('o', Color::Yellow),
                         _ => todo!(),
                     }
                 } else {
@@ -124,11 +136,50 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                         Cells::SmZer => ('ø', Color::LightBlue),
                         Cells::BZer => ('Ø', Color::LightBlue),
                         Cells::Cop => ('©', Color::LightBlue),
-                        Cells::LBrce => ('{', Color::LightBlue),
-                        Cells::RBrce => ('}', Color::LightBlue),
-                        Cells::LParen => ('(', Color::Magenta),
-                        Cells::RParen => (')', Color::Magenta),
-                        Cells::GenCur => ('¤', Color::LightRed),
+                        Cells::LBrce => {
+                            if ani_cnt % 2 == 0 {
+                                ('{', Color::LightBlue)
+                            } else {
+                                ('{', Color::Magenta)
+                            }
+                        },
+                        Cells::RBrce => {
+                            if ani_cnt % 2 == 0 {
+                                ('}', Color::LightBlue)
+                            } else {
+                                ('}', Color::Magenta)
+                            }
+                        },
+                        Cells::LParen => {
+                            if ani_cnt % 2 == 0 {
+                                ('(', Color::Magenta)
+                            } else {
+                                ('(', Color::Red)
+                            }
+                        },
+                        Cells::RParen => {
+                            if ani_cnt % 2 == 0 {
+                                (')', Color::Magenta)
+                            } else {
+                                (')', Color::Red)
+                            }
+                        },
+                        Cells::GenCur => {
+                            if ani_cnt % 2 == 0 {
+                                ('¤', Color::Red)
+                            } else {
+                                ('¤', Color::Yellow)
+                            }
+                        },
+                        Cells::Water => {
+                            let aa = (ani_cnt as usize + jy) + (ix + ani_cnt as usize/2);
+                            // log::info!("aaaaa {}", aa);
+                            if aa % 6 == 0 {
+                                ('~', Color::White)
+                            } else {
+                                ('~', Color::LightBlue)
+                            }
+                        },
                         _ => ('#', Color::Red),
                     }
                 }
@@ -151,6 +202,8 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
 pub struct GUI {
     terminal: Terminal<CrosstermBackend<std::io::Stdout>>,
     info_mode: GUIMode,
+    ani_cnt: u8,
+    ani_updt: u8,
     cursor_pos: (usize, usize),
     cursor_hold: (usize, usize),
     menu_lvl: usize,
@@ -215,6 +268,8 @@ impl GUI {
         Self {
             terminal,
             info_mode: GUIMode::Normal,
+            ani_cnt: 0,
+            ani_updt: 0,
             cursor_pos: (0, 0),
             cursor_hold: (0, 0),
             menu_lvl: 0,
@@ -308,6 +363,10 @@ impl GUI {
         self.cursor_pos.0 == 0
     }
 
+    pub fn get_cursor(&mut self) -> (usize, usize) {
+        self.cursor_pos.clone()
+    }
+
     pub fn set_interactable(&mut self, temp: HashMap<(usize, usize), Option<Interactable>>) {
         self.interactable = temp;
     }
@@ -347,6 +406,18 @@ impl GUI {
 
 
     pub fn draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+        if self.ani_updt < 120 {
+            self.ani_updt += 1;
+            if self.ani_cnt < 120 {
+                if self.ani_updt % 6 == 0 {
+                    self.ani_cnt += 1;
+                }
+            } else {
+                self.ani_cnt = 0;
+            }
+        } else {
+            self.ani_updt = 0;
+        }
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -384,7 +455,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems, self.ani_cnt);
 
             f.render_widget(paragraph, inner_area);
 
@@ -861,7 +932,7 @@ impl GUI {
                     let inv_table: Vec<Vec<(usize, Item)>> = vec![col1.clone(), col2.clone(), col3.clone()];
                     self.inv_opt = (col1, col2, col3);
                     //xx
-                    let rows: Vec<Row> = (0..12).map(|i| {
+                    let rows: Vec<Row> = (0..25).map(|i| {
                         let cells: Vec<Cell> = inv_table.iter().enumerate().map(|(j, col)| {
                             if i == self.cursor_pos.1 && j == self.cursor_pos.0 {
                                 Cell::from(Span::styled(col[i].1.sname.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
