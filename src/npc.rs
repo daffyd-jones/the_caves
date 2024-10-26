@@ -41,22 +41,22 @@ pub fn new_conv_npc(sname: String, x: usize, y: usize, conv: Convo) -> ConvNPC {
     }
 }
 
-pub fn new_quest_npc(sname: String, x: usize, y: usize, quest: NQuest) -> QuestNPC {
-    let mut rng = rand::thread_rng();
-    let step = rng.gen_range(0..19);
-    let step_grp = rng.gen_range(0..15);
-    QuestNPC {
-        base: BaseNPC {
-            ntype: NPCs::QuestNPC,
-            sname: sname,
-            steps: step,
-            step_grp: step_grp,
-            x: x,
-            y: y,
-        },
-        quest: quest,
-    }
-}
+//pub fn new_quest_npc(sname: String, x: usize, y: usize, quest: NQuest) -> QuestNPC {
+//    let mut rng = rand::thread_rng();
+//    let step = rng.gen_range(0..19);
+//    let step_grp = rng.gen_range(0..15);
+//    QuestNPC {
+//        base: BaseNPC {
+//            ntype: NPCs::QuestNPC,
+//            sname: sname,
+//            steps: step,
+//            step_grp: step_grp,
+//            x: x,
+//            y: y,
+//        },
+//        quest: quest,
+//    }
+//}
 
 pub fn new_shop_npc(sname: String, x: usize, y: usize, sh_conv: HashMap<String, String>) -> ShopNPC {
     let mut rng = rand::thread_rng();
@@ -98,8 +98,9 @@ pub struct ConOpt {
 //--
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct NQuest {
-    text: String,
+pub struct ShopData {
+    pub item_shops: Vec<HashMap<String, String>>,
+    pub churches: Vec<HashMap<String, String>>,
 }
 
 
@@ -128,9 +129,9 @@ impl dyn NPC {
         self.as_any().downcast_ref::<ConvNPC>()
     }
 
-    pub fn as_quest_npc(&self) -> Option<&QuestNPC> {
-        self.as_any().downcast_ref::<QuestNPC>()
-    }
+//    pub fn as_quest_npc(&self) -> Option<&QuestNPC> {
+//        self.as_any().downcast_ref::<QuestNPC>()
+//    }
 
     // fn as_any(&self) -> &dyn std::any::Any;
 }
@@ -328,66 +329,66 @@ impl ConvNPC {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct QuestNPC {
-    base: BaseNPC,
-    quest: NQuest,
-}
-
-impl NPC for QuestNPC {
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
-    fn get_ntype(&mut self) -> NPCs {
-        self.base.ntype.clone()
-    }
-
-    fn get_sname(&mut self) -> String {
-        self.base.sname.clone()
-    }
-
-    fn get_pos(&mut self) -> (usize, usize) {
-        (self.base.x, self.base.y)
-    }
-
-    fn set_pos(&mut self, pos: (usize, usize)) {
-        self.base.x = pos.0;
-        self.base.y = pos.1;
-    }
-
-    fn set_steps(&mut self, steps: u8) {
-        self.base.steps = steps;
-    }
-
-    fn get_steps(&mut self) -> u8 {
-        self.base.steps.clone()
-    }
-
-    fn inc_steps(&mut self) {
-        self.base.steps += 1;
-    }
-
-    fn get_step_grp(&mut self) -> u8 {
-        self.base.step_grp.clone()
-    }
-
-    fn mmove(&mut self, dir: &str) {
-        match dir {
-            "UP" => self.base.y -= 1,
-            "DN" => self.base.y += 1,
-            "LF" => self.base.x -= 1,
-            "RT" => self.base.x += 1,
-            _ => println!("")
-        }
-    }
-}
-
-impl QuestNPC {
-    pub fn get_quest(&mut self) -> NQuest {
-        self.quest.clone()
-    }
-}
+//#[derive(Clone, Debug, PartialEq)]
+//pub struct QuestNPC {
+//    base: BaseNPC,
+//    quest: NQuest,
+//}
+//
+//impl NPC for QuestNPC {
+//    fn as_any(&self) -> &dyn std::any::Any {
+//        self
+//    }
+//
+//    fn get_ntype(&mut self) -> NPCs {
+//        self.base.ntype.clone()
+//    }
+//
+//    fn get_sname(&mut self) -> String {
+//        self.base.sname.clone()
+//    }
+//
+//    fn get_pos(&mut self) -> (usize, usize) {
+//        (self.base.x, self.base.y)
+//    }
+//
+//    fn set_pos(&mut self, pos: (usize, usize)) {
+//        self.base.x = pos.0;
+//        self.base.y = pos.1;
+//    }
+//
+//    fn set_steps(&mut self, steps: u8) {
+//        self.base.steps = steps;
+//    }
+//
+//    fn get_steps(&mut self) -> u8 {
+//        self.base.steps.clone()
+//    }
+//
+//    fn inc_steps(&mut self) {
+//        self.base.steps += 1;
+//    }
+//
+//    fn get_step_grp(&mut self) -> u8 {
+//        self.base.step_grp.clone()
+//    }
+//
+//    fn mmove(&mut self, dir: &str) {
+//        match dir {
+//            "UP" => self.base.y -= 1,
+//            "DN" => self.base.y += 1,
+//            "LF" => self.base.x -= 1,
+//            "RT" => self.base.x += 1,
+//            _ => println!("")
+//        }
+//    }
+//}
+//
+//impl QuestNPC {
+//    pub fn get_quest(&mut self) -> NQuest {
+//        self.quest.clone()
+//    }
+//}
 
 
 #[derive(Clone, Debug, PartialEq)]

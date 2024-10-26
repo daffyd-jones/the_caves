@@ -7,8 +7,8 @@ use crate::enemy::{Enemy};
 use crate::item::Item;
 use crate::notebook::{Quest, Stage, Place, Person, Lore};
 mod gui_man_draw;
- use rand::Rng;
-
+use rand::Rng;
+use ratatui::widgets::Clear;
 
 
 use std::io::stdout;
@@ -17,9 +17,9 @@ use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
 use ratatui::prelude::Line;
 use ratatui::prelude::Rect;
-use ratatui::widgets::{Block, Borders, Paragraph, Wrap, Padding};
+use ratatui::widgets::{Block, Borders, Paragraph, Wrap, Padding, Gauge};
 use ratatui::layout::{Layout, Constraint, Direction, Margin};
-use ratatui::style::{Color, Style};
+use ratatui::style::{Color, Style, Stylize};
 use ratatui::text::{Text, Span};
 use ratatui::widgets::Row;
 use ratatui::widgets::Table;
@@ -54,7 +54,7 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                     match npcw {
                         NPCWrap::CommNPC(_)=> ('í', Color::Blue),
                         NPCWrap::ConvNPC(_)=> ('ì', Color::LightBlue),
-                        NPCWrap::QuestNPC(_)=> ('î', Color::Cyan),
+                        //NPCWrap::QuestNPC(_)=> ('î', Color::Cyan),
                         _ => todo!(),
                     }
                 } else if let Some(item) = items.get(&(ix, jy)) {
@@ -72,12 +72,6 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                         Items::EdibleRoot => ('o', Color::Yellow),
                         Items::Apple => ('o', Color::Yellow),
                         Items::MetalScrap => ('o', Color::Yellow),
-                        Items::BugBits => ('o', Color::Yellow),
-                        Items::BugBits => ('o', Color::Yellow),
-                        Items::BugBits => ('o', Color::Yellow),
-                        Items::BugBits => ('o', Color::Yellow),
-                        Items::BugBits => ('o', Color::Yellow),
-                        Items::BugBits => ('o', Color::Yellow),
                         Items::BugBits => ('o', Color::Yellow),
                         Items::HealthPotion => ('o', Color::Yellow), // +10 health
                         Items::Salve => ('o', Color::Yellow),
@@ -214,7 +208,7 @@ pub struct GUI {
     inter_options: (Vec<(InterOpt, String)>, Vec<(InterOpt, String)>),
     inventory: Vec<Item>,
     inv_opt: (Vec<(usize, Item)>, Vec<(usize, Item)>, Vec<(usize, Item)>),
-    dist_fo: (i64, i64),
+    comp_head: (i64, i64),
     notes_opt: (Vec<String>, Vec<String>),
     active_notes: (Vec<Quest>, Vec<Place>, Vec<Person>, Vec<Lore>),
     enc_opt: (Vec<(EncOpt, String)>, Vec<(EncOpt, String)>),
@@ -280,7 +274,7 @@ impl GUI {
             inter_options,
             inventory,
             inv_opt,
-            dist_fo: (0, 0),
+            comp_head: (0, 0),
             notes_opt,
             active_notes: (quests, places, people, lore),
             enc_opt,
@@ -298,8 +292,8 @@ impl GUI {
         self.active_notes = notes;
     }
 
-    pub fn set_dist_fo(&mut self, temp: (i64, i64)) {
-        self.dist_fo = temp;
+    pub fn set_comp_head(&mut self, temp: (i64, i64)) {
+        self.comp_head = ((temp.0 - 224), (temp.1 - 174));
     }
 
     pub fn set_inventory(&mut self, inv: Vec<Item>) {
@@ -405,7 +399,7 @@ impl GUI {
 
 
 
-    pub fn draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn draw(&mut self, debug: (String, String, String), mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
         if self.ani_updt < 120 {
             self.ani_updt += 1;
             if self.ani_cnt < 120 {
@@ -460,7 +454,7 @@ impl GUI {
             f.render_widget(paragraph, inner_area);
 
             //---
-
+            let comp_str = format!("({}, {})", self.comp_head.0, self.comp_head.1);
             match self.info_mode {
                 GUIMode::Bug => {
                     let info_block = Block::default()
@@ -532,6 +526,22 @@ impl GUI {
                             Span::styled("items: ", Style::default().fg(Color::White)),
                             Span::styled((items.len()).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
+                        Row::new(vec![
+                            Span::styled("dfo: ", Style::default().fg(Color::White)),
+                            Span::styled(debug.0, Style::default().fg(Color::Yellow)),
+                         ]),
+                        Row::new(vec![
+                            Span::styled("compass: ", Style::default().fg(Color::White)),
+                            Span::styled(comp_str, Style::default().fg(Color::Yellow)),
+                         ]),
+                        Row::new(vec![
+                            Span::styled("gs_compass: ", Style::default().fg(Color::White)),
+                            Span::styled(debug.2, Style::default().fg(Color::Yellow)),
+                         ]),
+                        Row::new(vec![
+                            Span::styled("settle_pos: ", Style::default().fg(Color::White)),
+                            Span::styled(debug.1, Style::default().fg(Color::Yellow)),
+                         ]),
                     ];
 
                     let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
@@ -544,25 +554,87 @@ impl GUI {
                     .direction(Direction::Vertical)
                     .constraints(
                         [
-                            Constraint::Percentage(70),
+                            Constraint::Percentage(18),
+                            Constraint::Percentage(32),
+                            Constraint::Percentage(20),
                             Constraint::Percentage(30)
                         ].as_ref()
                     )
                     .split(game_chunks[1]);
-                    let paragraph_block = Block::default()
-                        .title("Game Stats")
+                    let h_block = Block::default()
+                        .title(Span::styled("Health", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
-                    let table_block = Block::default()
-                        .title("")
+                    let stat_block = Block::default()
+                        .title(Span::styled("Stats", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
+                    let enchant_block = Block::default()
+                        .title(Span::styled("Enchantments", Style::default().fg(Color::DarkGray)))
+                        .borders(Borders::ALL)
+                        .style(Style::default().bg(Color::Black));
+
+                    let table_block = Block::default()
+                        .title(Span::styled("Equipped", Style::default().fg(Color::DarkGray)))
+                        .borders(Borders::ALL)
+                        .style(Style::default().bg(Color::Black));
+
+                        //.padding(Padding::new(1, 1, 1, 1));
+                   // f.render_widget(stats_block.clone(), normal_info[0]);
+
+                   // let stats = Layout::default()
+                   //     .direction(Direction::Vertical)
+                   //     .constraints(
+                   //         [
+                   //             Constraint::Percentage(33), 
+                   //             //Constraint::Percentage(66), 
+                   //             //Constraint::Percentage(33), 
+                   //             //Constraint::Percentage(20), 
+                   //             //Constraint::Percentage(20)
+                   //         ].as_ref()
+                   //     )
+                   //     .split(normal_info[0]);
+
+                    let h_gauge = Gauge::default()
+                        .block(Block::bordered().title("Health"))
+                        .gauge_style(Style::new().light_red().on_black().italic())
+                        .percent(player.health);
+                        //.label(Span::styled(player.health.to_string(), Style::default().fg(Color::White)));
+
+                    let gauge2 = Gauge::default()
+                        .block(Block::bordered().title("Progress"))
+                        .gauge_style(Style::new().white().on_black().italic())
+                        .percent(20);
+
+                    let gauge3 = Gauge::default()
+                        .block(Block::bordered().title("Progress"))
+                        .gauge_style(Style::new().white().on_black().italic())
+                        .percent(20);
+
+                    let gauge4 = Gauge::default()
+                        .block(Block::bordered().title("Progress"))
+                        .gauge_style(Style::new().white().on_black().italic())
+                        .percent(34);
+
+                    let gauge5 = Gauge::default()
+                        .block(Block::bordered().title("Progress"))
+                        .gauge_style(Style::new().white().on_black().italic())
+                        .percent(36);
+
+
+
+                    //f.render_widget(h_gauge, stats[0]);
+                    //f.render_widget(stat_block, stats[1]);
+                    //f.render_widget(gauge3, stats[2]);
+                    //f.render_widget(gauge4, stats[3]);
+                    //f.render_widget(gauge5, stats[4]);
+
                     let rows = vec![
-                        Row::new(vec![
-                            Span::styled("Health: ", Style::default().fg(Color::White)),
-                            Span::styled(player.health.to_string(), Style::default().fg(Color::Yellow)),
-                        ]),
+                       // Row::new(vec![
+                       //     Span::styled("Health: ", Style::default().fg(Color::White)),
+                       //     Span::styled(player.health.to_string(), Style::default().fg(Color::Yellow)),
+                       // ]),
                         Row::new(vec![
                             Span::styled("Attack: ", Style::default().fg(Color::White)),
                             Span::styled(player.attack.to_string(), Style::default().fg(Color::Yellow)),
@@ -617,11 +689,27 @@ impl GUI {
                         // ]),
                     ];
                     let stats = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
-                                    .block(paragraph_block);
-                    let table_data = vec![
+                                    .block(stat_block);
+                   // let stat_data = vec![
+                   //     vec!["", "", ""],
+                   // ];
+                   // let stat_rows: Vec<Row> = stat_data.iter().enumerate().map(|(j, row)| {
+                   //     let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &cell)| {
+                   //         if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                   //             Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                   //         } else {
+                   //             Cell::from(cell)
+                   //         }
+                   //     }).collect();
+                   //     Row::new(cells)
+                   // }).collect();
+                   // let stat_table = Table::new(stat_rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
+                   //     .block(stat_block);
+
+                    let enchant_data = vec![
                         vec!["", "", ""],
                     ];
-                    let rows: Vec<Row> = table_data.iter().enumerate().map(|(j, row)| {
+                    let en_rows: Vec<Row> = enchant_data.iter().enumerate().map(|(j, row)| {
                         let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &cell)| {
                             if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
                                 Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
@@ -631,10 +719,29 @@ impl GUI {
                         }).collect();
                         Row::new(cells)
                     }).collect();
-                    let table = Table::new(rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
+                    let en_table = Table::new(en_rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
+                        .block(enchant_block);
+
+                    let equip_data = vec![
+                        vec!["", "", ""],
+                    ];
+                    let ep_rows: Vec<Row> = equip_data.iter().enumerate().map(|(j, row)| {
+                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &cell)| {
+                            if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                                Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                            } else {
+                                Cell::from(cell)
+                            }
+                        }).collect();
+                        Row::new(cells)
+                    }).collect();
+                    let eq_table = Table::new(ep_rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
                         .block(table_block);
-                    f.render_widget(stats, normal_info[0]);
-                    f.render_widget(table, normal_info[1]);
+                    f.render_widget(h_block, normal_info[0]);
+                    f.render_widget(h_gauge, normal_info[0]);
+                    f.render_widget(stats, normal_info[1]);
+                    f.render_widget(en_table, normal_info[2]);
+                    f.render_widget(eq_table, normal_info[3]);
                 },
                 GUIMode::Interact => {
                     // match inter_step {
@@ -765,11 +872,11 @@ impl GUI {
                     )
                     .split(game_chunks[1]);
                     let paragraph_block = Block::default()
-                        .title("Map")
+                        .title(Span::styled("Compass", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
                     let table_block = Block::default()
-                        .title("Map Type")
+                        .title(Span::styled("Heading", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
@@ -782,9 +889,9 @@ impl GUI {
                     let cen_y = height/2;
                     let slope = cen_y as f32 / cen_x as f32;
 
-                    log::info!("dist_fo: {:?}", self.dist_fo);
+                    //log::info!("dist_fo: {:?}", self.dist_fo);
 
-                    match self.dist_fo {
+                    match self.comp_head {
                         (dx, dy) if dx > 0 && dx.abs() >= dy.abs() => {
                             for y in 0..height {
                                 for x in 0..width {
@@ -807,7 +914,7 @@ impl GUI {
                                 for x in 0..width {
                                     if y <= cen_y && y as f32 >= slope * x as f32 {
                                         content.push('#');
-                                    } else if y > cen_y && y as f32 <= slope * (width - x)  as f32{
+                                    } else if y > cen_y && y as f32 <= slope * (width - x) as f32{
                                         content.push('#');
                                     } else {
                                         content.push('.');
@@ -902,11 +1009,11 @@ impl GUI {
                     )
                     .split(game_chunks[1]);
                     let paragraph_block = Block::default()
-                        .title("Inventory")
+                        .title(Span::styled("Inventory", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
                     let table_block = Block::default()
-                        .title("Items")
+                        .title(Span::styled("Items", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
@@ -983,7 +1090,7 @@ impl GUI {
                     )
                     .split(game_chunks[1]);
                     let notes_block = Block::default()
-                        .title("Notes")
+                        .title(Span::styled("Notes", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
                     let note_block = Block::default()

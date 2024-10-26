@@ -87,7 +87,9 @@ impl Player {
     }
 
     pub fn add_to_inv(&mut self, item: Item) {
-        self.inventory.push(item);
+        if self.inventory.len() < 75 {
+            self.inventory.push(item);
+        }
     }
 
     pub fn get_inventory(&mut self) -> Vec<Item> {

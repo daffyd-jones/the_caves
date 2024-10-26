@@ -7,14 +7,13 @@ use crate::item::Item;
 use crate::notebook::{Quest, Stage, Place, Person, Lore};
 use crate::gui::GUI;
 use crate::gui::draw_map;
-
 use std::collections::HashMap;
 
 // use std::time::Duration;
 // use rand::Rng;
 use ratatui::widgets::{Block, Borders, Paragraph, Wrap, Padding};
 use ratatui::layout::{Layout, Constraint, Direction, Margin};
-use ratatui::style::{Color, Style};
+use ratatui::style::{Color, Style, Stylize};
 use ratatui::text::{Text, Span};
 use ratatui::widgets::Row;
 use ratatui::widgets::Table;
@@ -82,7 +81,7 @@ impl GUI {
                 .title("Table Block")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-            let paragraph = Paragraph::new(Span::raw("What would you like to interct with?"))
+            let paragraph = Paragraph::new(Span::styled("What would you like to interct with?", Style::default().white()))
                 .block(paragraph_block)
                 .wrap(ratatui::widgets::Wrap { trim: true });
             let mut adj_list = vec![];
@@ -98,7 +97,7 @@ impl GUI {
                         match npc {
                             NPCWrap::CommNPC(comm_npc) => adj_list.push((*pos, comm_npc.clone().get_sname())),
                             NPCWrap::ConvNPC(conv_npc) => adj_list.push((*pos, conv_npc.clone().get_sname())),
-                            NPCWrap::QuestNPC(quest_npc) => adj_list.push((*pos, quest_npc.clone().get_sname())),
+                            //NPCWrap::QuestNPC(quest_npc) => adj_list.push((*pos, quest_npc.clone().get_sname())),
                            _ => todo!(),
                         }
                         // adj_list.push((*pos, npc.clone().get_sname()));
@@ -191,16 +190,19 @@ impl GUI {
                 .title("Options")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-            let paragraph = Paragraph::new(Span::raw("What would you like to do with it?"))
-                .block(paragraph_block);
+            let paragraph = Paragraph::new(Span::styled("What would you like to do with it?", Style::default().white()))
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
             let mut vec1 = vec![(InterOpt::Null, "".to_string()); 3];
             let mut vec2 = vec![(InterOpt::Null, "".to_string()); 3];
-
-            for (idx, (a, b)) in self.inter_opt.iter().enumerate() {
+            let opts = self.inter_opt.clone();
+            let mut opts_kys: Vec<_> = opts.keys().collect();
+            opts_kys.sort();
+            for (idx, a) in opts_kys.iter().enumerate() {
                 if idx < 3 {
-                    vec1[idx] = (a.clone(), b.clone());
+                    vec1[idx] = (*a.clone(), opts[a].clone());
                 } else {
-                    vec2[idx - 3] = (a.clone(), b.clone());
+                    vec2[idx - 3] = (*a.clone(), opts[a].clone());
                 }
             }
             let inter_opts = vec![vec1.clone(), vec2.clone()];
@@ -281,10 +283,9 @@ impl GUI {
                 .title("Table Block")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-            let paragraph = Paragraph::new(Span::raw("Done"))
-                .block(paragraph_block);
-            let mut vec1 = vec!["Ok".to_string(); 1];
-            let mut vec2 = vec!["".to_string(); 1];
+            let paragraph = Paragraph::new(Span::styled("Done", Style::default().white())).block(paragraph_block);
+            let vec1 = vec!["Ok".to_string(); 1];
+            let vec2 = vec!["".to_string(); 1];
 
             let inter_opts = vec![vec1.clone(), vec2.clone()];
             let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
@@ -368,10 +369,9 @@ impl GUI {
                 .title("")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-            let paragraph = Paragraph::new(Span::raw("Item used"))
-                .block(paragraph_block);
-            let mut vec1 = vec!["Ok".to_string(); 1];
-            let mut vec2 = vec!["".to_string(); 1];
+            let paragraph = Paragraph::new(Span::styled("Item used", Style::default().white())).block(paragraph_block);
+            let vec1 = vec!["Ok".to_string(); 1];
+            let vec2 = vec!["".to_string(); 1];
 
             let inter_opts = vec![vec1.clone(), vec2.clone()];
             let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
@@ -478,7 +478,7 @@ impl GUI {
                 .title("Encounter")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-            let paragraph = Paragraph::new(Span::raw(&cntnt))
+            let paragraph = Paragraph::new(Span::styled(&cntnt, Style::default().white()))
                 .block(enc_text_block)
                 .wrap(ratatui::widgets::Wrap { trim: true });
 
@@ -495,8 +495,8 @@ impl GUI {
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
 
-            let mut vec1 = vec!["Ok".to_string(); 1];
-            let mut vec2 = vec!["".to_string(); 1];
+            let vec1 = vec!["Ok".to_string(); 1];
+            let vec2 = vec!["".to_string(); 1];
 
             let inter_opts = vec![vec1.clone(), vec2.clone()];
             let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
@@ -690,7 +690,7 @@ impl GUI {
                 .title("Encounter")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-            let paragraph = Paragraph::new(Span::raw("What would you like to do?"))
+            let paragraph = Paragraph::new(Span::styled("What would you like to do?", Style::default().white()))
                 .block(enc_text_block);
 
             f.render_widget(paragraph, left_chunk[0]);
@@ -708,12 +708,14 @@ impl GUI {
 
             let mut vec1 = vec![(EncOpt::Null, "".to_string()); 3];
             let mut vec2 = vec![(EncOpt::Null, "".to_string()); 3];
-
-            for (idx, (a, b)) in enc_opt.iter().enumerate() {
+            let opts = enc_opt.clone();
+            let mut opts_kys: Vec<_> = opts.keys().collect();
+            opts_kys.sort();
+            for (idx, a) in opts_kys.iter().enumerate() {
                 if idx < 3 {
-                    vec1[idx] = (a.clone(), b.clone());
+                    vec1[idx] = (*a.clone(), opts[a].clone());
                 } else {
-                    vec2[idx - 3] = (a.clone(), b.clone());
+                    vec2[idx - 3] = (*a.clone(), opts[a].clone());
                 }
             }
             let enc_opts = vec![vec1.clone(), vec2.clone()];
@@ -915,7 +917,7 @@ impl GUI {
                 .title("Encounter")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-            let paragraph = Paragraph::new(Span::raw("What item to use?"))
+            let paragraph = Paragraph::new(Span::styled("What item to use?", Style::default().white()))
                 .block(enc_text_block);
 
             f.render_widget(paragraph, left_chunk[0]);
@@ -1165,8 +1167,7 @@ impl GUI {
 
 
             let comm = npc_str[1];
-
-            let npc = Paragraph::new(Span::raw(comm))
+            let npc = Paragraph::new(Span::styled(comm, Style::default().white()))
                 .block(paragraph_block)
                 .wrap(ratatui::widgets::Wrap { trim: true });
             let plyr = Paragraph::new(Span::raw(""))
@@ -1264,8 +1265,8 @@ impl GUI {
 
 
             // let comm = npc_str[1];
-
-            let npc = Paragraph::new(Span::raw(text))
+            //
+            let npc = Paragraph::new(Span::styled(text, Style::default().white()))
                 .block(paragraph_block)
                 .wrap(ratatui::widgets::Wrap { trim: true });
 
@@ -1343,7 +1344,7 @@ impl GUI {
                 .title("Buy")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-            let paragraph = Paragraph::new(Span::raw(&dialogue))
+            let paragraph = Paragraph::new(Span::styled(&dialogue, Style::default().white()))
                 .block(paragraph_block)
                 .wrap(ratatui::widgets::Wrap { trim: true });
             // let mut adj_list = vec![];

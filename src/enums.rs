@@ -2,7 +2,7 @@
 use crate::item::Item;
 use crate::enemy::{Enemy};
 use crate::settlement::{Settlement};
-use crate::npc::{BaseNPC, CommNPC, ConvNPC, QuestNPC, ShopNPC};
+use crate::npc::{BaseNPC, CommNPC, ConvNPC, ShopNPC};
 
 // Define the Cell enum
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -113,7 +113,7 @@ pub enum NPCs {
 pub enum NPCWrap {
     CommNPC(CommNPC),
     ConvNPC(ConvNPC),
-    QuestNPC(QuestNPC),
+    //QuestNPC(QuestNPC),
     ShopNPC(ShopNPC),
     BaseNPC(BaseNPC),
     Null,
@@ -165,7 +165,7 @@ pub enum Interactable {
     Null,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Ord, PartialOrd)]
 pub enum InterOpt {
     Item(ItemOpt),
     // Enemy(EnemyOpt),
@@ -173,14 +173,14 @@ pub enum InterOpt {
     Null,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Ord, PartialOrd)]
 pub enum ItemOpt {
     PickUp,
     Drp,
     Use,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Ord, PartialOrd)]
 pub enum EncOpt {
     Attack,
     UseItem,
