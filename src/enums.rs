@@ -87,6 +87,15 @@ pub enum Items {
     Null,
 }
 
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
+pub enum Equip {
+    Head,
+    Body,
+    Weapon,
+    Shield,
+    Null
+}
+
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Enemies {
@@ -178,6 +187,7 @@ pub enum ItemOpt {
     PickUp,
     Drp,
     Use,
+    Equip,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Ord, PartialOrd)]

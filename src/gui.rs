@@ -1,5 +1,5 @@
 //gui
-use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, Interactable, InterOpt, EncOpt};
+use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, Interactable, InterOpt, EncOpt, Equip};
 use crate::map::Map;
 use crate::player::Player;
 use crate::enemy::{Enemy};
@@ -9,7 +9,7 @@ use crate::notebook::{Quest, Stage, Place, Person, Lore};
 mod gui_man_draw;
 use rand::Rng;
 use ratatui::widgets::Clear;
-
+use ratatui::prelude::Alignment;
 
 use std::io::stdout;
 // use std::time::Duration;
@@ -239,7 +239,7 @@ impl GUI {
         let itype = String::new();
         let desc = String::new();
         let iopts = HashMap::new();
-        let i_temp = Item::new(Items::Null, itype, desc, iopts, false, 0, 0, prop);
+        let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, 0, 0, prop);
         let inv_opt = (
             vec![(0, i_temp.clone()); 25],
             vec![(0, i_temp.clone()); 25],
@@ -399,7 +399,7 @@ impl GUI {
 
 
 
-    pub fn draw(&mut self, debug: (String, String, String), mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn draw(&mut self, debug: (String, String, String), mut map: Map, mut player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
         if self.ani_updt < 120 {
             self.ani_updt += 1;
             if self.ani_cnt < 120 {
@@ -721,21 +721,41 @@ impl GUI {
                     }).collect();
                     let en_table = Table::new(en_rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
                         .block(enchant_block);
+                    
+                    let mut equip_name = Vec::new();
+                    let mut equip_buff = Vec::new();
+                    let equip = player.get_equipped();
+                    let mut keys: Vec<_> = equip.keys().collect();
+                    keys.sort();
+                    for k in keys {
+                        let mut itm = equip[k].clone();
+                        let etype = itm.get_equip_type();
+                        let effect_str = {
+                            match etype {
+                                Equip::Head => format!("Health: +{}", itm.get_properties()["health"]),
+                                Equip::Body => format!("Attack: +{}", itm.get_properties()["attack"]),
+                                Equip::Weapon => format!("Damage: +{}", itm.get_properties()["damage"]),
+                                Equip::Shield => format!("Defence: +{}", itm.get_properties()["defence"]),
+                                Equip::Null => todo!(),
+                            }
+                        };
+                        equip_name.push(itm.get_sname());
+                        equip_buff.push(effect_str);
+                    }
 
-                    let equip_data = vec![
-                        vec!["", "", ""],
+                    let equip_data: Vec<Vec<String>> = vec![
+                        //vec!["", "", ""],
+                        equip_name,
+                        equip_buff,
                     ];
                     let ep_rows: Vec<Row> = equip_data.iter().enumerate().map(|(j, row)| {
-                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &cell)| {
-                            if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                                Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
-                            } else {
-                                Cell::from(cell)
-                            }
+                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                                Cell::from(Span::styled(cell, Style::default().fg(Color::White)))
+                                    .style(Style::default())
                         }).collect();
-                        Row::new(cells)
+                        Row::new(cells).top_margin(3)
                     }).collect();
-                    let eq_table = Table::new(ep_rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
+                    let eq_table = Table::new(ep_rows, &[Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25)])
                         .block(table_block);
                     f.render_widget(h_block, normal_info[0]);
                     f.render_widget(h_gauge, normal_info[0]);
@@ -1021,7 +1041,7 @@ impl GUI {
                     let itype = String::new();
                     let desc = String::new();
                     let iopts = HashMap::new();
-                    let i_temp = Item::new(Items::Null, itype, desc, iopts, false, 0, 0, prop);
+                    let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, 0, 0, prop);
                     let mut col1 = vec![(0, i_temp.clone()); 25];
                     let mut col2 = vec![(0, i_temp.clone()); 25];
                     let mut col3 = vec![(0, i_temp.clone()); 25];

@@ -1,4 +1,4 @@
-use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, InterSteps, Interactable, InterOpt, EncOpt};
+use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, InterSteps, Interactable, InterOpt, EncOpt, Equip};
 use crate::map::Map;
 use crate::player::Player;
 use crate::enemy::{Enemy};
@@ -18,6 +18,29 @@ use ratatui::text::{Text, Span};
 use ratatui::widgets::Row;
 use ratatui::widgets::Table;
 use ratatui::widgets::Cell;
+use ratatui::text::Line;
+
+fn wrap_text(text: &str, max_width: usize) -> Text {
+    let mut lines = Vec::new();
+    let mut current_line = String::new();
+    for word in text.split_whitespace() {
+        if current_line.len() + word.len() + 1 > max_width {
+            //lines.push(current_line);
+            lines.push(Line::from(current_line.clone()));
+            current_line.clear();
+        }
+        if !current_line.is_empty() {
+            current_line.push(' ');
+        }
+        current_line.push_str(word);
+    }
+    if !current_line.is_empty() {
+        //lines.push(current_line);
+        lines.push(Line::from(current_line));
+    }
+    //lines
+    Text::from(lines)
+}
 
 impl GUI {
 
@@ -967,7 +990,7 @@ impl GUI {
             let itype = String::new();
             let desc = String::new();
             let iopts = HashMap::new();
-            let i_temp = Item::new(Items::Null, itype, desc, iopts, false, 0, 0, prop);
+            let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, 0, 0, prop);
             let mut col1 = vec![(0, i_temp.clone()); 25];
             let mut col2 = vec![(0, i_temp.clone()); 25];
             let mut col3 = vec![(0, i_temp.clone()); 25];
@@ -1262,8 +1285,10 @@ impl GUI {
                 .title("")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-
-
+            
+            let table_inner = table_block.inner(normal_info[1]);
+            let table_width = table_inner.width;
+            
             // let comm = npc_str[1];
             //
             let npc = Paragraph::new(Span::styled(text, Style::default().white()))
@@ -1271,10 +1296,16 @@ impl GUI {
                 .wrap(ratatui::widgets::Wrap { trim: true });
 
             let rows: Vec<Row> = opts_vec.iter().enumerate().map(|(j, cell)| {
+                let wrapped_text = wrap_text(cell, table_width.into());
+                //let styled_text = wrapped_text.iter().map(|line| Span::raw(line.clone())).collect::<Vec<_>>();
                 if j == self.cursor_pos.1 {
-                    Row::new(vec![Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))])
+                    //Row::new(vec![Cell::from(Span::styled(cell.clone(), Style::default().fg(Color::Yellow)))]).height(2)
+                    Row::new(vec![Cell::from(wrapped_text)])
+                        .style(Style::default().fg(Color::Yellow))
+                        .height(2)
                 } else {
-                    Row::new(vec![Cell::from(Span::raw(cell.clone()))])
+                    Row::new(vec![Cell::from(wrapped_text)]).height(2)
+                    //Row::new(vec![Cell::from(Span::raw(cell.clone()))]).height(2)
 
                 }
             }).collect();

@@ -1,5 +1,5 @@
 //item
-use crate::enums::{Items, InterOpt, ItemOpt};
+use crate::enums::{Items, InterOpt, ItemOpt, Equip};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -9,6 +9,7 @@ pub struct Item {
     pub desc: String,
     pub iopts: HashMap<InterOpt, String>,
     pub equip: bool,
+    pub equip_type: Equip,
     pub x: usize,
     pub y: usize,
     pub properties: HashMap<String, u16>,
@@ -26,6 +27,7 @@ impl Default for Item {
             desc: "".to_string(),
             iopts: h,
             equip: false,
+            equip_type: Equip::Null,
             x: 0,
             y: 0,
             properties: p,
@@ -34,8 +36,8 @@ impl Default for Item {
 }
 
 impl Item {
-    pub fn new(itype: Items, sname: String, desc: String, iopts: HashMap<InterOpt, String>, equip: bool, x: usize, y: usize, properties: HashMap<String, u16>) -> Self {
-        Self {itype, sname, desc, iopts, equip, x, y, properties}
+    pub fn new(itype: Items, sname: String, desc: String, iopts: HashMap<InterOpt, String>, equip: bool, equip_type: Equip, x: usize, y: usize, properties: HashMap<String, u16>) -> Self {
+        Self {itype, sname, desc, iopts, equip, equip_type, x, y, properties}
     }
 
     pub fn new_edible_root(x: usize, y: usize) -> Self {
@@ -51,6 +53,7 @@ impl Item {
             desc: "Weird looking root, doesnt look very tasty.".to_string(),
             iopts,
             equip: false,
+            equip_type: Equip::Null,
             x,
             y,
             properties: prop,
@@ -69,6 +72,7 @@ impl Item {
             desc: "Its a rock.".to_string(),
             iopts,
             equip: false,
+            equip_type: Equip::Null,
             x,
             y,
             properties: prop,
@@ -88,6 +92,7 @@ impl Item {
             desc: "Parts of a dead bug.".to_string(),
             iopts,
             equip: false,
+            equip_type: Equip::Null,
             x,
             y,
             properties: prop,
@@ -108,6 +113,7 @@ impl Item {
             desc: "Scrap of metal.".to_string(),
             iopts,
             equip: false,
+            equip_type: Equip::Null,
             x,
             y,
             properties: prop,
@@ -129,6 +135,7 @@ impl Item {
             desc: "A slightly bruised apple that as been here for a while.".to_string(),
             iopts,
             equip: false,
+            equip_type: Equip::Null,
             x,
             y,
             properties: prop,
@@ -149,6 +156,7 @@ impl Item {
             desc: "Mixture of curdled liquids. Returns vitality to the body.".to_string(),
             iopts,
             equip: false,
+            equip_type: Equip::Null,
             x,
             y,
             properties: prop,
@@ -170,6 +178,7 @@ impl Item {
             desc: "Thick paste for smearing on wounds. It heals better than it smells.".to_string(),
             iopts,
             equip: false,
+            equip_type: Equip::Null,
             x,
             y,
             properties: prop,
@@ -183,7 +192,7 @@ impl Item {
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
-        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
 
         Self {
             itype: Items::Dowel,
@@ -191,6 +200,7 @@ impl Item {
             desc: "Most of a broomstick. Its sharp at one end.".to_string(),
             iopts,
             equip: true,
+            equip_type: Equip::Weapon,
             x,
             y,
             properties: prop,
@@ -204,7 +214,7 @@ impl Item {
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
-        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
 
         Self {
             itype: Items::WoodenBoard,
@@ -212,6 +222,7 @@ impl Item {
             desc: "A wooden board with a strap attached to it.".to_string(),
             iopts,
             equip: true,
+            equip_type: Equip::Shield,
             x,
             y,
             properties: prop,
@@ -237,6 +248,14 @@ impl Item {
 
     pub fn get_properties(&mut self) -> HashMap<String, u16> {
         self.properties.clone()
+    }
+
+    pub fn is_equip(&mut self) -> bool {
+        self.equip.clone()
+    }
+
+    pub fn get_equip_type(&mut self) -> Equip {
+        self.equip_type.clone()
     }
 
     pub fn get_desc(&mut self) -> String {

@@ -1093,11 +1093,15 @@ impl GameState {
     }
 
     fn use_inv_item(&mut self){
-        let (idx, item) = self.gui.get_inv_opt();
+        let (idx, mut item) = self.gui.get_inv_opt();
         //gui, using item
-        self.player.apply_item_effect(item.clone());
-        self.player.rem_inv_item(idx);
-        self.gui.set_inventory(self.player.get_inventory());
+        if item.is_equip() {
+            self.player.add_equip(item.clone());
+        } else {
+            self.player.apply_item_effect(item.clone());
+            self.player.rem_inv_item(idx);
+            self.gui.set_inventory(self.player.get_inventory());
+        }
         self.gui.reset_cursor();
         match self.game_mode {
             GameMode::Play => {

@@ -1,6 +1,6 @@
 //player
 // mod enums;
-use crate::enums::{EncOpt};
+use crate::enums::{EncOpt, Equip};
 use crate::item::{Item};
 use std::collections::HashMap;
 use rand::{Rng};
@@ -11,6 +11,7 @@ pub struct Player {
     pub y: usize,
     pub health: u16,
     pub inventory: Vec<Item>,
+    pub equipped: HashMap<Equip, Item>,
     pub attack: u16,
     pub defence: u16,
     pub damage: u16,
@@ -24,6 +25,7 @@ pub struct Player {
 impl Player {
     pub fn new(x: usize, y: usize) -> Self {
         let inventory: Vec<Item> = Vec::new();
+        let equipped: HashMap<Equip, Item> = HashMap::new();
         let mut enc_opt = HashMap::new();
         enc_opt.insert(EncOpt::Attack, "Attack".to_string());
         enc_opt.insert(EncOpt::UseItem, "Use item".to_string());
@@ -33,10 +35,11 @@ impl Player {
             y,
             health: 100,
             inventory,
+            equipped,
             attack: 20,
             defence: 10,
             damage: 10,
-            money: 10,
+            money: 60,
             dodge: false,
             enc_last_turn: (EncOpt::Null, 0),
             enc_opt,
@@ -96,8 +99,18 @@ impl Player {
         self.inventory.clone()
     }
 
+    pub fn get_equipped(&mut self) -> HashMap<Equip, Item> {
+        self.equipped.clone()
+    }
+
     pub fn rem_inv_item(&mut self, idx: usize) {
         self.inventory.remove(idx);
+    }
+
+    pub fn add_equip(&mut self, mut item: Item) {
+        let etype = item.get_equip_type();
+        //let item.get_properties();
+        self.equipped.insert(etype, item);
     }
 
     pub fn apply_item_effect(&mut self, mut item: Item) {
