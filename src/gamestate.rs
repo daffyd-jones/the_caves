@@ -1,5 +1,5 @@
 //gamestate
-use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, InterSteps, InterOpt, GameMode, FightSteps, Interactable, EncOpt, Location};
+use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, InterSteps, InterOpt, GameMode, FightSteps, Interactable, EncOpt, Location, CompMode};
 use crate::map::{Map, MAP_W, MAP_H};
 use crate::player::Player;
 use crate::enemy::{Enemy};
@@ -371,7 +371,7 @@ fn loc_shop_items(dist_fo: (i64, i64), loc: Location) -> HashMap<(usize, usize),
     }
 }
 
-const collision_cells: [Cells; 30] = [
+const collision_cells: [Cells; 31] = [
     Cells::Wall,
     Cells::MwH,
     Cells::MwV,
@@ -402,6 +402,7 @@ const collision_cells: [Cells; 30] = [
     Cells::GenCur,
     Cells::Water,
     Cells::Item,
+    Cells::Cong,
 ];
 
 fn in_range(pos1: (i64, i64), pos2: (i64, i64), rad: u16) -> bool {
@@ -435,7 +436,8 @@ pub struct GameState {
     player: Player,
     dist_fo: (i64, i64),
     comp_head: (i64, i64),
-    comp_list: Vec<(i64, i64)>,
+    comp_list: HashMap<(i64, i64), String>,
+    comp_mode: CompMode,
     loc_rad: u16,
     depth: u32,
     level: u32,
@@ -460,7 +462,7 @@ impl GameState {
         let mut map = Map::new();
         let x = map.px.clone();
         let y = map.py.clone();
-        let comp_list = Vec::new();
+        let comp_list = HashMap::new();
         let player = Player::new(309, 195);
         // let player = Player::new(x, y);
         let mut l_systems = LSystems::new();
@@ -482,6 +484,7 @@ impl GameState {
             dist_fo: (0, 0),
             comp_head: (0, 0),
             comp_list,
+            comp_mode: CompMode::Search,
             loc_rad: 500,
             depth: 1,
             level: 0,
@@ -866,6 +869,10 @@ impl GameState {
         let (x, y) = e.get_pos();
         let itm = match i {
             Some(Items::BugBits) => Item::new_bug_bits(x.clone(), y.clone()),
+            Some(Items::Apple) => Item::new_apple(x.clone(), y.clone()),
+            Some(Items::MetalScrap) => Item::new_metal_scrap(x.clone(), y.clone()),
+            Some(Items::Salve) => Item::new_salve(x.clone(), y.clone()),
+            Some(Items::HealthPotion) => Item::new_health_potion(x.clone(), y.clone()),
             _ => todo!(),
         };
         self.items.insert((x, y), itm.clone());
@@ -1149,6 +1156,36 @@ impl GameState {
         }
     }
 
+    fn set_comp(&mut self) {
+        //let curs = self.gui.get_cursor();
+        let copt = self.gui.get_comp_opt();
+        if copt == "Search" {
+            self.comp_mode = CompMode::Search;
+            return ();
+        } else {
+            self.comp_mode = CompMode::Location;
+        }
+        let comp_pos = self.comp_list.clone().into_iter()
+            .find_map(|(pos, name)| {
+                log::info!("copt: {:?}, name: {:?}, pos: {:?}", copt, name, pos);
+                if name == copt {
+                    Some(pos)
+                } else {
+                    Some((0, 0))
+                }
+        }).unwrap();
+        log::info!("compass: {:?}", comp_pos);
+        self.comp_head = comp_pos;
+       // let comp_pos = {
+       //     for (pos, name) in self.comp_list.clone() {
+       //         match name {
+       //             copt => pos,
+       //             _ -> todo!(),
+       //         }
+       //     }
+       // };
+    }
+
     fn play_key(&mut self, code: KeyCode) -> bool {
         match code {
             KeyCode::Up => {
@@ -1217,6 +1254,7 @@ impl GameState {
             KeyCode::Char('w') => {
                 self.gui.set_info_mode(GUIMode::Map);
                 //self.gui.set_comp_head(self.comp_head);
+                self.gui.set_comp_list(self.comp_list.clone());
                 self.gui.set_comp_head((self.comp_head.0 - self.dist_fo.0*-1, self.comp_head.1 - self.dist_fo.1*-1));
             },
             KeyCode::Char('e') => self.gui.set_info_mode(GUIMode::Normal),
@@ -1236,7 +1274,10 @@ impl GameState {
                     GUIMode::Inventory => {
                         self.use_inv_item();
                     },
-                    GUIMode::Map => {},
+                    GUIMode::Map => {
+                        self.set_comp();
+                        self.gui.set_comp_list(self.comp_list.clone());
+                    },
                     GUIMode::Notes => {
                         self.gui.menu_lvl("DN");
                     },
@@ -2287,12 +2328,178 @@ impl GameState {
             },
             _ => {},
         }
-        let nt = self.npcs.clone();
+        //let nt = self.npcs.clone();
         //for n in nt {
         //    log::info!("{:?}", n);
         //}
         //log::info!("");
     }
+
+
+    fn check_place_enemies(&mut self, x: usize, y: usize) -> bool {
+        let mut rng = rand::thread_rng();
+        let l_types = vec![Enemies::Bug, Enemies::Slime];
+        let h_types = vec![Enemies::GoblinMan, Enemies::CrazedExplorer, Enemies::Golem];
+        if self.map.cells[y][x] == Cells::Empty && !self.npcs.contains_key(&(x, y)) && !self.items.contains_key(&(x, y)) {
+            let en_type = { 
+                match rng.gen_range(0..1) {
+                    0 => l_types,
+                    1 => h_types,
+                    _ => l_types,
+                }
+            };
+            if let Some(en_type) = en_type.choose(&mut rng){
+                match en_type {
+                    Enemies::Bug => {
+                        let drop = vec![Items::BugBits];
+                        self.enemies.insert((x, y), Enemy::new_bug(x, y, 20, 10, 10, 5, drop));
+                    },
+                    Enemies::Slime => {
+                        let drop = vec![Items::Salve];
+                        self.enemies.insert((x, y), Enemy::new_slime(x, y, 20, 10, 15, 7, drop));
+                    },
+                    Enemies::GoblinMan => {
+                        let drop = vec![Items::MetalScrap];
+                        self.enemies.insert((x, y), Enemy::new_goblin_man(x, y, 25, 12, 17, 9, drop));
+                    },
+                    Enemies::CrazedExplorer => {
+                        let drop = vec![Items::Apple];
+                        self.enemies.insert((x, y), Enemy::new_crazed_explorer(x, y, 30, 15, 20, 12, drop));
+                    },
+                    Enemies::Golem => {
+                        let drop = vec![Items::HealthPotion];
+                        self.enemies.insert((x, y), Enemy::new_golem(x, y, 35, 20, 25, 15, drop));
+                    },
+                    _ => todo!(),
+                };
+                return true;
+            }
+        }
+        false
+    }
+
+    fn repop_enemies(&mut self) {
+        let mut rng = rand::thread_rng();
+        let (vx, vy, vw, vh) = self.map.get_viewport();
+        //xx
+        match (self.map.gen_x * - 1, self.map.gen_y * - 1) {
+            (x, y) if x < 0 && y == 0 => {
+                for _ in 0..20 {
+                    loop {
+                        let x = rng.gen_range(10..vx-5);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x > 0 && y == 0 => {
+                for _ in 0..20 {
+                    loop {
+                        let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if y < 0 && x == 0 => {
+                for _ in 0..20 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range(10..vy-5);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if y > 0 && x == 0 => {
+                for _ in 0..20 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+            }, // asdf
+            (x, y) if x > 0 && y > 0 => {
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x > 0 && y < 0 => {
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range((vx + vw + 5)..MAP_W-10);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range(10..vy-5);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x < 0 && y > 0 => {
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..vx-5);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range((vy + vh + 5)..MAP_H-10);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            (x, y) if x < 0 && y < 0 => {
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..vx-5);
+                        let y = rng.gen_range(10..MAP_H-10);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+                for _ in 0..10 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W-10);
+                        let y = rng.gen_range(10..vy-5);
+                        let res = self.check_place_enemies(x, y);
+                        if res {break;}
+                    }
+                }
+            },
+            _ => {},
+        }
+        //let nt = self.npcs.clone();
+    }
+
 
     pub fn start_update_threads(game_state: Arc<Mutex<Self>>) {
         // let game_state = Arc::new(Mutex::new(self));
@@ -2323,20 +2530,21 @@ impl GameState {
 
     fn location_check(&mut self) {
         if self.location == Location::Null {
-            log::info!("looking for settlement");
+            //log::info!("looking for settlement");
             if let Some(settlement) = self.settles.check_location(self.dist_fo.clone(), self.loc_rad.clone()) {
                 self.location = Location::Settlement(settlement);
-                log::info!("settlement located");
+                //log::info!("settlement located");
             };
         } else {
-            log::info!("checking if away from settle");
+            //log::info!("checking if away from settle");
             match &mut self.location {
-                Location::Settlement(settle) => {
+                Location::Settlement(ref mut settle) => {
                     let lpos = settle.get_pos();
                     if !in_range(lpos, (self.dist_fo.0*-1, self.dist_fo.1*-1), self.loc_rad) {
+                        settle.tog_npcs_sent();
                         self.settles.update_settlement(settle.clone());
                         self.location = Location::Null;
-                        log::info!("updating and unlocating settle");
+                        //log::info!("updating and unlocating settle");
                     }
                 },
                 _ => todo!(),
@@ -2345,21 +2553,18 @@ impl GameState {
     }
 
     fn update_settlement(&mut self, mut settle: Settlement) -> Location {
-        //let lpos = settle.get_pos();
-        //let pos = self.dist_fo;
-        //let dx = (lpos.0 - pos.0) as usize;
-        //let dy = (lpos.1 - pos.1) as usize;
-        //let (dx, dy) = (lpos.0 - pos.0, lpos.1 - pos.1) as usize;
-        //let chyp = ((dx.pow(2) + dy.pow(2)) as f64).sqrt() as i64;
-        //if chyp <= 600 {
-            
-        //}
-        if !settle.get_npcs_sent() {
-            let lpos = settle.get_pos();
-            let pos = self.dist_fo;
-            let dx = (lpos.0 - pos.0) as usize;
-            let dy = (lpos.1 - pos.1) as usize;
-            if dx < MAP_W && dy < MAP_H {
+        let lpos = settle.get_pos();
+        let pos = self.dist_fo;
+        let dx = (lpos.0 - pos.0) as usize;
+        let dy = (lpos.1 - pos.1) as usize;
+        if dx < MAP_W && dy < MAP_H {
+            if !settle.get_npcs_sent() {
+                let sitems = settle.get_items();
+                for ((x, y), mut i) in sitems {
+                    let ipos = i.get_pos();
+                    i.set_pos((ipos.0 + dx, ipos.1 + dy));
+                    self.items.insert((x + dx, y + dy), i.clone());
+                }
                 let tnpcs = settle.get_npcs();
                 for ((x, y), n) in tnpcs {
                     let mut nbox = box_npc(n);
@@ -2367,8 +2572,21 @@ impl GameState {
                     nbox.set_pos((npos.0 + dx, npos.1 + dy));
                     self.npcs.insert((x + dx, y + dy), wrap_nbox(nbox));
                 }
+                settle.tog_npcs_sent();
             }
-            settle.tog_npcs_sent();
+
+            let itms = self.items.clone();
+            let rem: Vec<_> = itms.iter().filter_map(|(&(x, y), _)| {
+                if x >=  dx && x <= dx + 150 && y >= dy && y <= dy + 50 {
+                    Some((x, y))
+                } else {
+                    None
+                }
+            }).collect();
+            for k in rem {
+                self.items.remove(&k);
+            }
+
         }
         Location::Settlement(settle.clone())
     }
@@ -2395,14 +2613,17 @@ impl GameState {
     }
 
     fn compass_check(&mut self) {
-        let spos_list = self.settles.get_settle_pos();
+        let spos_list = self.settles.get_compass_pos();
         if spos_list.len() > self.comp_list.len() {
             self.comp_list = spos_list.clone();
+        }
+        if self.comp_mode == CompMode::Location {
+            return ();
         }
         let dfo = self.dist_fo.clone();
         let mut distances = HashMap::new();
         let mut d_min = 0;
-        for (x, y) in spos_list {
+        for ((x, y), _) in spos_list {
             let (dx, dy) = (x - dfo.0*-1, y - dfo.1*-1);
             let hyp = ((dx.pow(2) + dy.pow(2)) as f64).sqrt() as i64;
             if d_min == 0 {
@@ -2443,6 +2664,10 @@ impl GameState {
             self.repop_npcs();
         }
 
+        if self.enemies.len() < 40 {
+            self.repop_enemies();
+        }
+
         let ppos = (self.player.x, self.player.y);
 
         if let Some(e) = self.enemies.get(&(ppos)) {
@@ -2478,7 +2703,7 @@ impl GameState {
                     }
                 }
             }
-            log::info!("map_copied");
+            //log::info!("map_copied");
             self.map.cells = map_vec.clone()
         }
     }
@@ -2492,7 +2717,7 @@ impl GameState {
         } else {
             HashMap::new()
         };
-        log::info!("s_items: {:?}", litems);
+        //log::info!("s_items: {:?}", litems);
         // let sitems = if self.location == Location::Settlement(_) {
         //     loc_shop_items(self.dist_fo.clone(), self.location.clone())
         // }
@@ -2502,7 +2727,7 @@ impl GameState {
             let comp = format!("({}, {})", self.comp_head.0, self.comp_head.1);
             //let spos_list = self.settles.get_settle_pos();
             let spos_list = &self.comp_list;
-            let spos_s = self.comp_list.clone().iter().map(|(x, y)| format!("({}, {})", x, y))
+            let spos_s = self.comp_list.clone().iter().map(|((x, y), s)| format!("({}, {}): {}", x, y, s))
                 .collect::<Vec<String>>()
                 .join(", ");
             (dist_fo, spos_s, comp)

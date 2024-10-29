@@ -99,9 +99,12 @@ pub enum Equip {
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Enemies {
+    Golem,
     CrazedExplorer,
     GoblinMan,
+    Slime,
     Bug,
+    Null,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -223,4 +226,12 @@ pub enum Location {
     Settlement(Settlement),
     Puzzle,
     Null,
+}
+
+
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum CompMode {
+    Search,
+    Location,
 }

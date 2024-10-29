@@ -76,6 +76,14 @@ impl Settlements {
         self.settlements.clone().into_keys().collect() 
     }
 
+    pub fn get_compass_pos(&mut self) -> HashMap<(i64, i64), String> {
+        let mut tvec = HashMap::new();
+        for (pos, mut s) in self.settlements.clone() {
+            tvec.insert(pos, s.get_sname());
+        }
+        tvec.clone()
+    }
+
 }
 
 

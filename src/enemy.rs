@@ -26,7 +26,107 @@ impl Enemy {
         let mut rng = rand::thread_rng();
         let step = rng.gen_range(0..19);
         let step_grp = rng.gen_range(0..15);
-        Self {etype, sname, x, y, steps: step, step_grp: step_grp, cell:Cells::Empty, health, attack, defence, damage, drop}
+        Self {etype, sname, x, y, steps: step, step_grp: step_grp, cell: Cells::Empty, health, attack, defence, damage, drop}
+    }
+
+    pub fn new_bug(x: usize, y: usize, health: u16, attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+        let mut rng = rand::thread_rng();
+        let step = rng.gen_range(0..19);
+        let step_grp = rng.gen_range(0..15);
+        Self {
+            etype: Enemies::Bug,
+            sname: "Bug".to_string(),
+            x: x,
+            y: y,
+            steps: step,
+            step_grp: step_grp,
+            cell: Cells::Empty,
+            health: health,
+            attack: attack,
+            defence: defence,
+            damage: damage,
+            drop: drop,
+        }    
+    }
+
+    pub fn new_slime(x: usize, y: usize, health: u16, attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+        let mut rng = rand::thread_rng();
+        let step = rng.gen_range(0..19);
+        let step_grp = rng.gen_range(0..15);
+        Self {
+            etype: Enemies::Slime,
+            sname: "Slime".to_string(),
+            x: x,
+            y: y,
+            steps: step,
+            step_grp: step_grp,
+            cell: Cells::Empty,
+            health: health,
+            attack: attack,
+            defence: defence,
+            damage: damage,
+            drop: drop,
+        }
+    }
+
+    pub fn new_goblin_man(x: usize, y: usize, health: u16, attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+        let mut rng = rand::thread_rng();
+        let step = rng.gen_range(0..19);
+        let step_grp = rng.gen_range(0..15);
+        Self {
+            etype: Enemies::GoblinMan,
+            sname: "Goblin Man".to_string(),
+            x: x,
+            y: y,
+            steps: step,
+            step_grp: step_grp,
+            cell: Cells::Empty,
+            health: health,
+            attack: attack,
+            defence: defence,
+            damage: damage,
+            drop: drop,
+        }
+    }
+
+    pub fn new_crazed_explorer(x: usize, y: usize, health: u16, attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+        let mut rng = rand::thread_rng();
+        let step = rng.gen_range(0..19);
+        let step_grp = rng.gen_range(0..15);
+        Self {
+            etype: Enemies::CrazedExplorer,
+            sname: "Crazed Explorer".to_string(),
+            x: x,
+            y: y,
+            steps: step,
+            step_grp: step_grp,
+            cell: Cells::Empty,
+            health: health,
+            attack: attack,
+            defence: defence,
+            damage: damage,
+            drop: drop,
+        }
+    }
+
+    pub fn new_golem(x: usize, y: usize, health: u16, attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+        let mut rng = rand::thread_rng();
+        let step = rng.gen_range(0..19);
+        let step_grp = rng.gen_range(0..15);
+        Self {
+            etype: Enemies::Golem,
+            sname: "Golem".to_string(),
+            x: x,
+            y: y,
+            steps: step,
+            step_grp: step_grp,
+            cell: Cells::Empty,
+            health: health,
+            attack: attack,
+            defence: defence,
+            damage: damage,
+            drop: drop,
+        }
     }
 
     pub fn get_sname(&mut self) -> String {

@@ -520,7 +520,7 @@ ___________________________________________________________________________
 const pal: &str = "empty: ' . , ' * | wall: ▒ | other ▓ ░ ~ | pipes: ═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬   ┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │ ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©";
 
 const guild1: &str =
-r#"ShopNpc CommNPC|Null|Apple
+r#"ShopNPC CommNPC|Null|Apple
 ___________________________________________________________________________
 ___________________________________________________________________________
 ______▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒___┌┬┬┬┬┬┬┬┬┬┬┬┬┐___
@@ -598,7 +598,7 @@ const anchors: [&str; 1]  = [
 ];
 
 
-const cave_o: &str = r#"CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple|Null
+const cave_o: &str = r#"CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple|Apple
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
 ▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_________________________________▒▒▒▒_____________________________________▒▒▒▒____
@@ -618,7 +618,7 @@ ______________________________▒                                      ▒______
 ______________________________▒  ─┼─  ─┼─  ─┴─      └────────────────▒____________________________________~~~~~_______________________________▒▒▒▒____
 ______________________________▒  o│o  o│o                            ▒________________________________________________________________________▒▒▒▒____
 ______________________________▒                                      ▒_____________├┤_________________________________________________▒▒▒▒▒▒▒▒▒▒▒▒____
-______________________________▒                                      ▒____________,├┤,________________________________________________▒▒▒▒▒▒▒▒▒▒▒▒____
+______________________________▒                                      ▒_O__________,├┤,________________________________________________▒▒▒▒▒▒▒▒▒▒▒▒____
 ______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____________,..,________________________________________________________▒▒▒▒____
 ________________________________________________________________________________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_____________▒▒▒▒____
 ________________________________________________________________________________@_______________▒    │°  ╚══════════════╝ °│    ▒_____________▒▒▒▒____
@@ -666,7 +666,7 @@ fn parse_map(s_map: &str, mut cells: Vec<Vec<Cells>>) -> (Vec<Vec<Cells>>, HashM
     let item_types: Vec<&str> = map_code.clone()[2].split(" ").collect();
 
     let data1 = fs::read_to_string("src/npcs/npc_names.json");
-    log::info!("{:?}", &data1); 
+    //log::info!("{:?}", &data1); 
     let names: Vec<String> = match data1 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => { 
@@ -676,7 +676,7 @@ fn parse_map(s_map: &str, mut cells: Vec<Vec<Cells>>) -> (Vec<Vec<Cells>>, HashM
     };          
             
     let data2 = fs::read_to_string("src/npcs/npc_comms.json");
-    log::info!("{:?}", &data2);
+    //log::info!("{:?}", &data2);
     let comms: Vec<String> = match data2 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => { 
@@ -686,7 +686,7 @@ fn parse_map(s_map: &str, mut cells: Vec<Vec<Cells>>) -> (Vec<Vec<Cells>>, HashM
     };                      
                         
     let data3 = fs::read_to_string("src/npcs/npc_convos.json");
-    log::info!("{:?}", &data3); 
+    //log::info!("{:?}", &data3); 
     let convos: Vec<Convo> = match data3 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => {     
@@ -696,7 +696,7 @@ fn parse_map(s_map: &str, mut cells: Vec<Vec<Cells>>) -> (Vec<Vec<Cells>>, HashM
     };                      
                         
     let data4 = fs::read_to_string("src/npcs/npc_shops.json");
-    log::info!("{:?}", &data4);
+    //log::info!("{:?}", &data4);
     let shops: ShopData = match data4 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => {
@@ -869,8 +869,8 @@ fn place_small_parts(mut map: Vec<Vec<Cells>>, part: Vec<Vec<Cells>>, npcs: Hash
         match quad {
             1 => (0, 0),
             2 => (75, 0),
-            3 => (0, 24),
-            4 => (75, 24),
+            3 => (0, 25),
+            4 => (75, 25),
             _ => {
                 log::info!("small parts error");
                 (0, 0)
@@ -1007,7 +1007,7 @@ impl Settlement {
         shops.insert(Shops::Item, shop);
         Self {
             stype: Settle::Small,
-            sname: "DemoTown".to_string(),
+            sname: "NewTown".to_string(),
             pos: pos,
             npcs: npcs,
             items: items,
@@ -1087,5 +1087,9 @@ impl Settlement {
 
     pub fn get_map(&mut self) -> Vec<Vec<Cells>> {
         self.map.clone()
+    }
+
+    pub fn get_sname(&mut self) -> String {
+        self.sname.clone()
     }
 }

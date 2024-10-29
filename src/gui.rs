@@ -29,7 +29,7 @@ use std::collections::HashMap;
 // use std::collections::HashSet;
 
 
-fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, ani_cnt: u8) -> Paragraph<'a> {
+fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, ani_cnt: u8) -> Paragraph<'a> {
     let start_row = map.viewport_y;
     let end_row = (map.viewport_y + map.viewport_height).min(map.cells.len());
     let start_col = map.viewport_x;
@@ -48,6 +48,8 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                         Enemies::Bug => ('B', Color::Red),
                         Enemies::GoblinMan => ('G', Color::Red),
                         Enemies::CrazedExplorer => ('C', Color::Red),
+                        Enemies::Slime => ('S', Color::Red),
+                        Enemies::Golem => ('T', Color::Red),
                         _ => todo!(),
                     }
                 } else if let Some(npcw) = npcs.get(&(ix, jy)) {
@@ -64,6 +66,12 @@ fn draw_map<'a>(mut map: Map, player: Player, enemies: HashMap<(usize, usize), E
                         Items::Apple => ('o', Color::Yellow),
                         Items::MetalScrap => ('o', Color::Yellow),
                         Items::BugBits => ('o', Color::Yellow),
+                        Items::HealthPotion => ('o', Color::Yellow), // +10 health
+                        Items::Salve => ('o', Color::Yellow),
+                        Items::Dowel => ('o', Color::Yellow),
+                        Items::WoodenBoard => ('o', Color::Yellow),
+                        Items::IronShield => ('o', Color::Yellow), // +10 defence
+                        Items::IronSword => ('o', Color::Yellow),
                         _ => todo!(),
                     }
                 } else if let Some(item) = litems.get(&(ix, jy)) {
@@ -209,6 +217,8 @@ pub struct GUI {
     inventory: Vec<Item>,
     inv_opt: (Vec<(usize, Item)>, Vec<(usize, Item)>, Vec<(usize, Item)>),
     comp_head: (i64, i64),
+    comp_list: HashMap<(i64, i64), String>,
+    comp_opts: (Vec<String>, Vec<String>),
     notes_opt: (Vec<String>, Vec<String>),
     active_notes: (Vec<Quest>, Vec<Place>, Vec<Person>, Vec<Lore>),
     enc_opt: (Vec<(EncOpt, String)>, Vec<(EncOpt, String)>),
@@ -259,6 +269,12 @@ impl GUI {
             vec![(EncOpt::Null, "".to_string()); 3],
         );
 
+        let comp_list = HashMap::new();
+        let comp_opts = (
+            vec!["".to_string(); 4],
+            vec!["".to_string(); 4],
+        );
+
         Self {
             terminal,
             info_mode: GUIMode::Normal,
@@ -275,6 +291,8 @@ impl GUI {
             inventory,
             inv_opt,
             comp_head: (0, 0),
+            comp_list,
+            comp_opts,
             notes_opt,
             active_notes: (quests, places, people, lore),
             enc_opt,
@@ -294,6 +312,10 @@ impl GUI {
 
     pub fn set_comp_head(&mut self, temp: (i64, i64)) {
         self.comp_head = ((temp.0 - 224), (temp.1 - 174));
+    }
+
+    pub fn set_comp_list(&mut self, ltemp: HashMap<(i64, i64), String>) {
+        self.comp_list = ltemp;
     }
 
     pub fn set_inventory(&mut self, inv: Vec<Item>) {
@@ -351,6 +373,16 @@ impl GUI {
             _ => todo!(),
         };
         (enc_option.0, &enc_option.1)
+    }
+
+    pub fn get_comp_opt(&self) -> String {
+        let temp = self.cursor_pos.1;
+        let comp_option = match temp {
+            0 => &self.comp_opts.0[self.cursor_pos.0],
+            1 => &self.comp_opts.1[self.cursor_pos.0],
+            _ => todo!(),
+        };
+        comp_option.to_string()
     }
 
     pub fn get_ysno(&mut self) -> bool {
@@ -911,6 +943,8 @@ impl GUI {
 
                     //log::info!("dist_fo: {:?}", self.dist_fo);
 
+                    //-----------
+
                     match self.comp_head {
                         (dx, dy) if dx > 0 && dx.abs() >= dy.abs() => {
                             for y in 0..height {
@@ -1000,21 +1034,40 @@ impl GUI {
                         _ => {},
                     }
 
-                    let mut vec1 = vec!["compass"];
-                    let mut vec2 = vec!["", ""];
+                    let mut vec1 = vec!["".to_string(); 4];
+                    let mut vec2 = vec!["".to_string(); 4];
 
+                    let cmp_list = self.comp_list.clone();
+                    
+                    for (idx, (pos, names)) in cmp_list.iter().enumerate() {
+                        if idx == 0 {
+                            vec1[idx] = "Search".to_string();
+                        }
+                        if idx < 4 {
+                            vec1[idx+1] = names.clone();
+                        } else {
+                            vec2[idx-3] = names.clone();
+                        }
+                    }
+
+
+
+                    //let mut vec1 = vec!["compass"];
+                    //let mut vec2 = vec!["", ""];
+                    self.comp_opts = (vec1.clone(), vec2.clone()); 
                     let inv_table = vec![vec1.clone(), vec2.clone()];
+                    //
                     let rows: Vec<Row> = inv_table.iter().enumerate().map(|(j, row)| {
                         let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                             if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                                Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                                Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                             } else {
-                                Cell::from(*cell)
+                                Cell::from(Span::raw(cell))
                             }
                         }).collect();
                         Row::new(cells)
                     }).collect();
-                    let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
+                    let table = Table::new(rows, &[Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25)])
                         .block(table_block);
                     f.render_widget(table, normal_info[1]);
                 },
