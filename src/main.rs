@@ -8,6 +8,8 @@ mod item;
 mod gui;
 mod settlements;
 mod settlement;
+mod puzzles;
+mod puzzle;
 mod shop;
 mod notebook;
 

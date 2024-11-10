@@ -60,8 +60,10 @@ pub fn new_conv_npc(sname: String, x: usize, y: usize, conv: Convo) -> ConvNPC {
 
 pub fn new_shop_npc(sname: String, x: usize, y: usize, sh_conv: HashMap<String, String>) -> ShopNPC {
     let mut rng = rand::thread_rng();
-    let step = rng.gen_range(0..19);
-    let step_grp = rng.gen_range(0..15);
+    //let step = rng.gen_range(0..19);
+    let step = 50;
+    //let step_grp = rng.gen_range(0..15);
+    let step_grp = 100;
     // let sh_conv = HashMap::new();
     ShopNPC {
         base: BaseNPC {
@@ -129,9 +131,9 @@ impl dyn NPC {
         self.as_any().downcast_ref::<ConvNPC>()
     }
 
-//    pub fn as_quest_npc(&self) -> Option<&QuestNPC> {
-//        self.as_any().downcast_ref::<QuestNPC>()
-//    }
+    pub fn as_shop_npc(&self) -> Option<&ShopNPC> {
+        self.as_any().downcast_ref::<ShopNPC>()
+    }
 
     // fn as_any(&self) -> &dyn std::any::Any;
 }

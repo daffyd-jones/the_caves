@@ -1,6 +1,7 @@
 //enum
 use crate::item::Item;
 use crate::enemy::{Enemy};
+use crate::puzzle::{Puzzle};
 use crate::settlement::{Settlement};
 use crate::npc::{BaseNPC, CommNPC, ConvNPC, ShopNPC};
 
@@ -224,7 +225,7 @@ pub enum Shops {
 #[derive(Clone, Debug, PartialEq)]
 pub enum Location {
     Settlement(Settlement),
-    Puzzle,
+    Puzzle(Puzzle),
     Null,
 }
 
@@ -235,3 +236,13 @@ pub enum CompMode {
     Search,
     Location,
 }
+
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum PuzzleType {
+    Maze,
+    Teleport,
+    Inverted
+}
+
+

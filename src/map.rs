@@ -300,25 +300,25 @@ impl Map {
         };
         // log::info!("sx: {}, ex: {}, sy: {}, ey: {}", sx, ex, sy, ey);
         match (sx, ex, sy, ey) {
-            (0, _, 0, 0) => self.fill_map(t_cells.clone(), sx, ex, sy, y_max),
-            (_, _, 0, 0) => self.fill_map(t_cells.clone(), sx, ex, sy, y_max),
-            (0, 0, 0, _) => self.fill_map(t_cells.clone(), sx, x_max, sy, ey),
-            (0, 0, _, _) => self.fill_map(t_cells.clone(), sx, x_max, sy, ey),
+            (0, _, 0, 0) => self.fill_map(t_cells.clone(), sx+4, ex+4, sy, y_max),
+            (_, _, 0, 0) => self.fill_map(t_cells.clone(), sx-4, ex-4, sy, y_max),
+            (0, 0, 0, _) => self.fill_map(t_cells.clone(), sx, x_max, sy+4, ey+4),
+            (0, 0, _, _) => self.fill_map(t_cells.clone(), sx, x_max, sy-4, ey-4),
             (0, _, 0, _) => {
-                self.fill_map(t_cells.clone(), 0, x_max, 0, ey);
-                self.fill_map(t_cells.clone(), 0, ex, 0, y_max);
+                self.fill_map(t_cells.clone(), 0, x_max, 0+4, ey+4);
+                self.fill_map(t_cells.clone(), 0+4, ex+4, 0, y_max);
             },
             (0, _, _, _) => {
-                self.fill_map(t_cells.clone(), 0, x_max, sy, ey);
-                self.fill_map(t_cells.clone(), 0, ex, 0, y_max);
+                self.fill_map(t_cells.clone(), 0, x_max, sy-4, ey-4);
+                self.fill_map(t_cells.clone(), 0+4, ex+4, 0, y_max);
             },
             (_, _, 0, _) => {
-                self.fill_map(t_cells.clone(), 0, x_max, 0, ey);
-                self.fill_map(t_cells.clone(), sx, ex, 0, y_max);
+                self.fill_map(t_cells.clone(), 0, x_max, 0+4, ey+4);
+                self.fill_map(t_cells.clone(), sx-4, ex-4, 0, y_max);
             },
             (_, _, _, _) => {
-                self.fill_map(t_cells.clone(), 0, x_max, sy, ey);
-                self.fill_map(t_cells.clone(), sx, ex, 0, y_max);
+                self.fill_map(t_cells.clone(), 0, x_max, sy-4, ey-4);
+                self.fill_map(t_cells.clone(), sx-4, ex-4, 0, y_max);
             }
         }
 

@@ -56,6 +56,7 @@ fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy
                     match npcw {
                         NPCWrap::CommNPC(_)=> ('í', Color::Blue),
                         NPCWrap::ConvNPC(_)=> ('ì', Color::LightBlue),
+                        NPCWrap::ShopNPC(_)=> ('ì', Color::LightBlue),
                         //NPCWrap::QuestNPC(_)=> ('î', Color::Cyan),
                         _ => todo!(),
                     }

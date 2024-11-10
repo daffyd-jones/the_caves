@@ -4,7 +4,7 @@ use crate::enums::Items;
 use crate::enums::Cells;
 use rand::{Rng};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Enemy {
     pub etype: Enemies,
     pub sname: String,

@@ -1,7 +1,6 @@
 
 
-!!todo
-- Large location
+!todo
 - Trade Npcs
 - SpawnNPC
 - Puzzles
@@ -12,4 +11,23 @@
 - Inv Use Opts
 - Fix Loc spawn/management
  - Npcs, Items
+
+
+'Puzzles
+
+,Maze
+- use carve algo to create map
+- place item on one side
+- remove outer wall on other side
+
+
+,Teleport
+- generate node graph of steps
+- use graph to chain the teleport cells
+- place walls between connection points
+
+
+,Inverted
+- use carve to make maze
+- set some 
 

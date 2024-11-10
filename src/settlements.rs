@@ -63,6 +63,7 @@ impl Settlements {
             Settlement::demo_settle(new_settle_pos.clone(), npcs)
             //Settlement::new_med_settle(new_settle_pos.clone())
         };
+        //log::info!("{:?}", &settlement);
         self.settlements.insert(new_settle_pos, settlement.clone());
     }
 

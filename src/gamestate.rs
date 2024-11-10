@@ -2,6 +2,8 @@
 use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, InterSteps, InterOpt, GameMode, FightSteps, Interactable, EncOpt, Location, CompMode};
 use crate::map::{Map, MAP_W, MAP_H};
 use crate::player::Player;
+use crate::puzzle::Puzzle;
+use crate::puzzles::Puzzles;
 use crate::enemy::{Enemy};
 use crate::npc::{NPC, BaseNPC, CommNPC, ConvNPC, Convo, Stage, ConOpt, new_comm_npc, new_conv_npc, new_shop_npc};
 use crate::lsystems::LSystems;
@@ -320,7 +322,7 @@ fn box_npc(npc: NPCWrap) -> Box<dyn NPC> {
     match npc {
         NPCWrap::CommNPC(comm_npc) => Box::new(comm_npc),
         NPCWrap::ConvNPC(conv_npc) => Box::new(conv_npc),
-        //NPCWrap::QuestNPC(quest_npc) => Box::new(quest_npc),
+        NPCWrap::ShopNPC(shop_npc) => Box::new(shop_npc),
         _ => todo!(),
     }
 }
@@ -337,11 +339,11 @@ fn wrap_nbox(mut nbox: Box<dyn NPC>) -> NPCWrap {
                 NPCWrap::ConvNPC(conv_npc.clone())
             } else {NPCWrap::BaseNPC(BaseNPC::new())}
         },
-        //NPCs::QuestNPC => {
-        //    if let Some(quest_npc) = nbox.as_quest_npc() {
-        //        NPCWrap::QuestNPC(quest_npc.clone())
-        //    } else {NPCWrap::BaseNPC(BaseNPC::new())}
-        //},
+        NPCs::ShopNPC => {
+            if let Some(shop_npc) = nbox.as_shop_npc() {
+                NPCWrap::ShopNPC(shop_npc.clone())
+            } else {NPCWrap::BaseNPC(BaseNPC::new())}
+        },
         _ => todo!(),
     }
 }
@@ -367,6 +369,9 @@ fn loc_shop_items(dist_fo: (i64, i64), loc: Location) -> HashMap<(usize, usize),
                 itms
             }
         },
+        Location::Puzzle(mut puzzle) => {
+            HashMap::new()
+        }
         _ => todo!(),
     }
 }
@@ -433,6 +438,7 @@ pub struct GameState {
     gui: GUI,
     map: Map,
     settles: Settlements,
+    puzzles: Puzzles,
     player: Player,
     dist_fo: (i64, i64),
     comp_head: (i64, i64),
@@ -448,6 +454,9 @@ pub struct GameState {
     items: HashMap<(usize, usize), Item>,
     // item_drop: Vec<((usize, usize), Item)>,
     npcs: HashMap<(usize, usize), NPCWrap>,
+    npc_names: Vec<String>,
+    npc_comms: Vec<String>,
+    npc_convos: Vec<Convo>,
     key_debounce_dur: Duration,
     last_event_time: Instant,
     interactee: Interactable,
@@ -468,11 +477,44 @@ impl GameState {
         let mut l_systems = LSystems::new();
         let enemies = place_enemies(map.cells.clone());
         let items = init_items(map.cells.clone(), enemies.clone());
-        let npcs = place_npcs(map.cells.clone());
+        //let npcs = place_npcs(map.cells.clone());
+        let npcs = HashMap::new();
+
+        let data1 = fs::read_to_string("src/npcs/npc_names.json");
+        //log::info!("{:?}", &data1); 
+        let npc_names: Vec<String> = match data1 {
+            Ok(content) => serde_json::from_str(&content).unwrap(),
+            Err(e) => {
+                log::info!("{:?}", e);
+                Vec::new()
+            },
+        };
+        let data2 = fs::read_to_string("src/npcs/npc_comms.json");
+        //log::info!("{:?}", &data2);
+        let npc_comms: Vec<String> = match data2 {
+            Ok(content) => serde_json::from_str(&content).unwrap(),
+            Err(e) => {  
+                log::info!("{:?}", e);
+                Vec::new()      
+            },                  
+        };                      
+        let data3 = fs::read_to_string("src/npcs/npc_convos.json");
+        //log::info!("{:?}", &data3); 
+        let npc_convos: Vec<Convo> = match data3 {
+            Ok(content) => serde_json::from_str(&content).unwrap(),
+            Err(e) => {     
+                log::info!("{:?}", e);
+                Vec::new()      
+            },                  
+        };         
+
+
+
         let notebook = Notebook::new().unwrap();
         let l_rate = 100 as u64;
 
         let settles = Settlements::demo_self();
+        let puzzles = Puzzles::demo_self();
 
         Arc::new(Mutex::new(GameState {
             game_mode: GameMode::Play,
@@ -480,6 +522,7 @@ impl GameState {
             gui,
             map,
             settles,
+            puzzles,
             player,
             dist_fo: (0, 0),
             comp_head: (0, 0),
@@ -495,6 +538,9 @@ impl GameState {
             items,
             // item_drop,
             npcs,
+            npc_names,
+            npc_comms,
+            npc_convos,
             key_debounce_dur: Duration::from_millis(20),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
@@ -610,6 +656,7 @@ impl GameState {
         let mh = self.map.cells.len();
         let mw = self.map.cells[0].len();
         for ((x, y), mut e) in &mut e_temp {
+            //if in_range()
             let mut rng = rand::thread_rng();
             let dch = rng.gen_range(0..20);
             if dch % 4 == 0 {
@@ -1246,18 +1293,18 @@ impl GameState {
             },
             KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
             KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
-            KeyCode::Char('q') => {
-                self.gui.set_info_mode(GUIMode::Inventory);
-                self.gui.set_inventory(self.player.get_inventory());
-                self.gui.reset_cursor();
-            },
+            KeyCode::Char('q') => self.gui.set_info_mode(GUIMode::Normal),
             KeyCode::Char('w') => {
                 self.gui.set_info_mode(GUIMode::Map);
                 //self.gui.set_comp_head(self.comp_head);
                 self.gui.set_comp_list(self.comp_list.clone());
                 self.gui.set_comp_head((self.comp_head.0 - self.dist_fo.0*-1, self.comp_head.1 - self.dist_fo.1*-1));
             },
-            KeyCode::Char('e') => self.gui.set_info_mode(GUIMode::Normal),
+            KeyCode::Char('e') => {
+                self.gui.set_info_mode(GUIMode::Inventory);
+                self.gui.set_inventory(self.player.get_inventory());
+                self.gui.reset_cursor();
+            },
             KeyCode::Char('r') => {
                 self.gui.set_info_mode(GUIMode::Notes);
                 self.gui.set_notes(self.notebook.get_active_notes());
@@ -2001,10 +2048,33 @@ impl GameState {
         true
     }
 
+    fn in_loc_check(&mut self, pos: (usize, usize)) -> bool {
+        let loc = self.location.clone();
+        let dpos = self.dist_fo; 
+        match loc {
+            Location::Null => false,
+            Location::Settlement(mut settle) => {
+                let lpos = settle.get_pos();
+                let (xx, yy) = ((lpos.0 + dpos.0) as usize, (lpos.1 + dpos.1) as usize);
+                if pos.0 >= xx && pos.0 <= xx+150 && pos.1 >= yy && pos.1 <= yy+50 {
+                    return true;
+                } else {return false;}
+            },
+            Location::Puzzle(mut puzzle) => {
+                let lpos = puzzle.get_pos();
+                let (xx, yy) = ((lpos.0 + dpos.0) as usize, (lpos.1 + dpos.1) as usize);
+                if pos.0 >= xx && pos.0 <= xx+300 && pos.1 >= yy && pos.1 <= yy+200 {
+                    return true;
+                } else {return false;}
+            },
+            _ => false,
+        }
+    }
+
     fn check_place_item(&mut self, x: usize, y: usize) -> bool {
         let mut rng = rand::thread_rng();
         let types = vec![Items::Rock, Items::EdibleRoot, Items::Apple, Items::MetalScrap];
-        if self.map.cells[y][x] == Cells::Empty && !self.enemies.contains_key(&(x, y)) && !self.items.contains_key(&(x, y)) {
+        if self.map.cells[y][x] == Cells::Empty && !self.in_loc_check((x, y)) && !self.enemies.contains_key(&(x, y)) && !self.items.contains_key(&(x, y)) {
             if let Some(i_type) = types.choose(&mut rng){
                 match i_type {
                     Items::EdibleRoot => {
@@ -2156,49 +2226,61 @@ impl GameState {
     }
 
     fn check_place_npcs(&mut self, x: usize, y: usize) -> bool {
-        let data1 = fs::read_to_string("src/npcs/npc_names.json");
-        // log::info!("{:?}", &data1);
-        let names: Vec<String> = match data1 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                // log::info!("{:?}", e);
-                Vec::new()
-            },
-        };
-        let data2 = fs::read_to_string("src/npcs/npc_comms.json");
-        // log::info!("{:?}", &data2);
-        let comms: Vec<String> = match data2 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                // log::info!("{:?}", e);
-                Vec::new()
-            },
-        };
-        let data3 = fs::read_to_string("src/npcs/npc_convos.json");
-        // log::info!("{:?}", &data3);
-        let convos: Vec<Convo> = match data3 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                // log::info!("{:?}", e);
-                Vec::new()
-            },
-        };
+       // let data1 = fs::read_to_string("src/npcs/npc_names.json");
+       // // log::info!("{:?}", &data1);
+       // let names: Vec<String> = match data1 {
+       //     Ok(content) => serde_json::from_str(&content).unwrap(),
+       //     Err(e) => {
+       //         // log::info!("{:?}", e);
+       //         Vec::new()
+       //     },
+       // };
+       // let data2 = fs::read_to_string("src/npcs/npc_comms.json");
+       // // log::info!("{:?}", &data2);
+       // let comms: Vec<String> = match data2 {
+       //     Ok(content) => serde_json::from_str(&content).unwrap(),
+       //     Err(e) => {
+       //         // log::info!("{:?}", e);
+       //         Vec::new()
+       //     },
+       // };
+       // let data3 = fs::read_to_string("src/npcs/npc_convos.json");
+       // // log::info!("{:?}", &data3);
+       // let convos: Vec<Convo> = match data3 {
+       //     Ok(content) => serde_json::from_str(&content).unwrap(),
+       //     Err(e) => {
+       //         // log::info!("{:?}", e);
+       //         Vec::new()
+       //     },
+       // };
 
         let mut rng = rand::thread_rng();
         let types = vec![NPCs::CommNPC, NPCs::ConvNPC];
         // let types = vec![NPCs::CommNPC, NPCs::ConvNPC, NPCs::QuestNPC];
-        if self.map.cells[y][x] == Cells::Empty && !self.enemies.contains_key(&(x, y)) && !self.items.contains_key(&(x, y)) && !self.npcs.contains_key(&(x, y)) {
+        if self.map.cells[y][x] == Cells::Empty && !self.in_loc_check((x, y)) && !self.enemies.contains_key(&(x, y)) && !self.items.contains_key(&(x, y)) && !self.npcs.contains_key(&(x, y)) {
             if let Some(i_type) = types.choose(&mut rng){
+                let def_name = "Kevthony".to_string();
                 let npc = match i_type {
                     NPCs::CommNPC => {
-                        let sname = &names[0];
-                        let comm: Vec<String> = comms.clone();
-                        NPCWrap::CommNPC(new_comm_npc(sname.to_string(), x, y, comm))
+                        let rnd_comms = {
+                            let mut tvec = Vec::new();
+                            for _ in 0..4 {
+                                let tidx = rng.gen_range(0..self.npc_comms.len());
+                                tvec.push(self.npc_comms[tidx].clone());
+                            }
+                            tvec
+                        };
+                        let name = self.npc_names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
+                        //let sname = &self.npc_names[0];
+                        //let comm: Vec<String> = comms.clone();
+                        NPCWrap::CommNPC(new_comm_npc(name.to_string(), x, y, rnd_comms))
                     },
                     NPCs::ConvNPC => {
-                        let sname = &names[0];
-                        let conv: Convo = convos[0].clone();
-                        NPCWrap::ConvNPC(new_conv_npc(sname.to_string(), x, y, conv))
+                        let conv: Convo = self.npc_convos.choose(&mut rng).unwrap_or(&self.npc_convos[0].clone()).clone();
+                        let name = self.npc_names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
+                        //let sname = &names[0];
+                        //let conv: Convo = convos[0].clone();
+                        NPCWrap::ConvNPC(new_conv_npc(name.to_string(), x, y, conv))
                     },
                     _ => todo!(),
                 };
@@ -2340,9 +2422,9 @@ impl GameState {
         let mut rng = rand::thread_rng();
         let l_types = vec![Enemies::Bug, Enemies::Slime];
         let h_types = vec![Enemies::GoblinMan, Enemies::CrazedExplorer, Enemies::Golem];
-        if self.map.cells[y][x] == Cells::Empty && !self.npcs.contains_key(&(x, y)) && !self.items.contains_key(&(x, y)) {
+        if self.map.cells[y][x] == Cells::Empty && !self.in_loc_check((x, y)) && !self.npcs.contains_key(&(x, y)) && !self.items.contains_key(&(x, y)) {
             let en_type = { 
-                match rng.gen_range(0..1) {
+                match rng.gen_range(0..2) {
                     0 => l_types,
                     1 => h_types,
                     _ => l_types,
@@ -2356,11 +2438,11 @@ impl GameState {
                     },
                     Enemies::Slime => {
                         let drop = vec![Items::Salve];
-                        self.enemies.insert((x, y), Enemy::new_slime(x, y, 20, 10, 15, 7, drop));
+                        self.enemies.insert((x, y), Enemy::new_slime(x, y, 20, 12, 12, 7, drop));
                     },
                     Enemies::GoblinMan => {
                         let drop = vec![Items::MetalScrap];
-                        self.enemies.insert((x, y), Enemy::new_goblin_man(x, y, 25, 12, 17, 9, drop));
+                        self.enemies.insert((x, y), Enemy::new_goblin_man(x, y, 25, 12, 15, 9, drop));
                     },
                     Enemies::CrazedExplorer => {
                         let drop = vec![Items::Apple];
@@ -2518,6 +2600,7 @@ impl GameState {
                         game.update_npcs(step.clone());
                         if step < 15 {
                             game.step_group += 1;
+                        } else if step > 30 {
                         } else {
                             game.step_group = 0;
                         }
@@ -2535,6 +2618,9 @@ impl GameState {
                 self.location = Location::Settlement(settlement);
                 //log::info!("settlement located");
             };
+            if let Some(puzzle) = self.puzzles.check_location(self.dist_fo.clone(), self.loc_rad.clone()) {
+                self.location = Location::Puzzle(puzzle);
+            };
         } else {
             //log::info!("checking if away from settle");
             match &mut self.location {
@@ -2547,6 +2633,15 @@ impl GameState {
                         //log::info!("updating and unlocating settle");
                     }
                 },
+                Location::Puzzle(ref mut puzzle) => {
+                    let lpos = puzzle.get_pos();
+                    if !in_range(lpos, (self.dist_fo.0*-1, self.dist_fo.1*-1), self.loc_rad) {
+                        //settle.tog_npcs_sent();
+                        self.puzzles.update_puzzle(puzzle.clone());
+                        self.location = Location::Null;
+                        //log::info!("updating and unlocating settle");
+                    }
+                },
                 _ => todo!(),
             }
         }
@@ -2555,46 +2650,58 @@ impl GameState {
     fn update_settlement(&mut self, mut settle: Settlement) -> Location {
         let lpos = settle.get_pos();
         let pos = self.dist_fo;
-        let dx = (lpos.0 - pos.0) as usize;
-        let dy = (lpos.1 - pos.1) as usize;
+        let dx = (lpos.0 + pos.0) as usize;
+        let dy = (lpos.1 + pos.1) as usize;
+        //log::info!("up_set: {} - {}", dx, dy);
         if dx < MAP_W && dy < MAP_H {
             if !settle.get_npcs_sent() {
+                log::info!("getting items & npcs for {}", settle.get_sname());
                 let sitems = settle.get_items();
                 for ((x, y), mut i) in sitems {
                     let ipos = i.get_pos();
-                    i.set_pos((ipos.0 + dx, ipos.1 + dy));
-                    self.items.insert((x + dx, y + dy), i.clone());
+                    if pos == (0, 0) {
+                        // (dist_fo.0 + x as i64 + spos.0) as usize;
+                        let npos = ((self.dist_fo.0 + ipos.0 as i64 + lpos.0) as usize, (self.dist_fo.1 + ipos.1 as i64 + lpos.1) as usize);
+                        i.set_pos(npos);
+                        log::info!("pos: {:?} | item: {:?}", npos, i);
+                        self.items.insert(npos, i.clone());
+                    } else {
+                        let npos = ((self.dist_fo.0 + ipos.0 as i64 + lpos.0) as usize, (self.dist_fo.1 + ipos.1 as i64 + lpos.1) as usize);
+                        i.set_pos(npos);
+                        log::info!("pos: {:?} | item: {:?}", npos, i);
+                        self.items.insert(npos, i.clone());
+                    }
                 }
                 let tnpcs = settle.get_npcs();
                 for ((x, y), n) in tnpcs {
+                    log::info!("{:?}", n);
                     let mut nbox = box_npc(n);
                     let npos = nbox.get_pos();
-                    nbox.set_pos((npos.0 + dx, npos.1 + dy));
-                    self.npcs.insert((x + dx, y + dy), wrap_nbox(nbox));
+                    if pos == (0, 0) {
+                        let nwpos = ((self.dist_fo.0 + x as i64 + lpos.0) as usize, (self.dist_fo.1 + y as i64 + lpos.1) as usize);
+                        nbox.set_pos(nwpos);
+                        self.npcs.insert(nwpos, wrap_nbox(nbox));
+                    } else {
+                        let nwpos = ((self.dist_fo.0 + x as i64 + lpos.0) as usize, (self.dist_fo.1 + y as i64 + lpos.1) as usize);
+                        nbox.set_pos(nwpos);
+                        self.npcs.insert(nwpos, wrap_nbox(nbox));
+                    }
                 }
                 settle.tog_npcs_sent();
             }
-
-            let itms = self.items.clone();
-            let rem: Vec<_> = itms.iter().filter_map(|(&(x, y), _)| {
-                if x >=  dx && x <= dx + 150 && y >= dy && y <= dy + 50 {
-                    Some((x, y))
-                } else {
-                    None
-                }
-            }).collect();
-            for k in rem {
-                self.items.remove(&k);
-            }
-
         }
         Location::Settlement(settle.clone())
     }
+
+    fn update_puzzle(&mut self, puzzle: Puzzle) -> Location {
+        Location::Puzzle(puzzle)
+    } 
 
     fn update_location(&mut self) {
         let location = self.location.clone();
         self.location = match location {
             Location::Settlement(settle) => self.update_settlement(settle),
+            Location::Puzzle(puzzle) => self.update_puzzle(puzzle),
             _ => todo!(),
         };
     }
@@ -2635,6 +2742,7 @@ impl GameState {
             }
         }
         self.comp_head = distances[&d_min].clone();
+        self.gui.set_comp_list(self.comp_list.clone());
     }
 
     pub fn update(&mut self) -> bool {
@@ -2688,6 +2796,11 @@ impl GameState {
                 Location::Settlement(mut settle) => {
                     let p = settle.get_pos();
                     let m = settle.get_map();
+                    (p, m)
+                },
+                Location::Puzzle(mut puzzle) => {
+                    let p = puzzle.get_pos();
+                    let m = puzzle.get_map();
                     (p, m)
                 },
                 _ => todo!(),

@@ -1,7 +1,7 @@
 //settlement rs
 use crate::enums::{Settle, Cells, NPCWrap};
 use crate::shop::{Shop};
-use crate::enums::Shops;
+use crate::enums::{Shops, NPCs};
 use crate::npc::{new_shop_npc, new_comm_npc, new_conv_npc, Convo, ShopData};
 use crate::item::Item;
 use rand::prelude::SliceRandom;
@@ -428,7 +428,7 @@ ___________________________________________________________________________
 // med: 300x200 sm: 150x100 | sm: 2(75)x2(25) med: 3(75)x3(25)
 
 const itm_sh1: &str =
-r#"CommNPC CommNPC CommNPC ShopNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple HealthPotion HealthPotion HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple|Apple
+r#"CommNPC CommNPC CommNPC ShopNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple HealthPotion HealthPotion HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple|HealthPotion
 ___________________________________________________________________________
 ___________________________________________________________________________
 ,·,.'__,.'·,.'·,.'__'·,.'·,,.'·,.'·,.'__,.'·,.'·,.'________________________
@@ -458,7 +458,7 @@ ___________________________________________________________________________
 
 
 const itm_sh2: &str =
-r#"ShopNPC ConvNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple HealthPotion HealthPotion HealthPotion HealthPotion HealthPotion Salve Salve Dowel HealthPotion HealthPotion HealthPotion Salve Salve Dowel|Apple
+r#"ShopNPC ConvNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple HealthPotion HealthPotion HealthPotion HealthPotion HealthPotion Salve Salve Dowel HealthPotion HealthPotion HealthPotion Salve Salve Dowel|HealthPotion
 ___________________________________________________________________________
 ___________________________________________________________________________
 __',¨.',·¨.'¨.',·¨.'¨.',·¨.',¨.',·¨.',¨.',·¨.______________________________
@@ -520,7 +520,7 @@ ___________________________________________________________________________
 const pal: &str = "empty: ' . , ' * | wall: ▒ | other ▓ ░ ~ | pipes: ═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬   ┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │ ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©";
 
 const guild1: &str =
-r#"ShopNPC CommNPC|Null|Apple
+r#"ShopNPC CommNPC|Null|HealthPotion
 ___________________________________________________________________________
 ___________________________________________________________________________
 ______▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒___┌┬┬┬┬┬┬┬┬┬┬┬┬┐___
@@ -893,10 +893,11 @@ fn place_small_parts(mut map: Vec<Vec<Cells>>, part: Vec<Vec<Cells>>, npcs: Hash
         new_sitems.insert(((ipos.0 + &sx), (ipos.1 + &sy)), item);
     }
     let mut new_items = HashMap::new();
-    for (ipos, item) in items {
+    for (ipos, mut item) in items {
+        item.set_pos(((ipos.0 + &sx), (ipos.1 + &sy)));
         new_items.insert(((ipos.0 + &sx), (ipos.1 + &sy)), item);
     }
-    (map, new_npcs, new_sitems,  new_items)
+    (map, new_npcs, new_sitems, new_items)
 }
 
 fn build_small_settle() -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>, HashMap<(usize, usize), Item>, HashMap<(usize, usize), Item>) {
@@ -929,6 +930,8 @@ fn build_small_settle() -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>, H
     let mut final_npcs = HashMap::new();
     let mut final_sitems = HashMap::new();
     let mut final_items = HashMap::new();
+    //let mut s_npcs = HashMap::new();
+    //s_npcs.insert();
     final_npcs.extend(q1_npcs);
     final_npcs.extend(q2_npcs);
     final_npcs.extend(q3_npcs);
@@ -941,6 +944,8 @@ fn build_small_settle() -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>, H
     final_items.extend(q2_items);
     final_items.extend(q3_items);
     final_items.extend(q4_items);
+    //log::info!("{:?}", &final_sitems);
+    log::info!("{:?}", &final_items);
     (final_map, final_npcs, final_sitems, final_items)
 }
 
@@ -981,7 +986,7 @@ impl Settlement {
         shops.insert(Shops::Item, shop);
         Self {
             stype: Settle::Small,
-            sname: "DemoTown".to_string(),
+            sname: "Cave Opening".to_string(),
             pos: pos,
             npcs: mpcs,
             items: items,
@@ -993,21 +998,53 @@ impl Settlement {
     }
 
     pub fn new_small_settle(pos: (i64, i64)) -> Self {
+        let data1 = fs::read_to_string("src/locations/settle_names.json");
+        //log::info!("{:?}", &data1); 
+        let names: Vec<String> = match data1 {
+            Ok(content) => serde_json::from_str(&content).unwrap(),
+            Err(e) => { 
+                log::info!("{:?}", e);
+                Vec::new()
+            },      
+        };
+        let mut rng = rand::thread_rng();
+        let name_oops = "Jadeitite".to_string();
+        let name = names.choose(&mut rng).unwrap_or(&name_oops.clone()).clone();
+        
         let (map, mut npcs, sitems, items) = build_small_settle();
-        let mut cnv = HashMap::new();
-        cnv.insert("item_desc".to_string(), "Hey that {i} over there goes for {v}. Let me know if you want to buy it.".to_string());
-        cnv.insert("item_broke".to_string(), "Uh oh! it looks like you dont have enough money for that.".to_string());
-        cnv.insert("item_bought".to_string(), "Hey!! Thanks for the sale!! Have a good day!!.".to_string());
-        cnv.insert("item_nbought".to_string(), "Not interested? Thats fine, have a good day!!".to_string());
-        let s_npc = new_shop_npc("".to_string(), 0, 0, cnv);
+       // let mut cnv = HashMap::new();
+       // cnv.insert("item_desc".to_string(), "Hey that {i} over there goes for {v}. Let me know if you want to buy it.".to_string());
+       // cnv.insert("item_broke".to_string(), "Uh oh! it looks like you dont have enough money for that.".to_string());
+       // cnv.insert("item_bought".to_string(), "Hey!! Thanks for the sale!! Have a good day!!.".to_string());
+       // cnv.insert("item_nbought".to_string(), "Not interested? Thats fine, have a good day!!".to_string());
+        //let s_npc = new_shop_npc("".to_string(), 0, 0, cnv);
+       // let s_key = npcs.clone().into_iter()
+       //     .find_map(|(key, npc)| {
+       //          if let NPCWrap::ShopNPC(_) == npc {
+       //             Some(key)
+       //          } else {None}
+       //     }).expect("failed to get ShopNPC");
+       fn get_shop_key(npcs: HashMap<(usize, usize), NPCWrap>) -> Option<(usize, usize)> {
+            for (k, v) in npcs.clone() {
+                match v {
+                    NPCWrap::ShopNPC(_) => {return Some(k);},
+                    _ => {},
+                }
+            };
+            None
+       }
+        let s_key = get_shop_key(npcs.clone()).expect("failed to get shop npc 1");
+
+        let s_npc = npcs.remove(&s_key).expect("failed to get shop npc 2"); 
+
         //npcs.insert-----------
-        let npc_t = NPCWrap::ShopNPC(s_npc);
-        let shop = Shop::new_item_shop("new item shop".to_string(), npc_t, sitems);
+        //let npc_t = NPCWrap::ShopNPC(s_npc);
+        let shop = Shop::new_item_shop("new item shop".to_string(), s_npc, sitems);
         let mut shops = HashMap::new();
         shops.insert(Shops::Item, shop);
         Self {
             stype: Settle::Small,
-            sname: "NewTown".to_string(),
+            sname: name,
             pos: pos,
             npcs: npcs,
             items: items,
