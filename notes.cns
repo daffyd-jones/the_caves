@@ -9,16 +9,16 @@
  - Inverted
 - Compass
 - Inv Use Opts
-- Fix Loc spawn/management
- - Npcs, Items
+- Fix Loc spawn/management X
+ - Npcs, Items X
 
 
 'Puzzles
 
 ,Maze
-- use carve algo to create map
-- place item on one side
-- remove outer wall on other side
+- use carve algo to create map X
+- place item on one side X
+- remove outer wall on other side X
 
 
 ,Teleport
@@ -31,3 +31,9 @@
 - use carve to make maze
 - set some 
 
+
+'Compass
+
+- fix menu
+ - switch heading
+ - scroll list

@@ -1,8 +1,8 @@
 //puzzle.rs
 //
 use std::collections::HashMap;
-use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, PuzzleType};
-use rand::Rng;
+use crate::enums::{Cells, NPCWrap, PuzzleType};
+//use rand::Rng;
 use crate::item::Item;
 use crate::enemy::Enemy;
 use rand::prelude::SliceRandom;

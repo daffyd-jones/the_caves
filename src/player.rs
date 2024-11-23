@@ -46,6 +46,10 @@ impl Player {
         }
     }
 
+    pub fn get_pos(self) -> (usize, usize) {
+        (self.x.clone(), self.y.clone())
+    }
+
     pub fn set_enc_last_turn(&mut self, turn: (EncOpt, u16)) {
         self.enc_last_turn = turn;
     }
@@ -116,9 +120,9 @@ impl Player {
     pub fn apply_item_effect(&mut self, mut item: Item) {
         let prop = item.get_properties();
         for (stat, effect) in &prop {
-            let h = String::from("Health");
+            //let h = String::from("Health");
             match stat {
-                 h => self.health += *effect,
+                 stat if stat.contains("Health") => self.health += *effect,
                 _ => todo!(),
             }
         }

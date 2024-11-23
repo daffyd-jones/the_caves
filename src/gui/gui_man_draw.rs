@@ -1,17 +1,17 @@
-use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, InterSteps, Interactable, InterOpt, EncOpt, Equip};
+use crate::enums::{Items, NPCWrap, Interactable, InterOpt, EncOpt, Equip};
 use crate::map::Map;
 use crate::player::Player;
 use crate::enemy::{Enemy};
-use crate::npc::{NPC, CommNPC};
+use crate::npc::{NPC};
 use crate::item::Item;
-use crate::notebook::{Quest, Stage, Place, Person, Lore};
+//use crate::notebook::{Quest, Stage, Place, Person, Lore};
 use crate::gui::GUI;
 use crate::gui::draw_map;
 use std::collections::HashMap;
 
 // use std::time::Duration;
 // use rand::Rng;
-use ratatui::widgets::{Block, Borders, Paragraph, Wrap, Padding};
+use ratatui::widgets::{Block, Borders, Paragraph};
 use ratatui::layout::{Layout, Constraint, Direction, Margin};
 use ratatui::style::{Color, Style, Stylize};
 use ratatui::text::{Text, Span};
@@ -57,7 +57,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -166,7 +166,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -259,7 +259,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -345,7 +345,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -430,7 +430,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -646,7 +646,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -873,7 +873,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -1135,7 +1135,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -1236,7 +1236,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -1328,7 +1328,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -1379,7 +1379,7 @@ impl GUI {
                 .block(paragraph_block)
                 .wrap(ratatui::widgets::Wrap { trim: true });
             // let mut adj_list = vec![];
-            let mut vec1 = vec!["Yes", "No"];
+            let vec1 = vec!["Yes", "No"];
             let opts = vec![vec1.clone()];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
                 let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {

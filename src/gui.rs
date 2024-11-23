@@ -5,19 +5,19 @@ use crate::player::Player;
 use crate::enemy::{Enemy};
 // use crate::npc::{NPC};
 use crate::item::Item;
-use crate::notebook::{Quest, Stage, Place, Person, Lore};
+use crate::notebook::{Quest, Place, Person, Lore};
 mod gui_man_draw;
-use rand::Rng;
+//use rand::Rng;
 use ratatui::widgets::Clear;
-use ratatui::prelude::Alignment;
-
+//use ratatui::prelude::Alignment;
+use ratatui::layout::Flex;
 use std::io::stdout;
 // use std::time::Duration;
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
 use ratatui::prelude::Line;
 use ratatui::prelude::Rect;
-use ratatui::widgets::{Block, Borders, Paragraph, Wrap, Padding, Gauge};
+use ratatui::widgets::{Block, Borders, Paragraph, Padding, Gauge};
 use ratatui::layout::{Layout, Constraint, Direction, Margin};
 use ratatui::style::{Color, Style, Stylize};
 use ratatui::text::{Text, Span};
@@ -57,7 +57,7 @@ fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy
                         NPCWrap::CommNPC(_)=> ('í', Color::Blue),
                         NPCWrap::ConvNPC(_)=> ('ì', Color::LightBlue),
                         NPCWrap::ShopNPC(_)=> ('ì', Color::LightBlue),
-                        //NPCWrap::QuestNPC(_)=> ('î', Color::Cyan),
+                        NPCWrap::SpawnNPC(_)=> ('î', Color::Cyan),
                         _ => todo!(),
                     }
                 } else if let Some(item) = items.get(&(ix, jy)) {
@@ -223,6 +223,7 @@ pub struct GUI {
     notes_opt: (Vec<String>, Vec<String>),
     active_notes: (Vec<Quest>, Vec<Place>, Vec<Person>, Vec<Lore>),
     enc_opt: (Vec<(EncOpt, String)>, Vec<(EncOpt, String)>),
+    help: bool,
     // ysno: Vec<(String, String)>,
 }
 
@@ -236,7 +237,7 @@ impl GUI {
         terminal.clear().unwrap();
         terminal.hide_cursor().unwrap();
         let mut interactable = HashMap::new();
-        let mut inter_opt = HashMap::new();
+        let inter_opt = HashMap::new();
         interactable.insert((0 as usize, 0 as usize), Some(Interactable::Null));
         let adj_options = (
             vec![((0 as usize, 0 as usize), "".to_string()); 3],
@@ -276,6 +277,8 @@ impl GUI {
             vec!["".to_string(); 4],
         );
 
+        let help = false;
+
         Self {
             terminal,
             info_mode: GUIMode::Normal,
@@ -297,7 +300,12 @@ impl GUI {
             notes_opt,
             active_notes: (quests, places, people, lore),
             enc_opt,
+            help,
         }
+    }
+
+    pub fn toggle_help(&mut self) {
+        self.help = !self.help;
     }
 
     pub fn reset_enc_opt(&mut self) {
@@ -456,7 +464,7 @@ impl GUI {
                     Constraint::Percentage(10)
                 ].as_ref()
             )
-            .split(f.size());
+            .split(f.area());
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -588,9 +596,9 @@ impl GUI {
                     .constraints(
                         [
                             Constraint::Percentage(18),
-                            Constraint::Percentage(32),
-                            Constraint::Percentage(20),
-                            Constraint::Percentage(30)
+                            Constraint::Percentage(18),
+                            Constraint::Percentage(14),
+                            Constraint::Percentage(50)
                         ].as_ref()
                     )
                     .split(game_chunks[1]);
@@ -608,26 +616,81 @@ impl GUI {
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                    let table_block = Block::default()
-                        .title(Span::styled("Equipped", Style::default().fg(Color::DarkGray)))
+                    let weapon_block = Block::default()
+                        .title(Span::styled("Weapon", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                        //.padding(Padding::new(1, 1, 1, 1));
-                   // f.render_widget(stats_block.clone(), normal_info[0]);
+                    let shield_block = Block::default()
+                        .title(Span::styled("Shield", Style::default().fg(Color::DarkGray)))
+                        .borders(Borders::ALL)
+                        .style(Style::default().bg(Color::Black));
 
-                   // let stats = Layout::default()
-                   //     .direction(Direction::Vertical)
-                   //     .constraints(
-                   //         [
-                   //             Constraint::Percentage(33), 
-                   //             //Constraint::Percentage(66), 
-                   //             //Constraint::Percentage(33), 
-                   //             //Constraint::Percentage(20), 
-                   //             //Constraint::Percentage(20)
-                   //         ].as_ref()
-                   //     )
-                   //     .split(normal_info[0]);
+                    let hands_block = Block::default()
+                        .title(Span::styled("Hands", Style::default().fg(Color::DarkGray)))
+                        .borders(Borders::ALL)
+                        .style(Style::default().bg(Color::Black));
+
+                    let head_block = Block::default()
+                        .title(Span::styled("Head", Style::default().fg(Color::DarkGray)))
+                        .borders(Borders::ALL)
+                        .style(Style::default().bg(Color::Black));
+
+                    let torso_block = Block::default()
+                        .title(Span::styled("Torso", Style::default().fg(Color::DarkGray)))
+                        .borders(Borders::ALL)
+                        .style(Style::default().bg(Color::Black));
+
+                    let feet_block = Block::default()
+                        .title(Span::styled("Feet", Style::default().fg(Color::DarkGray)))
+                        .borders(Borders::ALL)
+                        .style(Style::default().bg(Color::Black));
+
+                    let equip_layout = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .constraints(
+                        [
+                            Constraint::Percentage(33),
+                            Constraint::Percentage(34),
+                            Constraint::Percentage(33)
+                        ].as_ref()
+                    )
+                    .split(normal_info[3]);
+
+                    let equip_lc = Layout::default()
+                    .direction(Direction::Vertical)
+                    .constraints(
+                        [
+                            Constraint::Percentage(33),
+                            Constraint::Percentage(66),
+                        ].as_ref()
+                    )
+                    .split(equip_layout[0]);
+
+                    let equip_cc = Layout::default()
+                    .direction(Direction::Vertical)
+                    .constraints(
+                        [
+                            Constraint::Percentage(30),
+                            Constraint::Percentage(40),
+                            Constraint::Percentage(30)
+                        ].as_ref()
+                    )
+                    .split(equip_layout[1]);
+
+                    let equip_rc = Layout::default()
+                    .direction(Direction::Vertical)
+                    .constraints(
+                        [
+                            Constraint::Percentage(100),
+                        ].as_ref()
+                    )
+                    .split(equip_layout[2]);
+
+
+                    //f.render_widget(equip_layout, normal_info[3]);
+
+                    
 
                     let h_gauge = Gauge::default()
                         .block(Block::bordered().title("Health"))
@@ -635,25 +698,22 @@ impl GUI {
                         .percent(player.health);
                         //.label(Span::styled(player.health.to_string(), Style::default().fg(Color::White)));
 
-                    let gauge2 = Gauge::default()
-                        .block(Block::bordered().title("Progress"))
-                        .gauge_style(Style::new().white().on_black().italic())
-                        .percent(20);
-
-                    let gauge3 = Gauge::default()
-                        .block(Block::bordered().title("Progress"))
-                        .gauge_style(Style::new().white().on_black().italic())
-                        .percent(20);
-
-                    let gauge4 = Gauge::default()
-                        .block(Block::bordered().title("Progress"))
-                        .gauge_style(Style::new().white().on_black().italic())
-                        .percent(34);
-
-                    let gauge5 = Gauge::default()
-                        .block(Block::bordered().title("Progress"))
-                        .gauge_style(Style::new().white().on_black().italic())
-                        .percent(36);
+                   // let gauge2 = Gauge::default()
+                   //     .block(Block::bordered().title("Progress"))
+                   //     .gauge_style(Style::new().white().on_black().italic())
+                   //     .percent(20);
+                   // let gauge3 = Gauge::default()
+                   //     .block(Block::bordered().title("Progress"))
+                   //     .gauge_style(Style::new().white().on_black().italic())
+                   //     .percent(20);
+                   // let gauge4 = Gauge::default()
+                   //     .block(Block::bordered().title("Progress"))
+                   //     .gauge_style(Style::new().white().on_black().italic())
+                   //     .percent(34);
+                   // let gauge5 = Gauge::default()
+                   //     .block(Block::bordered().title("Progress"))
+                   //     .gauge_style(Style::new().white().on_black().italic())
+                   //     .percent(36);
 
 
 
@@ -684,38 +744,6 @@ impl GUI {
                             Span::styled("Money: ", Style::default().fg(Color::White)),
                             Span::styled(player.money.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
-                        // Row::new(vec![
-                        //     Span::styled("vh: ", Style::default().fg(Color::White)),
-                        //     Span::styled(map.viewport_height.to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
-                        // Row::new(vec![
-                        //     Span::styled("su: ", Style::default().fg(Color::White)),
-                        //     Span::styled((map.viewport_y + (map.viewport_height / 7)).to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
-                        // Row::new(vec![
-                        //     Span::styled("sd: ", Style::default().fg(Color::White)),
-                        //     Span::styled(((map.viewport_height + map.viewport_y) - (map.viewport_height / 7)).to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
-                        // Row::new(vec![
-                        //     Span::styled("sl: ", Style::default().fg(Color::White)),
-                        //     Span::styled((map.viewport_x + (map.viewport_width / 7)).to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
-                        // Row::new(vec![
-                        //     Span::styled("sr: ", Style::default().fg(Color::White)),
-                        //     Span::styled(((map.viewport_width + map.viewport_x) - (map.viewport_width / 7)).to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
-                        // Row::new(vec![
-                        //     Span::styled("gx: ", Style::default().fg(Color::White)),
-                        //     Span::styled((map.gen_x).to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
-                        // Row::new(vec![
-                        //     Span::styled("gy: ", Style::default().fg(Color::White)),
-                        //     Span::styled((map.gen_y).to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
-                        // Row::new(vec![
-                        //     Span::styled("tlen: ", Style::default().fg(Color::White)),
-                        //     Span::styled((map.tunnels.len()).to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
                         // Row::new(vec![
                         //     Span::styled("dtlen: ", Style::default().fg(Color::White)),
                         //     Span::styled((map.dead_tunnels.len()).to_string(), Style::default().fg(Color::Yellow)),
@@ -760,41 +788,69 @@ impl GUI {
                     let equip = player.get_equipped();
                     let mut keys: Vec<_> = equip.keys().collect();
                     keys.sort();
-                    for k in keys {
-                        let mut itm = equip[k].clone();
-                        let etype = itm.get_equip_type();
-                        let effect_str = {
-                            match etype {
-                                Equip::Head => format!("Health: +{}", itm.get_properties()["health"]),
-                                Equip::Body => format!("Attack: +{}", itm.get_properties()["attack"]),
-                                Equip::Weapon => format!("Damage: +{}", itm.get_properties()["damage"]),
-                                Equip::Shield => format!("Defence: +{}", itm.get_properties()["defence"]),
-                                Equip::Null => todo!(),
-                            }
-                        };
-                        equip_name.push(itm.get_sname());
-                        equip_buff.push(effect_str);
-                    }
+                   // for k in keys {
+                   //     let mut itm = equip[k].clone();
+                   //     let etype = itm.get_equip_type();
+                   //     let effect_str = {
+                   //         //if itm.get_properties().contains()
+                   //          
+                   //         match etype {
+                   //             Equip::Head => format!("Health: +{}", itm.get_properties()["health"]),
+                   //             Equip::Body => format!("Attack: +{}", itm.get_properties()["attack"]),
+                   //             Equip::Weapon => format!("Damage: +{}", itm.get_properties()["damage"]),
+                   //             Equip::Shield => format!("Defence: +{}", itm.get_properties()["defence"]),
+                   //             Equip::Null => todo!(),
+                   //         }
+                   //     };
+                   //     equip_name.push(itm.get_sname());
+                   //     equip_buff.push(effect_str);
+                   // }
 
                     let equip_data: Vec<Vec<String>> = vec![
                         //vec!["", "", ""],
                         equip_name,
                         equip_buff,
                     ];
-                    let ep_rows: Vec<Row> = equip_data.iter().enumerate().map(|(j, row)| {
-                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
-                                Cell::from(Span::styled(cell, Style::default().fg(Color::White)))
-                                    .style(Style::default())
-                        }).collect();
-                        Row::new(cells).top_margin(3)
-                    }).collect();
-                    let eq_table = Table::new(ep_rows, &[Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25)])
-                        .block(table_block);
+                  //  let ep_rows: Vec<Row> = equip_data.iter().enumerate().map(|(_j, row)| {
+                  //      let cells: Vec<Cell> = row.iter().enumerate().map(|(_i, &ref cell)| {
+                  //              Cell::from(Span::styled(cell, Style::default().fg(Color::White)))
+                  //                  .style(Style::default())
+                  //      }).collect();
+                  //      Row::new(cells).top_margin(2)
+                  //  }).collect();
+                  //  let eq_table = Table::new(ep_rows, &[Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25)])
+                  //      .block(table_block);
+                  
+                    let weapon_para = Paragraph::new(Text::raw("stats"))
+                        .block(weapon_block);
+                    f.render_widget(weapon_para, equip_rc[0]);
+
+                    let shield_para = Paragraph::new(Text::raw("stats"))
+                        .block(shield_block);
+                    f.render_widget(shield_para, equip_lc[1]);
+
+                    let hands_para = Paragraph::new(Text::raw("stats"))
+                        .block(hands_block);
+                    f.render_widget(hands_para, equip_lc[0]);
+
+                    let head_para = Paragraph::new(Text::raw("stats"))
+                        .block(head_block);
+                    f.render_widget(head_para, equip_cc[0]);
+
+                    let torso_para = Paragraph::new(Text::raw("stats"))
+                        .block(torso_block);
+                    f.render_widget(torso_para, equip_cc[1]);
+
+                    let feet_para = Paragraph::new(Text::raw("stats"))
+                        .block(feet_block);
+                    f.render_widget(feet_para, equip_cc[2]);
+
+                  
                     f.render_widget(h_block, normal_info[0]);
                     f.render_widget(h_gauge, normal_info[0]);
                     f.render_widget(stats, normal_info[1]);
                     f.render_widget(en_table, normal_info[2]);
-                    f.render_widget(eq_table, normal_info[3]);
+                    //f.render_widget(eq_table, normal_info[3]);
                 },
                 GUIMode::Interact => {
                     // match inter_step {
@@ -1040,7 +1096,7 @@ impl GUI {
 
                     let cmp_list = self.comp_list.clone();
                     
-                    for (idx, (pos, names)) in cmp_list.iter().enumerate() {
+                    for (idx, (_pos, names)) in cmp_list.iter().enumerate() {
                         if idx == 0 {
                             vec1[idx] = "Search".to_string();
                         }
@@ -1172,8 +1228,8 @@ impl GUI {
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                    let mut vec1 = vec!["Quests".to_string(), "Places".to_string(), "People".to_string(), "Lore".to_string()];
-                    let mut vec2 = vec!["".to_string(), "".to_string(), "".to_string(), "".to_string()];
+                    let vec1 = vec!["Quests".to_string(), "Places".to_string(), "People".to_string(), "Lore".to_string()];
+                    let vec2 = vec!["".to_string(), "".to_string(), "".to_string(), "".to_string()];
 
                     let inv_table: Vec<Vec<String>, > = vec![vec1.clone(), vec2.clone()];
                     self.notes_opt = (vec1, vec2);
@@ -1280,7 +1336,64 @@ impl GUI {
                 // GUIMode::Fight => {},
                 _ => todo!(),
             }
+            if self.help {
+                let a = f.area();
+                let b = Block::bordered();
+                let (xper, yper) = (60, 20); 
+                let harea = |a, xper, yper| {
+                    let vertical = Layout::vertical([Constraint::Percentage(yper)]).flex(Flex::Center);
+                    let horizontal = Layout::horizontal([Constraint::Percentage(xper)]).flex(Flex::Center); 
+                    let [area] = vertical.areas(a);
+                    let [area] = horizontal.areas(a);
+                    area
+                };
+                let h_area = harea(a, xper, yper);
+                f.render_widget(Clear, h_area);
+                f.render_widget(block, h_area);
+                
+                let text = "Welcome to the caves!!\n\nHave a look around and see what you find. There are settlements scattered throughout the caves as well as ruins with puzzles and treasure! Be careful however and be sure to use your Compass! The caves constantly change and its easy to get lost!\n\nThe Caves are full of mosters and those who have lost themselves to the caves, so make sure you are careful and learn to protect yourself. Eating some items will heal you, others you can sell.\n\nHave a look around and have fun, chatting with others down here might give you more insight and point you in the right direction.\n\nMove around with the Arrow Keys, and use the 'q, w, e, r' buttons to access your menus. In standard play, the menus are navigated using the 'a, s, d, f' keys and Enter. During Encounters and Interactions, the menus are navigated using the Arrow Keys and Enter. In the notebook, Backspace is used to go up a level."; 
+                let paragraph = Paragraph::new(text)
+                    .wrap(ratatui::widgets::Wrap { trim: true });
+                let para_area = Rect {
+                    x: h_area.x + 5,
+                    y: h_area.y + 2,
+                    width: h_area.width - 10,
+                    height: 15,
+                };
+                f.render_widget(paragraph, para_area);
+                
+                let table_area = Rect {
+                    x: h_area.x + 5,
+                    y: h_area.y + 20,
+                    width: h_area.width - 10,
+                    height: h_area.height - 25,
+                };
+                let rows = vec![
+                    Row::new(["Key", "Action"]),
+                    Row::new(["q", "Stats"]),
+                    Row::new(["w", "Compass"]),
+                    Row::new(["e", "Inventory"]),
+                    Row::new(["r", "Notebook"]),
+                    Row::new(["a", "Side Menu Left"]),
+                    Row::new(["s", "Side Menu Up"]),
+                    Row::new(["d", "Side Menu Down"]),
+                    Row::new(["f", "Side Menu Right"]),
+                    Row::new(["Space", "Interact with item/npc"]),
+                    Row::new(["Enter", "Select option"]),
+                    Row::new(["Up Arrow", "Move Player Up/Move Cursor Up"]),
+                    Row::new(["Down Arrow", "Move Player Down/Move Cursor Down"]),
+                    Row::new(["Left Arrow", "Move Player Left/Move Cursor Left"]),
+                    Row::new(["Right Arrows", "Move Player Right/Move Cursor Right"]),
+                ];
 
+                let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)]).block(Block::bordered().title("Key Bindings"));
+                f.render_widget(table, table_area);
+
+            }
+            
         }).unwrap();
     }
+
+
+
 }

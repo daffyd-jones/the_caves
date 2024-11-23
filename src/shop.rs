@@ -1,6 +1,6 @@
 //shop.rs
 use crate::enums::{Shops, NPCWrap};
-use crate::npc::{ShopNPC};
+//use crate::npc::{ShopNPC};
 use crate::item::{Item};
 use std::collections::HashMap;
 

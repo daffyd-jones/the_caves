@@ -3,7 +3,7 @@ use crate::item::Item;
 use crate::enemy::{Enemy};
 use crate::puzzle::{Puzzle};
 use crate::settlement::{Settlement};
-use crate::npc::{BaseNPC, CommNPC, ConvNPC, ShopNPC};
+use crate::npc::{BaseNPC, CommNPC, ConvNPC, ShopNPC, SpawnNPC};
 
 // Define the Cell enum
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -90,10 +90,20 @@ pub enum Items {
 
 #[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
 pub enum Equip {
-    Head,
-    Body,
     Weapon,
     Shield,
+    Hands,
+    Head,
+    Torso,
+    Feet,
+    Null
+}
+
+pub enum ItemEffect {
+    Health,
+    Attack,
+    Damage,
+    Defence,
     Null
 }
 
@@ -110,15 +120,11 @@ pub enum Enemies {
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum NPCs {
-    OldMan,
-    Explorer,
-    LostItemQuest,
-    LostExplorer,
-    Cultist,
     CommNPC,
     ConvNPC,
     QuestNPC,
     ShopNPC,
+    SpawnNPC,
     Null,
 }
 
@@ -126,7 +132,7 @@ pub enum NPCs {
 pub enum NPCWrap {
     CommNPC(CommNPC),
     ConvNPC(ConvNPC),
-    //QuestNPC(QuestNPC),
+    SpawnNPC(SpawnNPC),
     ShopNPC(ShopNPC),
     BaseNPC(BaseNPC),
     Null,

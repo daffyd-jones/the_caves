@@ -1,5 +1,5 @@
 //npc
-use crate::enums::{NPCs};
+use crate::enums::{NPCs, PuzzleType};
 use rand::{Rng};
 use std::collections::HashMap;
 // use serde_json::Value;
@@ -41,25 +41,32 @@ pub fn new_conv_npc(sname: String, x: usize, y: usize, conv: Convo) -> ConvNPC {
     }
 }
 
-//pub fn new_quest_npc(sname: String, x: usize, y: usize, quest: NQuest) -> QuestNPC {
-//    let mut rng = rand::thread_rng();
-//    let step = rng.gen_range(0..19);
-//    let step_grp = rng.gen_range(0..15);
-//    QuestNPC {
-//        base: BaseNPC {
-//            ntype: NPCs::QuestNPC,
-//            sname: sname,
-//            steps: step,
-//            step_grp: step_grp,
-//            x: x,
-//            y: y,
-//        },
-//        quest: quest,
-//    }
-//}
+pub fn new_spawn_npc(
+    sname: String, x: usize, y: usize, 
+    conv: Convo, comms: Vec<String>, 
+    ptype: PuzzleType
+    ) -> SpawnNPC {
+    let mut rng = rand::thread_rng();
+    let step = rng.gen_range(0..19);
+    let step_grp = rng.gen_range(0..15);
+    SpawnNPC {
+        base: BaseNPC {
+            ntype: NPCs::SpawnNPC,
+            sname: sname,
+            steps: step,
+            step_grp: step_grp,
+            x: x,
+            y: y,
+        },
+        conv: conv,
+        comms: comms,
+        spawned: false,
+        ptype: ptype 
+    }
+}
 
 pub fn new_shop_npc(sname: String, x: usize, y: usize, sh_conv: HashMap<String, String>) -> ShopNPC {
-    let mut rng = rand::thread_rng();
+    //let mut rng = rand::thread_rng();
     //let step = rng.gen_range(0..19);
     let step = 50;
     //let step_grp = rng.gen_range(0..15);
@@ -109,7 +116,6 @@ pub struct ShopData {
 
 //--
 pub trait NPC {
-    // fn as_comm_npc(&self) -> Option<&CommNPC>;
     fn as_any(&self) -> &dyn std::any::Any;
     fn get_ntype(&mut self) -> NPCs;
     fn get_sname(&mut self) -> String;
@@ -135,7 +141,9 @@ impl dyn NPC {
         self.as_any().downcast_ref::<ShopNPC>()
     }
 
-    // fn as_any(&self) -> &dyn std::any::Any;
+    pub fn as_spawn_npc(&self) -> Option<&SpawnNPC> {
+        self.as_any().downcast_ref::<SpawnNPC>()
+    }
 }
 
 
@@ -451,5 +459,89 @@ impl NPC for ShopNPC {
 impl ShopNPC {
     pub fn get_sh_conv(&mut self) -> HashMap<String, String> {
         self.sh_conv.clone()
+    }
+}
+
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct SpawnNPC {
+    base: BaseNPC,
+    conv: Convo,
+    comms: Vec<String>,
+    spawned: bool,
+    ptype: PuzzleType,
+}
+
+impl NPC for SpawnNPC {
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
+
+    fn get_ntype(&mut self) -> NPCs {
+        self.base.ntype.clone()
+    }
+
+    fn get_sname(&mut self) -> String {
+        self.base.sname.clone()
+    }
+
+    fn get_pos(&mut self) -> (usize, usize) {
+        (self.base.x, self.base.y)
+    }
+
+    fn set_pos(&mut self, pos: (usize, usize)) {
+        self.base.x = pos.0;
+        self.base.y = pos.1;
+    }
+
+    fn set_steps(&mut self, steps: u8) {
+        self.base.steps = steps;
+    }
+
+    fn get_steps(&mut self) -> u8 {
+        self.base.steps.clone()
+    }
+
+    fn inc_steps(&mut self) {
+        self.base.steps += 1;
+    }
+
+    fn get_step_grp(&mut self) -> u8 {
+        self.base.step_grp.clone()
+    }
+
+    fn mmove(&mut self, dir: &str) {
+        match dir {
+            "UP" => self.base.y -= 1,
+            "DN" => self.base.y += 1,
+            "LF" => self.base.x -= 1,
+            "RT" => self.base.x += 1,
+            _ => println!("")
+        }
+    }
+}
+
+impl SpawnNPC {
+    pub fn get_conv(&mut self) -> Convo {
+        self.conv.clone()
+    }
+
+    pub fn get_comm(&mut self) -> String {
+        let mut rng = rand::thread_rng();
+        if let Some(comm) = self.comms.choose(&mut rng) {
+            comm.to_string()
+        } else {"".to_string()}
+    }
+
+    pub fn is_spawned(&mut self) -> bool {
+        self.spawned.clone()
+    }
+
+    pub fn toggle_spawned(&mut self) {
+        self.spawned = !self.spawned;
+    }
+
+    pub fn get_ptype(&mut self) -> PuzzleType {
+        self.ptype.clone()
     }
 }

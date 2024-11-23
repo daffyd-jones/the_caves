@@ -1,5 +1,5 @@
 //settlements
-use crate::enums::{Settle};
+//use crate::enums::{Settle};
 use crate::settlement::{Settlement};
 use std::collections::HashMap;
 use rand::{Rng};
@@ -43,7 +43,7 @@ impl Settlements {
         self.settlements.insert(spos, settle);
     }
 
-    pub fn spawn_new_settlement(&mut self, mut cpos: (i64, i64)) {
+    pub fn spawn_new_settlement(&mut self, cpos: (i64, i64)) {
         let new_settle_pos = {
             let mut rng = rand::thread_rng();
             let cxabs = cpos.0.abs();
