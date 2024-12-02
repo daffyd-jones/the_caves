@@ -8,7 +8,7 @@ use crate::enemy::Enemy;
 use rand::prelude::SliceRandom;
 
 pub fn make_maze_map() -> Vec<Vec<Cells>> {
-    let (m_width, m_height) = (300, 200); 
+    let (m_width, m_height) = (300, 202); 
     let mut rng = rand::thread_rng();
     let mut cells = vec![vec![Cells::Wall; m_width]; m_height];
     let mut small_cells = vec![vec![Cells::Wall; 75]; 50];
@@ -41,6 +41,19 @@ pub fn make_maze_map() -> Vec<Vec<Cells>> {
     let start_x = 75 / 2;
     let start_y = 50 / 2;
     carve_passages(start_x, start_y, &mut small_cells, &mut rng);
+    
+    small_cells[32][0] = Cells::Empty;
+    small_cells[32][0] = Cells::Empty;
+    small_cells[32][0] = Cells::Empty;
+    small_cells[32][74] = Cells::Empty;
+    small_cells[32][74] = Cells::Empty;
+    small_cells[32][74] = Cells::Empty;
+    small_cells[0][23] = Cells::Empty;
+    small_cells[0][24] = Cells::Empty;
+    small_cells[0][24] = Cells::Empty;
+    small_cells[49][24] = Cells::Empty;
+    small_cells[49][24] = Cells::Empty;
+    small_cells[49][24] = Cells::Empty;
 
     for y in 0..50 {
         for x in 0..75 {
@@ -52,6 +65,27 @@ pub fn make_maze_map() -> Vec<Vec<Cells>> {
             }
         }
     }
+    
+    //let enter_side = rng.gen_range(0..4);
+   // let opens = vec![
+   //     (m_width / 2, 0),
+   //     (0, m_height / 2),
+   //     (m_width - 12, m_height / 2),
+   //     (m_width / 2, m_height - 12),
+   // ];
+   // for item in opens {
+   //     let (ex, ey) = item;
+   //     for j in 0..12 {
+   //         for i in 0..12 {
+   //             if ((i + j) % 2 == 0 || 
+   //                 (i + j) % 3 == 0 ||
+   //                 (i + j) % 5 == 0) {
+   //                 cells[ey + j][ex + i] = Cells::Empty;
+   //             }  
+   //         }
+   //     }
+   // }
+
     cells.clone()
 }
 

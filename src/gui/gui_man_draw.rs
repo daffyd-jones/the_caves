@@ -1,4 +1,4 @@
-use crate::enums::{Items, NPCWrap, Interactable, InterOpt, EncOpt, Equip};
+use crate::enums::{Items, NPCWrap, Interactable, InterOpt, EncOpt, Equip, ItemEffect};
 use crate::map::Map;
 use crate::player::Player;
 use crate::enemy::{Enemy};
@@ -990,7 +990,7 @@ impl GUI {
             let itype = String::new();
             let desc = String::new();
             let iopts = HashMap::new();
-            let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, 0, 0, prop);
+            let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, ItemEffect::Null, 0, 0, prop);
             let mut col1 = vec![(0, i_temp.clone()); 25];
             let mut col2 = vec![(0, i_temp.clone()); 25];
             let mut col3 = vec![(0, i_temp.clone()); 25];

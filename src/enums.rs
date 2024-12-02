@@ -99,6 +99,7 @@ pub enum Equip {
     Null
 }
 
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
 pub enum ItemEffect {
     Health,
     Attack,

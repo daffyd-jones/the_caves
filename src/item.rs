@@ -1,5 +1,5 @@
 //item
-use crate::enums::{Items, InterOpt, ItemOpt, Equip};
+use crate::enums::{Items, InterOpt, ItemOpt, Equip, ItemEffect};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -10,6 +10,7 @@ pub struct Item {
     pub iopts: HashMap<InterOpt, String>,
     pub equip: bool,
     pub equip_type: Equip,
+    pub effect: ItemEffect,
     pub x: usize,
     pub y: usize,
     pub properties: HashMap<String, u16>,
@@ -28,6 +29,7 @@ impl Default for Item {
             iopts: h,
             equip: false,
             equip_type: Equip::Null,
+            effect: ItemEffect::Null,
             x: 0,
             y: 0,
             properties: p,
@@ -36,13 +38,24 @@ impl Default for Item {
 }
 
 impl Item {
-    pub fn new(itype: Items, sname: String, desc: String, iopts: HashMap<InterOpt, String>, equip: bool, equip_type: Equip, x: usize, y: usize, properties: HashMap<String, u16>) -> Self {
-        Self {itype, sname, desc, iopts, equip, equip_type, x, y, properties}
+    pub fn new(
+        itype: Items,
+        sname: String,
+        desc: String,
+        iopts: HashMap<InterOpt, String>,
+        equip: bool,
+        equip_type: Equip,
+        effect: ItemEffect,
+        x: usize, y: usize,
+        properties: HashMap<String, u16>
+        ) -> Self {
+        Self {itype, sname, desc, iopts, equip, equip_type, effect, x, y, properties}
     }
 
     pub fn new_edible_root(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("health"), 3);
+        //prop.insert(String::from("effect"), 3);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -54,6 +67,7 @@ impl Item {
             iopts,
             equip: false,
             equip_type: Equip::Null,
+            effect: ItemEffect::Health,
             x,
             y,
             properties: prop,
@@ -73,6 +87,7 @@ impl Item {
             iopts,
             equip: false,
             equip_type: Equip::Null,
+            effect: ItemEffect::Null,
             x,
             y,
             properties: prop,
@@ -93,6 +108,7 @@ impl Item {
             iopts,
             equip: false,
             equip_type: Equip::Null,
+            effect: ItemEffect::Health,
             x,
             y,
             properties: prop,
@@ -114,6 +130,7 @@ impl Item {
             iopts,
             equip: false,
             equip_type: Equip::Null,
+            effect: ItemEffect::Null,
             x,
             y,
             properties: prop,
@@ -123,6 +140,7 @@ impl Item {
     pub fn new_apple(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("health"), 5);
+        //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 5);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
@@ -136,6 +154,7 @@ impl Item {
             iopts,
             equip: false,
             equip_type: Equip::Null,
+            effect: ItemEffect::Health,
             x,
             y,
             properties: prop,
@@ -145,6 +164,7 @@ impl Item {
     pub fn new_health_potion(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("health"), 30);
+        //prop.insert(String::from("effect"), 30);
         prop.insert(String::from("value"), 50);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
@@ -157,6 +177,7 @@ impl Item {
             iopts,
             equip: false,
             equip_type: Equip::Null,
+            effect: ItemEffect::Health,
             x,
             y,
             properties: prop,
@@ -166,6 +187,7 @@ impl Item {
     pub fn new_salve(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("health"), 15);
+        //prop.insert(String::from("effect"), 15);
         prop.insert(String::from("value"), 30);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
@@ -179,6 +201,7 @@ impl Item {
             iopts,
             equip: false,
             equip_type: Equip::Null,
+            effect: ItemEffect::Health,
             x,
             y,
             properties: prop,
@@ -188,6 +211,7 @@ impl Item {
     pub fn new_dowel(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 5);
+        //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 30);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
@@ -201,6 +225,7 @@ impl Item {
             iopts,
             equip: true,
             equip_type: Equip::Weapon,
+            effect: ItemEffect::Damage,
             x,
             y,
             properties: prop,
@@ -210,6 +235,7 @@ impl Item {
     pub fn new_wooden_board(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("defence"), 5);
+        //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 30);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
@@ -223,6 +249,7 @@ impl Item {
             iopts,
             equip: true,
             equip_type: Equip::Shield,
+            effect: ItemEffect::Defence,
             x,
             y,
             properties: prop,
@@ -256,6 +283,10 @@ impl Item {
 
     pub fn get_equip_type(&mut self) -> Equip {
         self.equip_type.clone()
+    }
+
+    pub fn get_effect(&mut self) -> ItemEffect {
+        self.effect.clone()
     }
 
     pub fn get_desc(&mut self) -> String {

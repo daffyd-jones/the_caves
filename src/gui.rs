@@ -1,5 +1,5 @@
 //gui
-use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, Interactable, InterOpt, EncOpt, Equip};
+use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, Interactable, InterOpt, EncOpt, Equip, ItemEffect};
 use crate::map::Map;
 use crate::player::Player;
 use crate::enemy::{Enemy};
@@ -251,7 +251,7 @@ impl GUI {
         let itype = String::new();
         let desc = String::new();
         let iopts = HashMap::new();
-        let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, 0, 0, prop);
+        let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, ItemEffect::Null, 0, 0, prop);
         let inv_opt = (
             vec![(0, i_temp.clone()); 25],
             vec![(0, i_temp.clone()); 25],
@@ -698,31 +698,6 @@ impl GUI {
                         .percent(player.health);
                         //.label(Span::styled(player.health.to_string(), Style::default().fg(Color::White)));
 
-                   // let gauge2 = Gauge::default()
-                   //     .block(Block::bordered().title("Progress"))
-                   //     .gauge_style(Style::new().white().on_black().italic())
-                   //     .percent(20);
-                   // let gauge3 = Gauge::default()
-                   //     .block(Block::bordered().title("Progress"))
-                   //     .gauge_style(Style::new().white().on_black().italic())
-                   //     .percent(20);
-                   // let gauge4 = Gauge::default()
-                   //     .block(Block::bordered().title("Progress"))
-                   //     .gauge_style(Style::new().white().on_black().italic())
-                   //     .percent(34);
-                   // let gauge5 = Gauge::default()
-                   //     .block(Block::bordered().title("Progress"))
-                   //     .gauge_style(Style::new().white().on_black().italic())
-                   //     .percent(36);
-
-
-
-                    //f.render_widget(h_gauge, stats[0]);
-                    //f.render_widget(stat_block, stats[1]);
-                    //f.render_widget(gauge3, stats[2]);
-                    //f.render_widget(gauge4, stats[3]);
-                    //f.render_widget(gauge5, stats[4]);
-
                     let rows = vec![
                        // Row::new(vec![
                        //     Span::styled("Health: ", Style::default().fg(Color::White)),
@@ -783,34 +758,32 @@ impl GUI {
                     let en_table = Table::new(en_rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
                         .block(enchant_block);
                     
-                    let mut equip_name = Vec::new();
-                    let mut equip_buff = Vec::new();
+                    let mut equip_items = HashMap::new();
+                    //let mut equip_buff = Vec::new();
                     let equip = player.get_equipped();
                     let mut keys: Vec<_> = equip.keys().collect();
                     keys.sort();
-                   // for k in keys {
-                   //     let mut itm = equip[k].clone();
-                   //     let etype = itm.get_equip_type();
-                   //     let effect_str = {
-                   //         //if itm.get_properties().contains()
-                   //          
-                   //         match etype {
-                   //             Equip::Head => format!("Health: +{}", itm.get_properties()["health"]),
-                   //             Equip::Body => format!("Attack: +{}", itm.get_properties()["attack"]),
-                   //             Equip::Weapon => format!("Damage: +{}", itm.get_properties()["damage"]),
-                   //             Equip::Shield => format!("Defence: +{}", itm.get_properties()["defence"]),
-                   //             Equip::Null => todo!(),
-                   //         }
-                   //     };
-                   //     equip_name.push(itm.get_sname());
-                   //     equip_buff.push(effect_str);
-                   // }
+                    for k in keys {
+                        let mut itm = equip[k].clone();
+                        let etype = itm.get_equip_type();
+                        let prop = itm.get_properties().clone();
+                        let e_type = itm.get_effect();
+                        let efct = match e_type {
+                            ItemEffect::Health => format!("Health: +{}", prop["health"]),
+                            ItemEffect::Attack => format!("Atack: +{}", prop["attack"]),
+                            ItemEffect::Damage => format!("Damage: +{}", prop["damage"]),
+                            ItemEffect::Defence => format!("Defence: +{}", prop["defence"]),
+                            _ => todo!(),
+                        };
+                        let estr = format!("{}\n{}", itm.get_sname(), efct);
+                        equip_items.insert(etype, estr);
+                    }
 
-                    let equip_data: Vec<Vec<String>> = vec![
-                        //vec!["", "", ""],
-                        equip_name,
-                        equip_buff,
-                    ];
+                   // let equip_data: Vec<Vec<String>> = vec![
+                   //     //vec!["", "", ""],
+                   //     equip_name,
+                   //     equip_buff,
+                   // ];
                   //  let ep_rows: Vec<Row> = equip_data.iter().enumerate().map(|(_j, row)| {
                   //      let cells: Vec<Cell> = row.iter().enumerate().map(|(_i, &ref cell)| {
                   //              Cell::from(Span::styled(cell, Style::default().fg(Color::White)))
@@ -820,28 +793,34 @@ impl GUI {
                   //  }).collect();
                   //  let eq_table = Table::new(ep_rows, &[Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25)])
                   //      .block(table_block);
-                  
-                    let weapon_para = Paragraph::new(Text::raw("stats"))
+                    let def_str = "".to_string();
+                    let w_str = equip_items.get(&Equip::Weapon).unwrap_or(&def_str);
+                    let weapon_para = Paragraph::new(Text::raw(w_str))
                         .block(weapon_block);
                     f.render_widget(weapon_para, equip_rc[0]);
 
-                    let shield_para = Paragraph::new(Text::raw("stats"))
+                    let s_str = equip_items.get(&Equip::Shield).unwrap_or(&def_str);
+                    let shield_para = Paragraph::new(Text::raw(s_str))
                         .block(shield_block);
                     f.render_widget(shield_para, equip_lc[1]);
 
-                    let hands_para = Paragraph::new(Text::raw("stats"))
+                    let h_str = equip_items.get(&Equip::Hands).unwrap_or(&def_str);
+                    let hands_para = Paragraph::new(Text::raw(h_str))
                         .block(hands_block);
                     f.render_widget(hands_para, equip_lc[0]);
 
-                    let head_para = Paragraph::new(Text::raw("stats"))
+                    let hh_str = equip_items.get(&Equip::Head).unwrap_or(&def_str);
+                    let head_para = Paragraph::new(Text::raw(hh_str))
                         .block(head_block);
                     f.render_widget(head_para, equip_cc[0]);
 
-                    let torso_para = Paragraph::new(Text::raw("stats"))
+                    let t_str = equip_items.get(&Equip::Torso).unwrap_or(&def_str);
+                    let torso_para = Paragraph::new(Text::raw(t_str))
                         .block(torso_block);
                     f.render_widget(torso_para, equip_cc[1]);
 
-                    let feet_para = Paragraph::new(Text::raw("stats"))
+                    let f_str = equip_items.get(&Equip::Feet).unwrap_or(&def_str);
+                    let feet_para = Paragraph::new(Text::raw(f_str))
                         .block(feet_block);
                     f.render_widget(feet_para, equip_cc[2]);
 
@@ -1151,7 +1130,7 @@ impl GUI {
                     let itype = String::new();
                     let desc = String::new();
                     let iopts = HashMap::new();
-                    let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, 0, 0, prop);
+                    let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, ItemEffect::Null, 0, 0, prop);
                     let mut col1 = vec![(0, i_temp.clone()); 25];
                     let mut col2 = vec![(0, i_temp.clone()); 25];
                     let mut col3 = vec![(0, i_temp.clone()); 25];
