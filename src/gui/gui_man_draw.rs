@@ -120,7 +120,7 @@ impl GUI {
                         match npc {
                             NPCWrap::CommNPC(comm_npc) => adj_list.push((*pos, comm_npc.clone().get_sname())),
                             NPCWrap::ConvNPC(conv_npc) => adj_list.push((*pos, conv_npc.clone().get_sname())),
-                            //NPCWrap::QuestNPC(quest_npc) => adj_list.push((*pos, quest_npc.clone().get_sname())),
+                            NPCWrap::ShopNPC(shop_npc) => adj_list.push((*pos, shop_npc.clone().get_sname())),
                            _ => todo!(),
                         }
                         // adj_list.push((*pos, npc.clone().get_sname()));

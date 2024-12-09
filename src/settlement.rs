@@ -2,7 +2,7 @@
 use crate::enums::{Settle, Cells, NPCWrap};
 use crate::shop::{Shop};
 use crate::enums::{Shops};
-use crate::npc::{new_shop_npc, new_comm_npc, new_conv_npc, Convo, ShopData};
+use crate::npc::{new_shop_npc, new_comm_npc, new_conv_npc, Convo, ShopData, ShopConvos};
 use crate::item::Item;
 use rand::prelude::SliceRandom;
 use rand::Rng;
@@ -598,6 +598,121 @@ const anchors: [&str; 1]  = [
 ];
 
 
+const cave_o1: &str = r#"ShopNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple|Apple
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_______
+▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_______
+▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_______
+▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_______
+▒▒▒▒_______________________________________________________________________
+▒▒▒▒_______________________________________________________________________
+▒▒▒▒_______________________________________________________________________
+▒▒▒▒__________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_____
+______________________________▒                                      ▒_____
+______________________________▒                                      ▒_____
+▒▒▒▒__________________________▒                                      ▒_____
+▒▒▒▒__________________________▒                                      ▒_____
+▒▒▒▒__________________________▒═══════════════════════════════   ════▒_____
+▒▒▒▒__________________________▒  o│o  o│o  o│o              @        ▒_____
+______________________________▒  ─┼─  ─┼─  ─┴─      └────────────────▒_____
+______________________________▒  o│o  o│o                            ▒_____
+______________________________▒                                      ▒_____
+______________________________▒                                      ▒_O___
+______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_____
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+"#;
+
+const cave_o2: &str = r#"CommNPC|Null|Null
+________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
+________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
+__________________________▒▒▒▒_____________________________________▒▒▒▒____
+__________________________▒▒▒▒_____________________________________▒▒▒▒____
+__________________________▒▒▒▒_____________________________________▒▒▒▒____
+__________________________▒▒▒▒_____~~~~~~~~~_______________________▒▒▒▒____
+_______________________________~~~~~~~~~~~~~~~~____________________▒▒▒▒____
+________________________~~~~~~~~~~~~~~~~~~~~~~~~~~~________________▒▒▒▒____
+____________________~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_____________▒▒▒▒____
+____________________~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_____________▒▒▒▒____
+____________________~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_____________________
+____________________~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_____________________
+____________________~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_____________________
+____________________~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_____________________
+______________________~~~~~~~~~~~~~~~~~~~~~~~~~~~~_________________▒▒▒▒____
+___________________________~~~~~~~~~~~~~~~_________________________▒▒▒▒____
+_______________________________~~~~~_______________________________▒▒▒▒____
+___________________________________________________________________▒▒▒▒____
+________├┤_________________________________________________▒▒▒▒▒▒▒▒▒▒▒▒____
+_______,├┤,________________________________________________▒▒▒▒▒▒▒▒▒▒▒▒____
+_______,..,________________________________________________________▒▒▒▒____
+_____________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_____________▒▒▒▒____
+_____@_______________▒    │°  ╚══════════════╝ °│    ▒_____________▒▒▒▒____
+_____________________▒    │°   ≡ø≡  ±©±  ≡ø≡   °│    ▒_____________▒▒▒▒____
+_____________________▒    └─────────────────────┘    ▒_____________▒▒▒▒____
+"#;
+
+
+const cave_o3: &str = r#"CommNPC CommNPC CommNPC ShopNPC CommNPC|Null|Null
+___________________________________________________________________________
+_________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________
+_________________________▒┌──────┐  ║      │   └──────┘   ▒________________
+_________________________▒└──────┘  ║      ┘              ▒______________@_
+_________________________▒┌──────┐  ║                @    ▒________________
+_________________________▒└──────┘  ║      ┐              ▒________________
+_________________________▒┌──────┐  ║      │              _________________
+▒▒▒▒_____________________▒└──────┘  ║      │              _________________
+▒▒▒▒_____________________▒          ║      │              ▒________________
+▒▒▒▒▒▒▒▒▒▒▒▒_____________▒════  ════╝      │              ▒________________
+▒▒▒▒▒▒▒▒▒▒▒▒_____________▒┐                │              ▒________________
+▒▒▒▒_____________________▒│@              @│@             ▒________________
+▒▒▒▒_____________________▒┘                │              ▒________________
+▒▒▒▒_____________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________
+▒▒▒▒_______________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+▒▒▒▒_______________▒▒▒▒___________________________________________________▒
+▒▒▒▒_______________▒▒▒▒___________________________________________________▒
+▒▒▒▒_______________▒▒▒▒___________________________________________________▒
+▒▒▒▒_______________▒▒▒▒___________________________________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_____________________________________▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_____________________________________▒▒▒▒▒▒▒▒▒▒▒
+___________________________________________________________________________
+"#;
+
+
+const cave_o4: &str = r#"CommNPC ShopNPC|Null|Null
+_____________________▒    ░░░░░░░░░░░░░░░░░░░░░░░@   ▒_____________▒▒▒▒____
+_____________________▒    ░░░░░░░░░░░░░░░░░░░░░░░    ▒_____________▒▒▒▒____
+┌_____┐______________▒    └───────┘░░░░░└───────┘    ▒_____________▒▒▒▒____
+│{(¤)}│______________▒    └───────┘░░░░░└───────┘    ▒_____________________
+├┴─┬─┴┤______________▒    └───────┘░░░░░└───────┘    ▒_____________________
+_____________________▒    └───────┘░░░░░└───────┘    ▒_____________________
+_____________________▒    └───────┘░░░░░└───────┘    ▒_____________▒▒▒▒____
+_____________________▒    └───────┘░░░░░└───────┘    ▒_____________▒▒▒▒____
+_____________________▒    └───────┘░░░░░└───────┘    ▒_____________▒▒▒▒____
+______________________    └───────┘░░░░░└───────┘    ▒_____________▒▒▒▒____
+______________________                               ▒_____________________
+_____________________▒                   ┌───────────▒_____________________
+_____________________▒ ┌───────┐                 @   ▒_____________________
+_____________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_____________▒▒▒▒____
+___________________________________________________________________▒▒▒▒____
+___________________________________________________________________▒▒▒▒____
+___________________________________________________________________▒▒▒▒____
+___________________________________________________________________▒▒▒▒____
+▒▒▒_________________________________▒▒▒▒___________________________▒▒▒▒____
+▒▒▒_________________________________▒▒▒▒___________________________________
+▒▒▒_________________________________▒▒▒▒___________________________▒▒▒▒____
+▒▒▒_________________________________▒▒▒▒___________________________▒▒▒▒____
+▒▒▒▒▒▒_________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
+▒▒▒▒▒▒_________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
+___________________________________________________________________________
+"#;
+
+
 const cave_o: &str = r#"CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple|Apple
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
@@ -656,7 +771,7 @@ ________________________________________________________________________________
 
 const palette: &str = "empty: ' . , ' * | wall: ▒ | other ▓ ░ ~ | pipes: ═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬   ┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │ ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©";
 
-fn parse_map(s_map: &str, mut cells: Vec<Vec<Cells>>) -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>, HashMap<(usize, usize), Item>, HashMap<(usize, usize), Item>) {
+fn parse_map(s_map: &str, mut cells: Vec<Vec<Cells>>, shop_type: Shops) -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>, HashMap<(usize, usize), Item>, HashMap<(usize, usize), Item>) {
     // let mut cells: Vec<Vec<Cells>> = Vec::new();
     let mut rng = rand::thread_rng();
     let mut map_codet = s_map.clone().lines().next().unwrap_or("");
@@ -702,7 +817,23 @@ fn parse_map(s_map: &str, mut cells: Vec<Vec<Cells>>) -> (Vec<Vec<Cells>>, HashM
         Err(e) => {
             log::info!("{:?}", e);
             ShopData {
-                item_shops: Vec::new(),
+                shops: Vec::new(),
+                guilds: Vec::new(),
+                churches: Vec::new(),
+            }
+        },
+    };
+
+
+    let data5 = fs::read_to_string("src/npcs/npc_shop_convos.json");
+    //log::info!("{:?}", &data5);
+    let shop_convos: ShopConvos = match data5 {
+        Ok(content) => serde_json::from_str(&content).unwrap(),
+        Err(e) => {
+            log::info!("{:?}", e);
+            ShopConvos {
+                shops: Vec::new(),
+                guilds: Vec::new(),
                 churches: Vec::new(),
             }
         },
@@ -799,8 +930,23 @@ fn parse_map(s_map: &str, mut cells: Vec<Vec<Cells>>) -> (Vec<Vec<Cells>>, HashM
                     },
                     "ShopNPC" => {
                         let name = names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
-                        let s_conv: HashMap<String, String> = shops.item_shops.choose(&mut rng).unwrap_or(&shops.item_shops[0].clone()).clone();
-                        let t_shop = new_shop_npc(name.clone(), x.clone(), y.clone(), s_conv.clone());
+                        let s_conv: HashMap<String, String> = shops.shops.choose(&mut rng).unwrap_or(&shops.shops[0].clone()).clone();
+                        
+                        let s_conv = match shop_type {
+                            Shops::Item => shops.shops.choose(&mut rng).unwrap_or(&shops.shops[0].clone()).clone(),
+                            Shops::Guild => shops.guilds.choose(&mut rng).unwrap_or(&shops.guilds[0].clone()).clone(),
+                            Shops::Church => shops.churches.choose(&mut rng).unwrap_or(&shops.churches[0].clone()).clone(),
+                            _ => todo!(),
+                        };
+
+                        let convo = match shop_type {
+                            Shops::Item => shop_convos.shops.choose(&mut rng).unwrap_or(&shop_convos.shops[0].clone()).clone(),
+                            Shops::Guild => shop_convos.guilds.choose(&mut rng).unwrap_or(&shop_convos.guilds[0].clone()).clone(),
+                            Shops::Church => shop_convos.churches.choose(&mut rng).unwrap_or(&shop_convos.churches[0].clone()).clone(),
+                            _ => todo!(),
+                        };
+
+                        let t_shop = new_shop_npc(name.clone(), x.clone(), y.clone(), s_conv.clone(), convo.clone(), shop_type.clone());
                         npcs.insert((x.clone(), y.clone()), NPCWrap::ShopNPC(t_shop.clone()));
                     },
                     _ => todo!(),
@@ -900,32 +1046,78 @@ fn place_small_parts(mut map: Vec<Vec<Cells>>, part: Vec<Vec<Cells>>, npcs: Hash
     (map, new_npcs, new_sitems, new_items)
 }
 
-fn build_small_settle() -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>, HashMap<(usize, usize), Item>, HashMap<(usize, usize), Item>) {
+fn build_small_settle(is_cave_o: bool) -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>, HashMap<(usize, usize), Item>, HashMap<(usize, usize), Item>) {
     let cells = vec![vec![Cells::Null; 150]; 50];
     let item_cell = vec![vec![Cells::Null; 75]; 25];
     let guild_cell= vec![vec![Cells::Null; 75]; 25];
     let church_cell = vec![vec![Cells::Null; 75]; 25];
     let anchor_cell = vec![vec![Cells::Null; 75]; 25];
     let mut rng = rand::thread_rng();
-    let item_shop = item_shops.choose(&mut rng).expect("item parse failed");
-    let guild = guild_shops.choose(&mut rng).expect("guild parse failed");
-    let church = churches.choose(&mut rng).expect("church parse failed");
-    let anchor = anchors.choose(&mut rng).expect("anchor parse failed");
-    let (item_map, item_npcs, item_sitems, item_items) = parse_map(item_shop, item_cell.clone());
-    let (guild_map, guild_npcs, guild_sitems, guild_items) = parse_map(guild, guild_cell.clone());
-    let (church_map, church_npcs, church_sitems, church_items) = parse_map(church, church_cell.clone());
-    let (anchor_map, anchor_npcs, anchor_sitems, anchor_items) = parse_map(anchor, anchor_cell.clone());
+    let item_shop = if is_cave_o {
+        cave_o1
+    } else {
+        item_shops.choose(&mut rng).expect("item parse failed")
+    };
+    
+    let guild = if is_cave_o {
+        cave_o3
+    } else {
+        guild_shops.choose(&mut rng).expect("guild parse failed")
+    };
+    let church = if is_cave_o {
+        cave_o4
+    } else {
+        churches.choose(&mut rng).expect("church parse failed")
+    };
+    let anchor = if is_cave_o {
+        cave_o2
+    } else {
+        anchors.choose(&mut rng).expect("anchor parse failed")
+    };
+
+   // let guild = guild_shops.choose(&mut rng).expect("guild parse failed");
+   // let church = churches.choose(&mut rng).expect("church parse failed");
+   // let anchor = anchors.choose(&mut rng).expect("anchor parse failed");
+    let (item_map, item_npcs, item_sitems, item_items) = parse_map(item_shop, item_cell.clone(), Shops::Item);
+    let (guild_map, guild_npcs, guild_sitems, guild_items) = parse_map(guild, guild_cell.clone(), Shops::Guild);
+    let (church_map, church_npcs, church_sitems, church_items) = parse_map(church, church_cell.clone(), Shops::Church);
+    let (anchor_map, anchor_npcs, anchor_sitems, anchor_items) = parse_map(anchor, anchor_cell.clone(), Shops::Null);
     let mut quads: Vec<u8> = vec![1, 2, 3, 4];
-    let q1 = quads.choose(&mut rng).expect("rand 1 failed").clone();
+    let q1 = if is_cave_o {
+        1
+    } else {
+        quads.choose(&mut rng).expect("rand 1 failed").clone()
+    };
     quads.retain(|&x| x != q1);
+    //let q1 = quads.choose(&mut rng).expect("rand 1 failed").clone();
+    //quads.retain(|&x| x != q1);
     let (q1_map, q1_npcs, q1_sitems, q1_items) = place_small_parts(cells.clone(), item_map, item_npcs, item_sitems, item_items, q1);
-    let q2 = quads.choose(&mut rng).expect("rand 2 failed").clone();
+    let q2 = if is_cave_o {
+        3
+    } else {
+        quads.choose(&mut rng).expect("rand 2 failed").clone()
+    };
     quads.retain(|&x| x != q2);
+
+    //let q2 = quads.choose(&mut rng).expect("rand 2 failed").clone();
+    //quads.retain(|&x| x != q2);
     let (q2_map, q2_npcs, q2_sitems, q2_items) = place_small_parts(q1_map.clone(), guild_map, guild_npcs, guild_sitems, guild_items, q2);
-    let q3 = quads.choose(&mut rng).expect("rand 3 failed").clone();
+    let q3 = if is_cave_o {
+        4
+    } else {
+        quads.choose(&mut rng).expect("rand 3 failed").clone()
+    };
     quads.retain(|&x| x != q3);
+    //let q3 = quads.choose(&mut rng).expect("rand 3 failed").clone();
+    //quads.retain(|&x| x != q3);
     let (q3_map, q3_npcs, q3_sitems, q3_items) = place_small_parts(q2_map.clone(), church_map, church_npcs, church_sitems, church_items, q3);
-    let q4 = quads.choose(&mut rng).expect("rand 4 failed").clone();
+    let q4 = if is_cave_o {
+        2
+    } else {
+        quads.choose(&mut rng).expect("rand 4 failed").clone()
+    };
+    quads.retain(|&x| x != q4);
+    //let q4 = quads.choose(&mut rng).expect("rand 4 failed").clone();
     let (final_map, q4_npcs, q4_sitems, q4_items) = place_small_parts(q3_map.clone(), anchor_map, anchor_npcs, anchor_sitems, anchor_items, q4);
     let mut final_npcs = HashMap::new();
     let mut final_sitems = HashMap::new();
@@ -949,6 +1141,38 @@ fn build_small_settle() -> (Vec<Vec<Cells>>, HashMap<(usize, usize), NPCWrap>, H
     (final_map, final_npcs, final_sitems, final_items)
 }
 
+
+fn get_npc_shops(mut npcs: HashMap<(usize, usize), NPCWrap>, sitems: HashMap<(usize, usize), Item>) -> (HashMap<Shops, Shop>, HashMap<(usize, usize), NPCWrap>) {
+    let mut s_npcs = HashMap::new();
+    for (k, v) in npcs.clone() {
+        match v {
+            NPCWrap::ShopNPC(_) => {
+                s_npcs.insert(k, v);
+                //npcs.remove(&k);
+            },
+            _ => {},
+        }
+    };
+    let mut shops = HashMap::new();
+
+    for (_, n) in s_npcs {
+        //let nb = box_npc(n);
+        let mut snpc = match n {
+            NPCWrap::ShopNPC(shop_npc) => shop_npc,
+            _ => todo!(),
+        };
+        let shop_name = "shop_name".to_string();
+        match snpc.get_shop_type() {
+             Shops::Item => shops.insert(Shops::Item, Shop::new_item_shop(snpc.get_sh_conv()[&shop_name].clone(), NPCWrap::ShopNPC(snpc), sitems.clone())),
+             Shops::Guild => shops.insert(Shops::Guild, Shop::new_guild(snpc.get_sh_conv()[&shop_name].clone(), NPCWrap::ShopNPC(snpc), HashMap::new())),
+             Shops::Church => shops.insert(Shops::Church, Shop::new_church(snpc.get_sh_conv()[&shop_name].clone(), NPCWrap::ShopNPC(snpc), HashMap::new())),
+             //_ => Some(Shop::default()),
+             _ => todo!(),
+        };
+    }
+    (shops, npcs.clone())
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Settlement {
     stype: Settle,
@@ -969,26 +1193,29 @@ impl Settlement {
 
     pub fn demo_settle(pos: (i64, i64), npcs: HashMap<(usize, usize), NPCWrap>) -> Self {
         let cells = vec![vec![Cells::Null; 150]; 50];
-        let (map, mpcs, sitems, items) = parse_map(cave_o, cells);
+        //let (map, mpcs, sitems, items) = parse_map(cave_o, cells, Shops::Item);
         // log::info!("{:?}", &items);
-        let mut shops = HashMap::new();
-        let mut cnv = HashMap::new();
-        cnv.insert("item_desc".to_string(), "Hey that {i} over there goes for {v}. Let me know if you want to buy it.".to_string());
-        cnv.insert("item_broke".to_string(), "Uh oh! it looks like you dont have enough money for that.".to_string());
-        cnv.insert("item_bought".to_string(), "Hey!! Thanks for the sale!! Have a good day!!.".to_string());
-        cnv.insert("item_nbought".to_string(), "Not interested? Thats fine, have a good day!!".to_string());
-        let npc = new_shop_npc("Janiel".to_string(), 0, 0, cnv);
-        let npc_t = NPCWrap::ShopNPC(npc);
-        // let mut stock = Vec::new();
-        // let ti1 = Item::new_edible_root(0, 0);
-        // stock.push(ti1);
-        let shop = Shop::new_item_shop("item shop".to_string(), npc_t, sitems);
-        shops.insert(Shops::Item, shop);
+        let (map, mut mpcs, sitems, items) = build_small_settle(true);
+
+       // let mut shops = HashMap::new();
+       // let mut cnv = HashMap::new();
+       // cnv.insert("item_desc".to_string(), "Hey that {i} over there goes for {v}. Let me know if you want to buy it.".to_string());
+       // cnv.insert("item_broke".to_string(), "Uh oh! it looks like you dont have enough money for that.".to_string());
+       // cnv.insert("item_bought".to_string(), "Hey!! Thanks for the sale!! Have a good day!!.".to_string());
+       // cnv.insert("item_nbought".to_string(), "Not interested? Thats fine, have a good day!!".to_string());
+       // let npc = new_shop_npc("Janiel".to_string(), 0, 0, cnv);
+       // let npc_t = NPCWrap::ShopNPC(npc);
+       // let s_npcs = get_shop_npcs(mpcs);
+       // let shop = Shop::new_item_shop("item shop".to_string(), npc_t, sitems);
+       // shops.insert(Shops::Item, shop);
+        
+        let (shops, snpcs) = get_npc_shops(mpcs.clone(), sitems);
+
         Self {
             stype: Settle::Small,
             sname: "Cave Opening".to_string(),
             pos: pos,
-            npcs: mpcs,
+            npcs: snpcs,
             items: items,
             npcs_sent: false,
             items_sent: false,
@@ -1011,24 +1238,17 @@ impl Settlement {
         let name_oops = "Jadeitite".to_string();
         let name = names.choose(&mut rng).unwrap_or(&name_oops.clone()).clone();
         
-        let (map, mut npcs, sitems, items) = build_small_settle();
-        fn get_shop_key(npcs: HashMap<(usize, usize), NPCWrap>) -> Option<(usize, usize)> {
-            for (k, v) in npcs.clone() {
-                match v {
-                    NPCWrap::ShopNPC(_) => {return Some(k);},
-                    _ => {},
-                }
-            };
-            None
-        }
-        let s_key = get_shop_key(npcs.clone()).expect("failed to get shop npc 1");
-        let s_npc = npcs.remove(&s_key).expect("failed to get shop npc 2"); 
+        let (map, mut npcs, sitems, items) = build_small_settle(false);
 
+        let (shops, snpcs) = get_npc_shops(npcs.clone(), sitems);
+
+        //let s_key = get_shop_npcs(npcs.clone()).expect("failed to get shop npc 1");
+        //let s_npc = npcs.remove(&s_key).expect("failed to get shop npc 2"); 
         //npcs.insert-----------
         //let npc_t = NPCWrap::ShopNPC(s_npc);
-        let shop = Shop::new_item_shop("new item shop".to_string(), s_npc, sitems);
-        let mut shops = HashMap::new();
-        shops.insert(Shops::Item, shop);
+        //let shop = Shop::new_item_shop("new item shop".to_string(), s_npc, sitems);
+        //let mut shops = HashMap::new();
+        //shops.insert(Shops::Item, shop);
         Self {
             stype: Settle::Small,
             sname: name,

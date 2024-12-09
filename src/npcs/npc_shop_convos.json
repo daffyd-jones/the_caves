@@ -1,0 +1,111 @@
+{
+	"shops": [
+		{
+		    "id": "shop1",
+		    "0": {
+		        "text": "Welcome to my shop!! Feel free to look around, and select what you are looking to buy.",
+		        "opts": [
+		            {"text": "Thanks Ill have a look around!", "next": "e"},
+		            {"text": "What kinds of things do you sell?", "next": "1"}
+		        ]
+		    },
+		    "1": {
+		        "text": "We sell a bit of this or that. We go through stock pretty fast here, so I can never keep track.",
+		        "opts": [
+		            {"text": "Ok, I guess Ill have a look around.", "next": "e"}
+		        ]
+		    }
+		}
+	],
+	"guilds": [
+		{
+		    "id": "guild1",
+		    "0": {
+		        "text": "Hey there, welcome to our local guild! We have a couple services available: we have local records where you can record your progress, we have a clinic where you can heal, and we have posting boards for things to check out like ruins, or things people have found.",
+		        "opts": [
+		            {"text": "Id like to log my progress.", "next": "1"},
+		            {"text": "I need to heal, id like to check out your clinic.", "next": "2"},
+		            {"text": "Where can I find other settlements like this?", "next": "3"}
+		        ]
+		    },
+		    "1": {
+		        "text": "Great, we have a board in the back where you can enter logs. You can just go back and check it out.",
+		        "opts": [
+		            {"text": "Ok thanks Ill check it out.", "next": "e"}
+		        ]
+		    },
+		    "2": {
+		        "text": "The cinic is in the back through the doors, they will fix you up for a small fee.",
+		        "opts": [
+		            {"text": "Got it, Ill go get patched up.", "next": "e"}
+		        ]
+		    },
+		    "3": {
+		        "text": "You can go over to the cultist church to find other locations, or just pick a direction and start walking. Your compass will pick something up pretty quick.",
+		        "opts": [
+		            {"text": "Thanks, Ill go over to the church", "next": "e"},
+		            {"text": "Cultist church, whats that about?", "next": "4"}
+		        ]
+		    },
+		    "4": {
+		        "text": "Ya, its a bit weird but theyre ok. Theyre people that came down here and decided to start worshipping the caves. They keep contact with other churches to keep tabs on whats happening in the settlements throughought the caves.",
+		        "opts": [
+		            {"text": "Oh, I see. Ok thanks.", "next": "e"}
+		        ]
+		    }
+		}
+	],
+	"churches": [
+		{
+		    "id": "church1",
+		    "0": {
+		        "text": "Welcome, adventurer to the Church of the Caves. We hope you enjoy your stay and find the direction that you seek.",
+		        "opts": [
+		            {"text": "So you worship the caves?", "next": "1"},
+		            {"text": "What kind of things do you do here?", "next": "2"},
+		            {"text": "How can I find other locations in the caves?", "next": "3"}
+		        ]
+		    },
+		    "1": {
+		        "text": "Yes, we came down here years ago and found ourselves enchanted by the caves. The constant changing of the passages and the formations that they found convinced some of the first visitors that the caves are alive. I have traveled over the same area many times and stil find new ruins and wonders as the caves shift and change. Be wary though and keep hold of your compass as getting lost will soon mean your end.",
+		        "opts": [
+		            {"text": "Oh wow, thats very interesting. I knew the caves shifed, but I didnt know how fantastic they could be.", "next": "4"},
+		            {"text": "I see, thats cool. Im not really into the worship thing, but ill keep that in mind.", "next": "5"}
+		        ]
+		    },
+		    "2": {
+		        "text": "We act as a place of worship for those who follow our ways, as well as work with the other churches in the area to make up a network that allows for communication between the settlements.",
+		        "opts": [
+		            {"text": "Im not really into worship if thats ok, but Id like to find out what I can about the other settlements nearby.", "next": "6"},
+		            {"text": "Thats neat, ill be sure to check out the churches for information.", "next": "e"}
+		        ]
+		    },
+		    "3": {
+		        "text": "We have a board over on the wall there that you can use to look up the most recent stats for the settlements nearby. Most of it is administration stuff that will be above your head, but their location is there.",
+		        "opts": [
+		            {"text": "Ok thanks! Ill go check it out.", "next": "e"}
+		        ]
+		    },
+		    "4": {
+		        "text": "They really are quite magnificent. Is there anything else you need?",
+		        "opts": [
+		            {"text": "What kind of things do you do here?", "next": "2"},
+		            {"text": "How can I find other locations in the caves?", "next": "3"}
+		        ]
+		    },
+		    "5": {
+		        "text": "That is all right, we will not force you or expect you to join us. We will assist you regardless. Do you need anything else?",
+		        "opts": [
+		            {"text": "What kind of things do you do here?", "next": "2"},
+		            {"text": "How can I find other locations in the caves?", "next": "3"}
+		        ]
+		    },
+		    "6": {
+		        "text": "We have a notice board over on the wall there that you can use to find our current info on the settlements nearby.",
+		        "opts": [
+		            {"text": "Ok thanks, Ill check it out. ", "next": "e"}
+		        ]
+		    }
+		}
+	]
+}

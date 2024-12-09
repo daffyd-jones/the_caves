@@ -1,5 +1,5 @@
 {
-	"item_shops": [
+	"shops": [
 		{
 			"shop_name": "Ahdznends",
 			"item_desc": "Hey that {i} over there goes for {v}. Let me know if you want to buy it.",
@@ -13,8 +13,16 @@
 			"item_broke": "Uh oh! it looks like you dont have enough money for that.",
 			"item_bought": "Hey!! Thanks for the sale!! Have a good day!!.",
 			"item_nbought": "Not interested? Thats fine, have a good day!!"
-		},
-		{}
+		}
+	],
+    "guilds": [
+		{
+			"shop_name": "guild",
+			"item_desc": "Hey that {i} over there goes for {v}. Let me know if you want to buy it.",
+			"item_broke": "Uh oh! it looks like you dont have enough money for that.",
+			"item_bought": "Hey!! Thanks for the sale!! Have a good day!!.",
+			"item_nbought": "Not interested? Thats fine, have a good day!!"
+		}
 	],
     "churches": [
 		{

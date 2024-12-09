@@ -182,6 +182,16 @@ pub enum Interactable {
     ShopItem(Item),
     NPC(NPCWrap),
     Enemy(Enemy),
+    EnvInter(EnvInter),
+    Null,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum EnvInter{
+    Records,
+    Clinic,
+    GuildPost,
+    ChurchPost,
     Null,
 }
 
@@ -220,12 +230,8 @@ pub enum Settle {
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Shops {
     Item,
-    Weapon,
-    Armour,
-    Enchantments,
-    ExplorersGuild,
-    CultistChurch,
-    Clinic,
+    Guild,
+    Church,
     Null,
 }
 

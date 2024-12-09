@@ -1,6 +1,6 @@
 //shop.rs
 use crate::enums::{Shops, NPCWrap};
-//use crate::npc::{ShopNPC};
+use crate::npc::{ShopNPC};
 use crate::item::{Item};
 use std::collections::HashMap;
 
@@ -13,10 +13,47 @@ pub struct Shop {
     paid: bool,
 }
 
+impl Default for Shop {
+    fn default() -> Self {
+        let npc = ShopNPC::default();
+        let swrap = NPCWrap::ShopNPC(npc);
+        let stock = HashMap::new();
+        Self {
+            sptype: Shops::Null,
+            sname: "Spoof".to_string(),
+            npc: swrap,
+            stock: stock,
+            paid: true,
+        }
+    }
+}
+
+
+
 impl Shop {
     pub fn new_item_shop(sname: String, npc: NPCWrap, stock: HashMap<(usize, usize), Item>) -> Self {
         Self {
             sptype: Shops::Item,
+            sname: sname,
+            npc: npc,
+            stock: stock,
+            paid: true,
+        }
+    }
+
+    pub fn new_guild(sname: String, npc: NPCWrap, stock: HashMap<(usize, usize), Item>) -> Self {
+        Self {
+            sptype: Shops::Guild,
+            sname: sname,
+            npc: npc,
+            stock: stock,
+            paid: true,
+        }
+    }
+
+    pub fn new_church(sname: String, npc: NPCWrap, stock: HashMap<(usize, usize), Item>) -> Self {
+        Self {
+            sptype: Shops::Church,
             sname: sname,
             npc: npc,
             stock: stock,

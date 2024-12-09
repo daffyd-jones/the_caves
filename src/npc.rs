@@ -1,5 +1,5 @@
 //npc
-use crate::enums::{NPCs, PuzzleType};
+use crate::enums::{NPCs, PuzzleType, Shops};
 use rand::{Rng};
 use std::collections::HashMap;
 // use serde_json::Value;
@@ -65,7 +65,7 @@ pub fn new_spawn_npc(
     }
 }
 
-pub fn new_shop_npc(sname: String, x: usize, y: usize, sh_conv: HashMap<String, String>) -> ShopNPC {
+pub fn new_shop_npc(sname: String, x: usize, y: usize, sh_conv: HashMap<String, String>, convo: Convo, shop_type: Shops) -> ShopNPC {
     //let mut rng = rand::thread_rng();
     //let step = rng.gen_range(0..19);
     let step = 50;
@@ -81,7 +81,9 @@ pub fn new_shop_npc(sname: String, x: usize, y: usize, sh_conv: HashMap<String, 
             x: x,
             y: y,
         },
+        shop_type: shop_type,
         sh_conv: sh_conv,
+        convo: convo,
     }
 }
 
@@ -104,13 +106,30 @@ pub struct ConOpt {
     pub text: String,
     pub next: String,
 }
+
+fn default_convo() -> Convo {
+    let stages = HashMap::new();
+    Convo {
+        id: "default".to_string(),
+        stages: stages,
+    }
+}
 //--
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ShopData {
-    pub item_shops: Vec<HashMap<String, String>>,
+    pub shops: Vec<HashMap<String, String>>,
+    pub guilds: Vec<HashMap<String, String>>,
     pub churches: Vec<HashMap<String, String>>,
 }
+
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ShopConvos {
+    pub shops: Vec<Convo>,
+    pub guilds: Vec<Convo>,
+    pub churches: Vec<Convo>,
+} 
 
 
 
@@ -404,7 +423,29 @@ impl ConvNPC {
 #[derive(Clone, Debug, PartialEq)]
 pub struct ShopNPC {
     base: BaseNPC,
+    shop_type: Shops,
     sh_conv: HashMap<String, String>,
+    convo: Convo,
+}
+
+impl Default for ShopNPC {
+    fn default() -> Self {
+        let sh_conv = HashMap::new();
+        let convo = default_convo();
+        Self {
+            base: BaseNPC {
+                ntype: NPCs::ShopNPC,
+                sname: "Jeric".to_string(),
+                steps: 100,
+                step_grp: 100,
+                x: 0,
+                y: 0,
+            },
+            shop_type: Shops::Null,
+            sh_conv: sh_conv,
+            convo: convo,
+        }
+    }
 }
 
 impl NPC for ShopNPC {
@@ -459,6 +500,14 @@ impl NPC for ShopNPC {
 impl ShopNPC {
     pub fn get_sh_conv(&mut self) -> HashMap<String, String> {
         self.sh_conv.clone()
+    }
+
+    pub fn get_shop_type(&mut self) -> Shops {
+        self.shop_type.clone()
+    }
+
+    pub fn get_convo(&mut self) -> Convo {
+        self.convo.clone()
     }
 }
 

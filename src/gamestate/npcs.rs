@@ -4,7 +4,7 @@ use crate::map::{MAP_W, MAP_H};
 //use crate::puzzle::Puzzle;
 //use crate::puzzles::Puzzles;
 //use crate::enemy::{Enemy};
-use crate::npc::{NPC, CommNPC, ConvNPC, SpawnNPC, Convo, new_comm_npc, new_conv_npc, new_spawn_npc};
+use crate::npc::{NPC, CommNPC, ConvNPC, SpawnNPC, ShopNPC, Convo, new_comm_npc, new_conv_npc, new_spawn_npc};
 use crate::gamestate::GameState;
 // use crate::gui_man_draw::GUI;
 use std::time::{Instant};
@@ -167,12 +167,19 @@ impl GameState {
         self.conv_step(spwn_conv, "0".to_string(), name)
     }
 
+    pub fn npc_shop_inter(&mut self, mut npc: ShopNPC) -> bool {
+        let convo = npc.get_convo();
+        let name = npc.get_sname();
+        self.conv_step(convo, "0".to_string(), name)
+    }
+
     pub fn npc_interaction(&mut self) -> bool {
         let npc = self.interactee.clone();
         match npc {
             Interactable::NPC(NPCWrap::CommNPC(mut comm_npc)) => self.npc_comm_inter(comm_npc.get_sname(), comm_npc.get_comm()),
             Interactable::NPC(NPCWrap::ConvNPC(conv_npc)) => self.npc_conv_inter(conv_npc),
             Interactable::NPC(NPCWrap::SpawnNPC(spawn_npc)) => self.npc_spawn_inter(spawn_npc),
+            Interactable::NPC(NPCWrap::ShopNPC(shop_npc)) => self.npc_shop_inter(shop_npc),
             _ => todo!(),
         }
     }

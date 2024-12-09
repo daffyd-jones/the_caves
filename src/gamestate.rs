@@ -1,5 +1,5 @@
 //gamestate
-use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, InterSteps, InterOpt, GameMode, FightSteps, Interactable, EncOpt, Location, CompMode};
+use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, InterSteps, InterOpt, GameMode, FightSteps, Interactable, EncOpt, Location, CompMode, EnvInter};
 use crate::map::{Map, MAP_W, MAP_H};
 use crate::player::Player;
 //use crate::puzzle::Puzzle;
@@ -324,7 +324,7 @@ fn npc_move(mut npc: Box<dyn NPC>, map: Vec<Vec<Cells>>, mw: usize, mh: usize, x
     // (pos, Box::new(npc))
 }
 
-fn box_npc(npc: NPCWrap) -> Box<dyn NPC> {
+pub fn box_npc(npc: NPCWrap) -> Box<dyn NPC> {
     match npc {
         NPCWrap::CommNPC(comm_npc) => Box::new(comm_npc),
         NPCWrap::ConvNPC(conv_npc) => Box::new(conv_npc),
@@ -334,7 +334,7 @@ fn box_npc(npc: NPCWrap) -> Box<dyn NPC> {
     }
 }
 
-fn wrap_nbox(mut nbox: Box<dyn NPC>) -> NPCWrap {
+pub fn wrap_nbox(mut nbox: Box<dyn NPC>) -> NPCWrap {
     match nbox.get_ntype() {
         NPCs::CommNPC => {
             if let Some(comm_npc) = nbox.as_comm_npc() {
@@ -464,8 +464,8 @@ pub struct GameState {
     enemies: HashMap<(usize, usize), Enemy>,
     step_group: u8,
     items: HashMap<(usize, usize), Item>,
-    // item_drop: Vec<((usize, usize), Item)>,
     npcs: HashMap<(usize, usize), NPCWrap>,
+    env_inters: HashMap<(usize, usize), Interactable>,
     npc_names: Vec<String>,
     npc_comms: Vec<String>,
     npc_convos: Vec<Convo>,
@@ -493,6 +493,7 @@ impl GameState {
         let items = init_items(map.cells.clone(), enemies.clone());
         //let npcs = place_npcs(map.cells.clone());
         let npcs = HashMap::new();
+        let env_inters = HashMap::new();
 
         let data1 = fs::read_to_string("src/npcs/npc_names.json");
         //log::info!("{:?}", &data1); 
@@ -567,8 +568,8 @@ impl GameState {
             enemies,
             step_group: 0,
             items,
-            // item_drop,
             npcs,
+            env_inters,
             npc_names,
             npc_comms,
             npc_convos,
@@ -689,6 +690,9 @@ impl GameState {
             if let Some(npc) = self.npcs.get(&(*x, *y)) {
                 adj_inter.insert((*x, *y), Some(Interactable::NPC(npc.clone())));
             }
+            if let Some(env_inter) = self.env_inters.get(&(*x, *y)) {
+                adj_inter.insert((*x, *y), Some(env_inter.clone()));
+            }
             if self.location != Location::Null {
                 let st = loc_shop_items(self.dist_fo.clone(), self.location.clone());
                 if let Some(sitm) = st.get(&(*x, *y)) {
@@ -712,6 +716,8 @@ impl GameState {
             Some(Interactable::Enemy(enemy.clone()))
         } else if let Some(npc) = self.npcs.get(&pos) {
             Some(Interactable::NPC(npc.clone()))
+        } else if let Some(env_inter) = self.env_inters.get(&pos) {
+            Some(env_inter.clone())
         } else {
             Some(Interactable::Null)
         }
@@ -1101,7 +1107,6 @@ impl GameState {
                         self.game_mode = GameMode::Interact(InterSteps::Feedback);
                     },
                     GameMode::Interact(InterSteps::Feedback) => {
-                        // self.select_adj();
                         self.game_mode = GameMode::Play;
                     },
                     _ => self.game_mode = GameMode::Play,
@@ -1176,15 +1181,49 @@ impl GameState {
                 if let Some(shop) = settle.get_shop_from_item_pos((ipos.0 as i64 - self.dist_fo.0, ipos.1 as i64 - self.dist_fo.1)) {
                     shop
                 } else {
-                    let mut cnv = HashMap::new();
-                    let npc = new_shop_npc("erica".to_string(), 0, 0, cnv);
-                    let npc_t = NPCWrap::ShopNPC(npc);
-                    let mut stock = HashMap::new();
-                    let ti1 = Item::new_edible_root(0, 0);
-                    stock.insert((0, 0), ti1);
-                    Shop::new_item_shop("".to_string(), npc_t, stock)
+                    Shop::default()
+                   // let mut cnv = HashMap::new();
+                   // let npc = new_shop_npc("erica".to_string(), 0, 0, cnv);
+                   // let npc_t = NPCWrap::ShopNPC(npc);
+                   // let mut stock = HashMap::new();
+                   // let ti1 = Item::new_edible_root(0, 0);
+                   // stock.insert((0, 0), ti1);
+                   // Shop::new_item_shop("".to_string(), npc_t, stock)
                 }
             },
+            _ => todo!(),
+        }
+    }
+
+    fn game_save(&mut self) {
+       // let json = serde_json::to_string(self).expect("failed to save 1");
+       // let mut file = std::fs::File::create(path).expect("failed to save 2");
+       // file.write_all(json.as_bytes()).expect("failed to save 3")
+    }
+
+    fn save_game(&mut self) -> bool {
+        //stuff here
+        true
+    }
+
+    fn clinic(&mut self) -> bool {
+        true
+    }
+
+    fn guild_post(&mut self) -> bool {
+        true
+    }
+
+    fn church_post(&mut self) -> bool {
+        true
+    }
+
+    fn env_interaction(&mut self, env_inter: EnvInter) -> bool {
+        match env_inter {
+            EnvInter::Records => self.save_game(),
+            EnvInter::Clinic => self.clinic(),
+            EnvInter::GuildPost => self.guild_post(),
+            EnvInter::ChurchPost => self.church_post(),
             _ => todo!(),
         }
     }
@@ -1218,6 +1257,7 @@ impl GameState {
                 self.enemy_encounter(e);
                 true
             },
+            Interactable::EnvInter(env_inter) => self.env_interaction(env_inter),
             Interactable::Null => false,
             _ => todo!(),
         };
