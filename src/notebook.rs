@@ -98,7 +98,7 @@ impl Default for Lore {
 
 
 
-
+//#[derive(Serialize, Deserialize)]
 pub struct Notebook {
     quests: HashMap<String, Quest>,
     places: HashMap<String, Place>,

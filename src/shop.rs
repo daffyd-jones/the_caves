@@ -3,7 +3,8 @@ use crate::enums::{Shops, NPCWrap};
 use crate::npc::{ShopNPC};
 use crate::item::{Item};
 use std::collections::HashMap;
-
+use serde::{Deserialize, Serialize};
+//#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Shop {
     sptype: Shops,

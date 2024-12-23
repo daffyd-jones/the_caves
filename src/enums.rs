@@ -63,6 +63,10 @@ pub enum Cells {
     Enemy,
     NPC,
     Item,
+    Log,
+    Clinic,
+    GPost,
+    CPost,
     Null
 }
 

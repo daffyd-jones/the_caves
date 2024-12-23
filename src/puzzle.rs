@@ -6,6 +6,9 @@ use crate::enums::{Cells, NPCWrap, PuzzleType};
 use crate::item::Item;
 use crate::enemy::Enemy;
 use rand::prelude::SliceRandom;
+use serde::{Deserialize, Serialize};
+
+
 
 pub fn make_maze_map() -> Vec<Vec<Cells>> {
     let (m_width, m_height) = (300, 202); 
@@ -124,6 +127,7 @@ fn make_maze_mapda() -> Vec<Vec<Cells>> {
 
 
 #[derive(Clone, Debug, PartialEq)]
+//#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct Puzzle {
     ptype: PuzzleType,
     pos: (i64, i64),
@@ -181,6 +185,10 @@ impl Puzzle {
 
     pub fn get_map(&mut self) -> Vec<Vec<Cells>> {
         self.map.clone()
+    }
+
+    pub fn get_ptype(&mut self) -> PuzzleType {
+        self.ptype.clone()
     }
 
 }

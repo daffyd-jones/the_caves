@@ -1,8 +1,10 @@
 //item
 use crate::enums::{Items, InterOpt, ItemOpt, Equip, ItemEffect};
 use std::collections::HashMap;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq)]
+//#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct Item {
     pub itype: Items,
     pub sname: String,

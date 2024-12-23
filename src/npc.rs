@@ -167,6 +167,7 @@ impl dyn NPC {
 
 
 //--
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct BaseNPC {
     ntype: NPCs,
@@ -232,6 +233,7 @@ impl BaseNPC {
     }
 }
 
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct CommNPC {
     base: BaseNPC,
@@ -297,6 +299,7 @@ impl CommNPC {
 }
 
 
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ConvNPC {
     base: BaseNPC,
@@ -420,6 +423,7 @@ impl ConvNPC {
 //}
 
 
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ShopNPC {
     base: BaseNPC,
@@ -512,6 +516,7 @@ impl ShopNPC {
 }
 
 
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct SpawnNPC {
     base: BaseNPC,

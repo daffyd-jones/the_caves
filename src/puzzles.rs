@@ -5,7 +5,9 @@ use crate::puzzle::{Puzzle};
 use std::collections::HashMap;
 use crate::enums::PuzzleType;
 use rand::Rng;
+use serde::{Deserialize, Serialize};
 
+//#[derive(Serialize, Deserialize, Debug)]
 pub struct Puzzles {
     puzzles: HashMap<(i64, i64), Puzzle>,
 }
@@ -39,17 +41,6 @@ impl Puzzles {
             let ydir = pos.1/cyabs;
             (nx*xdir*-1, ny*ydir*-1)
         };
-       // let mut rng = rand::thread_rng();
-       // let ptype = rng.gen_range(0..1);
-       // let (puzzle, ptype) = {
-       //     match ptype {
-       //         0 => (Puzzle::new_maze(pos), PuzzleType::Maze),
-       //         1 => (Puzzle::new_maze(pos), PuzzleType::Maze),
-       //         2 => (Puzzle::new_maze(pos), PuzzleType::Maze),
-       //     }
-       // };
-        //let mut rng = rand::thread_rng();
-        //let ptype = rng.gen_range(0..1);
         let puzzle = {
             match &ptype {
                 PuzzleType::Maze => Puzzle::new_maze(pos),
@@ -77,6 +68,18 @@ impl Puzzles {
         let ppos = puzzle.get_pos();
         self.puzzles.insert(ppos, puzzle);
     }
-
+    
+    pub fn get_local_puzzles(&mut self, pos: (i64, i64)) -> HashMap<(i64, i64), Puzzle> {
+        let mut local_ps = HashMap::new();
+        for (ppos, p) in &self.puzzles {
+            let xx = ppos.0 - pos.0*-1;
+            let yy = ppos.1 - pos.1*-1;
+            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i64;
+            if hyp <= 2000.into() {
+                local_ps.insert(ppos.clone(), p.clone());
+            }
+        }
+        local_ps.clone()
+    }
 
 }

@@ -1,5 +1,5 @@
 //gui
-use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, Interactable, InterOpt, EncOpt, Equip, ItemEffect};
+use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, Interactable, InterOpt, EncOpt, Equip, ItemEffect, EnvInter};
 use crate::map::Map;
 use crate::player::Player;
 use crate::enemy::{Enemy};
@@ -29,12 +29,13 @@ use std::collections::HashMap;
 // use std::collections::HashSet;
 
 
-fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, ani_cnt: u8) -> Paragraph<'a> {
+fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inters: HashMap<(usize, usize), EnvInter>, ani_cnt: u8) -> Paragraph<'a> {
     let start_row = map.viewport_y;
     let end_row = (map.viewport_y + map.viewport_height).min(map.cells.len());
     let start_col = map.viewport_x;
     let end_col = (map.viewport_x + map.viewport_width).min(map.cells[0].len());
     let mut text = Vec::new();
+    log::info!("\nEnvinters: {:?}", env_inters);
     for (j, row) in map.cells[start_row..end_row].iter().enumerate() {
         let mut line = Vec::new();
         for (i, &cell) in row[start_col..end_col].iter().enumerate() {
@@ -90,6 +91,22 @@ fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy
                         Items::IronSword => ('o', Color::Yellow),
                         _ => todo!(),
                     }
+                } else if let Some(env) = env_inters.get(&(ix, jy)) {
+                    log::info!("\nEnvinters: {:?} | {}, {}", env, ix, jy);
+                    let env_col = {
+                        if ani_cnt % 3 == 0 {
+                            Color::Green
+                        } else {
+                            Color::DarkGray
+                        }
+                    };
+                    match env {
+                        EnvInter::Records => ('│', env_col),
+                        EnvInter::Clinic => ('─', env_col),
+                        EnvInter::GuildPost => ('─', env_col),
+                        EnvInter::ChurchPost => ('─', env_col),
+                        _ => todo!(),
+                    }
                 } else {
                     match cell {
                         Cells::Empty => (' ', Color::White),
@@ -139,6 +156,10 @@ fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy
                         Cells::SmZer => ('ø', Color::LightBlue),
                         Cells::BZer => ('Ø', Color::LightBlue),
                         Cells::Cop => ('©', Color::LightRed),
+                        //Cells::Log => ('l', Color::LightGreen),
+                        //Cells::Clinic => ('c', Color::LightGreen),
+                        //Cells::GPost => ('p', Color::LightGreen),
+                        //Cells::CPost => ('s', Color::LightGreen),
                         Cells::LBrce => {
                             if ani_cnt % 2 == 0 {
                                 ('{', Color::LightBlue)
@@ -183,7 +204,7 @@ fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy
                                 ('~', Color::LightBlue)
                             }
                         },
-                        _ => ('#', Color::Red),
+                        _ => (' ', Color::Red),
                     }
                 }
             };
@@ -201,7 +222,7 @@ fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy
 }
 
 
-
+//#[derive(Serialize, Deserialize, Debug)]
 pub struct GUI {
     terminal: Terminal<CrosstermBackend<std::io::Stdout>>,
     info_mode: GUIMode,
@@ -440,7 +461,7 @@ impl GUI {
 
 
 
-    pub fn draw(&mut self, debug: (String, String, String), mut map: Map, mut player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn draw(&mut self, debug: (String, String, String), mut map: Map, mut player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inters: HashMap<(usize, usize), EnvInter>) {
         if self.ani_updt < 120 {
             self.ani_updt += 1;
             if self.ani_cnt < 120 {
@@ -490,7 +511,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems, self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems, env_inters.clone(), self.ani_cnt);
 
             f.render_widget(paragraph, inner_area);
 
@@ -582,6 +603,10 @@ impl GUI {
                         Row::new(vec![
                             Span::styled("settle_pos: ", Style::default().fg(Color::White)),
                             Span::styled(debug.1, Style::default().fg(Color::Yellow)),
+                         ]),
+                        Row::new(vec![
+                            Span::styled("env_inters: ", Style::default().fg(Color::White)),
+                            Span::styled((env_inters.len()).to_string(), Style::default().fg(Color::Yellow)),
                          ]),
                     ];
 

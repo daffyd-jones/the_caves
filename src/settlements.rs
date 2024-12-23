@@ -3,7 +3,9 @@
 use crate::settlement::{Settlement};
 use std::collections::HashMap;
 use rand::{Rng};
+use serde::{Deserialize, Serialize};
 
+//#[derive(Serialize, Deserialize, Debug)]
 pub struct Settlements {
     settlements: HashMap<(i64, i64), Settlement>,
 }
@@ -61,19 +63,11 @@ impl Settlements {
         } else {
             let npcs = HashMap::new();
             Settlement::demo_settle(new_settle_pos.clone(), npcs)
-            //Settlement::new_med_settle(new_settle_pos.clone())
         };
-        //log::info!("{:?}", &settlement);
         self.settlements.insert(new_settle_pos, settlement.clone());
     }
 
     pub fn get_settle_pos(&mut self) -> Vec<(i64, i64)> {
-        //let mut pos_list = Vec::new();
-        //for s in self.settlements {
-        //    let spos = s.get_pos();
-        //    pos_list.push(spos);
-        //}
-        //pos_list
         self.settlements.clone().into_keys().collect() 
     }
 
@@ -83,6 +77,19 @@ impl Settlements {
             tvec.insert(pos, s.get_sname());
         }
         tvec.clone()
+    }
+
+    pub fn get_local_settles(&mut self, pos: (i64, i64)) -> HashMap<(i64, i64), Settlement> {
+        let mut local_settles = HashMap::new();
+        for (spos, s) in &self.settlements {
+            let xx = spos.0 - pos.0*-1;
+            let yy = spos.1 - pos.1*-1;
+            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i64;
+            if hyp <= 5000.into() {
+                local_settles.insert(spos.clone(), s.clone());
+            } 
+        }
+        local_settles.clone()
     }
 
 }

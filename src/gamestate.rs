@@ -1,17 +1,14 @@
 //gamestate
-use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, InterSteps, InterOpt, GameMode, FightSteps, Interactable, EncOpt, Location, CompMode, EnvInter};
+use crate::enums::{Cells, Enemies, Items, NPCs, NPCWrap, ItemOpt, GUIMode, InterSteps, InterOpt, GameMode, FightSteps, Interactable, EncOpt, Location, CompMode, EnvInter, PuzzleType};
 use crate::map::{Map, MAP_W, MAP_H};
 use crate::player::Player;
-//use crate::puzzle::Puzzle;
 use crate::puzzles::Puzzles;
 use crate::enemy::{Enemy};
 use crate::npc::{NPC, BaseNPC, Convo, new_comm_npc, new_conv_npc, new_shop_npc};
-use crate::lsystems::LSystems;
+//use crate::lsystems::LSystems;
 use crate::gui::GUI;
 use crate::settlements::Settlements;
-//use crate::settlement::Settlement;
 use crate::shop::Shop;
-// use crate::gui_man_draw::GUI;
 use crate::item::Item;
 use crate::notebook::Notebook;
 
@@ -20,34 +17,22 @@ mod keys;
 mod npcs;
 mod enemies;
 
-
 use ratatui::crossterm::event::{read, Event, KeyCode, poll};
-//use ratatui::crossterm::terminal;
-//use ratatui::crossterm::event::KeyEventKind::{Press, Release};
-//use std::io::stdout;
 use rand::Rng;
 use rand::prelude::SliceRandom;
-//use ratatui::Terminal;
-//use ratatui::backend::CrosstermBackend;
-// use ratatui::prelude::Line;
-// use ratatui::widgets::{Block, Borders, Paragraph, Wrap, Padding};
-// use ratatui::layout::{Layout, Constraint, Direction, Margin};
-// use ratatui::style::{Color, Style};
-// use ratatui::text::{Text, Span};
-// use ratatui::widgets::Row;
-// use ratatui::widgets::Table;
-// use ratatui::widgets::Cell;
 
 use std::time::{Duration, Instant};
 use std::thread;
 use std::sync::{Arc, Mutex};
-//use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 //use serde_json::Result;
 //use serde_json::Value;
 use std::fs;
+use std::fs::File;
+use std::fs::OpenOptions;
 
+use std::io::{self, BufRead, BufReader, Write};
 use std::collections::HashMap;
-//use std::collections::HashSet;
 
 fn gen_broken_range<R: Rng>(rng: &mut R, start1: i32, end1: i32, start2: i32, end2: i32) -> i32 {
     let range1_len = end1 - start1;
@@ -388,7 +373,7 @@ fn loc_shop_items(dist_fo: (i64, i64), loc: Location) -> HashMap<(usize, usize),
     }
 }
 
-const collision_cells: [Cells; 31] = [
+const collision_cells: [Cells; 35] = [
     Cells::Wall,
     Cells::MwH,
     Cells::MwV,
@@ -420,6 +405,10 @@ const collision_cells: [Cells; 31] = [
     Cells::Water,
     Cells::Item,
     Cells::Cong,
+    Cells::Log,
+    Cells::Clinic,
+    Cells::GPost,
+    Cells::CPost,
 ];
 
 fn in_range(pos1: (i64, i64), pos2: (i64, i64), rad: u16) -> bool {
@@ -444,6 +433,7 @@ fn get_dir(vec: (i64, i64)) -> (i8, i8) {
     } 
 }
 
+//#[derive(Serialize, Deserialize, Debug)]
 pub struct GameState {
     game_mode: GameMode,
     notebook: Notebook,
@@ -459,13 +449,13 @@ pub struct GameState {
     loc_rad: u16,
     depth: u32,
     level: u32,
-    l_systems: LSystems,
+    //l_systems: LSystems,
     l_rate: u64,
     enemies: HashMap<(usize, usize), Enemy>,
     step_group: u8,
     items: HashMap<(usize, usize), Item>,
     npcs: HashMap<(usize, usize), NPCWrap>,
-    env_inters: HashMap<(usize, usize), Interactable>,
+    env_inters: HashMap<(usize, usize), EnvInter>,
     npc_names: Vec<String>,
     npc_comms: Vec<String>,
     npc_convos: Vec<Convo>,
@@ -488,7 +478,7 @@ impl GameState {
         let comp_list = HashMap::new();
         let player = Player::new(309, 195);
         // let player = Player::new(x, y);
-        let mut l_systems = LSystems::new();
+        //let mut l_systems = LSystems::new();
         let enemies = place_enemies(map.cells.clone());
         let items = init_items(map.cells.clone(), enemies.clone());
         //let npcs = place_npcs(map.cells.clone());
@@ -563,7 +553,7 @@ impl GameState {
             loc_rad: 500,
             depth: 1,
             level: 0,
-            l_systems,
+            //l_systems,
             l_rate,
             enemies,
             step_group: 0,
@@ -676,6 +666,32 @@ impl GameState {
         self.items = new_i;
     }
 
+    pub fn shift_env_inters(&mut self, dir: &str) {
+        let temp_ei = self.env_inters.clone();
+        let mut new_i = HashMap::new();
+        let mw = self.map.cells[0].len();
+        let mh = self.map.cells.len();
+        for ((x, y), mut i) in temp_ei {
+            match dir {
+                "UP" => if y < mh {
+                    new_i.insert((x, y+1), i.clone());
+
+                },
+                "DN" => if y > 0 {
+                    new_i.insert((x, y-1), i.clone());
+                },
+                "LF" => if x < mw {
+                    new_i.insert((x+1, y), i.clone());
+                },
+                "RT" => if x > 0 {
+                    new_i.insert((x-1, y), i.clone());
+                },
+                _ => todo!(),
+            };
+        }
+        self.env_inters = new_i;
+    }
+
     fn start_interact(&mut self) {
         let (px, py) = self.player.pos();
         let adj = vec![(px, (py as isize - 1) as usize), (px, py + 1), ((px as isize - 1) as usize, py), (px + 1, py)];
@@ -691,7 +707,7 @@ impl GameState {
                 adj_inter.insert((*x, *y), Some(Interactable::NPC(npc.clone())));
             }
             if let Some(env_inter) = self.env_inters.get(&(*x, *y)) {
-                adj_inter.insert((*x, *y), Some(env_inter.clone()));
+                adj_inter.insert((*x, *y), Some(Interactable::EnvInter(env_inter.clone())));
             }
             if self.location != Location::Null {
                 let st = loc_shop_items(self.dist_fo.clone(), self.location.clone());
@@ -717,7 +733,7 @@ impl GameState {
         } else if let Some(npc) = self.npcs.get(&pos) {
             Some(Interactable::NPC(npc.clone()))
         } else if let Some(env_inter) = self.env_inters.get(&pos) {
-            Some(env_inter.clone())
+            Some(Interactable::EnvInter(env_inter.clone()))
         } else {
             Some(Interactable::Null)
         }
@@ -737,7 +753,7 @@ impl GameState {
         match self.game_mode {
             GameMode::Play => {
                 loop {
-                    self.gui.item_used_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
+                    self.gui.item_used_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()), self.env_inters.clone());
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -758,7 +774,7 @@ impl GameState {
             GameMode::Fight(_) => {
                 let itstr = format!("You used the {}", item.clone().get_sname());
                 loop {
-                    self.gui.encounter_show_content(itstr.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
+                    self.gui.encounter_show_content(itstr.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()), self.env_inters.clone());
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -818,6 +834,7 @@ impl GameState {
                         self.shift_enemies("UP");
                         self.shift_items("UP");
                         self.shift_npcs("UP");
+                        self.shift_env_inters("UP");
                         self.map.shift("UP");
                         self.dist_fo.1 += 1;
                         self.gui.set_comp_head((self.comp_head.0 - self.dist_fo.0*-1, self.comp_head.1 - self.dist_fo.1*-1));
@@ -832,6 +849,7 @@ impl GameState {
                         self.shift_enemies("DN");
                         self.shift_items("DN");
                         self.shift_npcs("DN");
+                        self.shift_env_inters("DN");
                         self.map.shift("DN");
                         self.dist_fo.1 -= 1;
                         self.gui.set_comp_head((self.comp_head.0 - self.dist_fo.0*-1, self.comp_head.1 - self.dist_fo.1*-1));
@@ -846,6 +864,7 @@ impl GameState {
                         self.shift_enemies("LF");
                         self.shift_items("LF");
                         self.shift_npcs("LF");
+                        self.shift_env_inters("LF");
                         self.map.shift("LF");
                         self.dist_fo.0 += 1;
                         self.gui.set_comp_head((self.comp_head.0 - self.dist_fo.0*-1, self.comp_head.1 - self.dist_fo.1*-1));
@@ -860,6 +879,7 @@ impl GameState {
                         self.shift_enemies("RT");
                         self.shift_items("RT");
                         self.shift_npcs("RT");
+                        self.shift_env_inters("RT");
                         self.map.shift("RT");
                         self.dist_fo.0 -= 1;
                         self.gui.set_comp_head((self.comp_head.0 - self.dist_fo.0*-1, self.comp_head.1 - self.dist_fo.1*-1));
@@ -940,6 +960,7 @@ impl GameState {
             Interactable::ShopItem(sitem) => {},
             Interactable::Enemy(enemy) => {},
             Interactable::NPC(npc) => {},
+            Interactable::EnvInter(env_inter) => {},
             Interactable::Null => {},
             _ => todo!(),
         }
@@ -1136,7 +1157,7 @@ impl GameState {
     fn item_interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_opt_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
+            self.gui.inter_opt_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()), self.env_inters.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1153,7 +1174,7 @@ impl GameState {
         }
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_res_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
+            self.gui.inter_res_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()), self.env_inters.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1182,39 +1203,341 @@ impl GameState {
                     shop
                 } else {
                     Shop::default()
-                   // let mut cnv = HashMap::new();
-                   // let npc = new_shop_npc("erica".to_string(), 0, 0, cnv);
-                   // let npc_t = NPCWrap::ShopNPC(npc);
-                   // let mut stock = HashMap::new();
-                   // let ti1 = Item::new_edible_root(0, 0);
-                   // stock.insert((0, 0), ti1);
-                   // Shop::new_item_shop("".to_string(), npc_t, stock)
                 }
             },
             _ => todo!(),
         }
     }
 
-    fn game_save(&mut self) {
-       // let json = serde_json::to_string(self).expect("failed to save 1");
-       // let mut file = std::fs::File::create(path).expect("failed to save 2");
-       // file.write_all(json.as_bytes()).expect("failed to save 3")
+    fn get_cur_settle_name(&mut self) -> String {
+        let loc = self.location.clone();
+        match loc {
+            Location::Settlement(mut settle) => settle.get_sname().replace(" ", "_"),
+            _ => "oops".to_string(),
+        }
     }
 
-    fn save_game(&mut self) -> bool {
-        //stuff here
+    fn game_save(&mut self, filename: String) -> bool {
+        let path = format!("src/save/{}", filename);
+        //let json = serde_json::to_string(self).expect("failed to save 1");
+        let json = r#"{
+            "name": "gamestate",
+            "works": "yes"
+        }"#;
+        //let mut file = std::fs::File::create(path).expect("failed to save 2");
+        //fs::remove_file(path.clone()).expect("failed to delete previous save");
+        let mut sfile = OpenOptions::new().write(true).create(true).open(path).expect("failed to open save file");
+        sfile.write_all(json.as_bytes());
+        let fn_list_path = "src/save/index.txt";
+        let mut nfile = OpenOptions::new().append(true).open(fn_list_path).expect("failed to save fname");
+        writeln!(nfile, "{}", filename.clone());
+        self.game_mode = GameMode::Play;
         true
     }
 
+    fn save_game(&mut self) -> bool {
+        let file = File::open("src/save/index.txt").expect("failed to open savelist");;
+        let reader = BufReader::new(file);
+        let mut savelist = Vec::new();
+
+        for line in reader.lines() {
+            let line = line.unwrap_or("ERR".to_string());
+            savelist.push(line);
+        }
+        let save_str = if savelist.len() == 0 {
+            "It seems you dont have any logs, would you like to log your progress?".to_string()
+        } else {
+            savelist.push("new save".to_string());
+            "Would you like to overwrite a previous log?".to_string()
+        };
+
+        self.gui.reset_cursor();
+        loop {
+            self.gui.guild_records_draw(save_str.clone(), savelist.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()), self.env_inters.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Up => {
+                                self.gui.move_cursor("UP");
+                            },
+                            KeyCode::Down => {
+                                self.gui.move_cursor("DN");
+                            },
+                            KeyCode::Left => {
+                                self.gui.move_cursor("LF");
+                            },
+                            KeyCode::Right => {
+                                self.gui.move_cursor("RT");
+                            },
+                            KeyCode::Char('a') => self.gui.move_cursor("LF"),
+                            KeyCode::Char('s') => self.gui.move_cursor("UP"),
+                            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+                            KeyCode::Char('f') => self.gui.move_cursor("RT"),
+                            KeyCode::Enter => {
+                                match savelist.len() {
+                                    0 => {
+                                        if self.gui.get_ysno() {
+                                            let settle_name = self.get_cur_settle_name();
+                                            let save_name = format!("save_1_{}.json", settle_name);
+                                            if self.game_save(save_name) {
+                                                return true;
+                                            }
+                                        } else {
+                                            self.game_mode = GameMode::Play;
+                                            return true;
+                                        };
+                                    },
+                                    _ => {
+                                        let choice = self.gui.get_cursor();
+                                        if choice.0 == savelist.len()-1 {
+                                            let settle_name = self.get_cur_settle_name();
+                                            let save_name = format!("save_1_{}.json", settle_name);
+                                            if self.game_save(save_name) {
+                                                return true;
+                                            }
+                                        } else {
+                                            let save_name = savelist[choice.0].clone();
+                                            let sn_parts: Vec<&str> = save_name.split("_").collect();
+                                            let settle_name = self.get_cur_settle_name();
+                                            let new_save_name = format!("save_{}_{}.json", sn_parts[1].clone(), settle_name);
+                                            if self.game_save(new_save_name) {
+                                                return true;
+                                            }
+                                        };
+
+                                    },
+                                }
+                            },
+                            _ => {},
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fn clinic(&mut self) -> bool {
+        let mut paid = false;
+        self.gui.reset_cursor();
+        loop {
+            self.gui.clinic_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()), self.env_inters.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Up => {
+                                self.gui.move_cursor("UP");
+                            },
+                            KeyCode::Down => {
+                                self.gui.move_cursor("DN");
+                            },
+                            KeyCode::Left => {
+                                self.gui.move_cursor("LF");
+                            },
+                            KeyCode::Right => {
+                                self.gui.move_cursor("RT");
+                            },
+                            KeyCode::Char('a') => self.gui.move_cursor("LF"),
+                            KeyCode::Char('s') => self.gui.move_cursor("UP"),
+                            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+                            KeyCode::Char('f') => self.gui.move_cursor("RT"),
+                            KeyCode::Enter => {
+                                if self.gui.get_ysno() {
+                                    if self.player.dec_money(20) {
+                                        self.player.heal_player();
+                                        paid = true;
+                                        break;
+                                    }
+                                    break;
+                                }
+                                self.game_mode = GameMode::Play;
+                                return true;
+                            }
+                            _ => {},
+                        }
+                    }
+                }
+            }
+        }
+        
+        let resp_string = if paid {
+            "Thanks for coming by! Hope you're feeling better!".to_string()
+        } else {
+            "It seems that you dont have enough money, sorry about that. Medical supplies are scarce down here and we cant do it for free.".to_string()
+        };
+
+        self.gui.reset_cursor();
+        loop {
+            self.gui.clinic_resp_draw(resp_string.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()), self.env_inters.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Up => {
+                                self.gui.move_cursor("UP");
+                            },
+                            KeyCode::Down => {
+                                self.gui.move_cursor("DN");
+                            },
+                            KeyCode::Left => {
+                                self.gui.move_cursor("LF");
+                            },
+                            KeyCode::Right => {
+                                self.gui.move_cursor("RT");
+                            },
+                            KeyCode::Char('a') => self.gui.move_cursor("LF"),
+                            KeyCode::Char('s') => self.gui.move_cursor("UP"),
+                            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+                            KeyCode::Char('f') => self.gui.move_cursor("RT"),
+                            KeyCode::Enter => {
+                                break;
+                            }
+                            _ => {},
+                        }
+                    }
+                }
+            }
+        }
+        self.game_mode = GameMode::Play;
         true
     }
 
     fn guild_post(&mut self) -> bool {
+        let local_puzzles = self.puzzles.get_local_puzzles(self.dist_fo.clone());
+        let mut ppost_strings = Vec::new();
+        let pos = self.dist_fo.clone();
+        for (ppos, mut p) in local_puzzles {
+            let dx = ppos.0 + pos.0;
+            let dy = ppos.1 + pos.1;
+            let xdir = dx/dx.abs();
+            let ydir = dy/dy.abs();
+            let dir_string = match (xdir, ydir) {
+                (xdir, ydir) if xdir <= 0 && ydir <= 0 => "North East".to_string(),
+                (xdir, ydir) if xdir <= 0 && ydir > 0 => "South East".to_string(),
+                (xdir, ydir) if xdir > 0 && ydir <= 0 => "North West".to_string(),
+                (xdir, ydir) if xdir > 0 && ydir > 0 => "South West".to_string(),
+                _ => "dunno".to_string(),
+            };
+            let ptype_string = {
+                match p.get_ptype() {
+                    PuzzleType::Maze => "Maze".to_string(),
+                    PuzzleType::Teleport => "Teleport".to_string(),
+                    PuzzleType::Inverted => "Inverted".to_string(),
+                    _ => "dunno".to_string(),
+                }
+            }; 
+            let f_str = format!("{}#{}", ptype_string, dir_string);
+            ppost_strings.push(f_str.clone());
+        }
+        self.gui.reset_cursor();
+        loop {
+            self.gui.guild_post_draw(ppost_strings.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()), self.env_inters.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Up => {
+                                self.gui.move_cursor("UP");
+                            },
+                            KeyCode::Down => {
+                                self.gui.move_cursor("DN");
+                            },
+                            KeyCode::Left => {
+                                self.gui.move_cursor("LF");
+                            },
+                            KeyCode::Right => {
+                                self.gui.move_cursor("RT");
+                            },
+                            KeyCode::Char('a') => self.gui.move_cursor("LF"),
+                            KeyCode::Char('s') => self.gui.move_cursor("UP"),
+                            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+                            KeyCode::Char('f') => self.gui.move_cursor("RT"),
+                            KeyCode::Enter => {
+                                break;
+                            }
+                            _ => {},
+                        }
+                    }
+                }
+            }
+        }
+        self.game_mode = GameMode::Play;
         true
     }
 
     fn church_post(&mut self) -> bool {
+        let pos = self.dist_fo.clone();
+        let mut local_settles = self.settles.get_local_settles(pos.clone());
+        let mut settles = Vec::new();
+        let loc_pos = self.location_pos();
+        for (spos, mut s) in local_settles {
+            if spos.0 != loc_pos.0 && spos.0 != loc_pos.0 {
+                let dx = spos.0 + pos.0;
+                let dy = spos.1 + pos.1;
+                let xdir = dx/dx.abs();
+                let ydir = dy/dy.abs();
+                let dir_string = match (xdir, ydir) {
+                    (xdir, ydir) if xdir <= 0 && ydir <= 0 => "North East".to_string(),
+                    (xdir, ydir) if xdir <= 0 && ydir > 0 => "South East".to_string(),
+                    (xdir, ydir) if xdir > 0 && ydir <= 0 => "North West".to_string(),
+                    (xdir, ydir) if xdir > 0 && ydir > 0 => "South West".to_string(),
+                    _ => "dunno".to_string(),
+                };
+                let settle_name = s.get_sname();
+                let settle_str = format!("{}#{}", settle_name.clone(), dir_string.clone());
+                settles.push(settle_str);
+            }
+        }
+
+        self.gui.reset_cursor();
+        loop {
+            self.gui.church_post_draw(settles.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()), self.env_inters.clone());
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Up => {
+                                self.gui.move_cursor("UP");
+                            },
+                            KeyCode::Down => {
+                                self.gui.move_cursor("DN");
+                            },
+                            KeyCode::Left => {
+                                self.gui.move_cursor("LF");
+                            },
+                            KeyCode::Right => {
+                                self.gui.move_cursor("RT");
+                            },
+                            KeyCode::Char('a') => self.gui.move_cursor("LF"),
+                            KeyCode::Char('s') => self.gui.move_cursor("UP"),
+                            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+                            KeyCode::Char('f') => self.gui.move_cursor("RT"),
+                            KeyCode::Enter => {
+                                break;
+                            }
+                            _ => {},
+                        }
+                    }
+                }
+            }
+        }
+        self.game_mode = GameMode::Play;
         true
     }
 
@@ -1231,7 +1554,7 @@ impl GameState {
     fn interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_adj_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()));
+            self.gui.inter_adj_draw(self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), loc_shop_items(self.dist_fo.clone(), self.location.clone()), self.env_inters.clone());
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1509,6 +1832,6 @@ impl GameState {
                 .join(", ");
             (dist_fo, spos_s, comp)
         };
-        self.gui.draw(debug_strs.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), litems);
+        self.gui.draw(debug_strs.clone(), self.map.clone(), self.player.clone(), self.enemies.clone(), self.items.clone(), self.npcs.clone(), litems, self.env_inters.clone());
     }
 }

@@ -10,7 +10,7 @@ use rand::{Rng};
 use rand::prelude::SliceRandom;
 use std::vec::Vec;
 // use std::collections::HashMap;
-
+use serde::{Deserialize, Serialize};
 
 // Define the Map struct
 #[derive(Clone, Debug)]

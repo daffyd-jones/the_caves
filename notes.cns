@@ -2,16 +2,29 @@
 
 !todo
 - Trade Npcs
-- SpawnNPC
+- SpawnNPC X
 - Puzzles
  - Teleport
- - Maze
+ - Maze X
  - Inverted
-- Compass
+- Compass ~
 - Inv Use Opts
-- Fix Loc spawn/management X
- - Npcs, Items X
+- Fix Loc spawn/management ~
+ - Remove items when wall
+- ShopNPCs X
+- cursor limit
+- enchantments
+- notebook
+ - add with SpawnNPC
+ 	- update with Puzzle
+ - add with Settlement
 
+
+
+
+;Animations/icons
+- Fight enemy design
+- Equip icons
 
 'Puzzles
 

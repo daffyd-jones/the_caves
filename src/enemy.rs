@@ -3,8 +3,11 @@ use crate::enums::Enemies;
 use crate::enums::Items;
 use crate::enums::Cells;
 use rand::{Rng};
+use serde::{Deserialize, Serialize};
+
 
 #[derive(Clone, Debug, PartialEq)]
+//#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Enemy {
     pub etype: Enemies,
     pub sname: String,

@@ -4,8 +4,11 @@ use crate::enums::{EncOpt, Equip};
 use crate::item::{Item};
 use std::collections::HashMap;
 use rand::{Rng};
+use serde::{Deserialize, Serialize};
+
 
 #[derive(Clone, Debug)]
+//#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Player {
     pub x: usize,
     pub y: usize,
@@ -91,6 +94,10 @@ impl Player {
 
     pub fn get_health(&mut self) -> u16 {
         self.health
+    }
+
+    pub fn heal_player(&mut self) {
+        self.health = 100;
     }
 
     pub fn add_to_inv(&mut self, item: Item) {

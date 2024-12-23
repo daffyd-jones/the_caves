@@ -1,4 +1,4 @@
-use crate::enums::{Items, NPCWrap, Interactable, InterOpt, EncOpt, Equip, ItemEffect};
+use crate::enums::{Items, NPCWrap, Interactable, InterOpt, EncOpt, Equip, ItemEffect, EnvInter};
 use crate::map::Map;
 use crate::player::Player;
 use crate::enemy::{Enemy};
@@ -45,7 +45,7 @@ fn wrap_text(text: &str, max_width: usize) -> Text {
 impl GUI {
 
     //ineract start--------
-    pub fn inter_adj_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn inter_adj_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -83,7 +83,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -121,11 +121,21 @@ impl GUI {
                             NPCWrap::CommNPC(comm_npc) => adj_list.push((*pos, comm_npc.clone().get_sname())),
                             NPCWrap::ConvNPC(conv_npc) => adj_list.push((*pos, conv_npc.clone().get_sname())),
                             NPCWrap::ShopNPC(shop_npc) => adj_list.push((*pos, shop_npc.clone().get_sname())),
+                            NPCWrap::SpawnNPC(spawn_npc) => adj_list.push((*pos, spawn_npc.clone().get_sname())),
                            _ => todo!(),
                         }
                         // adj_list.push((*pos, npc.clone().get_sname()));
                     },
-                _ => todo!(),
+                    Interactable::EnvInter(env_inter) => {
+                        match env_inter {
+                            EnvInter::Records => adj_list.push((*pos, "Local Records".to_string())),
+                            EnvInter::Clinic => adj_list.push((*pos, "Clinic".to_string())),
+                            EnvInter::GuildPost => adj_list.push((*pos, "Guild Posting".to_string())),
+                            EnvInter::ChurchPost => adj_list.push((*pos, "Church Posting".to_string())),
+                            _ => todo!(),
+                        }
+                    }
+                    _ => todo!(),
                 }
             }
             for (idx, entity) in adj_list.iter().enumerate() {
@@ -154,7 +164,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn inter_opt_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn inter_opt_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -192,7 +202,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -247,7 +257,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn inter_res_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn inter_res_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -285,7 +295,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -333,7 +343,7 @@ impl GUI {
 
     //item_used-----
 
-    pub fn item_used_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn item_used_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -371,7 +381,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -418,7 +428,7 @@ impl GUI {
 
     //encounter start----
 
-    pub fn encounter_show_content(&mut self, cntnt: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn encounter_show_content(&mut self, cntnt: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -457,7 +467,7 @@ impl GUI {
                 self.viewport_dim = (in_w, in_h);
             }
 
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -634,7 +644,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn encounter_user_options(&mut self, enc_opt: HashMap<EncOpt, String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn encounter_user_options(&mut self, enc_opt: HashMap<EncOpt, String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -672,7 +682,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -861,7 +871,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn encounter_pick_item(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn encounter_pick_item(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -899,7 +909,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1110,20 +1120,12 @@ impl GUI {
             ];
             let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
                 .block(stats_block);
-
-            // let paragraph = Paragraph::new(Span::raw("Item used"))
-            //     .block(stats_block);
             f.render_widget(table, right_chunk[1]);
-
-
-
-
-
         }).unwrap();
     }
 
 
-    pub fn npc_comm_draw(&mut self, comms: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn npc_comm_draw(&mut self, comms: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1161,7 +1163,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1195,36 +1197,12 @@ impl GUI {
                 .wrap(ratatui::widgets::Wrap { trim: true });
             let plyr = Paragraph::new(Span::raw(""))
                 .block(table_block);
-            // let mut vec1 = vec![(InterOpt::Null, "".to_string()); 3];
-            // let mut vec2 = vec![(InterOpt::Null, "".to_string()); 3];
-            //
-            // for (idx, (a, b)) in self.inter_opt.iter().enumerate() {
-            //     if idx < 3 {
-            //         vec1[idx] = (a.clone(), b.clone());
-            //     } else {
-            //         vec2[idx - 3] = (a.clone(), b.clone());
-            //     }
-            // }
-            // let inter_opts = vec![vec1.clone(), vec2.clone()];
-            // self.inter_options = (vec1, vec2);
-            // let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
-            //     let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
-            //         if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-            //             Cell::from(Span::styled(cell.clone().1, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
-            //         } else {
-            //             Cell::from(cell.clone().1)
-            //         }
-            //     }).collect();
-            //     Row::new(cells)
-            // }).collect();
-            // let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50), Constraint::Percentage(50)])
-            //     .block(table_block);
             f.render_widget(npc, normal_info[0]);
             f.render_widget(plyr, normal_info[1]);
         }).unwrap();
     }
 
-    pub fn npc_conv_draw(&mut self, name: String, text: String, opts_vec: Vec<String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn npc_conv_draw(&mut self, name: String, text: String, opts_vec: Vec<String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1262,7 +1240,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1316,7 +1294,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn shop_convo_draw(&mut self, sname: String, dialogue: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>) {
+    pub fn shop_convo_draw(&mut self, sname: String, dialogue: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1354,7 +1332,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1398,4 +1376,503 @@ impl GUI {
         }).unwrap();
     }
 
+    pub fn guild_records_draw(&mut self, save_str: String, savelist: Vec<String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+        self.terminal.draw(|f| {
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+
+            let paragraph_block = Block::default()
+                .title("Guild Local Records")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("Save")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            
+            let save_text = Paragraph::new(Span::styled(save_str, Style::default().white()))
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+            
+            match savelist.len() {
+                0 => {
+                    let vec1 = vec!["Yes", "No"];
+                    let opts = vec![vec1.clone()];
+                    let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                            if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                                Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                            } else {
+                                Cell::from(cell.clone())
+                            }
+                        }).collect();
+                        Row::new(cells)
+                    }).collect();
+                    let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
+                        .block(table_block);
+                    f.render_widget(table, normal_info[1]);
+                },
+                _ => {
+                    let opts = vec![savelist.clone()];
+                    let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                            if j == self.cursor_pos.0 && i == self.cursor_pos.1 {
+                                Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                            } else {
+                                Cell::from(cell.clone())
+                            }
+                        }).collect();
+                        Row::new(cells)
+                    }).collect();
+                    let table = Table::new(rows, &[Constraint::Percentage(100)])
+                        .block(table_block);
+                    f.render_widget(table, normal_info[1]);
+                }
+            }
+            f.render_widget(save_text, normal_info[0]);
+        }).unwrap();
+    }
+
+    pub fn clinic_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+        self.terminal.draw(|f| {
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+
+            let paragraph_block = Block::default()
+                .title("Guild Clinic")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("Heal")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            
+            let save_text = Paragraph::new(Span::styled("Would you like us to heal you? You will be treated to full health for the cost of 20g.", Style::default().white()))
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+            
+            let vec1 = vec!["Yes", "No"];
+            let opts = vec![vec1.clone()];
+            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                    if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                    } else {
+                        Cell::from(cell.clone())
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
+                .block(table_block);
+            f.render_widget(table, normal_info[1]);
+            f.render_widget(save_text, normal_info[0]);
+        }).unwrap();
+    }
+
+    pub fn clinic_resp_draw(&mut self, heal_resp: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+        self.terminal.draw(|f| {
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+
+            let paragraph_block = Block::default()
+                .title("Guild Clinic")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("Heal")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            
+            let save_text = Paragraph::new(Span::styled(&heal_resp, Style::default().white()))
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+            
+            let vec1 = vec!["Ok"];
+            let opts = vec![vec1.clone()];
+            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                    if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                    } else {
+                        Cell::from(cell.clone())
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
+                .block(table_block);
+            f.render_widget(table, normal_info[1]);
+            f.render_widget(save_text, normal_info[0]);
+        }).unwrap();
+    }
+
+    pub fn guild_post_draw(&mut self, post_strings: Vec<String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+        self.terminal.draw(|f| {
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+
+            let paragraph_block = Block::default()
+                .title("Guild Posting Board")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("Done")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+            let mut v1 = Vec::new();
+
+            for s in post_strings {
+                let s_temp = s.clone();
+                let sparts = s_temp.split("#").collect::<Vec<&str>>();
+                let mut v2 = Vec::new();
+                v2.push(sparts[0].to_string());
+                v2.push(sparts[1].to_string());
+                v1.push(v2.clone());
+            }
+
+
+
+            let rows: Vec<Row> = v1.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                    if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::White)))
+                    } else {
+                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::White)))
+                        //Cell::from(cell.clone())
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let p_table = Table::new(rows, &[Constraint::Percentage(30), Constraint::Percentage(70)])
+                .block(paragraph_block);
+            
+            //let save_text = Paragraph::new(Span::styled(&heal_resp, Style::default().white()))
+              //  .block(paragraph_block)
+                //.wrap(ratatui::widgets::Wrap { trim: true });
+            
+            let vec1 = vec!["Ok"];
+            let opts = vec![vec1.clone()];
+            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                    if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                    } else {
+                        Cell::from(cell.clone())
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
+                .block(table_block);
+            f.render_widget(p_table, normal_info[0]);
+            f.render_widget(table, normal_info[1]);
+        }).unwrap();
+    }
+
+
+    pub fn church_post_draw(&mut self, post_strings: Vec<String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+        self.terminal.draw(|f| {
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+
+            let paragraph_block = Block::default()
+                .title("Church Posting Board")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("Done")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+            let mut v1 = Vec::new();
+
+            for s in post_strings {
+                let s_temp = s.clone();
+                let sparts = s_temp.split("#").collect::<Vec<&str>>();
+                let mut v2 = Vec::new();
+                v2.push(sparts[0].to_string());
+                v2.push(sparts[1].to_string());
+                v1.push(v2.clone());
+            }
+
+
+
+            let rows: Vec<Row> = v1.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                    if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::White)))
+                    } else {
+                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::White)))
+                        //Cell::from(cell.clone())
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let p_table = Table::new(rows, &[Constraint::Percentage(30), Constraint::Percentage(70)])
+                .block(paragraph_block);
+            
+            //let save_text = Paragraph::new(Span::styled(&heal_resp, Style::default().white()))
+              //  .block(paragraph_block)
+                //.wrap(ratatui::widgets::Wrap { trim: true });
+            
+            let vec1 = vec!["Ok"];
+            let opts = vec![vec1.clone()];
+            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                    if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                    } else {
+                        Cell::from(cell.clone())
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
+                .block(table_block);
+            f.render_widget(p_table, normal_info[0]);
+            f.render_widget(table, normal_info[1]);
+        }).unwrap();
+    }
 }
