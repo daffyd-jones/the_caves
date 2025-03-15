@@ -1,18 +1,17 @@
 //enemies
-use crate::enums::Enemies;
-use crate::enums::Items;
 use crate::enums::Cells;
-use rand::{Rng};
-use serde::{Deserialize, Serialize};
-
+use crate::enums::Enemies;
+const PALLETE: &str = "empty: ' . , ' * | wall: ▒ | other ▓ ░ ~ | pipes: ═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬   ┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │ ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©";
+use crate::enums::Items;
+use rand::Rng;
+// use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq)]
 //#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Enemy {
     pub etype: Enemies,
     pub sname: String,
-    pub x: usize,
-    pub y: usize,
+    pub pos: (usize, usize),
     pub steps: u8,
     step_grp: u8,
     pub cell: Cells,
@@ -24,111 +23,161 @@ pub struct Enemy {
 }
 
 impl Enemy {
-    pub fn new(etype: Enemies, sname: String, x: usize, y: usize, health: u16,
-        attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+    pub fn new(
+        etype: Enemies,
+        sname: String,
+        pos: (usize, usize),
+        health: u16,
+        attack: u16,
+        defence: u16,
+        damage: u16,
+        drop: Vec<Items>,
+    ) -> Self {
         let mut rng = rand::thread_rng();
         let step = rng.gen_range(0..19);
         let step_grp = rng.gen_range(0..15);
-        Self {etype, sname, x, y, steps: step, step_grp: step_grp, cell: Cells::Empty, health, attack, defence, damage, drop}
+        Self {
+            etype,
+            sname,
+            pos,
+            steps: step,
+            step_grp,
+            cell: Cells::Empty,
+            health,
+            attack,
+            defence,
+            damage,
+            drop,
+        }
     }
 
-    pub fn new_bug(x: usize, y: usize, health: u16, attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+    pub fn new_bug(
+        pos: (usize, usize),
+        health: u16,
+        attack: u16,
+        defence: u16,
+        damage: u16,
+        drop: Vec<Items>,
+    ) -> Self {
         let mut rng = rand::thread_rng();
         let step = rng.gen_range(0..19);
         let step_grp = rng.gen_range(0..15);
         Self {
             etype: Enemies::Bug,
             sname: "Bug".to_string(),
-            x: x,
-            y: y,
+            pos,
             steps: step,
-            step_grp: step_grp,
+            step_grp,
             cell: Cells::Empty,
-            health: health,
-            attack: attack,
-            defence: defence,
-            damage: damage,
-            drop: drop,
-        }    
+            health,
+            attack,
+            defence,
+            damage,
+            drop,
+        }
     }
 
-    pub fn new_slime(x: usize, y: usize, health: u16, attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+    pub fn new_slime(
+        pos: (usize, usize),
+        health: u16,
+        attack: u16,
+        defence: u16,
+        damage: u16,
+        drop: Vec<Items>,
+    ) -> Self {
         let mut rng = rand::thread_rng();
         let step = rng.gen_range(0..19);
         let step_grp = rng.gen_range(0..15);
         Self {
             etype: Enemies::Slime,
             sname: "Slime".to_string(),
-            x: x,
-            y: y,
+            pos,
             steps: step,
-            step_grp: step_grp,
+            step_grp,
             cell: Cells::Empty,
-            health: health,
-            attack: attack,
-            defence: defence,
-            damage: damage,
-            drop: drop,
+            health,
+            attack,
+            defence,
+            damage,
+            drop,
         }
     }
 
-    pub fn new_goblin_man(x: usize, y: usize, health: u16, attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+    pub fn new_goblin_man(
+        pos: (usize, usize),
+        health: u16,
+        attack: u16,
+        defence: u16,
+        damage: u16,
+        drop: Vec<Items>,
+    ) -> Self {
         let mut rng = rand::thread_rng();
         let step = rng.gen_range(0..19);
         let step_grp = rng.gen_range(0..15);
         Self {
             etype: Enemies::GoblinMan,
             sname: "Goblin Man".to_string(),
-            x: x,
-            y: y,
+            pos,
             steps: step,
-            step_grp: step_grp,
+            step_grp,
             cell: Cells::Empty,
-            health: health,
-            attack: attack,
-            defence: defence,
-            damage: damage,
-            drop: drop,
+            health,
+            attack,
+            defence,
+            damage,
+            drop,
         }
     }
 
-    pub fn new_crazed_explorer(x: usize, y: usize, health: u16, attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+    pub fn new_crazed_explorer(
+        pos: (usize, usize),
+        health: u16,
+        attack: u16,
+        defence: u16,
+        damage: u16,
+        drop: Vec<Items>,
+    ) -> Self {
         let mut rng = rand::thread_rng();
         let step = rng.gen_range(0..19);
         let step_grp = rng.gen_range(0..15);
         Self {
             etype: Enemies::CrazedExplorer,
             sname: "Crazed Explorer".to_string(),
-            x: x,
-            y: y,
+            pos,
             steps: step,
-            step_grp: step_grp,
+            step_grp,
             cell: Cells::Empty,
-            health: health,
-            attack: attack,
-            defence: defence,
-            damage: damage,
-            drop: drop,
+            health,
+            attack,
+            defence,
+            damage,
+            drop,
         }
     }
 
-    pub fn new_golem(x: usize, y: usize, health: u16, attack: u16, defence: u16, damage: u16, drop: Vec<Items>) -> Self {
+    pub fn new_golem(
+        pos: (usize, usize),
+        health: u16,
+        attack: u16,
+        defence: u16,
+        damage: u16,
+        drop: Vec<Items>,
+    ) -> Self {
         let mut rng = rand::thread_rng();
         let step = rng.gen_range(0..19);
         let step_grp = rng.gen_range(0..15);
         Self {
             etype: Enemies::Golem,
             sname: "Golem".to_string(),
-            x: x,
-            y: y,
+            pos,
             steps: step,
-            step_grp: step_grp,
+            step_grp,
             cell: Cells::Empty,
-            health: health,
-            attack: attack,
-            defence: defence,
-            damage: damage,
-            drop: drop,
+            health,
+            attack,
+            defence,
+            damage,
+            drop,
         }
     }
 
@@ -138,18 +187,18 @@ impl Enemy {
 
     pub fn mmove(&mut self, dir: &str) {
         match dir {
-            "UP" => self.y -= 1,
-            "DN" => self.y += 1,
-            "LF" => self.x -= 1,
-            "RT" => self.x += 1,
-            _ => println!("")
+            "UP" => self.pos.1 -= 1,
+            "DN" => self.pos.1 += 1,
+            "LF" => self.pos.0 -= 1,
+            "RT" => self.pos.0 += 1,
+            _ => println!(""),
         }
     }
 
     pub fn fight_turn(&self) -> (u16, u16) {
         let mut rng = rand::thread_rng();
-        let attack = rng.gen_range((self.attack/4)..self.attack);
-        let damage = rng.gen_range((self.damage/4)..self.damage);
+        let attack = rng.gen_range((self.attack / 4)..self.attack);
+        let damage = rng.gen_range((self.damage / 4)..self.damage);
         (attack.clone(), damage.clone())
     }
 
@@ -158,7 +207,11 @@ impl Enemy {
     }
 
     pub fn get_pos(&mut self) -> (usize, usize) {
-        (self.x, self.y)
+        self.pos
+    }
+
+    pub fn set_pos(&mut self, pos: (usize, usize)) {
+        self.pos = pos;
     }
 
     pub fn apply_attack(&mut self, amt: u16) {
@@ -174,12 +227,6 @@ impl Enemy {
     }
 
     pub fn get_step_grp(&self) -> u8 {
-       self.step_grp.clone()
+        self.step_grp.clone()
     }
-
 }
-
-
-
-
-

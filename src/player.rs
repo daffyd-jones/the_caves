@@ -1,11 +1,12 @@
 //player
 // mod enums;
-use crate::enums::{EncOpt, Equip};
-use crate::item::{Item};
-use std::collections::HashMap;
-use rand::{Rng};
+use crate::enums::{EncOpt, Equip, ItemEffect};
+use crate::item::Item;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
+const INVENTORY_MAX: usize = 75;
 
 #[derive(Clone, Debug)]
 //#[derive(Clone, Debug, Deserialize, Serialize)]
@@ -53,6 +54,11 @@ impl Player {
         (self.x.clone(), self.y.clone())
     }
 
+    pub fn set_pos(&mut self, pos: (usize, usize)) {
+        self.x = pos.0;
+        self.y = pos.1;
+    }
+
     pub fn set_enc_last_turn(&mut self, turn: (EncOpt, u16)) {
         self.enc_last_turn = turn;
     }
@@ -63,8 +69,8 @@ impl Player {
 
     pub fn get_enc_turn(&mut self) -> (u16, u16) {
         let mut rng = rand::thread_rng();
-        let attack = rng.gen_range((self.attack/3)..self.attack);
-        let damage = rng.gen_range((self.damage/3)..self.damage);
+        let attack = rng.gen_range((self.attack / 3)..self.attack);
+        let damage = rng.gen_range((self.damage / 3)..self.damage);
         (attack.clone(), damage.clone())
     }
 
@@ -100,10 +106,12 @@ impl Player {
         self.health = 100;
     }
 
-    pub fn add_to_inv(&mut self, item: Item) {
+    pub fn add_to_inv(&mut self, item: Item) -> bool {
         if self.inventory.len() < 75 {
             self.inventory.push(item);
+            return true;
         }
+        return false;
     }
 
     pub fn get_inventory(&mut self) -> Vec<Item> {
@@ -118,6 +126,13 @@ impl Player {
         self.inventory.remove(idx);
     }
 
+    pub fn inv_full(&mut self) -> bool {
+        if self.inventory.len() < INVENTORY_MAX {
+            return false;
+        }
+        return true;
+    }
+
     pub fn add_equip(&mut self, mut item: Item) {
         let etype = item.get_equip_type();
         //let item.get_properties();
@@ -126,12 +141,17 @@ impl Player {
 
     pub fn apply_item_effect(&mut self, mut item: Item) {
         let prop = item.get_properties();
-        for (stat, effect) in &prop {
-            //let h = String::from("Health");
-            match stat {
-                 stat if stat.contains("Health") => self.health += *effect,
-                _ => todo!(),
+        let effect = item.get_effect();
+        match effect {
+            ItemEffect::Health => {
+                let amt = prop.get("health").unwrap();
+                if self.health + amt > 100 {
+                    self.health = 100;
+                } else {
+                    self.health += amt;
+                }
             }
+            _ => todo!(),
         }
     }
 
@@ -163,4 +183,8 @@ impl Player {
         return false;
     }
 
+    pub fn inc_money(&mut self, amt: u16) -> bool {
+        self.money += amt;
+        true
+    }
 }

@@ -1,5 +1,6 @@
 //npc
 use crate::enums::{NPCs, PuzzleType, Shops};
+use crate::item::Item;
 use rand::{Rng};
 use std::collections::HashMap;
 // use serde_json::Value;
@@ -7,7 +8,11 @@ use serde::{Deserialize, Serialize};
 use rand::prelude::SliceRandom;
 
 
-pub fn new_comm_npc(sname: String, x: usize, y: usize, comms: Vec<String>) -> CommNPC {
+pub fn new_comm_npc(
+    sname: String, 
+    x: usize, y: usize, 
+    comms: Vec<String>
+    ) -> CommNPC {
     let mut rng = rand::thread_rng();
     let step = rng.gen_range(0..19);
     let step_grp = rng.gen_range(0..15);
@@ -24,7 +29,11 @@ pub fn new_comm_npc(sname: String, x: usize, y: usize, comms: Vec<String>) -> Co
     }
 }
 
-pub fn new_conv_npc(sname: String, x: usize, y: usize, conv: Convo) -> ConvNPC {
+pub fn new_conv_npc(
+    sname: String, 
+    x: usize, y: usize, 
+    conv: Convo
+    ) -> ConvNPC {
     let mut rng = rand::thread_rng();
     let step = rng.gen_range(0..19);
     let step_grp = rng.gen_range(0..15);
@@ -65,7 +74,12 @@ pub fn new_spawn_npc(
     }
 }
 
-pub fn new_shop_npc(sname: String, x: usize, y: usize, sh_conv: HashMap<String, String>, convo: Convo, shop_type: Shops) -> ShopNPC {
+pub fn new_shop_npc(
+    sname: String, 
+    x: usize, y: usize, 
+    sh_conv: HashMap<String, String>, 
+    convo: Convo, shop_type: Shops
+    ) -> ShopNPC {
     //let mut rng = rand::thread_rng();
     //let step = rng.gen_range(0..19);
     let step = 50;
@@ -86,6 +100,33 @@ pub fn new_shop_npc(sname: String, x: usize, y: usize, sh_conv: HashMap<String, 
         convo: convo,
     }
 }
+
+pub fn new_trade_npc(
+    sname: String, 
+    x: usize, y: usize, 
+    items: Vec<Item>, 
+    sh_conv: HashMap<String, String>
+    ) -> TradeNPC {
+    let mut rng = rand::thread_rng();
+    let step = rng.gen_range(0..19);
+    let step_grp = rng.gen_range(0..15);
+    TradeNPC {
+        base: BaseNPC {
+            ntype: NPCs::TradeNPC,
+            sname: sname,
+            steps: step,
+            step_grp: step_grp,
+            x: x,
+            y: y,
+        },
+        items: items,
+        sh_conv: sh_conv,
+    }
+}
+
+
+
+
 
 //--
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -162,6 +203,10 @@ impl dyn NPC {
 
     pub fn as_spawn_npc(&self) -> Option<&SpawnNPC> {
         self.as_any().downcast_ref::<SpawnNPC>()
+    }
+
+    pub fn as_trade_npc(&self) -> Option<&TradeNPC> {
+        self.as_any().downcast_ref::<TradeNPC>()
     }
 }
 
@@ -598,4 +643,72 @@ impl SpawnNPC {
     pub fn get_ptype(&mut self) -> PuzzleType {
         self.ptype.clone()
     }
+}
+
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct TradeNPC {
+    base: BaseNPC,
+    items: Vec<Item>,
+    sh_conv: HashMap<String, String>,
+}
+
+impl NPC for TradeNPC {
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
+
+    fn get_ntype(&mut self) -> NPCs {
+        self.base.ntype.clone()
+    }
+
+    fn get_sname(&mut self) -> String {
+        self.base.sname.clone()
+    }
+
+    fn get_pos(&mut self) -> (usize, usize) {
+        (self.base.x, self.base.y)
+    }
+
+    fn set_pos(&mut self, pos: (usize, usize)) {
+        self.base.x = pos.0;
+        self.base.y = pos.1;
+    }
+
+    fn set_steps(&mut self, steps: u8) {
+        self.base.steps = steps;
+    }
+
+    fn get_steps(&mut self) -> u8 {
+        self.base.steps.clone()
+    }
+
+    fn inc_steps(&mut self) {
+        self.base.steps += 1;
+    }
+
+    fn get_step_grp(&mut self) -> u8 {
+        self.base.step_grp.clone()
+    }
+
+    fn mmove(&mut self, dir: &str) {
+        match dir {
+            "UP" => self.base.y -= 1,
+            "DN" => self.base.y += 1,
+            "LF" => self.base.x -= 1,
+            "RT" => self.base.x += 1,
+            _ => println!("")
+        }
+    }
+}
+
+impl TradeNPC {
+    pub fn get_items(&mut self) -> Vec<Item> {
+        self.items.clone()
+    }
+
+    pub fn get_sh_conv(&mut self) -> HashMap<String, String> {
+        self.sh_conv.clone()
+    }
+
 }

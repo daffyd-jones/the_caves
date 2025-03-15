@@ -1,18 +1,18 @@
-mod enums;
-mod map;
-mod player;
-mod lsystems;
 mod enemy;
-mod npc;
-mod item;
+mod enums;
+mod features;
 mod gui;
-mod settlements;
-mod settlement;
-mod puzzles;
-mod puzzle;
-mod shop;
+mod item;
+mod lsystems;
+mod map;
 mod notebook;
-
+mod npc;
+mod player;
+mod puzzle;
+mod puzzles;
+mod settlement;
+mod settlements;
+mod shop;
 // use crossterm::event::{read, Event, KeyCode};
 use ratatui::crossterm::terminal;
 // use std::io::stdout;
@@ -28,18 +28,17 @@ use ratatui::crossterm::terminal;
 
 // use std::collections::HashMap;
 
-use std::time::{Duration, Instant};
 use std::thread::sleep;
+use std::time::{Duration, Instant};
 
 mod gamestate;
-use gamestate::{GameState};
-
+use gamestate::GameState;
 
 #[macro_use]
 extern crate lazy_static;
 extern crate log;
 
-use log::{Record, Level, Metadata, SetLoggerError, LevelFilter};
+use log::{Level, LevelFilter, Metadata, Record, SetLoggerError};
 use std::fs::OpenOptions;
 use std::io::prelude::*;
 // use std::sync::Mutex;
@@ -73,17 +72,15 @@ lazy_static! {
             .open("log.txt")
             .unwrap();
 
-        SimpleLogger { file: Mutex::new(file) }
+        SimpleLogger {
+            file: Mutex::new(file),
+        }
     };
 }
 
 pub fn init() -> Result<(), SetLoggerError> {
-    log::set_logger(&*LOGGER)
-    .map(|()| log::set_max_level(LevelFilter::Info))
+    log::set_logger(&*LOGGER).map(|()| log::set_max_level(LevelFilter::Info))
 }
-
-
-
 
 fn main() {
     init().unwrap();
@@ -95,7 +92,7 @@ fn main() {
     GameState::start_update_threads(Arc::clone(&game_state));
 
     let mut previous = Instant::now();
-    let timestep = Duration::from_millis(1000 / 15); // 60 updates per second
+    let timestep = Duration::from_millis(1000 / 15);
 
     loop {
         let now = Instant::now();
@@ -109,7 +106,7 @@ fn main() {
             }
             {
                 let mut game_state = game_state.lock().unwrap();
-                if game_state.update() == false {
+                if !game_state.update() {
                     break;
                 }
             }

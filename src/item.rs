@@ -57,7 +57,7 @@ impl Item {
     pub fn new_edible_root(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("health"), 3);
-        //prop.insert(String::from("effect"), 3);
+        prop.insert(String::from("value"), 2);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -79,6 +79,7 @@ impl Item {
     pub fn new_rock(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("health"), 0);
+        prop.insert(String::from("value"), 0);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -99,6 +100,7 @@ impl Item {
     pub fn new_bug_bits(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("health"), 1);
+        prop.insert(String::from("value"), 0);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -197,7 +199,7 @@ impl Item {
         iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
 
         Self {
-            itype: Items::HealthPotion,
+            itype: Items::Salve,
             sname: "Salve".to_string(),
             desc: "Thick paste for smearing on wounds. It heals better than it smells.".to_string(),
             iopts,

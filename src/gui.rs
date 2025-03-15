@@ -29,13 +29,13 @@ use std::collections::HashMap;
 // use std::collections::HashSet;
 
 
-fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inters: HashMap<(usize, usize), EnvInter>, ani_cnt: u8) -> Paragraph<'a> {
+fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inters: HashMap<(usize, usize), EnvInter>, ani_cnt: u8) -> Paragraph<'a> {
     let start_row = map.viewport_y;
     let end_row = (map.viewport_y + map.viewport_height).min(map.cells.len());
     let start_col = map.viewport_x;
     let end_col = (map.viewport_x + map.viewport_width).min(map.cells[0].len());
     let mut text = Vec::new();
-    log::info!("\nEnvinters: {:?}", env_inters);
+    // log::info!("\nEnvinters: {:?}", env_inters);
     for (j, row) in map.cells[start_row..end_row].iter().enumerate() {
         let mut line = Vec::new();
         for (i, &cell) in row[start_col..end_col].iter().enumerate() {
@@ -53,12 +53,16 @@ fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy
                         Enemies::Golem => ('T', Color::Red),
                         _ => todo!(),
                     }
+                } else if let Some(_) = portals.get(&(ix, jy)) {
+                    ('@', Color::Blue)
                 } else if let Some(npcw) = npcs.get(&(ix, jy)) {
+                    // ï î ì í  Í Î Ï Ì 
                     match npcw {
                         NPCWrap::CommNPC(_)=> ('í', Color::Blue),
                         NPCWrap::ConvNPC(_)=> ('ì', Color::LightBlue),
                         NPCWrap::ShopNPC(_)=> ('ì', Color::Yellow),
                         NPCWrap::SpawnNPC(_)=> ('î', Color::Cyan),
+                        NPCWrap::TradeNPC(_)=> ('ï', Color::LightGreen),
                         _ => todo!(),
                     }
                 } else if let Some(item) = items.get(&(ix, jy)) {
@@ -92,7 +96,7 @@ fn draw_map<'a>(map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy
                         _ => todo!(),
                     }
                 } else if let Some(env) = env_inters.get(&(ix, jy)) {
-                    log::info!("\nEnvinters: {:?} | {}, {}", env, ix, jy);
+                    // log::info!("\nEnvinters: {:?} | {}, {}", env, ix, jy);
                     let env_col = {
                         if ani_cnt % 3 == 0 {
                             Color::Green
@@ -461,7 +465,7 @@ impl GUI {
 
 
 
-    pub fn draw(&mut self, debug: (String, String, String), mut map: Map, mut player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inters: HashMap<(usize, usize), EnvInter>) {
+    pub fn draw(&mut self, debug: (String, String, String), mut map: Map, mut player: Player, portals:HashMap<(usize, usize), (usize, usize)>,  enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inters: HashMap<(usize, usize), EnvInter>) {
         if self.ani_updt < 120 {
             self.ani_updt += 1;
             if self.ani_cnt < 120 {
@@ -511,7 +515,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems, env_inters.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems, env_inters.clone(), self.ani_cnt);
 
             f.render_widget(paragraph, inner_area);
 

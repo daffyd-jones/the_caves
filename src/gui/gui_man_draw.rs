@@ -45,7 +45,7 @@ fn wrap_text(text: &str, max_width: usize) -> Text {
 impl GUI {
 
     //ineract start--------
-    pub fn inter_adj_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn inter_adj_draw(&mut self, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -83,7 +83,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -122,6 +122,7 @@ impl GUI {
                             NPCWrap::ConvNPC(conv_npc) => adj_list.push((*pos, conv_npc.clone().get_sname())),
                             NPCWrap::ShopNPC(shop_npc) => adj_list.push((*pos, shop_npc.clone().get_sname())),
                             NPCWrap::SpawnNPC(spawn_npc) => adj_list.push((*pos, spawn_npc.clone().get_sname())),
+                            NPCWrap::TradeNPC(trade_npc) => adj_list.push((*pos, trade_npc.clone().get_sname())),
                            _ => todo!(),
                         }
                         // adj_list.push((*pos, npc.clone().get_sname()));
@@ -164,7 +165,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn inter_opt_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn inter_opt_draw(&mut self, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -202,7 +203,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -257,7 +258,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn inter_res_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn inter_res_draw(&mut self, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -295,7 +296,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -342,8 +343,7 @@ impl GUI {
 
 
     //item_used-----
-
-    pub fn item_used_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn item_use_draw(&mut self, msg_str: String, iopts: String,  mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -381,7 +381,88 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(20)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+            let paragraph_block = Block::default()
+                .title("Inventory")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let paragraph = Paragraph::new(Span::styled(&msg_str, Style::default().white())).block(paragraph_block);
+            let vec1: Vec<&str> = iopts.split("#").collect();
+            let vec2 = vec![""; 1];
+
+            let inter_opts = vec![vec1.clone(), vec2.clone()];
+            let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                    if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                        Cell::from(Span::styled(cell.to_string(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                    } else {
+                        Cell::from(cell.to_string())
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
+                .block(table_block);
+            f.render_widget(paragraph, normal_info[0]);
+            f.render_widget(table, normal_info[1]);
+        }).unwrap();
+    }
+
+    pub fn item_used_draw(&mut self, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+        self.terminal.draw(|f| {
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -428,7 +509,7 @@ impl GUI {
 
     //encounter start----
 
-    pub fn encounter_show_content(&mut self, cntnt: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn encounter_show_content(&mut self, cntnt: String, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -467,7 +548,7 @@ impl GUI {
                 self.viewport_dim = (in_w, in_h);
             }
 
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -644,7 +725,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn encounter_user_options(&mut self, enc_opt: HashMap<EncOpt, String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn encounter_user_options(&mut self, enc_opt: HashMap<EncOpt, String>, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -682,7 +763,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -871,7 +952,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn encounter_pick_item(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn encounter_pick_item(&mut self, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -909,7 +990,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1125,7 +1206,7 @@ impl GUI {
     }
 
 
-    pub fn npc_comm_draw(&mut self, comms: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn npc_comm_draw(&mut self, comms: String, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1163,7 +1244,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1202,7 +1283,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn npc_conv_draw(&mut self, name: String, text: String, opts_vec: Vec<String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn npc_trade_type_draw(&mut self, comms: String, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1240,7 +1321,247 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+            let npc_str: Vec<&str> = comms.split("#").collect();
+
+            let name = npc_str[0];
+
+            let paragraph_block = Block::default()
+                .title(name)
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+
+            let vec1 = vec!["Buy", "Sell", "Leave"];
+            let opts = vec![vec1.clone()];
+            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                    if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                    } else {
+                        Cell::from(cell.clone())
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
+                .block(table_block);
+
+            let comm = npc_str[1];
+            let npc = Paragraph::new(Span::styled(comm, Style::default().white()))
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+            //let plyr = Paragraph::new(Span::raw(""))
+              //  .block(table_block);
+            f.render_widget(npc, normal_info[0]);
+            f.render_widget(table, normal_info[1]);
+        }).unwrap();
+    }
+
+    pub fn npc_trade_draw(&mut self, titems: Vec<Item>, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+        self.terminal.draw(|f| {
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(30),
+                    Constraint::Percentage(70)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+            let norm_top = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(normal_info[0]);
+            
+        
+            let desc_block = Block::default()
+                .title(Span::styled("Inventory", Style::default().fg(Color::DarkGray)))
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+            let info_block = Block::default()
+                .title(Span::styled("", Style::default().fg(Color::DarkGray)))
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+            let table_block = Block::default()
+                .title(Span::styled("Items", Style::default().fg(Color::DarkGray)))
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let prop = HashMap::new();
+            let itype = String::new();
+            let desc = String::new();
+            let iopts = HashMap::new();
+            let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, ItemEffect::Null, 0, 0, prop);
+            let mut col1 = vec![(0, i_temp.clone()); 25];
+            let mut col2 = vec![(0, i_temp.clone()); 25];
+            let mut col3 = vec![(0, i_temp.clone()); 25];
+            //for (idx, item) in self.inventory.iter().enumerate() {
+            for (idx, item) in titems.iter().enumerate() {
+                if idx < 25 {
+                    col1[idx] = (idx.clone(), item.clone());
+                } else if idx < 50 {
+                    col2[idx - 25] = (idx.clone(), item.clone());
+                } else {
+                    col3[idx - 50] = (idx.clone(), item.clone());
+                }
+            }
+            //xx
+            let inv_table: Vec<Vec<(usize, Item)>> = vec![col1.clone(), col2.clone(), col3.clone()];
+            self.inv_opt = (col1, col2, col3);
+            //xx
+            let rows: Vec<Row> = (0..25).map(|i| {
+                let cells: Vec<Cell> = inv_table.iter().enumerate().map(|(j, col)| {
+                    if i == self.cursor_pos.1 && j == self.cursor_pos.0 {
+                        Cell::from(Span::styled(col[i].1.sname.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                    } else {
+                        Cell::from(col[i].1.sname.clone())
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
+                .block(table_block);
+            let temp = self.cursor_pos.0;
+            let inv_option = match temp {
+                0 => &mut self.inv_opt.0[self.cursor_pos.1],
+                1 => &mut self.inv_opt.1[self.cursor_pos.1],
+                2 => &mut self.inv_opt.2[self.cursor_pos.1],
+                _ => todo!(),
+            };
+            let mut itm = inv_option.1.clone();
+            let i_sel = itm.clone().get_desc();
+            let mut props = Vec::new();
+            props.push(Line::from(Span::raw(i_sel)));
+            for (s, i) in &itm.get_properties() {
+                let fmt_prop = format!("{}: {}", s, i.to_string());
+                props.push(Line::from(Span::raw(fmt_prop)));
+            }
+            let desc = Paragraph::new(Text::from(props))
+                .block(desc_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+            let money = player.money;
+            let money_str = format!("money: {}", money);
+            let back = "BS for back".to_string();
+            let mut mvec = Vec::new();
+            mvec.push(Line::from(Span::raw(money_str)));
+            mvec.push(Line::from(Span::raw(back)));
+            
+
+
+            let money_info = Paragraph::new(Text::from(mvec))
+                .block(info_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+
+            f.render_widget(desc, norm_top[0]);
+            f.render_widget(money_info, norm_top[1]);
+            f.render_widget(table, normal_info[1]);
+        }).unwrap();
+    }    
+    
+    pub fn npc_conv_draw(&mut self, name: String, text: String, opts_vec: Vec<String>, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+        self.terminal.draw(|f| {
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1294,7 +1615,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn shop_convo_draw(&mut self, sname: String, dialogue: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn shop_convo_draw(&mut self, sname: String, dialogue: String, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1332,7 +1653,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1376,7 +1697,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn guild_records_draw(&mut self, save_str: String, savelist: Vec<String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn guild_records_draw(&mut self, save_str: String, savelist: Vec<String>, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1414,7 +1735,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1481,7 +1802,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn clinic_draw(&mut self, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn clinic_draw(&mut self, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1519,7 +1840,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1566,7 +1887,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn clinic_resp_draw(&mut self, heal_resp: String, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn clinic_resp_draw(&mut self, heal_resp: String, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1604,7 +1925,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1651,7 +1972,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn guild_post_draw(&mut self, post_strings: Vec<String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn guild_post_draw(&mut self, post_strings: Vec<String>, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1689,7 +2010,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 
@@ -1764,7 +2085,7 @@ impl GUI {
     }
 
 
-    pub fn church_post_draw(&mut self, post_strings: Vec<String>, mut map: Map, player: Player, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
+    pub fn church_post_draw(&mut self, post_strings: Vec<String>, mut map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inter: HashMap<(usize, usize), EnvInter>) {
         self.terminal.draw(|f| {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -1802,7 +2123,7 @@ impl GUI {
                 map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
 

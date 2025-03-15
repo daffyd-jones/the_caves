@@ -1,0 +1,19 @@
+[
+	{
+		"shop_name": "Ahdznends",
+		"trade_msg": "Hey, hows it going!? Ive got some stuff here you might be interested in. Ill take stuff of your hands if youre looking to sell.",
+		"item_broke": "Uh oh! it looks like you dont have enough money for that.",
+		"item_bought": "Hey!! Thanks for the sale!! Have a good day!!.",
+		"item_nbought": "Not interested? Thats fine, have a good day!!"
+	},
+	{
+		"shop_name": "Ahdznends",
+		"trade_msg": "Hey, hows it going!? Ive got some stuff here you might be interested in. Ill take stuff of your hands if youre looking to sell.",
+		"item_desc": "Hey that {i} over there goes for {v}. Let me know if you want to buy it.",
+		"item_broke": "Uh oh! it looks like you dont have enough money for that.",
+		"item_bought": "Hey!! Thanks for the sale!! Have a good day!!.",
+		"item_nbought": "Not interested? Thats fine, have a good day!!"
+	}
+]
+
+
