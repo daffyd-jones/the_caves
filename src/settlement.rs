@@ -650,16 +650,16 @@ ___________________________________________________________________________
 "#;
 
 const cave_o4: &str = r#"CommNPC ShopNPC|Null|Null
-_____________________▒    ,',',',',',',',',',',',@   ▒_____________▒▒▒▒____
-_____________________▒    ,',',',',',',',',',',',    ▒_____________▒▒▒▒____
-┌_____┐______________▒    └───────┘',','└───────┘    ▒_____________▒▒▒▒____
-│{(¤)}│______________▒    └───────┘',','└───────┘    ▒_____________________
-├┴─┬─┴┤______________▒    └───────┘',','└───────┘    ▒_____________________
-_____________________▒    └───────┘',','└───────┘    ▒_____________________
-_____________________▒    └───────┘',','└───────┘    ▒_____________▒▒▒▒____
-_____________________▒    └───────┘',','└───────┘    ▒_____________▒▒▒▒____
-_____________________▒    └───────┘',','└───────┘    ▒_____________▒▒▒▒____
-______________________    └───────┘',','└───────┘    ▒_____________▒▒▒▒____
+_____________________▒    :·:·:·:·:·:·:·:·:·:·:·:@   ▒_____________▒▒▒▒____
+_____________________▒    :·:·:·:·:·:·:·:·:·:·:·:    ▒_____________▒▒▒▒____
+┌_____┐______________▒    └───────┘·:·:·└───────┘    ▒_____________▒▒▒▒____
+│{(¤)}│______________▒    └───────┘·:·:·└───────┘    ▒_____________________
+├┴─┬─┴┤______________▒    └───────┘·:·:·└───────┘    ▒_____________________
+_____________________▒    └───────┘·:·:·└───────┘    ▒_____________________
+_____________________▒    └───────┘·:·:·└───────┘    ▒_____________▒▒▒▒____
+_____________________▒    └───────┘·:·:·└───────┘    ▒_____________▒▒▒▒____
+_____________________▒    └───────┘·:·:·└───────┘    ▒_____________▒▒▒▒____
+______________________    └───────┘·:·:·└───────┘    ▒_____________▒▒▒▒____
 ______________________                               ▒_____________________
 _____________________▒                   ┌───────────▒_____________________
 _____________________▒ ┌sssssss┐                 @   ▒_____________________
@@ -745,8 +745,8 @@ fn parse_map(
 ) {
     // let mut cells: Vec<Vec<Cells>> = Vec::new();
     let mut rng = rand::thread_rng();
-    let mut map_codet = s_map.clone().lines().next().unwrap_or("");
-    let mut map_code: Vec<&str> = map_codet.split("|").collect();
+    let map_codet = s_map.lines().next().unwrap_or("");
+    let map_code: Vec<&str> = map_codet.split("|").collect();
     let npc_types: Vec<&str> = map_code.clone()[0].split(" ").collect();
     let sitem_types: Vec<&str> = map_code.clone()[1].split(" ").collect();
     let item_types: Vec<&str> = map_code.clone()[2].split(" ").collect();
@@ -821,12 +821,14 @@ fn parse_map(
     let mut env_inters = HashMap::new();
     for (y, line) in s_map.lines().skip(1).enumerate() {
         for (x, ch) in line.chars().enumerate() {
-            let cell = match ch.clone() {
+            let cell = match ch {
                 '_' => Cells::Empty,
                 ',' => Cells::Grass1,
                 '\'' => Cells::Grass2,
+                '\"' => Cells::Grass3,
                 '·' => Cells::Dirt1,
                 '.' => Cells::Dirt2,
+                ':' => Cells::Dirt3,
                 '*' => Cells::Rock,
                 '▒' => Cells::Wall,
                 ' ' => Cells::Floor,
@@ -859,7 +861,6 @@ fn parse_map(
                 '×' => Cells::Mult,
                 '¸' => Cells::Ced,
                 '¨' => Cells::Diae,
-                '·' => Cells::Inter,
                 '■' => Cells::Blsq,
                 '¦' => Cells::VBrk,
                 '±' => Cells::PlMin,
@@ -872,7 +873,6 @@ fn parse_map(
                 '(' => Cells::LParen,
                 ')' => Cells::RParen,
                 '¤' => Cells::GenCur,
-                '~' => Cells::Water,
                 'o' => Cells::Item,
                 'l' => Cells::Log,
                 'c' => Cells::Clinic,
@@ -880,8 +880,8 @@ fn parse_map(
                 's' => Cells::CPost,
                 _ => Cells::Empty,
             };
-            cells[y.clone()][x.clone()] = cell.clone();
-            if ch.clone() == '@' {
+            cells[y][x] = cell;
+            if ch == '@' {
                 let def_name = "Kevthony".to_string();
                 match npc_types[ncount] {
                     "CommNPC" => {
@@ -895,9 +895,8 @@ fn parse_map(
                             tvec
                         };
                         let name = names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
-                        let t_comm =
-                            new_comm_npc(name.clone(), x.clone(), y.clone(), rnd_comms.clone());
-                        npcs.insert((x.clone(), y.clone()), NPCWrap::CommNPC(t_comm.clone()));
+                        let t_comm = new_comm_npc(name.clone(), x, y, rnd_comms.clone());
+                        npcs.insert((x, y), NPCWrap::CommNPC(t_comm.clone()));
                     }
                     "ConvNPC" => {
                         let name = names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
@@ -906,8 +905,8 @@ fn parse_map(
                             .choose(&mut rng)
                             .unwrap_or(&convos[0].clone())
                             .clone();
-                        let t_comm = new_conv_npc(name.clone(), x.clone(), y.clone(), conv.clone());
-                        npcs.insert((x.clone(), y.clone()), NPCWrap::ConvNPC(t_comm.clone()));
+                        let t_comm = new_conv_npc(name.clone(), x, y, conv.clone());
+                        npcs.insert((x, y), NPCWrap::ConvNPC(t_comm.clone()));
                     }
                     "ShopNPC" => {
                         let name = names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
@@ -957,39 +956,39 @@ fn parse_map(
 
                         let t_shop = new_shop_npc(
                             name.clone(),
-                            x.clone(),
-                            y.clone(),
+                            x,
+                            y,
                             s_conv.clone(),
                             convo.clone(),
-                            shop_type.clone(),
+                            shop_type,
                         );
-                        npcs.insert((x.clone(), y.clone()), NPCWrap::ShopNPC(t_shop.clone()));
+                        npcs.insert((x, y), NPCWrap::ShopNPC(t_shop.clone()));
                     }
                     _ => todo!(),
                 }
                 ncount += 1;
             }
-            if ch.clone() == 'o' {
+            if ch == 'o' {
                 match sitem_types[sicount] {
                     "HealthPotion" => {
-                        let ti = Item::new_health_potion(x.clone(), y.clone());
-                        sitems.insert((x.clone(), y.clone()), ti.clone());
+                        let ti = Item::new_health_potion(x, y);
+                        sitems.insert((x, y), ti.clone());
                     }
                     "Salve" => {
-                        let ti = Item::new_salve(x.clone(), y.clone());
-                        sitems.insert((x.clone(), y.clone()), ti.clone());
+                        let ti = Item::new_salve(x, y);
+                        sitems.insert((x, y), ti.clone());
                     }
                     "Dowel" => {
-                        let ti = Item::new_dowel(x.clone(), y.clone());
-                        sitems.insert((x.clone(), y.clone()), ti.clone());
+                        let ti = Item::new_dowel(x, y);
+                        sitems.insert((x, y), ti.clone());
                     }
                     "WoodenBoard" => {
-                        let ti = Item::new_wooden_board(x.clone(), y.clone());
-                        sitems.insert((x.clone(), y.clone()), ti.clone());
+                        let ti = Item::new_wooden_board(x, y);
+                        sitems.insert((x, y), ti.clone());
                     }
                     "Apple" => {
-                        let ti = Item::new_apple(x.clone(), y.clone());
-                        sitems.insert((x.clone(), y.clone()), ti.clone());
+                        let ti = Item::new_apple(x, y);
+                        sitems.insert((x, y), ti.clone());
                     }
                     _ => {
                         log::info!("itm {:?}", sitem_types[sicount]);
@@ -997,27 +996,27 @@ fn parse_map(
                 }
                 sicount += 1;
             }
-            if ch.clone() == 'O' {
+            if ch == 'O' {
                 match item_types[icount] {
                     "HealthPotion" => {
-                        let ti = Item::new_health_potion(x.clone(), y.clone());
-                        items.insert((x.clone(), y.clone()), ti.clone());
+                        let ti = Item::new_health_potion(x, y);
+                        items.insert((x, y), ti.clone());
                     }
                     "Salve" => {
-                        let ti = Item::new_salve(x.clone(), y.clone());
-                        items.insert((x.clone(), y.clone()), ti.clone());
+                        let ti = Item::new_salve(x, y);
+                        items.insert((x, y), ti.clone());
                     }
                     "Dowel" => {
-                        let ti = Item::new_dowel(x.clone(), y.clone());
-                        items.insert((x.clone(), y.clone()), ti.clone());
+                        let ti = Item::new_dowel(x, y);
+                        items.insert((x, y), ti.clone());
                     }
                     "WoodenBoard" => {
-                        let ti = Item::new_wooden_board(x.clone(), y.clone());
-                        items.insert((x.clone(), y.clone()), ti.clone());
+                        let ti = Item::new_wooden_board(x, y);
+                        items.insert((x, y), ti.clone());
                     }
                     "Apple" => {
-                        let ti = Item::new_apple(x.clone(), y.clone());
-                        items.insert((x.clone(), y.clone()), ti.clone());
+                        let ti = Item::new_apple(x, y);
+                        items.insert((x, y), ti.clone());
                     }
                     _ => {
                         log::info!("itm {:?}", item_types[icount]);
@@ -1025,17 +1024,17 @@ fn parse_map(
                 }
                 icount += 1;
             }
-            if ch.clone() == 'l' {
-                env_inters.insert((x.clone(), y.clone()), EnvInter::Records);
+            if ch == 'l' {
+                env_inters.insert((x, y), EnvInter::Records);
             }
-            if ch.clone() == 'p' {
-                env_inters.insert((x.clone(), y.clone()), EnvInter::GuildPost);
+            if ch == 'p' {
+                env_inters.insert((x, y), EnvInter::GuildPost);
             }
-            if ch.clone() == 'c' {
-                env_inters.insert((x.clone(), y.clone()), EnvInter::Clinic);
+            if ch == 'c' {
+                env_inters.insert((x, y), EnvInter::Clinic);
             }
-            if ch.clone() == 's' {
-                env_inters.insert((x.clone(), y.clone()), EnvInter::ChurchPost);
+            if ch == 's' {
+                env_inters.insert((x, y), EnvInter::ChurchPost);
             }
         }
     }

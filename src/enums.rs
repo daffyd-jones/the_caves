@@ -1,9 +1,9 @@
 //enum
+use crate::enemy::Enemy;
 use crate::item::Item;
-use crate::enemy::{Enemy};
-use crate::puzzle::{Puzzle};
-use crate::settlement::{Settlement};
 use crate::npc::{BaseNPC, CommNPC, ConvNPC, ShopNPC, SpawnNPC, TradeNPC};
+use crate::puzzle::Puzzle;
+use crate::settlement::Settlement;
 
 // Define the Cell enum
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -11,8 +11,10 @@ pub enum Cells {
     Empty,
     Grass1,
     Grass2,
+    Grass3,
     Dirt1,
     Dirt2,
+    Dirt3,
     Rock,
     Wall,
     Floor,
@@ -67,7 +69,7 @@ pub enum Cells {
     Clinic,
     GPost,
     CPost,
-    Null
+    Null,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -100,7 +102,7 @@ pub enum Equip {
     Head,
     Torso,
     Feet,
-    Null
+    Null,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
@@ -109,9 +111,8 @@ pub enum ItemEffect {
     Attack,
     Damage,
     Defence,
-    Null
+    Null,
 }
-
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Enemies {
@@ -194,7 +195,7 @@ pub enum Interactable {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-pub enum EnvInter{
+pub enum EnvInter {
     Records,
     Clinic,
     GuildPost,
@@ -250,20 +251,15 @@ pub enum Location {
     Null,
 }
 
-
-
 #[derive(Clone, Debug, PartialEq)]
 pub enum CompMode {
     Search,
     Location,
 }
 
-
 #[derive(Clone, Debug, PartialEq)]
 pub enum PuzzleType {
     Maze,
     Teleport,
-    Inverted
+    Inverted,
 }
-
-

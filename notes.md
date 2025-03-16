@@ -48,11 +48,11 @@
 - switch heading
 - scroll list
 
-# Equiptment
+# Equipment
 
 ## Weapons
 
-Add a buff to damage
+Add buff to damage
 Some add buff to attack
 
 ## Torso
@@ -117,3 +117,42 @@ Can be accumulated to increase capabilities
   - the player can talk to some of the cliic managers and receive first aid education
   - as the player visits different clinics they can upgrade their abilities to heal themselves
 -
+
+## Herbalist
+
+- player can find plants/fungi in the caves
+- settlements have herbalists that can identify plant that the player brings them
+- known plants can be used to make potions and other items
+
+**Luminous Mushroom**:
+
+- have a low-med probability of being spawned
+- can be used to make health potions
+
+**Moss**:
+
+- have a med probability of being spawned
+- can be used to make salves
+
+**Lichenous Growth**:
+
+- have a med probability of being spawned
+- can be used to make xxx potions
+
+**Shroom**:
+
+- causes player to enter altered state
+  - they do not feel pain and are bold when attacking
+  - the damage will be felt when the effect wears out
+- takes 25% damage
+- +5 to attack
+- the outstanding damage is accumulated in a var, and is applied at once when the effect ends
+- if the amount is more than the player's max health, this will cause instadeath
+- if the player is at their max health, it is reduced to half
+- this the only way to survive an accumulation higher than max health
+
+## Bartering
+
+- Each time the player trades with a TradeNPC they gain more xp
+- The higher the xp, the better deals they get when buying and selling
+- This can be used to increasingly gain wealth throughought the game.

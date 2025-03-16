@@ -115,9 +115,11 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                     match cell {
                         Cells::Empty => (' ', Color::White),
                         Cells::Dirt1 => ('·', Color::DarkGray),
-                        Cells::Dirt2 => ('.', Color::DarkGray),
+                        Cells::Dirt2 => (':', Color::DarkGray),
+                        Cells::Dirt3 => ('.', Color::DarkGray),
                         Cells::Grass1 => (',', Color::LightGreen),
-                        Cells::Grass2 => ('\'', Color::LightMagenta),
+                        Cells::Grass2 => ('\'', Color::Green),
+                        Cells::Grass3 => ('\"', Color::LightMagenta),
                         Cells::Rock => ('*', Color::DarkGray),
                         Cells::Wall => {
                             // ('░', Color::LightCyan)

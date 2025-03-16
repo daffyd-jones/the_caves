@@ -64,34 +64,36 @@ impl GameState {
             self.comp_list = spos_list.clone();
         }
         if self.comp_mode == CompMode::Location {
-            return ();
+            return;
         }
         let dfo = self.dist_fo;
         let mut distances = HashMap::new();
         let mut d_min = 0;
         for ((x, y), _) in spos_list {
-            let (dx, dy) = (x - dfo.0 * -1, y - dfo.1 * -1);
+            let (dx, dy) = (x - -dfo.0, y - -dfo.1);
             let hyp = ((dx.pow(2) + dy.pow(2)) as f64).sqrt() as i64;
-            if d_min == 0 {
-                d_min = hyp;
-                distances.insert(hyp, (x.clone(), y.clone()));
-            } else if hyp < d_min {
-                d_min = hyp;
-                distances.insert(hyp, (x.clone(), y.clone()));
-            }
+            // if d_min == 0 {
+            //     d_min = hyp;
+            //     distances.insert(hyp, (x.clone(), y.clone()));
+            // } else if hyp < d_min {
+            //     d_min = hyp;
+            //     distances.insert(hyp, (x.clone(), y.clone()));
+            // }
+            d_min = hyp;
+            distances.insert(hyp, (x, y));
         }
-        self.comp_head = distances[&d_min].clone();
+        self.comp_head = distances[&d_min];
         self.gui.set_comp_list(self.comp_list.clone());
     }
 
     pub fn new_loc_check(&mut self) {
-        let mut cpos = self.dist_fo;
+        let cpos = self.dist_fo;
         let chyp = ((cpos.0.pow(2) + cpos.1.pow(2)) as f64).sqrt() as i64;
         if chyp + 200 > 1000 {
             let ks = chyp / 1000;
             //let cdir = get_dir(cpos.clone());
             if ks >= self.depth.into() {
-                self.settles.spawn_new_settlement(cpos.clone());
+                self.settles.spawn_new_settlement(cpos);
                 self.depth *= 2;
             }
         }
@@ -100,24 +102,25 @@ impl GameState {
     pub fn update_puzzle(&mut self, mut puzzle: Puzzle) -> Location {
         let lpos = puzzle.get_pos();
         let pos = self.dist_fo;
-        let dx = (lpos.0 + pos.0).abs(); // as usize;
-        let dy = (lpos.1 + pos.1).abs(); // as usize;
-        if dx < (MAP_W + MAP_W).try_into().unwrap() && dy < (MAP_H + MAP_H).try_into().unwrap() {
-            if !puzzle.is_prop_pass() {
-                let ports = puzzle.get_portals();
-                for ((ix, iy), (ox, oy)) in ports {
-                    let i_npos = (
-                        (self.dist_fo.0 + ix as i64 + lpos.0) as usize,
-                        (self.dist_fo.1 + iy as i64 + lpos.1) as usize,
-                    );
-                    let o_npos = (
-                        (self.dist_fo.0 + ox as i64 + lpos.0) as usize,
-                        (self.dist_fo.1 + oy as i64 + lpos.1) as usize,
-                    );
-                    self.portals.insert(i_npos, o_npos);
-                }
-                puzzle.toggle_ppass();
+        let dx = (lpos.0 + pos.0).abs();
+        let dy = (lpos.1 + pos.1).abs();
+        if dx < (MAP_W + MAP_W).try_into().unwrap()
+            && dy < (MAP_H + MAP_H).try_into().unwrap()
+            && !puzzle.is_prop_pass()
+        {
+            let ports = puzzle.get_portals();
+            for ((ix, iy), (ox, oy)) in ports {
+                let i_npos = (
+                    (self.dist_fo.0 + ix as i64 + lpos.0) as usize,
+                    (self.dist_fo.1 + iy as i64 + lpos.1) as usize,
+                );
+                let o_npos = (
+                    (self.dist_fo.0 + ox as i64 + lpos.0) as usize,
+                    (self.dist_fo.1 + oy as i64 + lpos.1) as usize,
+                );
+                self.portals.insert(i_npos, o_npos);
             }
+            puzzle.toggle_ppass();
         }
 
         // log::info!("Portals: {:?}", self.portals);
@@ -134,7 +137,7 @@ impl GameState {
     }
 
     pub fn location_pos(&mut self) -> (i64, i64) {
-        let mut loc = self.location.clone();
+        let loc = self.location.clone();
         match loc {
             Location::Settlement(mut settle) => settle.get_pos(),
             Location::Puzzle(mut puzz) => puzz.get_pos(),
@@ -145,17 +148,11 @@ impl GameState {
     pub fn location_check(&mut self) {
         if self.location == Location::Null {
             //log::info!("looking for settlement");
-            if let Some(settlement) = self
-                .settles
-                .check_location(self.dist_fo.clone(), self.loc_rad.clone())
-            {
+            if let Some(settlement) = self.settles.check_location(self.dist_fo, self.loc_rad) {
                 self.location = Location::Settlement(settlement);
                 //log::info!("settlement located");
             };
-            if let Some(puzzle) = self
-                .puzzles
-                .check_location(self.dist_fo.clone(), self.loc_rad.clone())
-            {
+            if let Some(puzzle) = self.puzzles.check_location(self.dist_fo, self.loc_rad) {
                 self.location = Location::Puzzle(puzzle);
             };
         } else {
@@ -163,11 +160,7 @@ impl GameState {
             match &mut self.location {
                 Location::Settlement(ref mut settle) => {
                     let lpos = settle.get_pos();
-                    if !in_range(
-                        lpos,
-                        (self.dist_fo.0 * -1, self.dist_fo.1 * -1),
-                        self.loc_rad,
-                    ) {
+                    if !in_range(lpos, (-self.dist_fo.0, -self.dist_fo.1), self.loc_rad) {
                         settle.tog_npcs_sent();
                         self.settles.update_settlement(settle.clone());
                         self.location = Location::Null;
@@ -176,11 +169,7 @@ impl GameState {
                 }
                 Location::Puzzle(ref mut puzzle) => {
                     let lpos = puzzle.get_pos();
-                    if !in_range(
-                        lpos,
-                        (self.dist_fo.0 * -1, self.dist_fo.1 * -1),
-                        self.loc_rad,
-                    ) {
+                    if !in_range(lpos, (-self.dist_fo.0, -self.dist_fo.1), self.loc_rad) {
                         //settle.tog_npcs_sent();
                         self.puzzles.update_puzzle(puzzle.clone());
                         self.location = Location::Null;
@@ -235,7 +224,7 @@ impl GameState {
             self.portal_shift((*x, *y), ppos);
             return true;
         }
-        return false;
+        false
     }
 
     pub fn update_settlement(&mut self, mut settle: Settlement) -> Location {
@@ -244,72 +233,70 @@ impl GameState {
         let dx = (lpos.0 + pos.0) as usize;
         let dy = (lpos.1 + pos.1) as usize;
         //log::info!("up_set: {} - {}", dx, dy);
-        if dx < MAP_W && dy < MAP_H {
-            if !settle.get_npcs_sent() {
-                // log::info!("getting items & npcs for {}", settle.get_sname());
-                let sitems = settle.get_items();
-                for ((x, y), mut i) in sitems {
-                    let ipos = i.get_pos();
-                    if pos == (0, 0) {
-                        // (dist_fo.0 + x as i64 + spos.0) as usize;
-                        let npos = (
-                            (self.dist_fo.0 + ipos.0 as i64 + lpos.0) as usize,
-                            (self.dist_fo.1 + ipos.1 as i64 + lpos.1) as usize,
-                        );
-                        i.set_pos(npos);
-                        // log::info!("pos: {:?} | item: {:?}", npos, i);
-                        self.items.insert(npos, i.clone());
-                    } else {
-                        let npos = (
-                            (self.dist_fo.0 + ipos.0 as i64 + lpos.0) as usize,
-                            (self.dist_fo.1 + ipos.1 as i64 + lpos.1) as usize,
-                        );
-                        i.set_pos(npos);
-                        // log::info!("pos: {:?} | itcm: {:?}", npos, i);
-                        self.items.insert(npos, i.clone());
-                    }
+        if dx < MAP_W && dy < MAP_H && !settle.get_npcs_sent() {
+            // log::info!("getting items & npcs for {}", settle.get_sname());
+            let sitems = settle.get_items();
+            for ((_x, _y), mut i) in sitems {
+                let ipos = i.get_pos();
+                if pos == (0, 0) {
+                    // (dist_fo.0 + x as i64 + spos.0) as usize;
+                    let npos = (
+                        (self.dist_fo.0 + ipos.0 as i64 + lpos.0) as usize,
+                        (self.dist_fo.1 + ipos.1 as i64 + lpos.1) as usize,
+                    );
+                    i.set_pos(npos);
+                    // log::info!("pos: {:?} | item: {:?}", npos, i);
+                    self.items.insert(npos, i.clone());
+                } else {
+                    let npos = (
+                        (self.dist_fo.0 + ipos.0 as i64 + lpos.0) as usize,
+                        (self.dist_fo.1 + ipos.1 as i64 + lpos.1) as usize,
+                    );
+                    i.set_pos(npos);
+                    // log::info!("pos: {:?} | itcm: {:?}", npos, i);
+                    self.items.insert(npos, i.clone());
                 }
-                let tnpcs = settle.get_npcs();
-                for ((x, y), n) in tnpcs {
-                    // log::info!("{:?}", n);
-                    let mut nbox = box_npc(n);
-                    let npos = nbox.get_pos();
-                    if pos == (0, 0) {
-                        let nwpos = (
-                            (self.dist_fo.0 + x as i64 + lpos.0) as usize,
-                            (self.dist_fo.1 + y as i64 + lpos.1) as usize,
-                        );
-                        nbox.set_pos(nwpos);
-                        self.npcs.insert(nwpos, wrap_nbox(nbox));
-                    } else {
-                        let nwpos = (
-                            (self.dist_fo.0 + x as i64 + lpos.0) as usize,
-                            (self.dist_fo.1 + y as i64 + lpos.1) as usize,
-                        );
-                        nbox.set_pos(nwpos);
-                        self.npcs.insert(nwpos, wrap_nbox(nbox));
-                    }
-                }
-                let ten_inters = settle.get_env_inters();
-                for ((x, y), ei) in ten_inters {
-                    // log::info!("{:?}", ei);
-                    if pos == (0, 0) {
-                        let nwpos = (
-                            (self.dist_fo.0 + x as i64 + lpos.0) as usize,
-                            (self.dist_fo.1 + y as i64 + lpos.1) as usize,
-                        );
-                        self.env_inters.insert(nwpos, ei);
-                    } else {
-                        let nwpos = (
-                            (self.dist_fo.0 + x as i64 + lpos.0) as usize,
-                            (self.dist_fo.1 + y as i64 + lpos.1) as usize,
-                        );
-                        self.env_inters.insert(nwpos, ei);
-                    }
-                }
-
-                settle.tog_npcs_sent();
             }
+            let tnpcs = settle.get_npcs();
+            for ((x, y), n) in tnpcs {
+                // log::info!("{:?}", n);
+                let mut nbox = box_npc(n);
+                // let npos = nbox.get_pos();
+                // if pos == (0, 0) {
+                let nwpos = (
+                    (self.dist_fo.0 + x as i64 + lpos.0) as usize,
+                    (self.dist_fo.1 + y as i64 + lpos.1) as usize,
+                );
+                nbox.set_pos(nwpos);
+                self.npcs.insert(nwpos, wrap_nbox(nbox));
+                // } else {
+                //     let nwpos = (
+                //         (self.dist_fo.0 + x as i64 + lpos.0) as usize,
+                //         (self.dist_fo.1 + y as i64 + lpos.1) as usize,
+                //     );
+                //     nbox.set_pos(nwpos);
+                //     self.npcs.insert(nwpos, wrap_nbox(nbox));
+                // }
+            }
+            let ten_inters = settle.get_env_inters();
+            for ((x, y), ei) in ten_inters {
+                // log::info!("{:?}", ei);
+                // if pos == (0, 0) {
+                let nwpos = (
+                    (self.dist_fo.0 + x as i64 + lpos.0) as usize,
+                    (self.dist_fo.1 + y as i64 + lpos.1) as usize,
+                );
+                self.env_inters.insert(nwpos, ei);
+                // } else {
+                //     let nwpos = (
+                //         (self.dist_fo.0 + x as i64 + lpos.0) as usize,
+                //         (self.dist_fo.1 + y as i64 + lpos.1) as usize,
+                //     );
+                //     self.env_inters.insert(nwpos, ei);
+                // }
+            }
+
+            settle.tog_npcs_sent();
         }
         Location::Settlement(settle.clone())
     }
@@ -322,20 +309,20 @@ impl GameState {
             Location::Settlement(mut settle) => {
                 let lpos = settle.get_pos();
                 let (xx, yy) = ((lpos.0 + dpos.0) as usize, (lpos.1 + dpos.1) as usize);
-                if pos.0 >= xx && pos.0 <= xx + 150 && pos.1 >= yy && pos.1 <= yy + 50 {
-                    return true;
-                } else {
-                    return false;
-                }
+                pos.0 >= xx && pos.0 <= xx + 150 && pos.1 >= yy && pos.1 <= yy + 50
+                //     return true;
+                // } else {
+                //     return false;
+                // }
             }
             Location::Puzzle(mut puzzle) => {
                 let lpos = puzzle.get_pos();
                 let (xx, yy) = ((lpos.0 + dpos.0) as usize, (lpos.1 + dpos.1) as usize);
-                if pos.0 >= xx && pos.0 <= xx + 300 && pos.1 >= yy && pos.1 <= yy + 200 {
-                    return true;
-                } else {
-                    return false;
-                }
+                pos.0 >= xx && pos.0 <= xx + 300 && pos.1 >= yy && pos.1 <= yy + 200
+                //     return true;
+                // } else {
+                //     return false;
+                // }
             }
             _ => false,
         }
@@ -416,7 +403,7 @@ impl GameState {
     }
 
     pub fn shop_item_interaction(&mut self, mut sitem: Item) -> bool {
-        let mut shop = self.get_shop_from_item(sitem.clone());
+        let shop = self.get_shop_from_item(sitem.clone());
         // log::info!("shop  \n{:?}", shop.clone());
         let npc = shop.get_npc();
         // log::info!("shop npc \n{:?}", npc.clone());
@@ -443,7 +430,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -484,7 +471,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {

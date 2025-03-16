@@ -28,14 +28,14 @@ impl GameState {
         let mut new_n = HashMap::new();
         let mh = self.map.cells.len();
         let mw = self.map.cells[0].len();
-        for ((x, y), mut n) in &mut n_temp {
+        for ((x, y), n) in &mut n_temp {
             // log::info!("esteps: {}, eCx: {}, ey: {}", e.steps.clone(), x.clone(), y.clone());
 
             let mut nbox = box_npc(n.clone());
             if nbox.get_step_grp() != step || *x < 200 || *x > 400 || *y < 180 || *y > 225 {
                 new_n.insert((*x, *y), wrap_nbox(nbox));
             } else {
-                let (pos, mut nnpc) = npc_move(nbox, self.map.cells.clone(), mw, mh, *x, *y);
+                let (pos, nnpc) = npc_move(nbox, self.map.cells.clone(), mw, mh, *x, *y);
                 let bwrp = wrap_nbox(nnpc);
                 new_n.insert(pos, bwrp);
             }
@@ -48,7 +48,7 @@ impl GameState {
         let mut new_n = HashMap::new();
         let mw = self.map.cells[0].len();
         let mh = self.map.cells.len();
-        for ((x, y), mut n) in temp_n {
+        for ((x, y), n) in temp_n {
             let mut nbox = box_npc(n);
             match dir {
                 "UP" => {
@@ -103,7 +103,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -126,7 +126,7 @@ impl GameState {
 
     pub fn conv_step(&mut self, conv: Convo, step: String, name: String) -> bool {
         //log::info!("stage: {:?}", step.clone());
-        if step == "e".to_string() {
+        if step == *"e" {
             //log::info!("Going home");
             self.game_mode = GameMode::Play;
             self.gui.set_info_mode(GUIMode::Normal);
@@ -151,7 +151,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -202,7 +202,7 @@ impl GameState {
         let ptype = npc.get_ptype();
         let name = npc.get_sname();
         let pos = self.dist_fo;
-        self.puzzles.spawn_new_puzzle(pos.clone(), ptype.clone());
+        self.puzzles.spawn_new_puzzle(pos, ptype.clone());
         self.conv_step(spwn_conv, "0".to_string(), name)
     }
 
@@ -215,11 +215,11 @@ impl GameState {
     pub fn trade_buy(&mut self, mut item: Item) -> bool {
         let mut p = self.player.clone();
         let price = item.get_properties()["value"];
-        if p.add_to_inv(item.clone()) && p.dec_money(price.clone()) {
+        if p.add_to_inv(item.clone()) && p.dec_money(price) {
             self.player = p.clone();
             return true;
         }
-        return false;
+        false
     }
 
     pub fn trade_buy_items(&mut self, mut items: Vec<Item>) -> bool {
@@ -235,7 +235,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -291,7 +291,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -345,7 +345,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -383,7 +383,6 @@ impl GameState {
                 }
             }
         }
-        true
     }
 
     pub fn npc_interaction(&mut self) -> bool {
@@ -411,8 +410,8 @@ impl GameState {
             Items::EdibleRoot,
             Items::BugBits,
         ];
-        for i in 0..10 {
-            let i_choice = i_opts.choose(&mut rng).unwrap_or(&i_opts[0]).clone();
+        for _ in 0..10 {
+            let i_choice = i_opts.choose(&mut rng).unwrap_or(&i_opts[0]);
             match i_choice {
                 Items::Rock => items.push(Item::new_rock(0, 0)),
                 Items::HealthPotion => items.push(Item::new_health_potion(0, 0)),

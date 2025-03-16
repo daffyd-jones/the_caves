@@ -25,7 +25,7 @@ use rand::prelude::SliceRandom;
 use rand::Rng;
 use ratatui::crossterm::event::{poll, read, Event, KeyCode};
 
-use serde::{Deserialize, Serialize};
+// use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -52,7 +52,7 @@ fn gen_broken_range<R: Rng>(rng: &mut R, start1: i32, end1: i32, start2: i32, en
     }
 }
 
-fn place_enemies(mut map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
+fn place_enemies(map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
     let mut enemies = HashMap::new();
     let mut rng = rand::thread_rng();
     let etype = Enemies::Bug;
@@ -83,8 +83,9 @@ fn place_enemies(mut map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
                 (x, y)
             };
             if map[y][x] == Cells::Empty {
-                let mut temp_vec = Vec::new();
-                temp_vec.push(Items::BugBits);
+                // let mut temp_vec = Vec::new();
+                // temp_vec.push(Items::BugBits);
+                let temp_vec = vec![Items::BugBits];
                 let e_temp = Enemy::new(etype, "Bug".to_string(), (x, y), 20, 15, 5, 5, temp_vec);
                 enemies.insert((x, y), e_temp);
                 break;
@@ -94,7 +95,7 @@ fn place_enemies(mut map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
     enemies
 }
 
-fn place_npcs(mut map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), NPCWrap> {
+fn place_npcs(map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), NPCWrap> {
     let data1 = fs::read_to_string("src/npcs/npc_names.json");
     // log::info!("{:?}", &data1);
     let names: Vec<String> = match data1 {
@@ -211,7 +212,7 @@ fn place_npcs(mut map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), NPCWrap> {
 }
 
 fn init_items(
-    mut map: Vec<Vec<Cells>>,
+    map: Vec<Vec<Cells>>,
     enemies: HashMap<(usize, usize), Enemy>,
 ) -> HashMap<(usize, usize), Item> {
     let mut items = HashMap::new();
@@ -287,30 +288,10 @@ fn map_to_string(cells: &Vec<Vec<Cells>>) -> String {
 
 fn n_collision(dir: &str, pos: (usize, usize), cells: Vec<Vec<Cells>>) -> bool {
     match dir {
-        "UP" => {
-            let map_coll = collision_cells.contains(&cells[pos.1 - 1][pos.0]);
-            // let map_coll = cells[pos.1 - 1][pos.0] == Cells::Wall;
-            // let item_coll = self.items.contains_key(&(pos.0, pos.1 - 1));
-            map_coll //|| item_coll
-        }
-        "DN" => {
-            let map_coll = collision_cells.contains(&cells[pos.1 + 1][pos.0]);
-            // let map_coll = cells[pos.1 + 1][pos.0] == Cells::Wall;
-            // let item_coll = self.items.contains_key(&(pos.0, pos.1 + 1));
-            map_coll //|| item_coll
-        }
-        "LF" => {
-            let map_coll = collision_cells.contains(&cells[pos.1][pos.0 - 1]);
-            // let map_coll = cells[pos.1][pos.0 - 1] == Cells::Wall;
-            // let item_coll = self.items.contains_key(&(pos.0 - 1, pos.1));
-            map_coll //|| item_coll
-        }
-        "RT" => {
-            let map_coll = collision_cells.contains(&cells[pos.1][pos.0 + 1]);
-            // let map_coll = cells[pos.1][pos.0 + 1] == Cells::Wall;
-            // let item_coll = self.items.contains_key(&(pos.0 + 1, pos.1));
-            map_coll //|| item_coll
-        }
+        "UP" => collision_cells.contains(&cells[pos.1 - 1][pos.0]),
+        "DN" => collision_cells.contains(&cells[pos.1 + 1][pos.0]),
+        "LF" => collision_cells.contains(&cells[pos.1][pos.0 - 1]),
+        "RT" => collision_cells.contains(&cells[pos.1][pos.0 + 1]),
         _ => false,
     }
 }
@@ -437,21 +418,21 @@ fn loc_shop_items(dist_fo: (i64, i64), loc: Location) -> HashMap<(usize, usize),
         Location::Null => HashMap::new(),
         Location::Settlement(mut settle) => {
             let mut itms = HashMap::new();
-            if let Some(mut sitems) = settle.get_all_shop_items() {
-                let mut spos = settle.get_pos();
+            if let Some(sitems) = settle.get_all_shop_items() {
+                let spos = settle.get_pos();
                 for ((x, y), mut i) in sitems {
                     let nx = (dist_fo.0 + x as i64 + spos.0) as usize;
                     let ny = (dist_fo.1 + y as i64 + spos.1) as usize;
                     // let ipos = i.get_pos();
-                    i.set_pos((nx.clone(), ny.clone()));
-                    itms.insert((nx.clone(), ny.clone()), i);
+                    i.set_pos((nx, ny));
+                    itms.insert((nx, ny), i);
                 }
                 itms
             } else {
                 itms
             }
         }
-        Location::Puzzle(mut puzzle) => HashMap::new(),
+        Location::Puzzle(_puzzle) => HashMap::new(),
         _ => todo!(),
     }
 }
@@ -499,11 +480,12 @@ fn in_range(pos1: (i64, i64), pos2: (i64, i64), rad: u16) -> bool {
     let yy = pos1.1 - pos2.1;
     let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i64;
     //log::info!("hyp: {}, eCx: {}, ey: {}", e.steps.clone(), x.clone(), y.clone());
-    if hyp.abs() <= rad.into() {
-        return true;
-    } else {
-        return false;
-    }
+    hyp.abs() <= rad.into()
+    // if hyp.abs() <= rad.into() {
+    //     return true;
+    // } else {
+    //     return false;
+    // }
 }
 
 fn get_dir(vec: (i64, i64)) -> (i8, i8) {
@@ -559,11 +541,11 @@ pub struct GameState {
 impl GameState {
     pub fn new() -> Arc<Mutex<Self>> {
         let gui = GUI::new();
-        let mut map = Map::new();
-        let x = map.px.clone();
-        let y = map.py.clone();
+        let map = Map::new();
+        // let x = map.px.clone();
+        // let y = map.py.clone();
         let comp_list = HashMap::new();
-        let player = Player::new(309, 195);
+        let player = Player::new(309, 196);
         // let player = Player::new(x, y);
         //let mut l_systems = LSystems::new();
         let enemies = place_enemies(map.cells.clone());
@@ -857,7 +839,7 @@ impl GameState {
         let mut new_i = HashMap::new();
         let mw = self.map.cells[0].len();
         let mh = self.map.cells.len();
-        for ((x, y), mut i) in temp_ei {
+        for ((x, y), i) in temp_ei {
             match dir {
                 "UP" => {
                     if y < mh {
@@ -1018,7 +1000,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -1077,7 +1059,7 @@ impl GameState {
             if self.confirm_equip(item.clone()) {
                 self.player.add_equip(item.clone());
             }
-            return ();
+            return;
         } else {
             match self.inv_use_opt(item.clone()) {
                 ItemOpt::Use => {
@@ -1090,7 +1072,7 @@ impl GameState {
                     self.gui.set_inventory(self.player.get_inventory());
                 }
                 ItemOpt::Null => {
-                    return ();
+                    return;
                 }
                 _ => todo!(),
             }
@@ -1106,7 +1088,7 @@ impl GameState {
                         self.enemies.clone(),
                         self.items.clone(),
                         self.npcs.clone(),
-                        loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                        loc_shop_items(self.dist_fo, self.location.clone()),
                         self.env_inters.clone(),
                     );
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -1137,7 +1119,7 @@ impl GameState {
                         self.enemies.clone(),
                         self.items.clone(),
                         self.npcs.clone(),
-                        loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                        loc_shop_items(self.dist_fo, self.location.clone()),
                         self.env_inters.clone(),
                     );
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -1166,7 +1148,7 @@ impl GameState {
         let copt = self.gui.get_comp_opt();
         if copt == "Search" {
             self.comp_mode = CompMode::Search;
-            return ();
+            return;
         } else {
             self.comp_mode = CompMode::Location;
         }
@@ -1368,9 +1350,7 @@ impl GameState {
 
     fn pickup_item(&mut self, item: Item) {
         self.player.add_to_inv(item.clone());
-        if let Some(itm) = self.items.remove(&(item.x, item.y)) {
-        } else {
-        }
+        if let Some(itm) = self.items.remove(&(item.x, item.y)) {}
     }
 
     fn select_opt(&mut self) {
@@ -1546,7 +1526,7 @@ impl GameState {
                 let now = Instant::now();
                 if now.duration_since(self.last_event_time) > self.key_debounce_dur {
                     self.last_event_time = now;
-                    return self.play_key(event.code);
+                    self.play_key(event.code)
                 } else {
                     true
                 }
@@ -1568,7 +1548,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -1594,7 +1574,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -1694,7 +1674,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -1745,11 +1725,8 @@ impl GameState {
                                         let save_name = savelist[choice.0].clone();
                                         let sn_parts: Vec<&str> = save_name.split("_").collect();
                                         let settle_name = self.get_cur_settle_name();
-                                        let new_save_name = format!(
-                                            "save_{}_{}.json",
-                                            sn_parts[1].clone(),
-                                            settle_name
-                                        );
+                                        let new_save_name =
+                                            format!("save_{}_{}.json", sn_parts[1], settle_name);
                                         if self.game_save(new_save_name) {
                                             return true;
                                         }
@@ -1775,7 +1752,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -1836,7 +1813,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -1876,9 +1853,9 @@ impl GameState {
     }
 
     fn guild_post(&mut self) -> bool {
-        let local_puzzles = self.puzzles.get_local_puzzles(self.dist_fo.clone());
+        let local_puzzles = self.puzzles.get_local_puzzles(self.dist_fo);
         let mut ppost_strings = Vec::new();
-        let pos = self.dist_fo.clone();
+        let pos = self.dist_fo;
         for (ppos, mut p) in local_puzzles {
             let dx = ppos.0 + pos.0;
             let dy = ppos.1 + pos.1;
@@ -1912,7 +1889,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -1952,8 +1929,8 @@ impl GameState {
     }
 
     fn church_post(&mut self) -> bool {
-        let pos = self.dist_fo.clone();
-        let mut local_settles = self.settles.get_local_settles(pos.clone());
+        let pos = self.dist_fo;
+        let local_settles = self.settles.get_local_settles(pos);
         let mut settles = Vec::new();
         let loc_pos = self.location_pos();
         for (spos, mut s) in local_settles {
@@ -1985,7 +1962,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -2044,7 +2021,7 @@ impl GameState {
                 self.enemies.clone(),
                 self.items.clone(),
                 self.npcs.clone(),
-                loc_shop_items(self.dist_fo.clone(), self.location.clone()),
+                loc_shop_items(self.dist_fo, self.location.clone()),
                 self.env_inters.clone(),
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -2275,8 +2252,8 @@ impl GameState {
                     // log::info!("update npc");
                     let step = game.step_group;
                     if game.game_mode == GameMode::Play {
-                        game.update_enemies(step.clone());
-                        game.update_npcs(step.clone());
+                        game.update_enemies(step);
+                        game.update_npcs(step);
                         if step < 15 {
                             game.step_group += 1;
                         } else if step > 30 {
@@ -2345,7 +2322,7 @@ impl GameState {
         self.location_check();
         let litems = if self.location != Location::Null {
             self.update_location();
-            loc_shop_items(self.dist_fo.clone(), self.location.clone())
+            loc_shop_items(self.dist_fo, self.location.clone())
         } else {
             HashMap::new()
         };
@@ -2354,7 +2331,7 @@ impl GameState {
             let dist_fo = format!("({}, {})", self.dist_fo.0, self.dist_fo.1);
             let comp = format!("({}, {})", self.comp_head.0, self.comp_head.1);
             //let spos_list = self.settles.get_settle_pos();
-            let spos_list = &self.comp_list;
+            // let spos_list = &self.comp_list;
             let spos_s = self
                 .comp_list
                 .clone()

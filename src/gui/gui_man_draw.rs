@@ -108,8 +108,8 @@ impl GUI {
                 .block(paragraph_block)
                 .wrap(ratatui::widgets::Wrap { trim: true });
             let mut adj_list = vec![];
-            let mut vec1 = vec![((0 as usize, 0 as usize), "".to_string()); 3];
-            let mut vec2 = vec![((0 as usize, 0 as usize), "".to_string()); 3];
+            let mut vec1 = vec![((0_usize, 0_usize), "".to_string()); 3];
+            let mut vec2 = vec![((0_usize, 0_usize), "".to_string()); 3];
             for (pos, interable) in &self.interactable {
                 let Some(inter) = interable else {todo!()};
                 match inter {
