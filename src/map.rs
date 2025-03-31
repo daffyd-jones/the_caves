@@ -142,8 +142,8 @@ impl Map {
         let tunnels = HashMap::new();
         let dead_tunnels = HashMap::new();
 
-        let viewport_x = px.clone() - 30;
-        let viewport_y = py.clone() - 30;
+        let viewport_x = px - 30;
+        let viewport_y = py - 30;
         let viewport_width = 0;
         let viewport_height = 0;
 
@@ -460,8 +460,8 @@ impl Map {
                 };
                 new_tunnels.insert((*a, *b), (x, y));
                 new_tunnels.insert((x, y), (*a, *b));
-                self.cells[*b as usize][*a as usize] = Cells::Tunnel;
-                self.cells[y as usize][x as usize] = Cells::Tunnel;
+                self.cells[*b][*a] = Cells::Tunnel;
+                self.cells[y][x] = Cells::Tunnel;
                 // ab_count += 1;
                 // abt_count += 1;
             } else if *c < self.cells[0].len() && *d < self.cells.len() {

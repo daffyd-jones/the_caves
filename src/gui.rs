@@ -53,7 +53,7 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                         Enemies::Golem => ('T', Color::Red),
                         _ => todo!(),
                     }
-                } else if let Some(_) = portals.get(&(ix, jy)) {
+                } else if portals.contains_key(&(ix, jy)) {
                     ('@', Color::Blue)
                 } else if let Some(npcw) = npcs.get(&(ix, jy)) {
                     // ï î ì í  Í Î Ï Ì 
@@ -265,10 +265,10 @@ impl GUI {
         terminal.hide_cursor().unwrap();
         let mut interactable = HashMap::new();
         let inter_opt = HashMap::new();
-        interactable.insert((0 as usize, 0 as usize), Some(Interactable::Null));
+        interactable.insert((0_usize, 0_usize), Some(Interactable::Null));
         let adj_options = (
-            vec![((0 as usize, 0 as usize), "".to_string()); 3],
-            vec![((0 as usize, 0 as usize), "".to_string()); 3],
+            vec![((0_usize, 0_usize), "".to_string()); 3],
+            vec![((0_usize, 0_usize), "".to_string()); 3],
         );
         let inter_options = (
             vec![(InterOpt::Null, "".to_string()); 3],
@@ -426,7 +426,7 @@ impl GUI {
     }
 
     pub fn get_cursor(&mut self) -> (usize, usize) {
-        self.cursor_pos.clone()
+        self.cursor_pos
     }
 
     pub fn set_interactable(&mut self, temp: HashMap<(usize, usize), Option<Interactable>>) {
@@ -773,7 +773,7 @@ impl GUI {
                    // let stat_table = Table::new(stat_rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
                    //     .block(stat_block);
 
-                    let enchant_data = vec![
+                    let enchant_data = [
                         vec!["", "", ""],
                     ];
                     let en_rows: Vec<Row> = enchant_data.iter().enumerate().map(|(j, row)| {
@@ -1206,7 +1206,7 @@ impl GUI {
                     let mut props = Vec::new();
                     props.push(Line::from(Span::raw(i_sel)));
                     for (s, i) in &itm.get_properties() {
-                        let fmt_prop = format!("{}: {}", s, i.to_string());
+                        let fmt_prop = format!("{}: {}", s, i);
                         props.push(Line::from(Span::raw(fmt_prop)));
                     }
 

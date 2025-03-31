@@ -51,7 +51,7 @@ impl Player {
     }
 
     pub fn get_pos(self) -> (usize, usize) {
-        (self.x.clone(), self.y.clone())
+        (self.x, self.y)
     }
 
     pub fn set_pos(&mut self, pos: (usize, usize)) {
@@ -64,14 +64,14 @@ impl Player {
     }
 
     pub fn get_last_turn(&mut self) -> (EncOpt, u16) {
-        self.enc_last_turn.clone()
+        self.enc_last_turn
     }
 
     pub fn get_enc_turn(&mut self) -> (u16, u16) {
         let mut rng = rand::thread_rng();
         let attack = rng.gen_range((self.attack / 3)..self.attack);
         let damage = rng.gen_range((self.damage / 3)..self.damage);
-        (attack.clone(), damage.clone())
+        (attack, damage)
     }
 
     pub fn toggle_dodge(&mut self) {
@@ -111,7 +111,7 @@ impl Player {
             self.inventory.push(item);
             return true;
         }
-        return false;
+        false
     }
 
     pub fn get_inventory(&mut self) -> Vec<Item> {
@@ -130,7 +130,7 @@ impl Player {
         if self.inventory.len() < INVENTORY_MAX {
             return false;
         }
-        return true;
+        true
     }
 
     pub fn add_equip(&mut self, mut item: Item) {
@@ -180,7 +180,7 @@ impl Player {
             self.money -= amt;
             return true;
         }
-        return false;
+        false
     }
 
     pub fn inc_money(&mut self, amt: u16) -> bool {

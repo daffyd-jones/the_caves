@@ -1,85 +1,81 @@
 //npc
 use crate::enums::{NPCs, PuzzleType, Shops};
 use crate::item::Item;
-use rand::{Rng};
+use rand::Rng;
 use std::collections::HashMap;
 // use serde_json::Value;
-use serde::{Deserialize, Serialize};
 use rand::prelude::SliceRandom;
+use serde::{Deserialize, Serialize};
 
-
-pub fn new_comm_npc(
-    sname: String, 
-    x: usize, y: usize, 
-    comms: Vec<String>
-    ) -> CommNPC {
+pub fn new_comm_npc(sname: String, x: usize, y: usize, comms: Vec<String>) -> CommNPC {
     let mut rng = rand::thread_rng();
     let step = rng.gen_range(0..19);
     let step_grp = rng.gen_range(0..15);
     CommNPC {
         base: BaseNPC {
             ntype: NPCs::CommNPC,
-            sname: sname,
+            sname,
             steps: step,
-            step_grp: step_grp,
-            x: x,
-            y: y,
+            step_grp,
+            x,
+            y,
         },
-        comms: comms,
+        comms,
     }
 }
 
-pub fn new_conv_npc(
-    sname: String, 
-    x: usize, y: usize, 
-    conv: Convo
-    ) -> ConvNPC {
+pub fn new_conv_npc(sname: String, x: usize, y: usize, conv: Convo) -> ConvNPC {
     let mut rng = rand::thread_rng();
     let step = rng.gen_range(0..19);
     let step_grp = rng.gen_range(0..15);
     ConvNPC {
         base: BaseNPC {
             ntype: NPCs::ConvNPC,
-            sname: sname,
+            sname,
             steps: step,
-            step_grp: step_grp,
-            x: x,
-            y: y,
+            step_grp,
+            x,
+            y,
         },
-        conv: conv,
+        conv,
     }
 }
 
 pub fn new_spawn_npc(
-    sname: String, x: usize, y: usize, 
-    conv: Convo, comms: Vec<String>, 
-    ptype: PuzzleType
-    ) -> SpawnNPC {
+    sname: String,
+    x: usize,
+    y: usize,
+    conv: Convo,
+    comms: Vec<String>,
+    ptype: PuzzleType,
+) -> SpawnNPC {
     let mut rng = rand::thread_rng();
     let step = rng.gen_range(0..19);
     let step_grp = rng.gen_range(0..15);
     SpawnNPC {
         base: BaseNPC {
             ntype: NPCs::SpawnNPC,
-            sname: sname,
+            sname,
             steps: step,
-            step_grp: step_grp,
-            x: x,
-            y: y,
+            step_grp,
+            x,
+            y,
         },
-        conv: conv,
-        comms: comms,
+        conv,
+        comms,
         spawned: false,
-        ptype: ptype 
+        ptype,
     }
 }
 
 pub fn new_shop_npc(
-    sname: String, 
-    x: usize, y: usize, 
-    sh_conv: HashMap<String, String>, 
-    convo: Convo, shop_type: Shops
-    ) -> ShopNPC {
+    sname: String,
+    x: usize,
+    y: usize,
+    sh_conv: HashMap<String, String>,
+    convo: Convo,
+    shop_type: Shops,
+) -> ShopNPC {
     //let mut rng = rand::thread_rng();
     //let step = rng.gen_range(0..19);
     let step = 50;
@@ -89,44 +85,41 @@ pub fn new_shop_npc(
     ShopNPC {
         base: BaseNPC {
             ntype: NPCs::ShopNPC,
-            sname: sname,
+            sname,
             steps: step,
-            step_grp: step_grp,
-            x: x,
-            y: y,
+            step_grp,
+            x,
+            y,
         },
-        shop_type: shop_type,
-        sh_conv: sh_conv,
-        convo: convo,
+        shop_type,
+        sh_conv,
+        convo,
     }
 }
 
 pub fn new_trade_npc(
-    sname: String, 
-    x: usize, y: usize, 
-    items: Vec<Item>, 
-    sh_conv: HashMap<String, String>
-    ) -> TradeNPC {
+    sname: String,
+    x: usize,
+    y: usize,
+    items: Vec<Item>,
+    sh_conv: HashMap<String, String>,
+) -> TradeNPC {
     let mut rng = rand::thread_rng();
     let step = rng.gen_range(0..19);
     let step_grp = rng.gen_range(0..15);
     TradeNPC {
         base: BaseNPC {
             ntype: NPCs::TradeNPC,
-            sname: sname,
+            sname,
             steps: step,
-            step_grp: step_grp,
-            x: x,
-            y: y,
+            step_grp,
+            x,
+            y,
         },
-        items: items,
-        sh_conv: sh_conv,
+        items,
+        sh_conv,
     }
 }
-
-
-
-
 
 //--
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -152,7 +145,7 @@ fn default_convo() -> Convo {
     let stages = HashMap::new();
     Convo {
         id: "default".to_string(),
-        stages: stages,
+        stages,
     }
 }
 //--
@@ -164,15 +157,12 @@ pub struct ShopData {
     pub churches: Vec<HashMap<String, String>>,
 }
 
-
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ShopConvos {
     pub shops: Vec<Convo>,
     pub guilds: Vec<Convo>,
     pub churches: Vec<Convo>,
-} 
-
-
+}
 
 //--
 pub trait NPC {
@@ -210,7 +200,6 @@ impl dyn NPC {
     }
 }
 
-
 //--
 //#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
@@ -229,7 +218,7 @@ impl NPC for BaseNPC {
     }
 
     fn get_ntype(&mut self) -> NPCs {
-        self.ntype.clone()
+        self.ntype
     }
 
     fn get_sname(&mut self) -> String {
@@ -254,11 +243,11 @@ impl NPC for BaseNPC {
     }
 
     fn get_steps(&mut self) -> u8 {
-        self.steps.clone()
+        self.steps
     }
 
     fn get_step_grp(&mut self) -> u8 {
-        self.step_grp.clone()
+        self.step_grp
     }
 
     fn mmove(&mut self, dir: &str) {
@@ -267,14 +256,21 @@ impl NPC for BaseNPC {
             "DN" => self.y += 1,
             "LF" => self.x -= 1,
             "RT" => self.x += 1,
-            _ => println!("")
+            _ => println!(""),
         }
     }
 }
 
 impl BaseNPC {
     pub fn new() -> Self {
-        Self {ntype: NPCs::Null, sname: "".to_string(), steps: 0, step_grp: 0, x: 0, y: 0}
+        Self {
+            ntype: NPCs::Null,
+            sname: "".to_string(),
+            steps: 0,
+            step_grp: 0,
+            x: 0,
+            y: 0,
+        }
     }
 }
 
@@ -291,7 +287,7 @@ impl NPC for CommNPC {
     }
 
     fn get_ntype(&mut self) -> NPCs {
-        self.base.ntype.clone()
+        self.base.ntype
     }
 
     fn get_sname(&mut self) -> String {
@@ -312,7 +308,7 @@ impl NPC for CommNPC {
     }
 
     fn get_steps(&mut self) -> u8 {
-        self.base.steps.clone()
+        self.base.steps
     }
 
     fn inc_steps(&mut self) {
@@ -320,7 +316,7 @@ impl NPC for CommNPC {
     }
 
     fn get_step_grp(&mut self) -> u8 {
-        self.base.step_grp.clone()
+        self.base.step_grp
     }
 
     fn mmove(&mut self, dir: &str) {
@@ -329,7 +325,7 @@ impl NPC for CommNPC {
             "DN" => self.base.y += 1,
             "LF" => self.base.x -= 1,
             "RT" => self.base.x += 1,
-            _ => println!("")
+            _ => println!(""),
         }
     }
 }
@@ -339,10 +335,11 @@ impl CommNPC {
         let mut rng = rand::thread_rng();
         if let Some(comm) = self.comms.choose(&mut rng) {
             comm.to_string()
-        } else {"".to_string()}
+        } else {
+            "".to_string()
+        }
     }
 }
-
 
 //#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
@@ -357,7 +354,7 @@ impl NPC for ConvNPC {
     }
 
     fn get_ntype(&mut self) -> NPCs {
-        self.base.ntype.clone()
+        self.base.ntype
     }
 
     fn get_sname(&mut self) -> String {
@@ -378,7 +375,7 @@ impl NPC for ConvNPC {
     }
 
     fn get_steps(&mut self) -> u8 {
-        self.base.steps.clone()
+        self.base.steps
     }
 
     fn inc_steps(&mut self) {
@@ -386,7 +383,7 @@ impl NPC for ConvNPC {
     }
 
     fn get_step_grp(&mut self) -> u8 {
-        self.base.step_grp.clone()
+        self.base.step_grp
     }
 
     fn mmove(&mut self, dir: &str) {
@@ -395,7 +392,7 @@ impl NPC for ConvNPC {
             "DN" => self.base.y += 1,
             "LF" => self.base.x -= 1,
             "RT" => self.base.x += 1,
-            _ => println!("")
+            _ => println!(""),
         }
     }
 }
@@ -467,7 +464,6 @@ impl ConvNPC {
 //    }
 //}
 
-
 //#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ShopNPC {
@@ -491,8 +487,8 @@ impl Default for ShopNPC {
                 y: 0,
             },
             shop_type: Shops::Null,
-            sh_conv: sh_conv,
-            convo: convo,
+            sh_conv,
+            convo,
         }
     }
 }
@@ -503,7 +499,7 @@ impl NPC for ShopNPC {
     }
 
     fn get_ntype(&mut self) -> NPCs {
-        self.base.ntype.clone()
+        self.base.ntype
     }
 
     fn get_sname(&mut self) -> String {
@@ -524,7 +520,7 @@ impl NPC for ShopNPC {
     }
 
     fn get_steps(&mut self) -> u8 {
-        self.base.steps.clone()
+        self.base.steps
     }
 
     fn inc_steps(&mut self) {
@@ -532,7 +528,7 @@ impl NPC for ShopNPC {
     }
 
     fn get_step_grp(&mut self) -> u8 {
-        self.base.step_grp.clone()
+        self.base.step_grp
     }
 
     fn mmove(&mut self, dir: &str) {
@@ -541,7 +537,7 @@ impl NPC for ShopNPC {
             "DN" => self.base.y += 1,
             "LF" => self.base.x -= 1,
             "RT" => self.base.x += 1,
-            _ => println!("")
+            _ => println!(""),
         }
     }
 }
@@ -552,14 +548,13 @@ impl ShopNPC {
     }
 
     pub fn get_shop_type(&mut self) -> Shops {
-        self.shop_type.clone()
+        self.shop_type
     }
 
     pub fn get_convo(&mut self) -> Convo {
         self.convo.clone()
     }
 }
-
 
 //#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
@@ -577,7 +572,7 @@ impl NPC for SpawnNPC {
     }
 
     fn get_ntype(&mut self) -> NPCs {
-        self.base.ntype.clone()
+        self.base.ntype
     }
 
     fn get_sname(&mut self) -> String {
@@ -598,7 +593,7 @@ impl NPC for SpawnNPC {
     }
 
     fn get_steps(&mut self) -> u8 {
-        self.base.steps.clone()
+        self.base.steps
     }
 
     fn inc_steps(&mut self) {
@@ -606,7 +601,7 @@ impl NPC for SpawnNPC {
     }
 
     fn get_step_grp(&mut self) -> u8 {
-        self.base.step_grp.clone()
+        self.base.step_grp
     }
 
     fn mmove(&mut self, dir: &str) {
@@ -615,7 +610,7 @@ impl NPC for SpawnNPC {
             "DN" => self.base.y += 1,
             "LF" => self.base.x -= 1,
             "RT" => self.base.x += 1,
-            _ => println!("")
+            _ => println!(""),
         }
     }
 }
@@ -629,11 +624,13 @@ impl SpawnNPC {
         let mut rng = rand::thread_rng();
         if let Some(comm) = self.comms.choose(&mut rng) {
             comm.to_string()
-        } else {"".to_string()}
+        } else {
+            "".to_string()
+        }
     }
 
     pub fn is_spawned(&mut self) -> bool {
-        self.spawned.clone()
+        self.spawned
     }
 
     pub fn toggle_spawned(&mut self) {
@@ -644,7 +641,6 @@ impl SpawnNPC {
         self.ptype.clone()
     }
 }
-
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TradeNPC {
@@ -659,7 +655,7 @@ impl NPC for TradeNPC {
     }
 
     fn get_ntype(&mut self) -> NPCs {
-        self.base.ntype.clone()
+        self.base.ntype
     }
 
     fn get_sname(&mut self) -> String {
@@ -680,7 +676,7 @@ impl NPC for TradeNPC {
     }
 
     fn get_steps(&mut self) -> u8 {
-        self.base.steps.clone()
+        self.base.steps
     }
 
     fn inc_steps(&mut self) {
@@ -688,7 +684,7 @@ impl NPC for TradeNPC {
     }
 
     fn get_step_grp(&mut self) -> u8 {
-        self.base.step_grp.clone()
+        self.base.step_grp
     }
 
     fn mmove(&mut self, dir: &str) {
@@ -697,7 +693,7 @@ impl NPC for TradeNPC {
             "DN" => self.base.y += 1,
             "LF" => self.base.x -= 1,
             "RT" => self.base.x += 1,
-            _ => println!("")
+            _ => println!(""),
         }
     }
 }
@@ -710,5 +706,4 @@ impl TradeNPC {
     pub fn get_sh_conv(&mut self) -> HashMap<String, String> {
         self.sh_conv.clone()
     }
-
 }

@@ -146,10 +146,10 @@ impl GUI {
                     vec2[idx - 3] = entity.clone();
                 }
             }
-            let inter_entities = vec![vec1.clone(), vec2.clone()];
+            let inter_entities = [vec1.clone(), vec2.clone()];
             self.adj_options = (vec1, vec2);
             let rows: Vec<Row> = inter_entities.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
                         Cell::from(Span::styled(cell.clone().1, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
@@ -234,15 +234,15 @@ impl GUI {
             opts_kys.sort();
             for (idx, a) in opts_kys.iter().enumerate() {
                 if idx < 3 {
-                    vec1[idx] = (*a.clone(), opts[a].clone());
+                    vec1[idx] = (**a, opts[a].clone());
                 } else {
-                    vec2[idx - 3] = (*a.clone(), opts[a].clone());
+                    vec2[idx - 3] = (**a, opts[a].clone());
                 }
             }
-            let inter_opts = vec![vec1.clone(), vec2.clone()];
+            let inter_opts = [vec1.clone(), vec2.clone()];
             self.inter_options = (vec1, vec2);
             let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
                         Cell::from(Span::styled(cell.clone().1, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
@@ -321,9 +321,9 @@ impl GUI {
             let vec1 = vec!["Ok".to_string(); 1];
             let vec2 = vec!["".to_string(); 1];
 
-            let inter_opts = vec![vec1.clone(), vec2.clone()];
+            let inter_opts = [vec1.clone(), vec2.clone()];
             let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
                         Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
@@ -406,9 +406,9 @@ impl GUI {
             let vec1: Vec<&str> = iopts.split("#").collect();
             let vec2 = vec![""; 1];
 
-            let inter_opts = vec![vec1.clone(), vec2.clone()];
+            let inter_opts = [vec1.clone(), vec2.clone()];
             let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
                         Cell::from(Span::styled(cell.to_string(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
@@ -487,9 +487,9 @@ impl GUI {
             let vec1 = vec!["Ok".to_string(); 1];
             let vec2 = vec!["".to_string(); 1];
 
-            let inter_opts = vec![vec1.clone(), vec2.clone()];
+            let inter_opts = [vec1.clone(), vec2.clone()];
             let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
                         Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
@@ -612,9 +612,9 @@ impl GUI {
             let vec1 = vec!["Ok".to_string(); 1];
             let vec2 = vec!["".to_string(); 1];
 
-            let inter_opts = vec![vec1.clone(), vec2.clone()];
+            let inter_opts = [vec1.clone(), vec2.clone()];
             let rows: Vec<Row> = inter_opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
                         Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
@@ -827,12 +827,12 @@ impl GUI {
             opts_kys.sort();
             for (idx, a) in opts_kys.iter().enumerate() {
                 if idx < 3 {
-                    vec1[idx] = (*a.clone(), opts[a].clone());
+                    vec1[idx] = (**a, opts[a].clone());
                 } else {
-                    vec2[idx - 3] = (*a.clone(), opts[a].clone());
+                    vec2[idx - 3] = (**a, opts[a].clone());
                 }
             }
-            let enc_opts = vec![vec1.clone(), vec2.clone()];
+            let enc_opts = [vec1.clone(), vec2.clone()];
             self.enc_opt = (vec1, vec2);
 
             // let mut vec1 = vec!["Ok".to_string(); 1];
@@ -840,7 +840,7 @@ impl GUI {
 
             // let enc_opts = vec![vec1.clone(), vec2.clone()];
             let rows: Vec<Row> = enc_opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
                         Cell::from(Span::styled(cell.1.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
@@ -1088,11 +1088,11 @@ impl GUI {
             //dd
             for (idx, item) in self.inventory.iter().enumerate() {
                 if idx < 25 {
-                    col1[idx] = (idx.clone(), item.clone());
+                    col1[idx] = (idx, item.clone());
                 } else if idx < 50 {
-                    col2[idx - 25] = (idx.clone(), item.clone());
+                    col2[idx - 25] = (idx, item.clone());
                 } else {
-                    col3[idx - 50] = (idx.clone(), item.clone());
+                    col3[idx - 50] = (idx, item.clone());
                 }
             }
             //xx
@@ -1350,9 +1350,9 @@ impl GUI {
 
 
             let vec1 = vec!["Buy", "Sell", "Leave"];
-            let opts = vec![vec1.clone()];
+            let opts = [vec1.clone()];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
                         Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
@@ -1463,11 +1463,11 @@ impl GUI {
             //for (idx, item) in self.inventory.iter().enumerate() {
             for (idx, item) in titems.iter().enumerate() {
                 if idx < 25 {
-                    col1[idx] = (idx.clone(), item.clone());
+                    col1[idx] = (idx, item.clone());
                 } else if idx < 50 {
-                    col2[idx - 25] = (idx.clone(), item.clone());
+                    col2[idx - 25] = (idx, item.clone());
                 } else {
-                    col3[idx - 50] = (idx.clone(), item.clone());
+                    col3[idx - 50] = (idx, item.clone());
                 }
             }
             //xx
@@ -1498,7 +1498,7 @@ impl GUI {
             let mut props = Vec::new();
             props.push(Line::from(Span::raw(i_sel)));
             for (s, i) in &itm.get_properties() {
-                let fmt_prop = format!("{}: {}", s, i.to_string());
+                let fmt_prop = format!("{}: {}", s, i);
                 props.push(Line::from(Span::raw(fmt_prop)));
             }
             let desc = Paragraph::new(Text::from(props))
@@ -1507,10 +1507,11 @@ impl GUI {
             let money = player.money;
             let money_str = format!("money: {}", money);
             let back = "BS for back".to_string();
-            let mut mvec = Vec::new();
-            mvec.push(Line::from(Span::raw(money_str)));
-            mvec.push(Line::from(Span::raw(back)));
-            
+            // let mut mvec = Vec::new();
+            let mvec = vec![
+                Line::from(Span::raw(money_str)),
+                Line::from(Span::raw(back)),
+            ];
 
 
             let money_info = Paragraph::new(Text::from(mvec))
@@ -1679,13 +1680,13 @@ impl GUI {
                 .wrap(ratatui::widgets::Wrap { trim: true });
             // let mut adj_list = vec![];
             let vec1 = vec!["Yes", "No"];
-            let opts = vec![vec1.clone()];
+            let opts = [vec1.clone()];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                        Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
-                        Cell::from(cell.clone())
+                        Cell::from(*cell)
                     }
                 }).collect();
                 Row::new(cells)
@@ -1766,13 +1767,13 @@ impl GUI {
             match savelist.len() {
                 0 => {
                     let vec1 = vec!["Yes", "No"];
-                    let opts = vec![vec1.clone()];
+                    let opts = [vec1.clone()];
                     let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
-                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                             if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                                Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                                Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                             } else {
-                                Cell::from(cell.clone())
+                                Cell::from(*cell)
                             }
                         }).collect();
                         Row::new(cells)
@@ -1782,11 +1783,11 @@ impl GUI {
                     f.render_widget(table, normal_info[1]);
                 },
                 _ => {
-                    let opts = vec![savelist.clone()];
+                    let opts = [savelist.clone()];
                     let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
-                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                             if j == self.cursor_pos.0 && i == self.cursor_pos.1 {
-                                Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                                Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                             } else {
                                 Cell::from(cell.clone())
                             }
@@ -1869,13 +1870,13 @@ impl GUI {
                 .wrap(ratatui::widgets::Wrap { trim: true });
             
             let vec1 = vec!["Yes", "No"];
-            let opts = vec![vec1.clone()];
+            let opts = [vec1.clone()];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                        Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
-                        Cell::from(cell.clone())
+                        Cell::from(*cell)
                     }
                 }).collect();
                 Row::new(cells)
@@ -1954,13 +1955,13 @@ impl GUI {
                 .wrap(ratatui::widgets::Wrap { trim: true });
             
             let vec1 = vec!["Ok"];
-            let opts = vec![vec1.clone()];
+            let opts = [vec1.clone()];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                        Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
-                        Cell::from(cell.clone())
+                        Cell::from(*cell)
                     }
                 }).collect();
                 Row::new(cells)
@@ -2039,21 +2040,21 @@ impl GUI {
             for s in post_strings {
                 let s_temp = s.clone();
                 let sparts = s_temp.split("#").collect::<Vec<&str>>();
-                let mut v2 = Vec::new();
-                v2.push(sparts[0].to_string());
-                v2.push(sparts[1].to_string());
+                let v2 = [
+                    sparts[0].to_string(),
+                    sparts[1].to_string(),
+                ];
                 v1.push(v2.clone());
             }
 
 
 
             let rows: Vec<Row> = v1.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::White)))
+                        Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
-                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::White)))
-                        //Cell::from(cell.clone())
+                        Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::White)))
                     }
                 }).collect();
                 Row::new(cells)
@@ -2066,13 +2067,13 @@ impl GUI {
                 //.wrap(ratatui::widgets::Wrap { trim: true });
             
             let vec1 = vec!["Ok"];
-            let opts = vec![vec1.clone()];
+            let opts = [vec1.clone()];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                        Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
-                        Cell::from(cell.clone())
+                        Cell::from(*cell)
                     }
                 }).collect();
                 Row::new(cells)
@@ -2152,21 +2153,21 @@ impl GUI {
             for s in post_strings {
                 let s_temp = s.clone();
                 let sparts = s_temp.split("#").collect::<Vec<&str>>();
-                let mut v2 = Vec::new();
-                v2.push(sparts[0].to_string());
-                v2.push(sparts[1].to_string());
+                let v2 = [
+                    sparts[0].to_string(),
+                    sparts[1].to_string(),
+                ];
                 v1.push(v2.clone());
             }
 
 
 
             let rows: Vec<Row> = v1.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::White)))
+                        Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
-                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::White)))
-                        //Cell::from(cell.clone())
+                        Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::White)))
                     }
                 }).collect();
                 Row::new(cells)
@@ -2179,13 +2180,13 @@ impl GUI {
                 //.wrap(ratatui::widgets::Wrap { trim: true });
             
             let vec1 = vec!["Ok"];
-            let opts = vec![vec1.clone()];
+            let opts = [vec1.clone()];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                        Cell::from(Span::styled(cell.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                        Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                     } else {
-                        Cell::from(cell.clone())
+                        Cell::from(*cell)
                     }
                 }).collect();
                 Row::new(cells)
