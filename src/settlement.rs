@@ -565,7 +565,7 @@ const churches: [&str; 1] = [church1];
 
 const anchors: [&str; 1] = [anchor1];
 
-const cave_o1: &str = r#"ShopNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple|Apple
+const cave_o1: &str = r#"ShopNPC|HealthPotion BronzeLongsword BronzeLightAxe Salve Salve Dowel WoodenBoard BronzePickHammer BronzeShortsword Apple|Apple
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_______
@@ -990,6 +990,30 @@ fn parse_map(
                         let ti = Item::new_apple(x, y);
                         sitems.insert((x, y), ti.clone());
                     }
+                    "BronzeClaymore" => {
+                        let ti = Item::new_bronze_claymore(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
+                    "BronzeShortsword" => {
+                        let ti = Item::new_bronze_shortsword(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
+                    "BronzeLongsword" => {
+                        let ti = Item::new_bronze_longsword(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
+                    "BronzeLightAxe" => {
+                        let ti = Item::new_bronze_light_axe(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
+                    "BronzePickHammer" => {
+                        let ti = Item::new_bronze_pick_hammer(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
+                    "WoodStaff" => {
+                        let ti = Item::new_wood_staff(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
                     _ => {
                         log::info!("itm {:?}", sitem_types[sicount]);
                     }
@@ -1016,6 +1040,30 @@ fn parse_map(
                     }
                     "Apple" => {
                         let ti = Item::new_apple(x, y);
+                        items.insert((x, y), ti.clone());
+                    }
+                    "BronzeClaymore" => {
+                        let ti = Item::new_bronze_claymore(x, y);
+                        items.insert((x, y), ti.clone());
+                    }
+                    "BronzeShortsword" => {
+                        let ti = Item::new_bronze_shortsword(x, y);
+                        items.insert((x, y), ti.clone());
+                    }
+                    "BronzeLongsword" => {
+                        let ti = Item::new_bronze_longsword(x, y);
+                        items.insert((x, y), ti.clone());
+                    }
+                    "BronzeLightAxe" => {
+                        let ti = Item::new_bronze_light_axe(x, y);
+                        items.insert((x, y), ti.clone());
+                    }
+                    "BronzePickHammer" => {
+                        let ti = Item::new_bronze_pick_hammer(x, y);
+                        items.insert((x, y), ti.clone());
+                    }
+                    "WoodStaff" => {
+                        let ti = Item::new_wood_staff(x, y);
                         items.insert((x, y), ti.clone());
                     }
                     _ => {

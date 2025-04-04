@@ -16,7 +16,6 @@
   - add with Settlement
 
 ```
-
 npcs
 ĩ ḯ Ḯ Ỉ ỉ 
 enemies
@@ -26,17 +25,23 @@ snakes
 ȥ ɀ ʑ ζ  
 
 guys
-ǚ Ȫ ȫ
-ṏ Ṏ ṏ ṻ Ṻ ẅ Ẅ
+
+ǚ Ǚ ṏ
+
+Ṏ ṏ ṻ
+
+ẅ Ẅ
 
 bandit
+
 Ồ
 
 horns
 ớ Ớ     
 
 wizrd
-Ӱ ή Ẏ
+Ẏ
+ή ἡ ἦ             
 
 
 weapons
@@ -44,18 +49,24 @@ weapons
 ˦ ˨ ˩ Ͳ ͳ ͼ ͽ Θ Φ θ Ϯ ϯ ѳ Ѻ Ґ Ә Ѭ ϼ ṝ ḹ 
 
 sword
-ƒ Ṫ ẝ ʄ ʈ ˦ ˨ Ϯ ϯ † ተ ቶ ተ ऻ	
+ƒ Ṫ ẝ ʄ ʈ ˦ ˨ Ϯ ϯ † ተ ቶ ተ ऻ	Ť
+
+normal swords
+Ṫ Ϯ ϯ † ተ ቶ ተ Ť ʈ  --     
+
+special swords?
+ɉ ḟ ƒ 
 knife
-ƭ ṫ ẗ ɩ ʇ ና   ރ
+ƭ ṫ ẗ ʇ    
 
 staff
-Ɩ ƪ ẛ ɭ
+Ɩ ƪ ẛ ɭ ſ ɽ ɼ
 
 sickle/sythe    
-ƾ ɹ ɺ ʖ ን         
+ƾ ɺ ʖ ን ና        
 
 axe
-Ͳ ͳ Ґ ፕ ፐ ቸ
+Ͳ ͳ Ґ ፕ ፐ ቸ Ƭ ϝ 
  
 shield
 ͼ ͽ Θ Φ θ ѳ Ѻ ʘ φ ዐ ፀ    
@@ -66,6 +77,7 @@ armour
 items
 Ʌ ṑ Ṑ Ṓ ṓ ṥ ṧ ʋ ʘ ʚ Ψ δ λ π Ю б ж э Ҝ Ҩ Ӂ φ Δ ˤ 
 
+ữ
 Ʌ - tent
 ṓṑ - jars
 ʚ - guts
@@ -75,7 +87,20 @@ items
 ж - wood bundle
 Ҩ - rope
 
+Ξ
 Ѓ
+Ϡ
+Ỽ
+ỽ
+Ỿ
+ỿ
+ɲ
+ɳ
+η
+ ̪
+ή
+
+
 
 features
 Ħ  ṩ ȝ Ƞ Ỻ ỻ ỽ ɣ ɤ ɱ ʊ ʬ ʭ 	Π П Ш ђ ѧ Ѧ Ѫ  џ 
@@ -92,13 +117,107 @@ features
 Ђ
 
 ዅ ዄ
+ɼ
+፠	፡	።	፣	፤	፥	፦	፧	፨
 
-፠	፡	።	፣	፤	፥	፦	፧	፨	፩	፪	፫	፬	፭	፮	፯
-U+137x	፰	፱	፲	፳	፴	፵	፶	፷	፸	፹	፺	፻	፼
 
-
+፩	፪	፫	፬	፭	፮	፯
+፰	፱	፲	፳	፴	፵	፶	፷	፸	፹	፺	፻	፼
 ```
 
+# Enemies
+
+Snakes ʑ
+slimes ǚ
+spiders ẅ
+bandit Ồ
+goblin ớ
+ghoul ή
+
+Ɏ
+
+# weapons
+
+## swords
+
+```
+Ṫ Ϯ ϯ † ተ ቶ ተ Ť
+```
+
+**longsword**
+
+- bronze, iron, steel, titanium
+  `Ṫ † ϯ`
+
+claymore
+`Ṫ`
+
+longsword
+`†`
+
+greatsword
+`ϯ`
+
+**shortsword**
+
+- bronze, iron, steel, titanium
+  `Ϯ ተ`
+
+shortsword
+`Ϯ`
+
+**staffs**
+
+- pine, maple, oak
+  `Ɩ ƪ ẛ ɭ ſ`
+
+staff
+`ɭ`
+
+wood staff
+`ſ`
+
+gem topped staff
+`ƪ`
+
+druid staff
+`ẛ`
+
+**axes**
+
+- bronze, iron, steel, titanium
+  `Ͳ ͳ ፕ ፐ ቸ Ƭ`
+
+heavy axe
+`Ͳ`
+
+light axe
+`ͳ`
+
+pick axe
+`ፐ`
+
+pickhammer
+`Ƭ`
+
+XXXX axe
+`ፕ`
+
+waraxe
+`ቸ`
+
+# armour
+
+`ዠ ዣ ዦ ዥ ዧ`
+
+light armour
+`ዣ ዦ`
+
+medium armour
+`ዠ ዡ`
+
+heavy armour
+`ዥ ዧ`
 
 **animations**:
 
@@ -111,12 +230,13 @@ added map elements that are interacted with similar to settlements
 may rarely have one npc or a few items
 
 **types**:
-* fields, grass features
-* stream
-* pond/lake
-* ruin
-* shack
-* abandoned town/farm
+
+- fields, grass features
+- stream
+- pond/lake
+- ruin
+- shack
+- abandoned town/farm
 
 # Puzzles
 
@@ -222,9 +342,10 @@ Can be accumulated to increase capabilities
 - player must start with easier doors, etc.
 
 door locations:
-* features
-* settlements
-* puzzles? 
+
+- features
+- settlements
+- puzzles?
 
 ## Luck
 
@@ -238,13 +359,13 @@ door locations:
 - gain xp by finding locations: {settlements, puzzles, features}
 
 Levels:
+
 1. basic directional compass to closest settlement - maybe puzzle
 2. history
 3. distance gauge
 4. xy distance
 5. small map
 6. large map
-
 
 ## Herbalist
 
@@ -290,16 +411,9 @@ Levels:
 - The higher the xp, the better deals they get when buying and selling
 - This can be used to increasingly gain wealth throughought the game.
 
-
-
-
 ## plants
 
 - plants that can be used for herbalism are placed
 - there is roll done to determine which plants are generated.
 - place the plants similar to items, but in groupings
 - there could be roll for plant being overgrown, causes plant to fill empty space.
-
-
-
-

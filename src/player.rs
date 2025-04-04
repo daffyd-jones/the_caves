@@ -69,8 +69,8 @@ impl Player {
 
     pub fn get_enc_turn(&mut self) -> (u16, u16) {
         let mut rng = rand::thread_rng();
-        let attack = rng.gen_range((self.attack / 3)..self.attack);
-        let damage = rng.gen_range((self.damage / 3)..self.damage);
+        let attack = rng.gen_range((self.attack / 2)..self.attack);
+        let damage = rng.gen_range((self.damage / 2)..self.damage);
         (attack, damage)
     }
 

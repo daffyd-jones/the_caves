@@ -298,57 +298,52 @@ impl Map {
 
         let y_max = self.cells.len() - 1;
         let x_max = self.cells[0].len() - 1;
+        let gen_x = match self.gen_x {
+            x if x < 0 => self.gen_x - self.gen_x % 4,
+            x if x > 0 => self.gen_x + (4 - self.gen_x % 4),
+            _ => self.gen_x,
+        };
+        let gen_y = match self.gen_y {
+            x if x < 0 => self.gen_y - self.gen_y % 4,
+            x if x > 0 => self.gen_y + (4 - self.gen_y % 4),
+            _ => self.gen_y,
+        };
 
         let (sx, ex, sy, ey) = {
-            if self.gen_x > 0 && self.gen_y == 0 {
-                // log::info!("gen_x: {}", self.gen_x);
-                (0_usize, (self.gen_x - 1) as usize, 0_usize, 0_usize)
-            } else if self.gen_x < 0 && self.gen_y == 0 {
-                // log::info!("gen_x: {}", self.gen_x);
-                (
-                    (x_max as i32 + self.gen_x) as usize,
-                    x_max,
-                    0_usize,
-                    0_usize,
-                )
-            } else if self.gen_y > 0 && self.gen_x == 0 {
-                // log::info!("gen_x: {}", self.gen_y);
-                (0_usize, 0_usize, 0_usize, (self.gen_y - 1) as usize)
-            } else if self.gen_y < 0 && self.gen_x == 0 {
-                // log::info!("gen_x: {}", self.gen_y);
-                (
-                    0_usize,
-                    0_usize,
-                    (y_max as i32 + self.gen_y) as usize,
-                    y_max,
-                )
-            } else if self.gen_x > 0 && self.gen_y > 0 {
+            if gen_x > 0 && gen_y == 0 {
+                // log::ingen_x: {}", gen_x);
+                (0_usize, (gen_x - 1) as usize, 0_usize, 0_usize)
+            } else if gen_x < 0 && gen_y == 0 {
+                // log::ingen_x: {}", gen_x);
+                ((x_max as i32 + gen_x) as usize, x_max, 0_usize, 0_usize)
+            } else if gen_y > 0 && gen_x == 0 {
+                // log::ingen_x: {}", gen_y);
+                (0_usize, 0_usize, 0_usize, (gen_y - 1) as usize)
+            } else if gen_y < 0 && gen_x == 0 {
+                // log::ingen_x: {}", gen_y);
+                (0_usize, 0_usize, (y_max as i32 + gen_y) as usize, y_max)
+            } else if gen_x > 0 && gen_y > 0 {
                 //-------------
+                (0_usize, (gen_x - 1) as usize, 0_usize, (gen_y - 1) as usize)
+            } else if gen_x > 0 && gen_y < 0 {
                 (
                     0_usize,
-                    (self.gen_x - 1) as usize,
-                    0_usize,
-                    (self.gen_y - 1) as usize,
-                )
-            } else if self.gen_x > 0 && self.gen_y < 0 {
-                (
-                    0_usize,
-                    (self.gen_x - 1) as usize,
-                    (y_max as i32 + self.gen_y) as usize,
+                    (gen_x - 1) as usize,
+                    (y_max as i32 + gen_y) as usize,
                     y_max,
                 )
-            } else if self.gen_x < 0 && self.gen_y > 0 {
+            } else if gen_x < 0 && gen_y > 0 {
                 (
-                    (x_max as i32 + self.gen_x) as usize,
+                    (x_max as i32 + gen_x) as usize,
                     x_max,
                     0_usize,
-                    (self.gen_y - 1) as usize,
+                    (gen_y - 1) as usize,
                 )
-            } else if self.gen_x < 0 && self.gen_y < 0 {
+            } else if gen_x < 0 && gen_y < 0 {
                 (
-                    (x_max as i32 + self.gen_x) as usize,
+                    (x_max as i32 + gen_x) as usize,
                     x_max,
-                    (y_max as i32 + self.gen_y) as usize,
+                    (y_max as i32 + gen_y) as usize,
                     y_max,
                 )
             } else {

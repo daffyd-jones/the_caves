@@ -408,7 +408,14 @@ impl GameState {
             Items::Salve,
             Items::Apple,
             Items::EdibleRoot,
-            Items::BugBits,
+            Items::Guts,
+            Items::BronzeClaymore,
+            Items::BronzeLongsword,
+            Items::BronzeShortsword,
+            Items::BronzeHeavyAxe,
+            Items::BronzeLightAxe,
+            Items::BronzePickHammer,
+            Items::BronzePickAxe,
         ];
         for _ in 0..10 {
             let i_choice = i_opts.choose(&mut rng).unwrap_or(&i_opts[0]);
@@ -418,7 +425,14 @@ impl GameState {
                 Items::Salve => items.push(Item::new_salve(0, 0)),
                 Items::Apple => items.push(Item::new_apple(0, 0)),
                 Items::EdibleRoot => items.push(Item::new_edible_root(0, 0)),
-                Items::BugBits => items.push(Item::new_bug_bits(0, 0)),
+                Items::Guts => items.push(Item::new_guts(0, 0)),
+                Items::BronzeClaymore => items.push(Item::new_bronze_claymore(0, 0)),
+                Items::BronzeLongsword => items.push(Item::new_bronze_longsword(0, 0)),
+                Items::BronzeShortsword => items.push(Item::new_bronze_shortsword(0, 0)),
+                Items::BronzeHeavyAxe => items.push(Item::new_bronze_heavy_axe(0, 0)),
+                Items::BronzeLightAxe => items.push(Item::new_bronze_light_axe(0, 0)),
+                Items::BronzePickHammer => items.push(Item::new_bronze_pick_hammer(0, 0)),
+                Items::BronzePickAxe => items.push(Item::new_bronze_pick_axe(0, 0)),
                 _ => items.push(Item::new_rock(0, 0)),
             }
         }

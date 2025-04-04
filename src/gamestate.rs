@@ -85,7 +85,7 @@ fn place_enemies(map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
             if map[y][x] == Cells::Empty {
                 // let mut temp_vec = Vec::new();
                 // temp_vec.push(Items::BugBits);
-                let temp_vec = vec![Items::BugBits];
+                let temp_vec = vec![Items::Guts];
                 let e_temp = Enemy::new(etype, "Bug".to_string(), (x, y), 20, 15, 5, 5, temp_vec);
                 enemies.insert((x, y), e_temp);
                 break;
@@ -513,7 +513,7 @@ pub struct GameState {
     comp_list: HashMap<(i64, i64), String>,
     comp_mode: CompMode,
     loc_rad: u16,
-    depth: u32,
+    depth: u16,
     level: u32,
     //l_systems: LSystems,
     l_rate: u64,
@@ -649,7 +649,7 @@ impl GameState {
             npc_spconvos,
             npc_spcomms,
             npc_trade,
-            key_debounce_dur: Duration::from_millis(30),
+            key_debounce_dur: Duration::from_millis(50),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
             location: Location::Null,
@@ -2296,7 +2296,7 @@ impl GameState {
             self.repop_npcs();
         }
 
-        if self.enemies.len() < 30 {
+        if self.enemies.len() < 70 {
             self.repop_enemies();
         }
 

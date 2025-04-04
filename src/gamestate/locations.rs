@@ -94,7 +94,7 @@ impl GameState {
             //let cdir = get_dir(cpos.clone());
             if ks >= self.depth.into() {
                 self.settles.spawn_new_settlement(cpos);
-                self.depth *= 2;
+                self.depth += 1;
             }
         }
     }

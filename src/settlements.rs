@@ -17,7 +17,7 @@ impl Settlements {
     }
 
     pub fn demo_self() -> Self {
-        let xb = 300 - 74;
+        let xb = 300 - 76;
         let yb = 200 - 24;
         //let xb = -50;
         //let yb = -50;

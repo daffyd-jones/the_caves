@@ -86,7 +86,7 @@ impl GameState {
             let (xx, yy) =
                 if e.get_step_grp() != step || *x < 200 || *x > 400 || *y < 180 || *y > 225 {
                     (*x, *y)
-                } else if dis < 7 {
+                } else if dis < 20 {
                     //here~~~~~~~~~~~~~~~~~~
                     match dir {
                         (dirx, diry) if dirx < 0 && diry < 0 && dx.abs() < dy.abs() => {
@@ -228,7 +228,7 @@ impl GameState {
         let i = drps.pop();
         let (x, y) = e.get_pos();
         let itm = match i {
-            Some(Items::BugBits) => Item::new_bug_bits(x, y),
+            Some(Items::Guts) => Item::new_guts(x, y),
             Some(Items::Apple) => Item::new_apple(x, y),
             Some(Items::MetalScrap) => Item::new_metal_scrap(x, y),
             Some(Items::Salve) => Item::new_salve(x, y),
@@ -572,15 +572,26 @@ impl GameState {
 
     pub fn check_place_enemies(&mut self, x: usize, y: usize) -> bool {
         let mut rng = rand::thread_rng();
-        let l_types = vec![Enemies::Bug, Enemies::Slime];
-        let h_types = vec![Enemies::GoblinMan, Enemies::CrazedExplorer, Enemies::Golem];
+        let l_types = vec![
+            Enemies::Bug,
+            Enemies::Slime,
+            Enemies::Snake,
+            Enemies::Spider,
+        ];
+        let h_types = vec![
+            Enemies::Goblin,
+            Enemies::CrazedExplorer,
+            Enemies::Golem,
+            Enemies::Ghoul,
+            Enemies::Bandit,
+        ];
         if self.map.cells[y][x] == Cells::Empty
             && !self.in_loc_check((x, y))
             && !self.npcs.contains_key(&(x, y))
             && !self.items.contains_key(&(x, y))
         {
             let en_type = {
-                match rng.gen_range(0..3) {
+                match rng.gen_range(0..2) {
                     0 => l_types,
                     1 => h_types,
                     _ => l_types,
@@ -589,31 +600,40 @@ impl GameState {
             if let Some(en_type) = en_type.choose(&mut rng) {
                 match en_type {
                     Enemies::Bug => {
-                        let drop = vec![Items::BugBits];
                         self.enemies
-                            .insert((x, y), Enemy::new_bug((x, y), 20, 10, 10, 5, drop));
+                            .insert((x, y), Enemy::new_bug((x, y), self.depth));
                     }
                     Enemies::Slime => {
-                        let drop = vec![Items::Salve];
                         self.enemies
-                            .insert((x, y), Enemy::new_slime((x, y), 20, 12, 12, 7, drop));
+                            .insert((x, y), Enemy::new_slime((x, y), self.depth));
                     }
-                    Enemies::GoblinMan => {
-                        let drop = vec![Items::MetalScrap];
+                    Enemies::Snake => {
                         self.enemies
-                            .insert((x, y), Enemy::new_goblin_man((x, y), 25, 12, 15, 9, drop));
+                            .insert((x, y), Enemy::new_snake((x, y), self.depth));
+                    }
+                    Enemies::Spider => {
+                        self.enemies
+                            .insert((x, y), Enemy::new_spider((x, y), self.depth));
+                    }
+                    Enemies::Goblin => {
+                        self.enemies
+                            .insert((x, y), Enemy::new_goblin((x, y), self.depth));
+                    }
+                    Enemies::Bandit => {
+                        self.enemies
+                            .insert((x, y), Enemy::new_bandit((x, y), self.depth));
                     }
                     Enemies::CrazedExplorer => {
-                        let drop = vec![Items::Apple];
-                        self.enemies.insert(
-                            (x, y),
-                            Enemy::new_crazed_explorer((x, y), 30, 15, 20, 12, drop),
-                        );
+                        self.enemies
+                            .insert((x, y), Enemy::new_crazed_explorer((x, y), self.depth));
+                    }
+                    Enemies::Ghoul => {
+                        self.enemies
+                            .insert((x, y), Enemy::new_ghoul((x, y), self.depth));
                     }
                     Enemies::Golem => {
-                        let drop = vec![Items::HealthPotion];
                         self.enemies
-                            .insert((x, y), Enemy::new_golem((x, y), 35, 20, 25, 15, drop));
+                            .insert((x, y), Enemy::new_golem((x, y), self.depth));
                     }
                     _ => todo!(),
                 };

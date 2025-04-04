@@ -1077,11 +1077,11 @@ impl GUI {
             // let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
             //     .block(options_block);
 
-            let prop = HashMap::new();
-            let itype = String::new();
-            let desc = String::new();
-            let iopts = HashMap::new();
-            let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, ItemEffect::Null, 0, 0, prop);
+            // let prop = HashMap::new();
+            // let itype = String::new();
+            // let desc = String::new();
+            // let iopts = HashMap::new();
+            let i_temp = Item::default();
             let mut col1 = vec![(0, i_temp.clone()); 25];
             let mut col2 = vec![(0, i_temp.clone()); 25];
             let mut col3 = vec![(0, i_temp.clone()); 25];
@@ -1452,11 +1452,7 @@ impl GUI {
                 .title(Span::styled("Items", Style::default().fg(Color::DarkGray)))
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-            let prop = HashMap::new();
-            let itype = String::new();
-            let desc = String::new();
-            let iopts = HashMap::new();
-            let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, ItemEffect::Null, 0, 0, prop);
+            let i_temp = Item::default();
             let mut col1 = vec![(0, i_temp.clone()); 25];
             let mut col2 = vec![(0, i_temp.clone()); 25];
             let mut col3 = vec![(0, i_temp.clone()); 25];

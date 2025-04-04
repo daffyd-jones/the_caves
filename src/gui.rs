@@ -7,6 +7,7 @@ use crate::enemy::{Enemy};
 use crate::item::Item;
 use crate::notebook::{Quest, Place, Person, Lore};
 mod gui_man_draw;
+// use ratatui::crossterm::style::Color;
 //use rand::Rng;
 use ratatui::widgets::Clear;
 //use ratatui::prelude::Alignment;
@@ -46,11 +47,15 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                     ('¡', Color::LightYellow)
                 } else if let Some(enemy) = enemies.get(&(ix, jy)) {
                     match enemy.etype {
-                        Enemies::Bug => ('B', Color::Red),
-                        Enemies::GoblinMan => ('G', Color::Red),
-                        Enemies::CrazedExplorer => ('C', Color::Red),
-                        Enemies::Slime => ('S', Color::Red),
-                        Enemies::Golem => ('T', Color::Red),
+                        Enemies::Bug => ('Ѫ', Color::Red),
+                        Enemies::Goblin => ('ớ', Color::Red),
+                        Enemies::CrazedExplorer => ('ḯ', Color::Red),
+                        Enemies::Slime => ('ǚ', Color::Red),
+                        Enemies::Golem => ('Ṏ', Color::Red),
+                        Enemies::Snake => ('ʑ', Color::Red), 
+                        Enemies::Spider => ('ẅ', Color::Red), 
+                        Enemies::Bandit => ('Ồ', Color::Red),
+                        Enemies::Ghoul => ('ή', Color::Red),
                         _ => todo!(),
                     }
                 } else if portals.contains_key(&(ix, jy)) {
@@ -66,35 +71,48 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                         _ => todo!(),
                     }
                 } else if let Some(item) = items.get(&(ix, jy)) {
-                    match item.itype {
-                        Items::Rock => ('o', Color::Yellow),
-                        Items::EdibleRoot => ('o', Color::Yellow),
-                        Items::Apple => ('o', Color::Yellow),
-                        Items::MetalScrap => ('o', Color::Yellow),
-                        Items::BugBits => ('o', Color::Yellow),
-                        Items::HealthPotion => ('o', Color::Yellow), // +10 health
-                        Items::Salve => ('o', Color::Yellow),
-                        Items::Dowel => ('o', Color::Yellow),
-                        Items::WoodenBoard => ('o', Color::Yellow),
-                        Items::IronShield => ('o', Color::Yellow), // +10 defence
-                        Items::IronSword => ('o', Color::Yellow),
-                        _ => todo!(),
-                    }
+                    // (item.icon, Color::Yellow)
+                    item.icon
+                    // match item.itype {
+                    //     Items::Rock => ('o', Color::Yellow),
+                    //     Items::EdibleRoot => ('ȝ', Color::Yellow),
+                    //     Items::Apple => ('ỏ', Color::Yellow),
+                    //     Items::MetalScrap => ('ϟ', Color::Yellow),
+                    //     Items::BugBits => ('ʚ', Color::Yellow),
+                    //     Items::HealthPotion => ('ṓ', Color::Yellow), // +10 health
+                    //     Items::Salve => ('ọ', Color::Yellow),
+                    //     Items::Dowel => ('˨', Color::Yellow),
+                    //     Items::WoodenBoard => ('ѳ', Color::Yellow),
+                    //     Items::IronShield => ('θ', Color::Yellow), // +10 defence
+                    //     Items::BronzeClaymore => ('Ṫ', Color::Yellow),
+                    //     Items::BronzeLongsword => ('†', Color::Yellow),
+                    //     Items::BronzeShortsword => ('Ϯ', Color::Yellow),
+                    //     Items::BronzeLightAxe => ('ͳ', Color::Yellow),
+                    //     Items::BronzePickHammer => ('Ƭ', Color::Yellow),
+                    //     _ => todo!(),
+                    // }
                 } else if let Some(item) = litems.get(&(ix, jy)) {
-                    match item.itype {
-                        Items::Rock => ('o', Color::Yellow),
-                        Items::EdibleRoot => ('o', Color::Yellow),
-                        Items::Apple => ('o', Color::Yellow),
-                        Items::MetalScrap => ('o', Color::Yellow),
-                        Items::BugBits => ('o', Color::Yellow),
-                        Items::HealthPotion => ('o', Color::Yellow), // +10 health
-                        Items::Salve => ('o', Color::Yellow),
-                        Items::Dowel => ('o', Color::Yellow),
-                        Items::WoodenBoard => ('o', Color::Yellow),
-                        Items::IronShield => ('o', Color::Yellow), // +10 defence
-                        Items::IronSword => ('o', Color::Yellow),
-                        _ => todo!(),
-                    }
+                    item.icon
+                    // (item.icon, Color::Yellow)
+                    // match item.itype {
+                    //     Items::Rock => ('o', Color::Yellow),
+                    //     Items::EdibleRoot => ('ȝ', Color::Yellow),
+                    //     Items::Apple => ('ỏ', Color::Yellow),
+                    //     Items::MetalScrap => ('ϟ', Color::Yellow),
+                    //     Items::BugBits => ('ʚ', Color::Yellow),
+                    //     Items::HealthPotion => ('ṓ', Color::Yellow), // +10 health
+                    //     Items::Salve => ('ọ', Color::Yellow),
+                    //     Items::Dowel => ('˨', Color::Yellow),
+                    //     Items::WoodenBoard => ('ѳ', Color::Yellow),
+                    //     Items::IronShield => ('θ', Color::Yellow), // +10 defence
+                    //     Items::IronSword => ('Ṫ', Color::Yellow),
+                    //     Items::BronzeClaymore => ('Ṫ', Color::Yellow),
+                    //     Items::BronzeLongsword => ('†', Color::Yellow),
+                    //     Items::BronzeShortsword => ('Ϯ', Color::Yellow),
+                    //     Items::BronzeLightAxe => ('ͳ', Color::Yellow),
+                    //     Items::BronzePickHammer => ('Ƭ', Color::Yellow),
+                    //     _ => todo!(),
+                    // }
                 } else if let Some(env) = env_inters.get(&(ix, jy)) {
                     // log::info!("\nEnvinters: {:?} | {}, {}", env, ix, jy);
                     let env_col = {
@@ -274,11 +292,12 @@ impl GUI {
             vec![(InterOpt::Null, "".to_string()); 3],
             vec![(InterOpt::Null, "".to_string()); 3],
         );
-        let prop = HashMap::new();
-        let itype = String::new();
-        let desc = String::new();
-        let iopts = HashMap::new();
-        let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, ItemEffect::Null, 0, 0, prop);
+        // let prop = HashMap::new();
+        // let itype = String::new();
+        // let desc = String::new();
+        // let iopts = HashMap::new();
+        let i_temp = Item::default();
+        // let i_temp = Item::new(Items::Null, itype, ' ', desc, iopts, false, Equip::Null, ItemEffect::Null, 0, 0, prop);
         let inv_opt = (
             vec![(0, i_temp.clone()); 25],
             vec![(0, i_temp.clone()); 25],
@@ -657,66 +676,68 @@ impl GUI {
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                    let hands_block = Block::default()
-                        .title(Span::styled("Hands", Style::default().fg(Color::DarkGray)))
+                    let armour_block = Block::default()
+                        .title(Span::styled("Armour", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                    let head_block = Block::default()
-                        .title(Span::styled("Head", Style::default().fg(Color::DarkGray)))
+                    let wearing_block = Block::default()
+                        .title(Span::styled("Wearing", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                    let torso_block = Block::default()
-                        .title(Span::styled("Torso", Style::default().fg(Color::DarkGray)))
-                        .borders(Borders::ALL)
-                        .style(Style::default().bg(Color::Black));
+                    // let torso_block = Block::default()
+                    //     .title(Span::styled("Torso", Style::default().fg(Color::DarkGray)))
+                    //     .borders(Borders::ALL)
+                    //     .style(Style::default().bg(Color::Black));
 
-                    let feet_block = Block::default()
-                        .title(Span::styled("Feet", Style::default().fg(Color::DarkGray)))
-                        .borders(Borders::ALL)
-                        .style(Style::default().bg(Color::Black));
+                    // let feet_block = Block::default()
+                    //     .title(Span::styled("Feet", Style::default().fg(Color::DarkGray)))
+                    //     .borders(Borders::ALL)
+                    //     .style(Style::default().bg(Color::Black));
+
+                    // let equip_layout = Layout::default()
+                    // .direction(Direction::Horizontal)
+                    // .constraints(
+                    //     [
+                    //         Constraint::Percentage(33),
+                    //         Constraint::Percentage(34),
+                    //         Constraint::Percentage(33)
+                    //     ].as_ref()
+                    // )
+                    // .split(normal_info[3]);
 
                     let equip_layout = Layout::default()
-                    .direction(Direction::Horizontal)
+                    .direction(Direction::Vertical)
                     .constraints(
                         [
-                            Constraint::Percentage(33),
-                            Constraint::Percentage(34),
-                            Constraint::Percentage(33)
+                            Constraint::Percentage(25),
+                            Constraint::Percentage(25),
+                            Constraint::Percentage(25),
+                            Constraint::Percentage(25),
                         ].as_ref()
                     )
                     .split(normal_info[3]);
 
-                    let equip_lc = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints(
-                        [
-                            Constraint::Percentage(33),
-                            Constraint::Percentage(66),
-                        ].as_ref()
-                    )
-                    .split(equip_layout[0]);
+                    // let equip_ = Layout::default()
+                    // .direction(Direction::Vertical)
+                    // .constraints(
+                    //     [
+                    //         Constraint::Percentage(30),
+                    //         Constraint::Percentage(40),
+                    //         Constraint::Percentage(30)
+                    //     ].as_ref()
+                    // )
+                    // .split(equip_layout[1]);
 
-                    let equip_cc = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints(
-                        [
-                            Constraint::Percentage(30),
-                            Constraint::Percentage(40),
-                            Constraint::Percentage(30)
-                        ].as_ref()
-                    )
-                    .split(equip_layout[1]);
-
-                    let equip_rc = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints(
-                        [
-                            Constraint::Percentage(100),
-                        ].as_ref()
-                    )
-                    .split(equip_layout[2]);
+                    // let equip_rc = Layout::default()
+                    // .direction(Direction::Vertical)
+                    // .constraints(
+                    //     [
+                    //         Constraint::Percentage(100),
+                    //     ].as_ref()
+                    // )
+                    // .split(equip_layout[2]);
 
 
                     //f.render_widget(equip_layout, normal_info[3]);
@@ -828,32 +849,32 @@ impl GUI {
                     let w_str = equip_items.get(&Equip::Weapon).unwrap_or(&def_str);
                     let weapon_para = Paragraph::new(Text::raw(w_str))
                         .block(weapon_block);
-                    f.render_widget(weapon_para, equip_rc[0]);
+                    f.render_widget(weapon_para, equip_layout[0]);
 
                     let s_str = equip_items.get(&Equip::Shield).unwrap_or(&def_str);
                     let shield_para = Paragraph::new(Text::raw(s_str))
                         .block(shield_block);
-                    f.render_widget(shield_para, equip_lc[1]);
+                    f.render_widget(shield_para, equip_layout[1]);
 
-                    let h_str = equip_items.get(&Equip::Hands).unwrap_or(&def_str);
-                    let hands_para = Paragraph::new(Text::raw(h_str))
-                        .block(hands_block);
-                    f.render_widget(hands_para, equip_lc[0]);
+                    // let h_str = equip_items.get(&Equip::Hands).unwrap_or(&def_str);
+                    // let hands_para = Paragraph::new(Text::raw(h_str))
+                    //     .block(hands_block);
+                    // f.render_widget(hands_para, equip_lc[0]);
 
-                    let hh_str = equip_items.get(&Equip::Head).unwrap_or(&def_str);
-                    let head_para = Paragraph::new(Text::raw(hh_str))
-                        .block(head_block);
-                    f.render_widget(head_para, equip_cc[0]);
+                    // let hh_str = equip_items.get(&Equip::Head).unwrap_or(&def_str);
+                    // let head_para = Paragraph::new(Text::raw(hh_str))
+                    //     .block(head_block);
+                    // f.render_widget(head_para, equip_cc[0]);
 
                     let t_str = equip_items.get(&Equip::Torso).unwrap_or(&def_str);
-                    let torso_para = Paragraph::new(Text::raw(t_str))
-                        .block(torso_block);
-                    f.render_widget(torso_para, equip_cc[1]);
+                    let armour_para = Paragraph::new(Text::raw(t_str))
+                        .block(armour_block);
+                    f.render_widget(armour_para, equip_layout[2]);
 
                     let f_str = equip_items.get(&Equip::Feet).unwrap_or(&def_str);
-                    let feet_para = Paragraph::new(Text::raw(f_str))
-                        .block(feet_block);
-                    f.render_widget(feet_para, equip_cc[2]);
+                    let wearing_para = Paragraph::new(Text::raw(f_str))
+                        .block(wearing_block);
+                    f.render_widget(wearing_para, equip_layout[3]);
 
                   
                     f.render_widget(h_block, normal_info[0]);
@@ -1157,11 +1178,11 @@ impl GUI {
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                    let prop = HashMap::new();
-                    let itype = String::new();
-                    let desc = String::new();
-                    let iopts = HashMap::new();
-                    let i_temp = Item::new(Items::Null, itype, desc, iopts, false, Equip::Null, ItemEffect::Null, 0, 0, prop);
+                    // let prop = HashMap::new();
+                    // let itype = String::new();
+                    // let desc = String::new();
+                    // let iopts = HashMap::new();
+                    let i_temp = Item::default();
                     let mut col1 = vec![(0, i_temp.clone()); 25];
                     let mut col2 = vec![(0, i_temp.clone()); 25];
                     let mut col3 = vec![(0, i_temp.clone()); 25];
