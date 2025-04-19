@@ -6,8 +6,8 @@ use crate::enums::Cells;
 use std::collections::HashMap;
 // use rand::Rng;
 // use std::io::stdout;
-use rand::prelude::SliceRandom;
 use rand::Rng;
+use rand::{prelude::SliceRandom, thread_rng};
 use std::vec::Vec;
 // use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
@@ -45,6 +45,21 @@ impl Map {
         let mut cells = vec![vec![Cells::Wall; MAP_W]; MAP_H];
         let mut small_cells = vec![vec![Cells::Wall; 150]; 100];
 
+        for _ in 0..120 {
+            let x = rng.gen_range(0..135);
+            let y = rng.gen_range(0..85);
+
+            let wall_cell = [Cells::Wall, Cells::Wall2, Cells::Wall3, Cells::Wall4]
+                .choose(&mut rng)
+                .unwrap_or(&Cells::Wall);
+
+            for j in 0..8 {
+                for i in 0..8 {
+                    small_cells[y + j][x + i] = *wall_cell;
+                }
+            }
+        }
+
         fn carve_passages(
             start_x: usize,
             start_y: usize,
@@ -66,8 +81,14 @@ impl Map {
 
                     if nnx < 150
                         && nny < 100
-                        && cells[nny][nnx] == Cells::Wall
-                        && cells[ny][nx] == Cells::Wall
+                        && (cells[nny][nnx] == Cells::Wall
+                            || cells[nny][nnx] == Cells::Wall2
+                            || cells[nny][nnx] == Cells::Wall3
+                            || cells[nny][nnx] == Cells::Wall4)
+                        && (cells[ny][nx] == Cells::Wall
+                            || cells[ny][nx] == Cells::Wall2
+                            || cells[ny][nx] == Cells::Wall3
+                            || cells[ny][nx] == Cells::Wall4)
                     {
                         cells[y][x] = Cells::Empty;
                         cells[ny][nx] = Cells::Empty;
@@ -86,8 +107,51 @@ impl Map {
         for y in 0..100 {
             for x in 0..150 {
                 let cell = small_cells[y][x];
+                let neighbors = if y > 0 && y < 99 && x > 0 && x < 148 {
+                    (
+                        small_cells[y - 1][x],
+                        small_cells[y + 1][x],
+                        small_cells[y][x - 1],
+                        small_cells[y][x + 1],
+                    )
+                } else {
+                    (Cells::Null, Cells::Null, Cells::Null, Cells::Null)
+                };
                 for dy in 0..4 {
                     for dx in 0..4 {
+                        if cell == Cells::Wall
+                            || cell == Cells::Wall2
+                            || cell == Cells::Wall3
+                            || cell == Cells::Wall4
+                        {
+                            match neighbors {
+                                (Cells::Empty, _, Cells::Empty, _) => {
+                                    if dx == 0 && dy == 0 {
+                                        cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        continue;
+                                    }
+                                }
+                                (Cells::Empty, _, _, Cells::Empty) => {
+                                    if dx == 3 && dy == 0 {
+                                        cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        continue;
+                                    }
+                                }
+                                (_, Cells::Empty, Cells::Empty, _) => {
+                                    if dx == 0 && dy == 3 {
+                                        cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        continue;
+                                    }
+                                }
+                                (_, Cells::Empty, _, Cells::Empty) => {
+                                    if dx == 3 && dy == 3 {
+                                        cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        continue;
+                                    }
+                                }
+                                _ => {}
+                            }
+                        }
                         cells[y * 4 + dy][x * 4 + dx] = cell;
                     }
                 }
@@ -104,7 +168,7 @@ impl Map {
             }
         }
 
-        for _ in 0..(MAP_H * MAP_W) / 10 {
+        for _ in 0..(MAP_H * MAP_W) / 8 {
             let x1 = rng.gen_range(0..MAP_W);
             let y1 = rng.gen_range(0..MAP_H);
             if cells[y1][x1] == Cells::Empty {
@@ -215,6 +279,21 @@ impl Map {
         let mut t_cells = vec![vec![Cells::Wall; MAP_W]; MAP_H];
         let mut small_cells = vec![vec![Cells::Wall; 150]; 100];
 
+        for _ in 0..120 {
+            let x = rng.gen_range(0..135);
+            let y = rng.gen_range(0..85);
+
+            let wall_cell = [Cells::Wall, Cells::Wall2, Cells::Wall3, Cells::Wall4]
+                .choose(&mut rng)
+                .unwrap_or(&Cells::Wall);
+
+            for j in 0..8 {
+                for i in 0..8 {
+                    small_cells[y + j][x + i] = *wall_cell;
+                }
+            }
+        }
+
         fn carve_passages(
             start_x: usize,
             start_y: usize,
@@ -236,8 +315,14 @@ impl Map {
 
                     if nnx < 150
                         && nny < 100
-                        && cells[nny][nnx] == Cells::Wall
-                        && cells[ny][nx] == Cells::Wall
+                        && (cells[nny][nnx] == Cells::Wall
+                            || cells[nny][nnx] == Cells::Wall2
+                            || cells[nny][nnx] == Cells::Wall3
+                            || cells[nny][nnx] == Cells::Wall4)
+                        && (cells[ny][nx] == Cells::Wall
+                            || cells[ny][nx] == Cells::Wall2
+                            || cells[ny][nx] == Cells::Wall3
+                            || cells[ny][nx] == Cells::Wall4)
                     {
                         cells[y][x] = Cells::Empty;
                         cells[ny][nx] = Cells::Empty;
@@ -253,11 +338,65 @@ impl Map {
         let start_y = 100 / 2;
         carve_passages(start_x, start_y, &mut small_cells, &mut rng);
 
+        // for y in 0..100 {
+        //     for x in 0..150 {
+        //         let cell = small_cells[y][x];
+        //         for dy in 0..4 {
+        //             for dx in 0..4 {
+        //                 t_cells[y * 4 + dy][x * 4 + dx] = cell;
+        //             }
+        //         }
+        //     }
+        // }
+
         for y in 0..100 {
             for x in 0..150 {
                 let cell = small_cells[y][x];
+                let neighbors = if y > 0 && y < 99 && x > 0 && x < 148 {
+                    (
+                        small_cells[y - 1][x],
+                        small_cells[y + 1][x],
+                        small_cells[y][x - 1],
+                        small_cells[y][x + 1],
+                    )
+                } else {
+                    (Cells::Null, Cells::Null, Cells::Null, Cells::Null)
+                };
                 for dy in 0..4 {
                     for dx in 0..4 {
+                        if cell == Cells::Wall
+                            || cell == Cells::Wall2
+                            || cell == Cells::Wall3
+                            || cell == Cells::Wall4
+                        {
+                            match neighbors {
+                                (Cells::Empty, _, Cells::Empty, _) => {
+                                    if dx == 0 && dy == 0 {
+                                        t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        continue;
+                                    }
+                                }
+                                (Cells::Empty, _, _, Cells::Empty) => {
+                                    if dx == 3 && dy == 0 {
+                                        t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        continue;
+                                    }
+                                }
+                                (_, Cells::Empty, Cells::Empty, _) => {
+                                    if dx == 0 && dy == 3 {
+                                        t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        continue;
+                                    }
+                                }
+                                (_, Cells::Empty, _, Cells::Empty) => {
+                                    if dx == 3 && dy == 3 {
+                                        t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        continue;
+                                    }
+                                }
+                                _ => {}
+                            }
+                        }
                         t_cells[y * 4 + dy][x * 4 + dx] = cell;
                     }
                 }
@@ -299,12 +438,12 @@ impl Map {
         let y_max = self.cells.len() - 1;
         let x_max = self.cells[0].len() - 1;
         let gen_x = match self.gen_x {
-            x if x < 0 => self.gen_x - self.gen_x % 4,
+            x if x < 0 => self.gen_x + (-4 - self.gen_y % 4),
             x if x > 0 => self.gen_x + (4 - self.gen_x % 4),
             _ => self.gen_x,
         };
         let gen_y = match self.gen_y {
-            x if x < 0 => self.gen_y - self.gen_y % 4,
+            x if x < 0 => self.gen_y + (-4 - self.gen_y % 4),
             x if x > 0 => self.gen_y + (4 - self.gen_y % 4),
             _ => self.gen_y,
         };

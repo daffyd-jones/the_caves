@@ -72,32 +72,37 @@ impl GameState {
         for ((x, y), _) in spos_list {
             let (dx, dy) = (x - -dfo.0, y - -dfo.1);
             let hyp = ((dx.pow(2) + dy.pow(2)) as f64).sqrt() as i64;
-            // if d_min == 0 {
-            //     d_min = hyp;
-            //     distances.insert(hyp, (x.clone(), y.clone()));
-            // } else if hyp < d_min {
-            //     d_min = hyp;
-            //     distances.insert(hyp, (x.clone(), y.clone()));
-            // }
-            d_min = hyp;
+            if hyp < d_min || d_min == 0 {
+                d_min = hyp;
+            }
+            // d_min = hyp;
             distances.insert(hyp, (x, y));
         }
         self.comp_head = distances[&d_min];
-        self.gui.set_comp_list(self.comp_list.clone());
+        let comp_names = self.sort_comp_list();
+        self.gui.set_comp_list(comp_names);
     }
 
     pub fn new_loc_check(&mut self) {
         let cpos = self.dist_fo;
         let chyp = ((cpos.0.pow(2) + cpos.1.pow(2)) as f64).sqrt() as i64;
-        if chyp + 200 > 1000 {
-            let ks = chyp / 1000;
+        if chyp > 800 {
+            let ks = chyp / 800;
             //let cdir = get_dir(cpos.clone());
-            if ks >= self.depth.into() {
+            if ks > self.depth.into() {
                 self.settles.spawn_new_settlement(cpos);
                 self.depth += 1;
             }
         }
     }
+
+    // pub fn new_feature_check(&mut self) {
+    //     if !self.location == Location::Null {
+    //         ()
+    //     }
+    //     if self.features.feature_check_();
+
+    // }
 
     pub fn update_puzzle(&mut self, mut puzzle: Puzzle) -> Location {
         let lpos = puzzle.get_pos();

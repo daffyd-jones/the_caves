@@ -141,8 +141,11 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                         Cells::Rock => ('*', Color::DarkGray),
                         Cells::Wall => {
                             // ('░', Color::LightCyan)
-                            ('▓', Color::LightCyan)
+                            ('▓', Color::DarkGray)
                         },
+                        Cells::Wall2 => ('▒', Color::DarkGray),
+                        Cells::Wall3 => ('█', Color::DarkGray),
+                        Cells::Wall4 => ('░', Color::Red),
                         Cells::NPCM => (' ', Color::White),
                         Cells::Floor => ('░', Color::Black),
                         Cells::Floor2 => ('░', Color::Gray),
@@ -180,6 +183,17 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                         Cells::SmZer => ('ø', Color::LightBlue),
                         Cells::BZer => ('Ø', Color::LightBlue),
                         Cells::Cop => ('©', Color::LightRed),
+                        Cells::DblBracedGate => ('Ħ', Color::Red),   
+                        Cells::BracedGate => ('ỻ', Color::Red),  
+                        Cells::Arch => ('Π', Color::Red),  
+                        Cells::Bricks => ('ʭ', Color::Red),  
+                        Cells::Crops => ('ʬ', Color::Yellow),  
+                        Cells::SmallCampfire => ('ѧ', Color::Gray),  
+                        Cells::Campfire => ('Ѧ', Color::Red),  
+                        Cells::Table => ('π', Color::Red),  
+                        Cells::Firewood => ('ж', Color::Red),  
+                        Cells::Tent => ('Ʌ', Color::Gray),  
+   
                         //Cells::Log => ('l', Color::LightGreen),
                         //Cells::Clinic => ('c', Color::LightGreen),
                         //Cells::GPost => ('p', Color::LightGreen),
@@ -263,10 +277,10 @@ pub struct GUI {
     inventory: Vec<Item>,
     inv_opt: (Vec<(usize, Item)>, Vec<(usize, Item)>, Vec<(usize, Item)>),
     comp_head: (i64, i64),
-    comp_list: HashMap<(i64, i64), String>,
-    comp_opts: (Vec<String>, Vec<String>),
+    comp_list: Vec<String>,
+    comp_opts: (Vec<String>, Vec<String>, Vec<String>, Vec<String>),
     notes_opt: (Vec<String>, Vec<String>),
-    active_notes: (Vec<Quest>, Vec<Place>, Vec<Person>, Vec<Lore>),
+    active_notes: (HashMap<String, String>, Vec<String>, HashMap<String, String>, HashMap<String, String>),
     enc_opt: (Vec<(EncOpt, String)>, Vec<(EncOpt, String)>),
     help: bool,
     // ysno: Vec<(String, String)>,
@@ -308,17 +322,19 @@ impl GUI {
             vec!["".to_string(); 3],
             vec!["".to_string(); 3],
         );
-        let quests = vec![Quest::default()];
-        let places = vec![Place::default()];
-        let people = vec![Person::default()];
-        let lore = vec![Lore::default()];
+        // let quests = vec![Quest::default()];
+        // let places = vec![Place::default()];
+        // let people = vec![Person::default()];
+        // let lore = vec![Lore::default()];
         let enc_opt = (
             vec![(EncOpt::Null, "".to_string()); 3],
             vec![(EncOpt::Null, "".to_string()); 3],
         );
 
-        let comp_list = HashMap::new();
+        let comp_list = Vec::new();
         let comp_opts = (
+            vec!["".to_string(); 4],
+            vec!["".to_string(); 4],
             vec!["".to_string(); 4],
             vec!["".to_string(); 4],
         );
@@ -344,7 +360,7 @@ impl GUI {
             comp_list,
             comp_opts,
             notes_opt,
-            active_notes: (quests, places, people, lore),
+            active_notes: (HashMap::new(), Vec::new(), HashMap::new(), HashMap::new()),
             enc_opt,
             help,
         }
@@ -361,7 +377,7 @@ impl GUI {
         );
     }
 
-    pub fn set_notes(&mut self, notes: (Vec<Quest>, Vec<Place>, Vec<Person>, Vec<Lore>)) {
+    pub fn set_notes(&mut self, notes: (HashMap<String, String>, Vec<String>, HashMap<String, String>, HashMap<String, String>)) {
         self.active_notes = notes;
     }
 
@@ -369,7 +385,7 @@ impl GUI {
         self.comp_head = ((temp.0 - 224), (temp.1 - 174));
     }
 
-    pub fn set_comp_list(&mut self, ltemp: HashMap<(i64, i64), String>) {
+    pub fn set_comp_list(&mut self, ltemp: Vec<String>) {
         self.comp_list = ltemp;
     }
 
@@ -435,6 +451,8 @@ impl GUI {
         let comp_option = match temp {
             0 => &self.comp_opts.0[self.cursor_pos.0],
             1 => &self.comp_opts.1[self.cursor_pos.0],
+            2 => &self.comp_opts.2[self.cursor_pos.0],
+            3 => &self.comp_opts.3[self.cursor_pos.0],
             _ => todo!(),
         };
         comp_option.to_string()
@@ -548,7 +566,7 @@ impl GUI {
                         .title("Information")
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
-                    let rows = vec![
+                    let mut rows = vec![
                         Row::new(vec![
                             Span::styled("px: ", Style::default().fg(Color::White)),
                             Span::styled(player.x.to_string(), Style::default().fg(Color::Yellow)),
@@ -625,15 +643,26 @@ impl GUI {
                             Span::styled("gs_compass: ", Style::default().fg(Color::White)),
                             Span::styled(debug.2, Style::default().fg(Color::Yellow)),
                          ]),
-                        Row::new(vec![
-                            Span::styled("settle_pos: ", Style::default().fg(Color::White)),
-                            Span::styled(debug.1, Style::default().fg(Color::Yellow)),
-                         ]),
+                        // Row::new(vec![
+                        //     Span::styled("settle_pos: ", Style::default().fg(Color::White)),
+                        //     Span::styled(debug.1, Style::default().fg(Color::Yellow)),
+                        //  ]),
                         Row::new(vec![
                             Span::styled("env_inters: ", Style::default().fg(Color::White)),
                             Span::styled((env_inters.len()).to_string(), Style::default().fg(Color::Yellow)),
                          ]),
                     ];
+
+                    let settle_pos = debug.1.split("#");
+
+                    for i in settle_pos {
+                        rows.push(
+                            Row::new(vec![
+                                Span::styled("-", Style::default().fg(Color::White)),
+                                Span::styled(i, Style::default().fg(Color::Yellow)),
+                             ])
+                        );
+                    }
 
                     let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
                                     .block(info_block);
@@ -1124,17 +1153,26 @@ impl GUI {
 
                     let mut vec1 = vec!["".to_string(); 4];
                     let mut vec2 = vec!["".to_string(); 4];
+                    let mut vec3 = vec!["".to_string(); 4];
+                    let mut vec4 = vec!["".to_string(); 4];
 
                     let cmp_list = self.comp_list.clone();
+                    let cmp_scroll = if cmp_list.len() > 15 {
+                        &cmp_list[0..15]   
+                    } else {
+                        &cmp_list[0..]
+                    }; 
                     
-                    for (idx, (_pos, names)) in cmp_list.iter().enumerate() {
-                        if idx == 0 {
-                            vec1[idx] = "Search".to_string();
-                        }
-                        if idx < 4 {
+                    vec1[0] = "Search".to_string();
+                    for (idx, names) in cmp_scroll.iter().enumerate() {
+                        if idx < 3 {
                             vec1[idx+1] = names.clone();
-                        } else {
+                        } else if idx >= 3 && idx < 7 {
                             vec2[idx-3] = names.clone();
+                        }else if idx >= 7 && idx < 11 {
+                            vec3[idx-7] = names.clone();
+                        } else {
+                            vec4[idx-11] = names.clone();
                         }
                     }
 
@@ -1142,8 +1180,8 @@ impl GUI {
 
                     //let mut vec1 = vec!["compass"];
                     //let mut vec2 = vec!["", ""];
-                    self.comp_opts = (vec1.clone(), vec2.clone()); 
-                    let inv_table = vec![vec1.clone(), vec2.clone()];
+                    self.comp_opts = (vec1.clone(), vec2.clone(), vec3.clone(), vec4.clone()); 
+                    let inv_table = [vec1.clone(), vec2.clone(), vec3.clone(), vec4.clone()];
                     //
                     let rows: Vec<Row> = inv_table.iter().enumerate().map(|(j, row)| {
                         let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
@@ -1245,8 +1283,8 @@ impl GUI {
                     .direction(Direction::Vertical)
                     .constraints(
                         [
-                            Constraint::Percentage(20),
-                            Constraint::Percentage(80)
+                            Constraint::Percentage(10),
+                            Constraint::Percentage(90)
                         ].as_ref()
                     )
                     .split(game_chunks[1]);
@@ -1259,7 +1297,7 @@ impl GUI {
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                    let vec1 = vec!["Quests".to_string(), "Places".to_string(), "People".to_string(), "Lore".to_string()];
+                    let vec1 = vec!["Settlements".to_string(), "Conversations".to_string(), "Knowledge".to_string(), "Discoveries".to_string()];
                     let vec2 = vec!["".to_string(), "".to_string(), "".to_string(), "".to_string()];
 
                     let inv_table: Vec<Vec<String>, > = vec![vec1.clone(), vec2.clone()];
@@ -1273,13 +1311,12 @@ impl GUI {
                                     Cell::from(cell.as_str())
                                 }
                             } else {
-                                if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
+                                if i == self.cursor_pos.0 {
                                     Cell::from(Span::styled(cell.as_str(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                                 } else {
                                     Cell::from(cell.as_str())
                                 }
                             }
-
                         }).collect();
                         Row::new(cells)
                     }).collect();
@@ -1288,60 +1325,69 @@ impl GUI {
 
                     let c_hold = &self.cursor_hold.0;
 
-                    let paragraph = if self.menu_lvl > 0 {
-                        match c_hold {
+                    let paragraph = if self.menu_lvl == 0 {
+                        match self.cursor_pos.0 {
                             0 => {
-                                let qsts = &self.active_notes.0;
-                                let qst = &qsts[self.cursor_pos.1];
-                                let Some(stage) = ({
-                                    let mut a_s = None;
-                                    for (_, s) in &qst.stages {
-                                        if s.active {
-                                            a_s = Some(s);
-                                        }
+                                let mut tvec = Vec::new();
+                                for (i, v) in self.active_notes.0.keys().enumerate() {
+                                    if self.cursor_pos.1 == i {
+                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::Yellow))));
+                                    } else {
+                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::White))));
                                     }
-                                    a_s
-                                }) else {todo!()};
-                                let text = Text::from(vec![
-                                    Line::from(Span::raw(qst.name.clone())),
-                                    Line::from(Span::raw(stage.text.clone())),
-                                ]);
+                                }
+                                let text = Text::from(tvec);
                                 let paragraph = Paragraph::new(text)
                                     .block(note_block)
                                     .wrap(ratatui::widgets::Wrap { trim: true });
                                 paragraph
                             },
                             1 => {
-                                let plcs = &self.active_notes.1;
-                                let plc = &plcs[self.cursor_pos.1];
-                                let text = Text::from(vec![
-                                    Line::from(Span::raw(plc.name.clone())),
-                                    Line::from(Span::raw(plc.text.clone())),
-                                ]);
+                                let mut tvec = Vec::new();
+                                for v in &self.active_notes.1 {
+                                    let sp = v.split("#");
+                                    for l in sp {
+                                        tvec.push(Line::from(Span::styled(l, Style::default().fg(Color::White))));
+                                        tvec.push(
+                                            Line::from(Span::raw(""))
+                                        );
+                                    }
+                                    tvec.push(
+                                        Line::from(Span::raw("--"))
+                                    );
+                                }
+                                let text = Text::from(tvec);
                                 let paragraph = Paragraph::new(text)
                                     .block(note_block)
-                                    .wrap(ratatui::widgets::Wrap { trim: true });
+                                    .wrap(ratatui::widgets::Wrap { trim: true })
+                                    .scroll((self.cursor_pos.1.try_into().expect("oope"), 0));
                                 paragraph
                             },
                             2 => {
-                                let ppl = &self.active_notes.2;
-                                let prsn = &ppl[self.cursor_pos.1];
-                                let text = Text::from(vec![
-                                    Line::from(Span::raw(prsn.name.clone())),
-                                    Line::from(Span::raw(prsn.desc.clone())),
-                                ]);
+                                let mut tvec = Vec::new();
+                                for (i, v) in self.active_notes.0.keys().enumerate() {
+                                    if self.cursor_pos.1 == i {
+                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::Yellow))));
+                                    } else {
+                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::White))));
+                                    }
+                                }
+                                let text = Text::from(tvec);
                                 let paragraph = Paragraph::new(text)
                                     .block(note_block)
                                     .wrap(ratatui::widgets::Wrap { trim: true });
                                 paragraph
                             },
                             3 => {
-                                let lore = &self.active_notes.3;
-                                let lre = &lore[self.cursor_pos.1];
-                                let text = Text::from(vec![
-                                    Line::from(Span::raw(lre.name.clone())),
-                                    Line::from(Span::raw(lre.desc.clone())),
-                                ]);
+                                let mut tvec = Vec::new();
+                                for (i, v) in self.active_notes.0.keys().enumerate() {
+                                    if self.cursor_pos.1 == i {
+                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::Yellow))));
+                                    } else {
+                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::White))));
+                                    }
+                                }
+                                let text = Text::from(tvec);
                                 let paragraph = Paragraph::new(text)
                                     .block(note_block)
                                     .wrap(ratatui::widgets::Wrap { trim: true });
@@ -1354,11 +1400,69 @@ impl GUI {
                             },
                         }
                     } else {
-                        let paragraph = Paragraph::new(Span::raw("Notes for the user."))
-                        .block(note_block);
-                        paragraph
+                        match c_hold {
+                            0 => {
+                                let mut tvec = Vec::new();
+                                for (k, v) in &self.active_notes.0 {
+                                    tvec.push(
+                                        Line::from(Span::raw(k))
+                                    );
+                                    tvec.push(
+                                        Line::from(Span::raw(v))
+                                    );
+                                }
+                                let text = Text::from(tvec);
+                                let paragraph = Paragraph::new(text)
+                                    .block(note_block)
+                                    .wrap(ratatui::widgets::Wrap { trim: true });
+                                paragraph
+                            },
+                            1 => {
+                                let text = Text::from(Line::from(Span::raw(" ")));
+                                let paragraph = Paragraph::new(text)
+                                    .block(note_block)
+                                    .wrap(ratatui::widgets::Wrap { trim: true });
+                                paragraph
+                            },
+                            2 => {
+                                let mut tvec = Vec::new();
+                                for (k, v) in &self.active_notes.2 {
+                                    tvec.push(
+                                        Line::from(Span::raw(k))
+                                    );
+                                    tvec.push(
+                                        Line::from(Span::raw(v))
+                                    );
+                                }
+                                let text = Text::from(tvec);
+                                let paragraph = Paragraph::new(text)
+                                    .block(note_block)
+                                    .wrap(ratatui::widgets::Wrap { trim: true });
+                                paragraph
+                            },
+                            3 => {
+                                let mut tvec = Vec::new();
+                                for (k, v) in &self.active_notes.3 {
+                                    tvec.push(
+                                        Line::from(Span::raw(k))
+                                    );
+                                    tvec.push(
+                                        Line::from(Span::raw(v))
+                                    );
+                                }
+                                let text = Text::from(tvec);
+                                let paragraph = Paragraph::new(text)
+                                    .block(note_block)
+                                    .wrap(ratatui::widgets::Wrap { trim: true });
+                                paragraph
+                            },
+                            _ => {
+                                let paragraph = Paragraph::new(Span::raw("Notes for the user."))
+                                    .block(note_block);
+                                paragraph
+                            },
+                        }
                     };
-
 
                     f.render_widget(table, normal_info[0]);
                     f.render_widget(paragraph, normal_info[1]);

@@ -17,7 +17,7 @@ impl Settlements {
     }
 
     pub fn demo_self() -> Self {
-        let xb = 300 - 76;
+        let xb = 300 - 75;
         let yb = 200 - 24;
         //let xb = -50;
         //let yb = -50;
@@ -50,8 +50,8 @@ impl Settlements {
             let mut rng = rand::thread_rng();
             let cxabs = cpos.0.abs();
             let cyabs = cpos.1.abs();
-            let nx = rng.gen_range((cxabs + 300)..(cxabs + 800));
-            let ny = rng.gen_range((cyabs + 200)..(cyabs + 600));
+            let nx = rng.gen_range((cxabs + 300)..(cxabs + 500));
+            let ny = rng.gen_range((cyabs + 200)..(cyabs + 400));
             let xdir = cpos.0 / cxabs;
             let ydir = cpos.1 / cyabs;
             (nx * xdir * -1, ny * ydir * -1)
@@ -65,6 +65,11 @@ impl Settlements {
             Settlement::demo_settle(new_settle_pos.clone(), npcs)
         };
         self.settlements.insert(new_settle_pos, settlement.clone());
+    }
+
+    pub fn spawn_node_settlement(&mut self, pos: (i64, i64), name: String) {
+        self.settlements
+            .insert(pos, Settlement::new_node_settle(pos, name));
     }
 
     pub fn get_settle_pos(&mut self) -> Vec<(i64, i64)> {

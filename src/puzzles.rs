@@ -22,7 +22,7 @@ impl Puzzles {
         let pos = (-100, -500);
         let puzzle = Puzzle::new_maze(pos);
         // let puzzle = Puzzle::new_teleport(pos);
-        log::info!("\nPuzzleFound: {:?}", puzzle);
+        // log::info!("\nPuzzleFound: {:?}", puzzle);
         let mut puzzles = HashMap::new();
         puzzles.insert(pos, puzzle);
         Self { puzzles }
@@ -48,6 +48,27 @@ impl Puzzles {
         };
         self.puzzles.insert(pos, puzzle.clone());
         ptype
+    }
+
+    pub fn spawn_node_puzzle(&mut self, pos: (i64, i64)) {
+        // let new_settle_pos = {
+        //     let mut rng = rand::thread_rng();
+        //     let cxabs = pos.0.abs();
+        //     let cyabs = pos.1.abs();
+        //     let nx = rng.gen_range((cxabs + 300)..(cxabs + 800));
+        //     let ny = rng.gen_range((cyabs + 200)..(cyabs + 600));
+        //     let xdir = pos.0 / cxabs;
+        //     let ydir = pos.1 / cyabs;
+        //     (nx * xdir * -1, ny * ydir * -1)
+        // };
+        // let puzzle = {
+        //     match &ptype {
+        //         PuzzleType::Maze => Puzzle::new_maze(pos),
+        //         PuzzleType::Teleport => Puzzle::new_maze(pos),
+        //         PuzzleType::Inverted => Puzzle::new_maze(pos),
+        //     }
+        // };
+        self.puzzles.insert(pos, Puzzle::new_maze(pos));
     }
 
     pub fn check_location(&self, bpos: (i64, i64), rad: u16) -> Option<Puzzle> {
@@ -78,5 +99,41 @@ impl Puzzles {
             }
         }
         local_ps.clone()
+    }
+
+    pub fn puzzle_check(&mut self, pos: (i64, i64)) -> bool {
+        let dir = (pos.0 / pos.0.abs(), pos.1 / pos.1.abs());
+        let space = {
+            match dir {
+                (x, y) if x >= 0 && y >= 0 => (((pos.0 + 800), (pos.1 + 800)), pos),
+                (x, y) if x < 0 && y >= 0 => (((pos.0 - 800), (pos.1 + 800)), pos),
+                (x, y) if x >= 0 && y < 0 => (((pos.0 + 800), (pos.1 - 800)), pos),
+                (x, y) if x < 0 && y < 0 => (((pos.0 - 800), (pos.1 - 800)), pos),
+                _ => todo!(),
+            }
+        };
+        for (k, _) in self.puzzles.clone() {
+            let xrange: Vec<i64> = {
+                let mut xa = space.0 .0;
+                let mut xb = space.1 .0;
+                if xa > xb {
+                    std::mem::swap(&mut xa, &mut xb);
+                }
+                (xa..xb).collect()
+            };
+            let yrange: Vec<i64> = {
+                let mut ya = space.0 .0;
+                let mut yb = space.1 .0;
+                if ya > yb {
+                    std::mem::swap(&mut ya, &mut yb);
+                }
+                (ya..yb).collect()
+            };
+
+            if xrange.contains(&k.0) && yrange.contains(&k.1) {
+                return false;
+            };
+        }
+        true
     }
 }

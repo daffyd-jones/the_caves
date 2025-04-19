@@ -2,9 +2,10 @@
 use crate::enemy::Enemy;
 use crate::enums::{
     Cells, CompMode, EncOpt, Enemies, EnvInter, FightSteps, GUIMode, GameMode, InterOpt,
-    InterSteps, Interactable, ItemOpt, Items, Location, NPCWrap, NPCs, PuzzleType,
+    InterSteps, Interactable, ItemOpt, Items, Location, NPCWrap, NPCs, NodeType, PuzzleType,
 };
 use crate::map::{Map, MAP_H, MAP_W};
+use crate::nodemap::NodeMap;
 use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, BaseNPC, Convo, NPC};
 use crate::player::Player;
 use crate::puzzles::Puzzles;
@@ -23,7 +24,8 @@ mod npcs;
 
 use rand::prelude::SliceRandom;
 use rand::Rng;
-use ratatui::crossterm::event::{poll, read, Event, KeyCode};
+use ratatui::crossterm::event::{poll, read, Event, KeyCode, KeyEventKind};
+use ratatui::widgets::GraphType;
 
 // use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
@@ -58,7 +60,7 @@ fn place_enemies(map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
     let etype = Enemies::Bug;
     let m_h = map.len() - 1;
     let m_w = map[0].len() - 1;
-    for i in 0..100 {
+    for i in 0..50 {
         loop {
             // let y = rng.gen_range(10..m_h-10);
             let (x, y) = if i % 2 == 0 {
@@ -437,8 +439,11 @@ fn loc_shop_items(dist_fo: (i64, i64), loc: Location) -> HashMap<(usize, usize),
     }
 }
 
-const collision_cells: [Cells; 35] = [
+const collision_cells: [Cells; 38] = [
     Cells::Wall,
+    Cells::Wall2,
+    Cells::Wall3,
+    Cells::Wall4,
     Cells::MwH,
     Cells::MwV,
     Cells::MwVL,
@@ -504,6 +509,7 @@ pub struct GameState {
     notebook: Notebook,
     gui: GUI,
     map: Map,
+    nodemap: NodeMap,
     settles: Settlements,
     puzzles: Puzzles,
     player: Player,
@@ -516,7 +522,7 @@ pub struct GameState {
     depth: u16,
     level: u32,
     //l_systems: LSystems,
-    l_rate: u64,
+    pressed_keys: HashMap<KeyCode, bool>,
     enemies: HashMap<(usize, usize), Enemy>,
     step_group: u8,
     items: HashMap<(usize, usize), Item>,
@@ -615,16 +621,52 @@ impl GameState {
         let notebook = Notebook::new().unwrap();
         let l_rate = 100 as u64;
 
-        let settles = Settlements::demo_self();
-        let puzzles = Puzzles::demo_self();
+        let mut nodemap = NodeMap::new();
+        let mut settles = Settlements::demo_self();
+        let mut puzzles = Puzzles::demo_self();
+        let mut features = Features::new();
 
-        let features = Features::new();
+        for _ in 0..2 {
+            let ulnodes = nodemap.increase_depth("ul");
+            for n in ulnodes {
+                match n.ntype {
+                    NodeType::Settlement => settles.spawn_node_settlement(n.pos, n.name),
+                    NodeType::Puzzle => puzzles.spawn_node_puzzle(n.pos),
+                    _ => {}
+                }
+            }
+            let urnodes = nodemap.increase_depth("ur");
+            for n in urnodes {
+                match n.ntype {
+                    NodeType::Settlement => settles.spawn_node_settlement(n.pos, n.name),
+                    NodeType::Puzzle => puzzles.spawn_node_puzzle(n.pos),
+                    _ => {}
+                }
+            }
+            let dlnodes = nodemap.increase_depth("dl");
+            for n in dlnodes {
+                match n.ntype {
+                    NodeType::Settlement => settles.spawn_node_settlement(n.pos, n.name),
+                    NodeType::Puzzle => puzzles.spawn_node_puzzle(n.pos),
+                    _ => {}
+                }
+            }
+            let drnodes = nodemap.increase_depth("dr");
+            for n in drnodes {
+                match n.ntype {
+                    NodeType::Settlement => settles.spawn_node_settlement(n.pos, n.name),
+                    NodeType::Puzzle => puzzles.spawn_node_puzzle(n.pos),
+                    _ => {}
+                }
+            }
+        }
 
         Arc::new(Mutex::new(GameState {
             game_mode: GameMode::Play,
             notebook,
             gui,
             map,
+            nodemap,
             settles,
             puzzles,
             player,
@@ -637,7 +679,7 @@ impl GameState {
             depth: 1,
             level: 0,
             //l_systems,
-            l_rate,
+            pressed_keys: HashMap::new(),
             enemies,
             step_group: 0,
             items,
@@ -649,7 +691,7 @@ impl GameState {
             npc_spconvos,
             npc_spcomms,
             npc_trade,
-            key_debounce_dur: Duration::from_millis(50),
+            key_debounce_dur: Duration::from_millis(70),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
             location: Location::Null,
@@ -1144,42 +1186,25 @@ impl GameState {
     }
 
     fn set_comp(&mut self) {
-        //let curs = self.gui.get_cursor();
         let copt = self.gui.get_comp_opt();
         if copt == "Search" {
             self.comp_mode = CompMode::Search;
+            self.compass_check();
             return;
         } else {
             self.comp_mode = CompMode::Location;
         }
-        let comp_pos = self
-            .comp_list
-            .clone()
-            .into_iter()
-            .find_map(|(pos, name)| {
-                // log::info!("copt: {:?}, name: {:?}, pos: {:?}", copt, name, pos);
-                if name == copt {
-                    Some(pos)
-                } else {
-                    Some((0, 0))
-                }
-            })
-            .unwrap();
-        // log::info!("compass: {:?}", comp_pos);
-        self.comp_head = comp_pos;
-        // let comp_pos = {
-        //     for (pos, name) in self.comp_list.clone() {
-        //         match name {
-        //             copt => pos,
-        //             _ -> todo!(),
-        //         }
-        //     }
-        // };
+        for (p, n) in &self.comp_list {
+            if *n == copt {
+                self.comp_head = *p;
+                break;
+            }
+        }
     }
 
     fn play_key(&mut self, code: KeyCode) -> bool {
         match code {
-            KeyCode::Up => {
+            KeyCode::Up if *self.pressed_keys.get(&KeyCode::Up).unwrap_or(&false) => {
                 if self.collision("UP") {
                 } else {
                     if self.player.y - 1 <= self.map.viewport_y + (self.map.viewport_height / 7) {
@@ -1199,7 +1224,7 @@ impl GameState {
                     }
                 }
             }
-            KeyCode::Down => {
+            KeyCode::Down if *self.pressed_keys.get(&KeyCode::Down).unwrap_or(&false) => {
                 if self.collision("DN") {
                 } else {
                     if self.player.y + 1
@@ -1222,7 +1247,7 @@ impl GameState {
                     }
                 }
             }
-            KeyCode::Left => {
+            KeyCode::Left if *self.pressed_keys.get(&KeyCode::Left).unwrap_or(&false) => {
                 if self.collision("LF") {
                 } else {
                     if self.player.x - 1 <= self.map.viewport_x + (self.map.viewport_width / 7) {
@@ -1242,7 +1267,7 @@ impl GameState {
                     }
                 }
             }
-            KeyCode::Right => {
+            KeyCode::Right if *self.pressed_keys.get(&KeyCode::Right).unwrap_or(&false) => {
                 if self.collision("RT") {
                 } else {
                     if self.player.x + 1
@@ -1272,10 +1297,11 @@ impl GameState {
             KeyCode::Char('w') => {
                 self.gui.set_info_mode(GUIMode::Map);
                 //self.gui.set_comp_head(self.comp_head);
-                self.gui.set_comp_list(self.comp_list.clone());
+                let comp_names = self.sort_comp_list();
+                self.gui.set_comp_list(comp_names);
                 self.gui.set_comp_head((
-                    self.comp_head.0 - self.dist_fo.0 * -1,
-                    self.comp_head.1 - self.dist_fo.1 * -1,
+                    self.comp_head.0 - -self.dist_fo.0,
+                    self.comp_head.1 - -self.dist_fo.1,
                 ));
             }
             KeyCode::Char('e') => {
@@ -1285,7 +1311,7 @@ impl GameState {
             }
             KeyCode::Char('r') => {
                 self.gui.set_info_mode(GUIMode::Notes);
-                self.gui.set_notes(self.notebook.get_active_notes());
+                self.gui.set_notes(self.notebook.get_notes());
             }
             KeyCode::Char('a') => self.gui.move_cursor("LF"),
             KeyCode::Char('s') => self.gui.move_cursor("UP"),
@@ -1302,7 +1328,12 @@ impl GameState {
                     }
                     GUIMode::Map => {
                         self.set_comp();
-                        self.gui.set_comp_list(self.comp_list.clone());
+                        let comp_names = self.sort_comp_list();
+                        self.gui.set_comp_list(comp_names);
+                        self.gui.set_comp_head((
+                            self.comp_head.0 - -self.dist_fo.0,
+                            self.comp_head.1 - -self.dist_fo.1,
+                        ));
                     }
                     GUIMode::Notes => {
                         self.gui.menu_lvl("DN");
@@ -1346,6 +1377,22 @@ impl GameState {
             Interactable::Null => {}
             _ => todo!(),
         }
+    }
+
+    fn sort_comp_list(&mut self) -> Vec<String> {
+        let mut hyp_list = Vec::new();
+        let comp_list = self.comp_list.clone();
+        let dfo = self.dist_fo;
+        for (pos, name) in comp_list {
+            let hyp = (((pos.0 - -dfo.0).pow(2) + (pos.1 - -dfo.1).pow(2)) as f64).sqrt() as i64;
+            hyp_list.push((hyp, name));
+        }
+        let mut names = Vec::new();
+        hyp_list.sort_by(|a, b| a.0.cmp(&b.0));
+        for (_, name) in hyp_list {
+            names.push(name);
+        }
+        names
     }
 
     fn pickup_item(&mut self, item: Item) {
@@ -1522,6 +1569,15 @@ impl GameState {
     fn play_update(&mut self) -> bool {
         if poll(std::time::Duration::from_millis(5)).unwrap() {
             if let Event::Key(event) = read().unwrap() {
+                match event.kind {
+                    KeyEventKind::Press => {
+                        self.pressed_keys.insert(event.code, true);
+                    }
+                    KeyEventKind::Release => {
+                        self.pressed_keys.insert(event.code, false);
+                    }
+                    _ => {}
+                }
                 // log::info!("keykind {:?}", event.kind.clone());
                 let now = Instant::now();
                 if now.duration_since(self.last_event_time) > self.key_debounce_dur {
@@ -2262,7 +2318,7 @@ impl GameState {
                         }
                     }
                 }
-                thread::sleep(Duration::from_millis(35));
+                thread::sleep(Duration::from_millis(30));
             }
         });
     }
@@ -2296,7 +2352,7 @@ impl GameState {
             self.repop_npcs();
         }
 
-        if self.enemies.len() < 70 {
+        if self.enemies.len() < 50 {
             self.repop_enemies();
         }
 
@@ -2307,13 +2363,15 @@ impl GameState {
             self.game_mode = GameMode::Fight(FightSteps::Open);
         }
 
-        self.new_loc_check();
+        // self.new_loc_check();
+
+        // self.new_feature_check();
         self.compass_check();
 
-        let now = Instant::now();
-        if now.duration_since(self.portal_cool) > Duration::from_secs(10) && self.portal_check() {
-            self.portal_cool = Instant::now();
-        }
+        // let now = Instant::now();
+        // if now.duration_since(self.portal_cool) > Duration::from_secs(10) && self.portal_check() {
+        //     self.portal_cool = Instant::now();
+        // }
 
         true
     }
@@ -2338,7 +2396,7 @@ impl GameState {
                 .iter()
                 .map(|((x, y), s)| format!("({}, {}): {}", x, y, s))
                 .collect::<Vec<String>>()
-                .join(", ");
+                .join("#");
             (dist_fo, spos_s, comp)
         };
         self.gui.draw(

@@ -443,7 +443,7 @@ _·,··▒              ║                         │└─────┴─
 ___________________________________________________________________________
 "#;
 
-const itm_sh2: &str = r#"ShopNPC ConvNPC|HealthPotion HealthPotion HealthPotion Salve Salve Dowel WoodenBoard Apple Apple Apple HealthPotion HealthPotion HealthPotion HealthPotion HealthPotion Salve Salve Dowel HealthPotion HealthPotion HealthPotion Salve Salve Dowel|HealthPotion
+const itm_sh2: &str = r#"ShopNPC ConvNPC|BronzeClaymore BronzeLongsword HealthPotion WoodStaff Salve Dowel SmallWoodShield Apple BronzeHeavyAxe Apple BronzeWarAxe HealthPotion HealthPotion HealthPotion HealthPotion Salve Salve Dowel HealthPotion HealthPotion HealthPotion Salve Salve Dowel|HealthPotion
 ___________________________________________________________________________
 ___________________________________________________________________________
 __',¨.',·¨.'¨.',·¨.'¨.',·¨.',¨.',·¨.',¨.',·¨.______________________________
@@ -565,7 +565,7 @@ const churches: [&str; 1] = [church1];
 
 const anchors: [&str; 1] = [anchor1];
 
-const cave_o1: &str = r#"ShopNPC|HealthPotion BronzeLongsword BronzeLightAxe Salve Salve Dowel WoodenBoard BronzePickHammer BronzeShortsword Apple|Apple
+const cave_o1: &str = r#"ShopNPC|HealthPotion BronzeLongsword BronzeLightAxe Salve Salve Dowel SmallWoodShield BronzePickHammer BronzeShortsword Apple|Apple
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_______
@@ -982,8 +982,8 @@ fn parse_map(
                         let ti = Item::new_dowel(x, y);
                         sitems.insert((x, y), ti.clone());
                     }
-                    "WoodenBoard" => {
-                        let ti = Item::new_wooden_board(x, y);
+                    "SmallWoodShield" => {
+                        let ti = Item::new_small_wood_shield(x, y);
                         sitems.insert((x, y), ti.clone());
                     }
                     "Apple" => {
@@ -1006,12 +1006,24 @@ fn parse_map(
                         let ti = Item::new_bronze_light_axe(x, y);
                         sitems.insert((x, y), ti.clone());
                     }
+                    "BronzeHeavyAxe" => {
+                        let ti = Item::new_bronze_heavy_axe(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
+                    "BronzeWarAxe" => {
+                        let ti = Item::new_bronze_war_axe(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
                     "BronzePickHammer" => {
                         let ti = Item::new_bronze_pick_hammer(x, y);
                         sitems.insert((x, y), ti.clone());
                     }
                     "WoodStaff" => {
                         let ti = Item::new_wood_staff(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
+                    "LightArmour" => {
+                        let ti = Item::new_light_armour(x, y);
                         sitems.insert((x, y), ti.clone());
                     }
                     _ => {
@@ -1034,8 +1046,8 @@ fn parse_map(
                         let ti = Item::new_dowel(x, y);
                         items.insert((x, y), ti.clone());
                     }
-                    "WoodenBoard" => {
-                        let ti = Item::new_wooden_board(x, y);
+                    "SmallWoodShield" => {
+                        let ti = Item::new_small_wood_shield(x, y);
                         items.insert((x, y), ti.clone());
                     }
                     "Apple" => {
@@ -1058,12 +1070,24 @@ fn parse_map(
                         let ti = Item::new_bronze_light_axe(x, y);
                         items.insert((x, y), ti.clone());
                     }
+                    "BronzeHeavyAxe" => {
+                        let ti = Item::new_bronze_heavy_axe(x, y);
+                        items.insert((x, y), ti.clone());
+                    }
+                    "BronzeWarAxe" => {
+                        let ti = Item::new_bronze_war_axe(x, y);
+                        items.insert((x, y), ti.clone());
+                    }
                     "BronzePickHammer" => {
                         let ti = Item::new_bronze_pick_hammer(x, y);
                         items.insert((x, y), ti.clone());
                     }
                     "WoodStaff" => {
                         let ti = Item::new_wood_staff(x, y);
+                        items.insert((x, y), ti.clone());
+                    }
+                    "LightArmour" => {
+                        let ti = Item::new_light_armour(x, y);
                         items.insert((x, y), ti.clone());
                     }
                     _ => {
@@ -1435,18 +1459,8 @@ impl Settlement {
         let mut rng = rand::thread_rng();
         let name_oops = "Jadeitite".to_string();
         let name = names.choose(&mut rng).unwrap_or(&name_oops.clone()).clone();
-
         let (map, mut npcs, sitems, items, env_inters) = build_small_settle(false);
-
         let (shops, snpcs) = get_npc_shops(npcs.clone(), sitems);
-
-        //let s_key = get_shop_npcs(npcs.clone()).expect("failed to get shop npc 1");
-        //let s_npc = npcs.remove(&s_key).expect("failed to get shop npc 2");
-        //npcs.insert-----------
-        //let npc_t = NPCWrap::ShopNPC(s_npc);
-        //let shop = Shop::new_item_shop("new item shop".to_string(), s_npc, sitems);
-        //let mut shops = HashMap::new();
-        //shops.insert(Shops::Item, shop);
         Self {
             stype: Settle::Small,
             sname: name,
@@ -1458,6 +1472,35 @@ impl Settlement {
             shops: shops,
             env_inters,
             map: map,
+        }
+    }
+
+    pub fn new_node_settle(pos: (i64, i64), sname: String) -> Self {
+        // let data1 = fs::read_to_string("src/locations/settle_names.json");
+        // //log::info!("{:?}", &data1);
+        // let names: Vec<String> = match data1 {
+        //     Ok(content) => serde_json::from_str(&content).unwrap(),
+        //     Err(e) => {
+        //         log::info!("{:?}", e);
+        //         Vec::new()
+        //     }
+        // };
+        // let mut rng = rand::thread_rng();
+        // let name_oops = "Jadeitite".to_string();
+        // let name = names.choose(&mut rng).unwrap_or(&name_oops.clone()).clone();
+        let (map, npcs, sitems, items, env_inters) = build_small_settle(false);
+        let (shops, snpcs) = get_npc_shops(npcs.clone(), sitems);
+        Self {
+            stype: Settle::Small,
+            sname,
+            pos,
+            npcs: snpcs,
+            items,
+            npcs_sent: false,
+            items_sent: false,
+            shops,
+            env_inters,
+            map,
         }
     }
 

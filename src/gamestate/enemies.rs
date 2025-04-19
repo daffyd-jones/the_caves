@@ -201,6 +201,7 @@ impl GameState {
                 } else {
                     (*x, *y)
                 };
+            // new_e.insert((xx, yy), e.clone());
             new_e.insert((xx, yy), e.clone());
             // }
         }

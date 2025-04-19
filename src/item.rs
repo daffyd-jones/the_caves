@@ -264,6 +264,7 @@ impl Item {
     pub fn new_bronze_claymore(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 15);
+        prop.insert(String::from("attack"), 15);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 60);
         let mut iopts = HashMap::new();
@@ -274,7 +275,7 @@ impl Item {
         Self {
             itype: Items::BronzeClaymore,
             sname: "Bronze Claymore".to_string(),
-            icon: ('Ṫ', Color::Red),
+            icon: ('Ṫ', Color::Yellow),
             desc: "A bronze double edged sword".to_string(),
             iopts,
             equip: true,
@@ -289,6 +290,7 @@ impl Item {
     pub fn new_iron_claymore(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 20);
+        prop.insert(String::from("attack"), 20);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 85);
         let mut iopts = HashMap::new();
@@ -314,6 +316,7 @@ impl Item {
     pub fn new_steel_claymore(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 25);
+        prop.insert(String::from("attack"), 25);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 110);
         let mut iopts = HashMap::new();
@@ -339,6 +342,7 @@ impl Item {
     pub fn new_bronze_longsword(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 12);
+        prop.insert(String::from("attack"), 12);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 50);
         let mut iopts = HashMap::new();
@@ -364,6 +368,7 @@ impl Item {
     pub fn new_iron_longsword(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 17);
+        prop.insert(String::from("attack"), 17);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 75);
         let mut iopts = HashMap::new();
@@ -389,6 +394,7 @@ impl Item {
     pub fn new_bronze_greatsword(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 17);
+        prop.insert(String::from("attack"), 17);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 50);
         let mut iopts = HashMap::new();
@@ -414,6 +420,7 @@ impl Item {
     pub fn new_bronze_shortsword(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 7);
+        prop.insert(String::from("attack"), 7);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 40);
         let mut iopts = HashMap::new();
@@ -439,6 +446,7 @@ impl Item {
     pub fn new_basic_staff(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 7);
+        prop.insert(String::from("attack"), 7);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 40);
         let mut iopts = HashMap::new();
@@ -464,6 +472,7 @@ impl Item {
     pub fn new_wood_staff(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 15);
+        prop.insert(String::from("attack"), 15);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 50);
         let mut iopts = HashMap::new();
@@ -489,6 +498,7 @@ impl Item {
     pub fn new_bludgeon_staff(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 20);
+        prop.insert(String::from("attack"), 20);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 80);
         let mut iopts = HashMap::new();
@@ -514,6 +524,7 @@ impl Item {
     pub fn new_gem_staff(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 25);
+        prop.insert(String::from("attack"), 25);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 120);
         let mut iopts = HashMap::new();
@@ -539,6 +550,7 @@ impl Item {
     pub fn new_bronze_heavy_axe(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 15);
+        prop.insert(String::from("attack"), 15);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 60);
         let mut iopts = HashMap::new();
@@ -564,6 +576,7 @@ impl Item {
     pub fn new_bronze_light_axe(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 15);
+        prop.insert(String::from("attack"), 15);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 50);
         let mut iopts = HashMap::new();
@@ -589,6 +602,7 @@ impl Item {
     pub fn new_bronze_pick_axe(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 15);
+        prop.insert(String::from("attack"), 15);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 55);
         let mut iopts = HashMap::new();
@@ -614,6 +628,7 @@ impl Item {
     pub fn new_bronze_pick_hammer(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 17);
+        prop.insert(String::from("attack"), 17);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 55);
         let mut iopts = HashMap::new();
@@ -639,6 +654,7 @@ impl Item {
     pub fn new_bronze_shadow_axe(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 30);
+        prop.insert(String::from("attack"), 30);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 200);
         let mut iopts = HashMap::new();
@@ -664,6 +680,7 @@ impl Item {
     pub fn new_bronze_war_axe(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 50);
+        prop.insert(String::from("attack"), 50);
         //prop.insert(String::from("effect"), 5);
         prop.insert(String::from("value"), 300);
         let mut iopts = HashMap::new();
@@ -688,7 +705,7 @@ impl Item {
 
     //BronzeLongsword BronzeLightAxe Salve Salve Dowel WoodenBoard BronzePickHammer BronzeShortsword Apple|Apple
 
-    pub fn new_wooden_board(x: usize, y: usize) -> Self {
+    pub fn new_small_wood_shield(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("defence"), 5);
         //prop.insert(String::from("effect"), 5);
@@ -699,13 +716,163 @@ impl Item {
         iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
 
         Self {
-            itype: Items::WoodenBoard,
-            sname: "Wooden Board".to_string(),
+            itype: Items::SmallWoodShield,
+            sname: "Small Wood Shield".to_string(),
             icon: ('ѳ', Color::Red),
-            desc: "A wooden board with a strap attached to it.".to_string(),
+            desc: "A small wooden shield that provides some defence.".to_string(),
             iopts,
             equip: true,
             equip_type: Equip::Shield,
+            effect: ItemEffect::Defence,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_large_wood_shield(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("defence"), 10);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 50);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::LargeWoodShield,
+            sname: "Large Wood Shield".to_string(),
+            icon: ('θ', Color::Red),
+            desc: "A large wooden shield that protects a bit from attacks.".to_string(),
+            iopts,
+            equip: true,
+            equip_type: Equip::Shield,
+            effect: ItemEffect::Defence,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_iron_shield(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("defence"), 15);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 70);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::IronShield,
+            sname: "Iron Shield".to_string(),
+            icon: ('Θ', Color::Red),
+            desc: "A iron shield that protects from attacks.".to_string(),
+            iopts,
+            equip: true,
+            equip_type: Equip::Shield,
+            effect: ItemEffect::Defence,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_steel_shield(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("defence"), 20);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 90);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::SteelShield,
+            sname: "Steel Shield".to_string(),
+            icon: ('ʘ', Color::Red),
+            desc: "A steel shield that protects from attacks.".to_string(),
+            iopts,
+            equip: true,
+            equip_type: Equip::Shield,
+            effect: ItemEffect::Defence,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_light_armour(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("defence"), 10);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 30);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::LightArmour,
+            sname: "Light Armour".to_string(),
+            icon: ('ዣ', Color::Gray),
+            desc: "Light armour that provides some defence.".to_string(),
+            iopts,
+            equip: true,
+            equip_type: Equip::Armour,
+            effect: ItemEffect::Defence,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_medium_armour(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("defence"), 20);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 60);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::MediumArmour,
+            sname: "Medium Armour".to_string(),
+            icon: ('ዠ', Color::Gray),
+            desc: "Medium armour that provides reasonable defence.".to_string(),
+            iopts,
+            equip: true,
+            equip_type: Equip::Armour,
+            effect: ItemEffect::Defence,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_heavy_armour(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("defence"), 30);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 90);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::HeavyArmour,
+            sname: "Heavy Armour".to_string(),
+            icon: ('ዥ', Color::Gray),
+            desc: "Heavy armour that provides good defence.".to_string(),
+            iopts,
+            equip: true,
+            equip_type: Equip::Armour,
             effect: ItemEffect::Defence,
             x,
             y,

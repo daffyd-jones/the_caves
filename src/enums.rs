@@ -17,6 +17,9 @@ pub enum Cells {
     Dirt3,
     Rock,
     Wall,
+    Wall2,
+    Wall3,
+    Wall4,
     Floor,
     Floor2,
     Tunnel,
@@ -56,6 +59,16 @@ pub enum Cells {
     SmZer,
     BZer,
     Cop,
+    DblBracedGate, //-------
+    BracedGate,
+    Arch,
+    Bricks,
+    Crops,
+    SmallCampfire,
+    Campfire,
+    Table,
+    Firewood,
+    Tent,
     NPCM,
     LBrce,
     RBrce,
@@ -78,7 +91,6 @@ pub enum Items {
     Salve,
     Dowel,
     WoodenBoard,
-    IronShield, // +10 defence
     IronSword,
     MetalScrap,
     Apple,
@@ -120,6 +132,15 @@ pub enum Items {
     BronzeWarAxe,
     IronWarAxe,
     SteelWarAxe,
+
+    LightArmour,
+    MediumArmour,
+    HeavyArmour,
+
+    SmallWoodShield,
+    LargeWoodShield,
+    IronShield, // +10 defence
+    SteelShield,
 
     //
     MagicRing,
@@ -279,6 +300,14 @@ pub enum Settle {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+pub enum NodeType {
+    Settlement,
+    Puzzle,
+    Feature,
+    Null,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Shops {
     Item,
     Guild,
@@ -290,6 +319,17 @@ pub enum Shops {
 pub enum Location {
     Settlement(Settlement),
     Puzzle(Puzzle),
+    Null,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum FeatureType {
+    Field,
+    Stream,
+    Pond,
+    Ruin,
+    AbandonedShack,
+    AbandonedSettlement,
     Null,
 }
 

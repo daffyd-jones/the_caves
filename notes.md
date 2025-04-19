@@ -25,21 +25,17 @@ snakes
 ȥ ɀ ʑ ζ  
 
 guys
-
 ǚ Ǚ ṏ
-
 Ṏ ṏ ṻ
-
 ẅ Ẅ
 
 bandit
-
 Ồ
 
 horns
 ớ Ớ     
 
-wizrd
+wizrd?
 Ẏ
 ή ἡ ἦ             
 
@@ -77,6 +73,8 @@ armour
 items
 Ʌ ṑ Ṑ Ṓ ṓ ṥ ṧ ʋ ʘ ʚ Ψ δ λ π Ю б ж э Ҝ Ҩ Ӂ φ Δ ˤ 
 
+Ƌ ƌ Ƃ ƃ 	Ђ Һ 
+
 ữ
 Ʌ - tent
 ṓṑ - jars
@@ -100,8 +98,6 @@ items
  ̪
 ή
 
-
-
 features
 Ħ  ṩ ȝ Ƞ Ỻ ỻ ỽ ɣ ɤ ɱ ʊ ʬ ʭ 	Π П Ш ђ ѧ Ѧ Ѫ  џ 
 
@@ -117,12 +113,22 @@ features
 Ђ
 
 ዅ ዄ
-ɼ
+ɼŀ
 ፠	፡	።	፣	፤	፥	፦	፧	፨
+ſǭ ṍ Ɏ
 
-
+Containers?
 ፩	፪	፫	፬	፭	፮	፯
 ፰	፱	፲	፳	፴	፵	፶	፷	፸	፹	፺	፻	፼
+
+×ǂǁǀƤ
+ȽȾƿǬǭ
+
+attack
+X \ /
+
+
+፠
 ```
 
 # Enemies
@@ -133,8 +139,6 @@ spiders ẅ
 bandit Ồ
 goblin ớ
 ghoul ή
-
-Ɏ
 
 # weapons
 
@@ -219,6 +223,26 @@ medium armour
 heavy armour
 `ዥ ዧ`
 
+# Shields
+
+`Θ θ ѳ Ѻ ѻ ʘ ዐ ø Ø Ф
+Ɵ ౷ ۞`
+
+small wooden shield
+`ѳ`
+
+large wooden shield
+`θ`
+
+iron shield
+`Θ`
+
+steel shield
+`ʘ`
+
+other
+`Ѻ ዐ ø Ø Ф`
+
 **animations**:
 
 - Fight enemy design
@@ -263,6 +287,79 @@ may rarely have one npc or a few items
 - switch heading
 - scroll list
 
+# Notebook
+
+## Settlements
+
+- settlements that are found are added to this panel
+- profile is populated with content from generated settlement
+- Location relative to origin, closest settlement
+- Shops that are present:
+  - Shop names
+  - ShopNPC names
+- resident NPC names
+- population
+- possible comment about feature?
+
+## Conversations
+
+- conversations had with CommNPC, and ConvNPC entities are saved with their name
+
+```
+CommNPC
+--
+
+  Kevin: "This is a thing that the player said."
+
+--
+```
+
+```
+ConvNPC
+--
+
+  Kevin: "This is a thing that the NPC said."
+
+  You: "This is the response the player chose."
+
+  Kevin: "This is the thing that the NPC said in response to your choice."
+
+  You: "This is the next response the player picked."
+
+--
+```
+
+## Knowledge
+
+- information about the caves and general lore is put here
+- provided as entries with headers
+
+```
+  This is a header
+
+  This is an entry paraphrasing the knowledge gained by an encounter.
+  The length of an entry should be informative and concise.
+
+  - The entry can also include a list
+  - The list should be used for specific details
+  - The list should be at most around 5-7
+```
+
+## Discoveries
+
+- entries for spawned puzzles are provided here.
+- when the player talks to a SpawnNPC the entry is added
+- the entry contains a description of the spawned location
+- the entry should be a paraphrasing of the content of the SpawnNPC conversation
+
+```
+This is a description of the spawned location that contains the
+same information that was provided in the conversation with the
+SpawnNPC. This contains a general description of the location
+and the position relative to the current location, possibly
+the position relative to the closest settlement
+```
+
 # Equipment
 
 ## Weapons
@@ -270,29 +367,14 @@ may rarely have one npc or a few items
 Add buff to damage
 Some add buff to attack
 
-## Torso
+## Armour
 
 Add buff to defence
 Some add buff to attack
-
-## Helmet
-
-Add buff to defence
-
-## Boots
-
-Add buff to defence
-some add buff to attack
 
 ## Shield
 
 Add buff to defence
-
-## Hands
-
-Some add buff to defence
-Some add buff to attack
-Some add buff to damage
 
 ## Enchanted Items
 

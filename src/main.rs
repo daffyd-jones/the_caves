@@ -5,6 +5,7 @@ mod gui;
 mod item;
 mod lsystems;
 mod map;
+mod nodemap;
 mod notebook;
 mod npc;
 mod player;
@@ -92,7 +93,7 @@ fn main() {
     GameState::start_update_threads(Arc::clone(&game_state));
 
     let mut previous = Instant::now();
-    let timestep = Duration::from_millis(1000 / 13);
+    let timestep = Duration::from_millis(1000 / 15);
 
     loop {
         let now = Instant::now();

@@ -43,7 +43,7 @@ impl Player {
             attack: 20,
             defence: 10,
             damage: 10,
-            money: 60,
+            money: 100,
             dodge: false,
             enc_last_turn: (EncOpt::Null, 0),
             enc_opt,
@@ -71,7 +71,25 @@ impl Player {
         let mut rng = rand::thread_rng();
         let attack = rng.gen_range((self.attack / 2)..self.attack);
         let damage = rng.gen_range((self.damage / 2)..self.damage);
-        (attack, damage)
+        let attack_added = {
+            let mut att_acc = attack;
+            for (_k, v) in &self.equipped {
+                if let Some(val) = v.properties.get("attack") {
+                    att_acc += val;
+                };
+            }
+            att_acc
+        };
+        let damage_added = {
+            let mut dam_acc = damage;
+            for (_k, v) in &self.equipped {
+                if let Some(val) = v.properties.get("damage") {
+                    dam_acc += val;
+                };
+            }
+            dam_acc
+        };
+        (attack_added, damage_added)
     }
 
     pub fn toggle_dodge(&mut self) {
@@ -95,7 +113,13 @@ impl Player {
     }
 
     pub fn get_defence(&mut self) -> u16 {
-        self.defence
+        let mut def_acc = self.defence;
+        for (_k, v) in &self.equipped {
+            if let Some(val) = v.properties.get("defence") {
+                def_acc += val;
+            };
+        }
+        def_acc
     }
 
     pub fn get_health(&mut self) -> u16 {

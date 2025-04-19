@@ -1,8 +1,8 @@
 //notebook
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use serde_json::Result;
+use std::collections::HashMap;
 use std::fs;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -96,111 +96,54 @@ impl Default for Lore {
 //     lore: HashMap<String, Lore>,
 // }
 
-
-
 //#[derive(Serialize, Deserialize)]
 pub struct Notebook {
-    quests: HashMap<String, Quest>,
-    places: HashMap<String, Place>,
-    people: HashMap<String, Person>,
-    lore: HashMap<String, Lore>,
+    settles: HashMap<String, String>,
+    convos: Vec<String>,
+    knowledge: HashMap<String, String>,
+    discover: HashMap<String, String>,
 }
 
 impl Notebook {
     pub fn new() -> Result<Self> {
-        let data1 = fs::read_to_string("src/notebook/quests.json");
-        log::info!("{:?}", &data1);
-        let quests = match data1 {
-            Ok(content) => serde_json::from_str(&content)?,
-            Err(e) => {
-                log::info!("{:?}", e);
-                HashMap::new()
-            },
-        };
-
-        // let quests: HashMap<String, Quest> = serde_json::from_str(&data1)?;
-        let data2 = fs::read_to_string("src/notebook/places.json");
-        log::info!("{:?}", &data2);
-        let places = match data2 {
-            Ok(content) => serde_json::from_str(&content)?,
-            Err(e) => {
-                log::info!("{:?}", e);
-                HashMap::new()
-            },
-        };
-
-        // let places: HashMap<String, Place> = serde_json::from_str(&data2)?;
-        let data3 = fs::read_to_string("src/notebook/people.json");
-        log::info!("{:?}", &data3);
-        let people = match data3 {
-            Ok(content) => serde_json::from_str(&content)?,
-            Err(e) => {
-                log::info!("{:?}", e);
-                HashMap::new()
-            },
-        };
-        // let people: HashMap<String, Person> = serde_json::from_str(&data3)?;
-        let data4 = fs::read_to_string("src/notebook/lore.json");
-        log::info!("{:?}", &data4);
-        let lore = match data4 {
-            Ok(content) => serde_json::from_str(&content)?,
-            Err(e) => {
-                log::info!("{:?}", e);
-                HashMap::new()
-            },
-        };
-        // let lore: HashMap<String, Lore> = serde_json::from_str(&data4)?;
-        log::info!("\n{:?}\n{:?}\n{:?}\n{:?}", quests.clone(), places.clone(), people.clone(), lore.clone());
-        // println!("{:?}\n{:?}\n{:?}\n{:?}", quests.clone(), places.clone(), people.clone(), lore.clone());
-
-
-        Ok(Self { quests, places, people, lore })
-        // Self {
-        //     quests,
-        //     places,
-        //     people,
-        //     lore
-        // }
+        Ok(Self {
+            settles: HashMap::new(),
+            convos: Vec::new(),
+            knowledge: HashMap::new(),
+            discover: HashMap::new(),
+        })
     }
 
-    // pub fn get_active_quests(&self) -> Vec<String, Quest> {
-    //     let mut temp = Vec::new();
-    //     for (s, q) in &self.quests {
-    //         if q.active {
-    //             temp.push(q.clone());
-    //         }
-    //     }
-    //     temp
-    // }
-
-    pub fn get_active_notes(&self) -> (Vec<Quest>, Vec<Place>, Vec<Person>,  Vec<Lore>) {
-        let mut qtemp = Vec::new();
-        let mut pltemp = Vec::new();
-        let mut ptemp = Vec::new();
-        let mut ltemp = Vec::new();
-
-        for (_s, q) in &self.quests {
-            if q.active {
-                qtemp.push(q.clone());
-            }
-        }
-        for (_s, p) in &self.places {
-            if p.active {
-                pltemp.push(p.clone());
-            }
-        }
-        for (_s, p) in &self.people {
-            if p.active {
-                ptemp.push(p.clone());
-            }
-        }
-        for (_s, l) in &self.lore {
-            if l.active {
-                ltemp.push(l.clone());
-            }
-        }
-
-        (qtemp, pltemp, ptemp, ltemp)
+    pub fn enter_settles(&mut self, sname: String, snote: String) {
+        self.settles.insert(sname, snote);
     }
 
+    pub fn enter_convo(&mut self, snote: &str) {
+        // let fsnote = format!("{}", snote);
+        self.convos.push(snote.to_string().clone());
+    }
+
+    pub fn enter_knowledge(&mut self, sname: String, snote: String) {
+        self.knowledge.insert(sname, snote);
+    }
+
+    pub fn enter_discover(&mut self, sname: String, snote: String) {
+        self.discover.insert(sname, snote);
+    }
+
+    pub fn get_notes(
+        &self,
+    ) -> (
+        HashMap<String, String>,
+        Vec<String>,
+        HashMap<String, String>,
+        HashMap<String, String>,
+    ) {
+        (
+            self.settles.clone(),
+            self.convos.clone(),
+            self.knowledge.clone(),
+            self.discover.clone(),
+        )
+    }
 }
