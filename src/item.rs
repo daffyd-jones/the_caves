@@ -1,5 +1,5 @@
 //item
-use crate::enums::{Equip, InterOpt, ItemEffect, ItemOpt, Items};
+use crate::enums::{Equip, InterOpt, ItemEffect, ItemOpt, Items, Plants};
 use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -13,6 +13,8 @@ pub struct Item {
     pub desc: String,
     pub iopts: HashMap<InterOpt, String>,
     pub equip: bool,
+    pub craft: bool,
+    pub produces: Items,
     pub equip_type: Equip,
     pub effect: ItemEffect,
     pub x: usize,
@@ -33,6 +35,8 @@ impl Default for Item {
             icon: (' ', Color::White),
             iopts: h,
             equip: false,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Null,
             effect: ItemEffect::Null,
             x: 0,
@@ -50,6 +54,8 @@ impl Item {
         desc: String,
         iopts: HashMap<InterOpt, String>,
         equip: bool,
+        craft: bool,
+        produces: Items,
         equip_type: Equip,
         effect: ItemEffect,
         x: usize,
@@ -63,6 +69,8 @@ impl Item {
             desc,
             iopts,
             equip,
+            craft,
+            produces,
             equip_type,
             effect,
             x,
@@ -86,6 +94,8 @@ impl Item {
             desc: "Weird looking root, doesnt look very tasty.".to_string(),
             iopts,
             equip: false,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Null,
             effect: ItemEffect::Health,
             x,
@@ -108,6 +118,8 @@ impl Item {
             desc: "Its a rock.".to_string(),
             iopts,
             equip: false,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Null,
             effect: ItemEffect::Null,
             x,
@@ -131,6 +143,8 @@ impl Item {
             desc: "Parts of a dead creature.".to_string(),
             iopts,
             equip: false,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Null,
             effect: ItemEffect::Health,
             x,
@@ -154,6 +168,8 @@ impl Item {
             desc: "Scrap of metal.".to_string(),
             iopts,
             equip: false,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Null,
             effect: ItemEffect::Null,
             x,
@@ -179,6 +195,8 @@ impl Item {
             desc: "A slightly bruised apple that as been here for a while.".to_string(),
             iopts,
             equip: false,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Null,
             effect: ItemEffect::Health,
             x,
@@ -203,8 +221,90 @@ impl Item {
             desc: "Mixture of curdled liquids. Returns vitality to the body.".to_string(),
             iopts,
             equip: false,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Null,
             effect: ItemEffect::Health,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_antidote(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        // prop.insert(String::from("health"), 30);
+        //prop.insert(String::from("effect"), 30);
+        prop.insert(String::from("value"), 50);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        Self {
+            itype: Items::Antidote,
+            sname: "Antidote".to_string(),
+            icon: ('ṓ', Color::Green),
+            desc: "A thick purple liquid. Dispels any poison, toxin or infection.".to_string(),
+            iopts,
+            equip: false,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Health,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_luck_potion(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("luck"), 3);
+        //prop.insert(String::from("effect"), 30);
+        prop.insert(String::from("value"), 50);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        Self {
+            itype: Items::LuckPotion,
+            sname: "Luck Potion".to_string(),
+            icon: ('ṓ', Color::Green),
+            desc: "Green potion with gold flecks. Increases the users luck.".to_string(),
+            iopts,
+            equip: false,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Luck,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_agility_potion(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("Attack"), 5);
+        //prop.insert(String::from("effect"), 30);
+        prop.insert(String::from("value"), 50);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        Self {
+            itype: Items::AgilityPotion,
+            sname: "Agility Potion".to_string(),
+            icon: ('ṓ', Color::Blue),
+            desc:
+                "A light green liquid with swirls of blue. Increases ability to land attack hits."
+                    .to_string(),
+            iopts,
+            equip: false,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Attack,
             x,
             y,
             properties: prop,
@@ -228,6 +328,8 @@ impl Item {
             desc: "Thick paste for smearing on wounds. It heals better than it smells.".to_string(),
             iopts,
             equip: false,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Null,
             effect: ItemEffect::Health,
             x,
@@ -253,6 +355,8 @@ impl Item {
             desc: "Most of a broomstick. Its sharp at one end.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -279,6 +383,8 @@ impl Item {
             desc: "A bronze double edged sword".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -305,6 +411,8 @@ impl Item {
             desc: "An iron double edged sword".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -331,6 +439,8 @@ impl Item {
             desc: "A steel double edged sword".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -357,6 +467,8 @@ impl Item {
             desc: "A bronze longsword".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -383,6 +495,8 @@ impl Item {
             desc: "An iron longsword".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -409,6 +523,8 @@ impl Item {
             desc: "A bronze greatword".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -435,6 +551,8 @@ impl Item {
             desc: "A bronze shortsword".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -461,6 +579,8 @@ impl Item {
             desc: "A basic wooden staff".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -487,6 +607,8 @@ impl Item {
             desc: "A solid wood staff sith a knot at the top.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -513,6 +635,8 @@ impl Item {
             desc: "A staff that has a knob at the end for hitting.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -539,6 +663,8 @@ impl Item {
             desc: "A staff with a gem at the top.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -565,6 +691,8 @@ impl Item {
             desc: "A bronze heavy axe".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -591,6 +719,8 @@ impl Item {
             desc: "A bronze light axe".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -617,6 +747,8 @@ impl Item {
             desc: "A bronze pick axe".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -643,6 +775,8 @@ impl Item {
             desc: "A bronze pick hammer".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -669,6 +803,8 @@ impl Item {
             desc: "Shadow Axe".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -695,6 +831,8 @@ impl Item {
             desc: "A bronze war axe".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Weapon,
             effect: ItemEffect::Damage,
             x,
@@ -722,6 +860,8 @@ impl Item {
             desc: "A small wooden shield that provides some defence.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Shield,
             effect: ItemEffect::Defence,
             x,
@@ -747,6 +887,8 @@ impl Item {
             desc: "A large wooden shield that protects a bit from attacks.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Shield,
             effect: ItemEffect::Defence,
             x,
@@ -772,6 +914,8 @@ impl Item {
             desc: "A iron shield that protects from attacks.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Shield,
             effect: ItemEffect::Defence,
             x,
@@ -797,6 +941,8 @@ impl Item {
             desc: "A steel shield that protects from attacks.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Shield,
             effect: ItemEffect::Defence,
             x,
@@ -822,6 +968,8 @@ impl Item {
             desc: "Light armour that provides some defence.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Armour,
             effect: ItemEffect::Defence,
             x,
@@ -847,6 +995,8 @@ impl Item {
             desc: "Medium armour that provides reasonable defence.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Armour,
             effect: ItemEffect::Defence,
             x,
@@ -872,8 +1022,187 @@ impl Item {
             desc: "Heavy armour that provides good defence.".to_string(),
             iopts,
             equip: true,
+            craft: false,
+            produces: Items::Null,
             equip_type: Equip::Armour,
             effect: ItemEffect::Defence,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    ////////////////////////// Plants
+
+    pub fn new_luminous_mushroom(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("required"), 5);
+        // prop.insert(String::from("value"), 90);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+
+        Self {
+            itype: Items::Plants(Plants::LuminousMushroom),
+            sname: "Luminous Mushroom".to_string(),
+            icon: ('ϙ', Color::LightBlue),
+            desc: "A mushroom that gives off a light glow.".to_string(),
+            iopts,
+            equip: false,
+            craft: true,
+            produces: Items::VitalityPotion,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Null,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_lampen_flower_petals(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("required"), 5);
+        // prop.insert(String::from("value"), 90);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+
+        Self {
+            itype: Items::Plants(Plants::LampenPetals),
+            sname: "Lampen Flower Petals".to_string(),
+            icon: ('ϙ', Color::LightBlue),
+            desc: "A flower that grows in small groups.".to_string(),
+            iopts,
+            equip: false,
+            craft: true,
+            produces: Items::HealthPotion,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Null,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_moss(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("required"), 10);
+        // prop.insert(String::from("value"), 90);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+
+        Self {
+            itype: Items::Plants(Plants::Moss),
+            sname: "Moss".to_string(),
+            icon: ('⁂', Color::Green),
+            desc: "Soft green clump of moss.".to_string(),
+            iopts,
+            equip: false,
+            craft: true,
+            produces: Items::Salve,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Null,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_lichenous_growth(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("required"), 8);
+        // prop.insert(String::from("value"), 90);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+
+        Self {
+            itype: Items::Plants(Plants::LichenousGrowth),
+            sname: "Lichenous Growth".to_string(),
+            icon: ('₴', Color::LightBlue),
+            desc: "A spongey growth that grows in the dark.".to_string(),
+            iopts,
+            equip: false,
+            craft: true,
+            produces: Items::Antidote,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Null,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_lucky_clover(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("required"), 10);
+        // prop.insert(String::from("value"), 90);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+
+        Self {
+            itype: Items::Plants(Plants::LuckyClover),
+            sname: "Lucky Clover".to_string(),
+            icon: ('⌘', Color::Green),
+            desc: "A small clover with four pedals.".to_string(),
+            iopts,
+            equip: false,
+            craft: true,
+            produces: Items::LuckPotion,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Null,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_shrooms(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("required"), 5);
+        // prop.insert(String::from("value"), 90);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+
+        Self {
+            itype: Items::Plants(Plants::Shroom),
+            sname: "Shroom".to_string(),
+            icon: ('ƍ', Color::Magenta),
+            desc: "A weird looking mushroom.".to_string(),
+            iopts,
+            equip: false,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Null,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_vine_bulb(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("required"), 5);
+        // prop.insert(String::from("value"), 90);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+
+        Self {
+            itype: Items::Plants(Plants::Shroom),
+            sname: "Vine Bulb".to_string(),
+            icon: ('ƍ', Color::Green),
+            desc: "The flower bulb of a vine that covers the walls in patches.".to_string(),
+            iopts,
+            equip: false,
+            craft: true,
+            produces: Items::AgilityPotion,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Null,
             x,
             y,
             properties: prop,

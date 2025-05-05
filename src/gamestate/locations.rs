@@ -6,7 +6,7 @@ use crate::puzzle::Puzzle;
 //use crate::enemy::{Enemy};
 use crate::npc::NPC;
 //use crate::lsystems::LSystems;
-//use crate::gui::GUI;
+use crate::gui::GuiArgs;
 //use crate::settlements::Settlements;
 use crate::settlement::Settlement;
 //use crate::shop::Shop;
@@ -167,6 +167,7 @@ impl GameState {
                     let lpos = settle.get_pos();
                     if !in_range(lpos, (-self.dist_fo.0, -self.dist_fo.1), self.loc_rad) {
                         settle.tog_npcs_sent();
+                        settle.tog_found();
                         self.settles.update_settlement(settle.clone());
                         self.location = Location::Null;
                         //log::info!("updating and unlocating settle");
@@ -429,14 +430,17 @@ impl GameState {
             self.gui.shop_convo_draw(
                 sname.clone(),
                 sh_dialogue.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -470,14 +474,17 @@ impl GameState {
             self.gui.shop_convo_draw(
                 sname.clone(),
                 resp_dialogue.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {

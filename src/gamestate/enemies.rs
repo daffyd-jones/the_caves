@@ -1,17 +1,21 @@
 use crate::enemy::Enemy;
-use crate::enums::{Cells, EncOpt, Enemies, FightSteps, GameMode, Interactable, Items};
+use crate::enums::{
+    AniType, Cells, EncMode, EncOpt, EncResult, Enemies, Equip, FightSteps, GameMode, Interactable,
+    Items,
+};
 use crate::map::{MAP_H, MAP_W};
 //use crate::npc::{NPC};
 use crate::gamestate::GameState;
 
 use crate::gamestate::loc_shop_items;
-// use crate::gui_man_draw::GUI;
+use crate::gui::{Animation, GuiArgs};
 use crate::item::Item;
 use std::time::Instant;
 //use std::fs;
 use rand::prelude::SliceRandom;
 use rand::Rng;
 use ratatui::crossterm::event::{poll, read, Event, KeyCode};
+use ratatui::style::Color;
 use std::collections::HashMap;
 
 impl GameState {
@@ -239,6 +243,320 @@ impl GameState {
         self.items.insert((x, y), itm.clone());
     }
 
+    fn auto_encounter(&mut self) -> EncResult {
+        let Interactable::Enemy(enemy) = self.interactee.clone() else {
+            todo!()
+        };
+        let turn = self.enemy_turn(enemy.clone());
+        let t_str: Vec<char> = turn.to_string().chars().collect();
+        let mut ani_frames = vec![('\\', Color::White), ('X', Color::Red), ('/', Color::White)];
+        if let Some(weap) = self.player.get_equipped().get(&Equip::Shield) {
+            ani_frames.push(weap.icon);
+        }
+        for i in t_str {
+            ani_frames.push((i, Color::Red));
+        }
+        for i in ani_frames {
+            self.gui.encounter_auto_content(&mut GuiArgs {
+                map: &self.map,
+                player: &self.player,
+                enemies: &self.enemies,
+                items: &self.items,
+                npcs: &self.npcs,
+                env_inter: Some(&self.env_inters),
+                litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                portals: Some(&self.portals),
+                animate: Some(&Animation {
+                    atype: AniType::Player,
+                    pos: (0, 0),
+                    char: Some(i),
+                    frame: None,
+                }),
+            });
+            if poll(std::time::Duration::from_millis(500)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let res = self.enc_key(event.code);
+                    }
+                }
+            }
+        }
+        if self.player.get_health() == 0 {
+            self.game_mode = GameMode::Fight(FightSteps::Null);
+            return EncResult::Lose;
+        }
+
+        self.player_attack();
+        let lturn = self.player.get_last_turn().1;
+        let t_str: Vec<char> = lturn.to_string().chars().collect();
+        let mut ani_frames = vec![
+            ('\\', Color::White),
+            ('X', Color::Green),
+            ('/', Color::White),
+        ];
+        if let Some(weap) = self.player.get_equipped().get(&Equip::Weapon) {
+            ani_frames.push(weap.icon);
+        }
+        for i in t_str {
+            ani_frames.push((i, Color::Green));
+        }
+        let ppos = enemy.pos;
+        for i in ani_frames {
+            self.gui.encounter_auto_content(&mut GuiArgs {
+                map: &self.map,
+                player: &self.player,
+                enemies: &self.enemies,
+                items: &self.items,
+                npcs: &self.npcs,
+                env_inter: Some(&self.env_inters),
+                litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                portals: Some(&self.portals),
+                animate: Some(&Animation {
+                    atype: AniType::Char,
+                    pos: ppos,
+                    char: Some(i),
+                    frame: None,
+                }),
+            });
+            if poll(std::time::Duration::from_millis(500)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let res = self.enc_key(event.code);
+                    }
+                }
+            }
+        }
+        let Interactable::Enemy(mut enemy) = self.interactee.clone() else {
+            todo!()
+        };
+        if enemy.health == 0 {
+            let epos = enemy.get_pos();
+            self.enemies.remove(&epos);
+            self.game_mode = GameMode::Fight(FightSteps::Null);
+            return EncResult::Win;
+        }
+        EncResult::Cont
+    }
+
+    fn quick_encounter(&mut self) -> EncResult {
+        let Interactable::Enemy(enemy) = self.interactee.clone() else {
+            todo!()
+        };
+        // let mut e = ;
+        let turn = self.enemy_turn(enemy.clone());
+        if self.player.get_health() == 0 {
+            self.game_mode = GameMode::Fight(FightSteps::Null);
+            return EncResult::Lose;
+        }
+
+        self.player_attack();
+        let lturn = self.player.get_last_turn();
+        let Interactable::Enemy(mut enemy) = self.interactee.clone() else {
+            todo!()
+        };
+        if enemy.health == 0 {
+            let epos = enemy.get_pos();
+            self.enemies.remove(&epos);
+            self.game_mode = GameMode::Fight(FightSteps::Null);
+            return EncResult::Win;
+        }
+
+        EncResult::Cont
+    }
+
+    fn manual_encounter(&mut self) -> EncResult {
+        let Interactable::Enemy(enemy) = self.interactee.clone() else {
+            todo!()
+        };
+        let mut e = enemy.clone();
+        let pstart = false;
+        if !pstart {
+            let enatk = "Enemy is attacking.".to_string();
+            loop {
+                self.gui.encounter_show_content(
+                    enatk.clone(),
+                    &mut GuiArgs {
+                        map: &self.map,
+                        player: &self.player,
+                        enemies: &self.enemies,
+                        items: &self.items,
+                        npcs: &self.npcs,
+                        env_inter: Some(&self.env_inters),
+                        litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                        portals: Some(&self.portals),
+                        animate: None,
+                    },
+                );
+                if poll(std::time::Duration::from_millis(100)).unwrap() {
+                    if let Event::Key(event) = read().unwrap() {
+                        // log::info!("keykind {:?}", event.kind.clone());
+                        let now = Instant::now();
+                        if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                            self.last_event_time = now;
+                            let res = self.enc_key(event.code);
+                            if !res {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            //enemy turn
+            let turn = self.enemy_turn(e.clone());
+            let trn_res = if turn == 0 {
+                "The enemy attempted an attack, but missed.".to_string()
+            } else {
+                let fmts = format!("The enemy atacked you for {}hp.", turn.clone());
+                fmts
+            };
+            self.gui.reset_cursor();
+            loop {
+                self.gui.encounter_show_content(
+                    trn_res.clone(),
+                    &mut GuiArgs {
+                        map: &self.map,
+                        player: &self.player,
+                        enemies: &self.enemies,
+                        items: &self.items,
+                        npcs: &self.npcs,
+                        env_inter: Some(&self.env_inters),
+                        litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                        portals: Some(&self.portals),
+                        animate: None,
+                    },
+                );
+                if poll(std::time::Duration::from_millis(100)).unwrap() {
+                    if let Event::Key(event) = read().unwrap() {
+                        // log::info!("keykind {:?}", event.kind.clone());
+                        let now = Instant::now();
+                        if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                            self.last_event_time = now;
+                            let res = self.enc_key(event.code);
+                            if !res {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if self.player.get_health() == 0 {
+                self.game_mode = GameMode::Fight(FightSteps::Null);
+                return EncResult::Lose;
+            }
+            self.game_mode = GameMode::Fight(FightSteps::Player);
+        }
+        //player turn
+        //-player choice
+        let popt = self.player.get_enc_opt();
+        self.gui.reset_cursor();
+        loop {
+            self.gui.encounter_user_options(
+                popt.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
+            );
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let res = self.enc_key(event.code);
+                        if !res {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        let lturn = self.player.get_last_turn();
+        self.player.set_enc_last_turn((EncOpt::Null, 0));
+        let mut itm = false;
+        let trn_res = match lturn {
+            (EncOpt::Dodge, _) => "You dodged in an attempt to evade attack.".to_string(),
+            (EncOpt::Attack, 0) => "You attempted an attack, but missed.".to_string(),
+            (EncOpt::Attack, _) => {
+                let ehp = if e.health > lturn.1 {
+                    e.health - lturn.1
+                } else {
+                    0
+                };
+                let fmts = format!(
+                    "You successfully attacked the {} for {}hp. They have an hp of: {}",
+                    e.clone().get_sname(),
+                    lturn.1,
+                    ehp
+                );
+                fmts
+            }
+            (EncOpt::UseItem, _) => {
+                itm = true;
+                "".to_string()
+            }
+            _ => "OOPS!".to_string(),
+        };
+        self.gui.reset_cursor();
+        loop {
+            if itm {
+                break;
+            }
+            self.gui.encounter_show_content(
+                trn_res.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
+            );
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let res = self.enc_key(event.code);
+                        if !res {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        let Interactable::Enemy(enemy) = self.interactee.clone() else {
+            todo!()
+        };
+        e = enemy.clone();
+        if e.health == 0 {
+            let epos = e.get_pos();
+            self.enemies.remove(&epos);
+            self.game_mode = GameMode::Fight(FightSteps::Null);
+            return EncResult::Win;
+        }
+        self.game_mode = GameMode::Fight(FightSteps::Enemy);
+        EncResult::Cont
+    }
+
     pub fn enemy_encounter(&mut self, mut e: Enemy) -> bool {
         //you are in fight
         let fst = format!("You are being attacked by a {}", e.get_sname());
@@ -246,14 +564,17 @@ impl GameState {
         loop {
             self.gui.encounter_show_content(
                 fst.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -270,189 +591,20 @@ impl GameState {
             }
         }
         //fight start
-        let mut pstart = true;
         self.game_mode = GameMode::Fight(FightSteps::Player);
-        let mut win = None;
-        loop {
-            let Interactable::Enemy(enemy) = self.interactee.clone() else {
-                todo!()
+        let enc_res = loop {
+            let res = match self.enc_mode {
+                EncMode::Auto => self.auto_encounter(),
+                EncMode::Manual => self.manual_encounter(),
+                EncMode::Quick => self.quick_encounter(),
+                _ => self.manual_encounter(),
             };
-            e = enemy.clone();
-            if !pstart {
-                let enatk = "Enemy is attacking.".to_string();
-                loop {
-                    self.gui.encounter_show_content(
-                        enatk.clone(),
-                        self.map.clone(),
-                        self.player.clone(),
-                        self.portals.clone(),
-                        self.enemies.clone(),
-                        self.items.clone(),
-                        self.npcs.clone(),
-                        loc_shop_items(self.dist_fo, self.location.clone()),
-                        self.env_inters.clone(),
-                    );
-                    if poll(std::time::Duration::from_millis(100)).unwrap() {
-                        if let Event::Key(event) = read().unwrap() {
-                            // log::info!("keykind {:?}", event.kind.clone());
-                            let now = Instant::now();
-                            if now.duration_since(self.last_event_time) > self.key_debounce_dur {
-                                self.last_event_time = now;
-                                let res = self.enc_key(event.code);
-                                if !res {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                //enemy turn
-                let turn = self.enemy_turn(e.clone());
-                let trn_res = if turn == 0 {
-                    "The enemy attempted an attack, but missed.".to_string()
-                } else {
-                    let fmts = format!("The enemy atacked you for {}hp.", turn.clone());
-                    fmts
-                };
-                self.gui.reset_cursor();
-                loop {
-                    self.gui.encounter_show_content(
-                        trn_res.clone(),
-                        self.map.clone(),
-                        self.player.clone(),
-                        self.portals.clone(),
-                        self.enemies.clone(),
-                        self.items.clone(),
-                        self.npcs.clone(),
-                        loc_shop_items(self.dist_fo, self.location.clone()),
-                        self.env_inters.clone(),
-                    );
-                    if poll(std::time::Duration::from_millis(100)).unwrap() {
-                        if let Event::Key(event) = read().unwrap() {
-                            // log::info!("keykind {:?}", event.kind.clone());
-                            let now = Instant::now();
-                            if now.duration_since(self.last_event_time) > self.key_debounce_dur {
-                                self.last_event_time = now;
-                                let res = self.enc_key(event.code);
-                                if !res {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                if self.player.get_health() == 0 {
-                    win = Some(false);
-                    self.game_mode = GameMode::Fight(FightSteps::Null);
-                    break;
-                }
-                self.game_mode = GameMode::Fight(FightSteps::Player);
+            if res != EncResult::Cont {
+                break res;
             }
-            if pstart {
-                pstart = false;
-            }
-            //player turn
-            //-player choice
-            let popt = self.player.get_enc_opt();
-            self.gui.reset_cursor();
-            loop {
-                self.gui.encounter_user_options(
-                    popt.clone(),
-                    self.map.clone(),
-                    self.player.clone(),
-                    self.portals.clone(),
-                    self.enemies.clone(),
-                    self.items.clone(),
-                    self.npcs.clone(),
-                    loc_shop_items(self.dist_fo, self.location.clone()),
-                    self.env_inters.clone(),
-                );
-                if poll(std::time::Duration::from_millis(100)).unwrap() {
-                    if let Event::Key(event) = read().unwrap() {
-                        // log::info!("keykind {:?}", event.kind.clone());
-                        let now = Instant::now();
-                        if now.duration_since(self.last_event_time) > self.key_debounce_dur {
-                            self.last_event_time = now;
-                            let res = self.enc_key(event.code);
-                            if !res {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            let lturn = self.player.get_last_turn();
-            self.player.set_enc_last_turn((EncOpt::Null, 0));
-            let mut itm = false;
-            let trn_res = match lturn {
-                (EncOpt::Dodge, _) => "You dodged in an attempt to evade attack.".to_string(),
-                (EncOpt::Attack, 0) => "You attempted an attack, but missed.".to_string(),
-                (EncOpt::Attack, _) => {
-                    let ehp = if e.health > lturn.1 {
-                        e.health - lturn.1
-                    } else {
-                        0
-                    };
-                    let fmts = format!(
-                        "You successfully attacked the {} for {}hp. They have an hp of: {}",
-                        e.clone().get_sname(),
-                        lturn.1,
-                        ehp
-                    );
-                    fmts
-                }
-                (EncOpt::UseItem, _) => {
-                    itm = true;
-                    "".to_string()
-                }
-                _ => "OOPS!".to_string(),
-            };
-            self.gui.reset_cursor();
-            loop {
-                if itm {
-                    break;
-                }
-                self.gui.encounter_show_content(
-                    trn_res.clone(),
-                    self.map.clone(),
-                    self.player.clone(),
-                    self.portals.clone(),
-                    self.enemies.clone(),
-                    self.items.clone(),
-                    self.npcs.clone(),
-                    loc_shop_items(self.dist_fo, self.location.clone()),
-                    self.env_inters.clone(),
-                );
-                if poll(std::time::Duration::from_millis(100)).unwrap() {
-                    if let Event::Key(event) = read().unwrap() {
-                        // log::info!("keykind {:?}", event.kind.clone());
-                        let now = Instant::now();
-                        if now.duration_since(self.last_event_time) > self.key_debounce_dur {
-                            self.last_event_time = now;
-                            let res = self.enc_key(event.code);
-                            if !res {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            let Interactable::Enemy(enemy) = self.interactee.clone() else {
-                todo!()
-            };
-            e = enemy.clone();
-            if e.health == 0 {
-                win = Some(true);
-                let epos = e.get_pos();
-                self.enemies.remove(&epos);
-                self.game_mode = GameMode::Fight(FightSteps::Null);
-                break;
-            }
-            self.game_mode = GameMode::Fight(FightSteps::Enemy);
-            //round end
-        }
+        };
         //fight over
-        let win_msg = if win.unwrap() {
+        let win_msg = if enc_res == EncResult::Win {
             self.enemy_drop(e.clone());
             format!("You defeated the {}!", e.get_sname())
         } else {
@@ -462,14 +614,17 @@ impl GameState {
         loop {
             self.gui.encounter_show_content(
                 win_msg.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -485,7 +640,7 @@ impl GameState {
                 }
             }
         }
-        if win.unwrap() {
+        if enc_res == EncResult::Win {
             true
         } else {
             self.game_mode = GameMode::Dead;
@@ -514,16 +669,17 @@ impl GameState {
         self.gui.set_inventory(self.player.get_inventory());
         self.gui.reset_cursor();
         loop {
-            self.gui.encounter_pick_item(
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
-            );
+            self.gui.encounter_pick_item(&mut GuiArgs {
+                map: &self.map,
+                player: &self.player,
+                enemies: &self.enemies,
+                items: &self.items,
+                npcs: &self.npcs,
+                env_inter: Some(&self.env_inters),
+                litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                portals: Some(&self.portals),
+                animate: None,
+            });
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());

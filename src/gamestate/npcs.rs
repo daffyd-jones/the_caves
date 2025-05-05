@@ -6,6 +6,7 @@ use crate::map::{MAP_H, MAP_W};
 //use crate::enemy::{Enemy};
 use crate::gamestate::GameState;
 use crate::gamestate::Item;
+use crate::gui::GuiArgs;
 use crate::npc::{
     new_comm_npc, new_conv_npc, new_spawn_npc, new_trade_npc, CommNPC, ConvNPC, Convo, ShopNPC,
     SpawnNPC, TradeNPC, NPC,
@@ -99,14 +100,17 @@ impl GameState {
         loop {
             self.gui.npc_comm_draw(
                 comms.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -154,14 +158,17 @@ impl GameState {
                 name.clone(),
                 text.clone(),
                 opts_vec.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -240,14 +247,17 @@ impl GameState {
         loop {
             self.gui.npc_trade_draw(
                 items.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -296,14 +306,17 @@ impl GameState {
         loop {
             self.gui.npc_trade_draw(
                 items.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -350,14 +363,17 @@ impl GameState {
         loop {
             self.gui.npc_trade_type_draw(
                 comms.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {

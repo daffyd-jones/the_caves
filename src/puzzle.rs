@@ -138,50 +138,50 @@ fn make_teleport_map() -> Vec<Vec<Cells>> {
         let mut sec_cells_dflip = vec![vec![Cells::Wall; sm_sec_w]; sm_sec_h];
         for y in 0..sec_cells.len() {
             for x in 0..sec_cells[0].len() {
-                sec_cells_vflip[y][sec_cells[0].len() - x - 1] = sec_cells[y][x].clone();
-                sec_cells_hflip[sec_cells.len() - y - 1][x] = sec_cells[y][x].clone();
+                sec_cells_vflip[y][sec_cells[0].len() - x - 1] = sec_cells[y][x];
+                sec_cells_hflip[sec_cells.len() - y - 1][x] = sec_cells[y][x];
                 sec_cells_dflip[sec_cells.len() - y - 1][sec_cells[0].len() - x - 1] =
-                    sec_cells[y][x].clone();
+                    sec_cells[y][x];
             }
         }
 
         let (a, b, c, d) = round_secs[i];
         for y in 0..sm_sec_h {
             for x in 0..sm_sec_w {
-                let cell = sec_cells[y][x].clone();
+                let cell = sec_cells[y][x];
                 for dy in 0..4 {
                     for dx in 0..4 {
-                        cells[y * 4 + dy + a.1][x * 4 + dx + a.0] = cell.clone();
+                        cells[y * 4 + dy + a.1][x * 4 + dx + a.0] = cell;
                     }
                 }
             }
         }
         for y in 0..sm_sec_h {
             for x in 0..sm_sec_w {
-                let cell = sec_cells_vflip[y][x].clone();
+                let cell = sec_cells_vflip[y][x];
                 for dy in 0..4 {
                     for dx in 0..4 {
-                        cells[y * 4 + dy + b.1][x * 4 + dx + b.0] = cell.clone();
+                        cells[y * 4 + dy + b.1][x * 4 + dx + b.0] = cell;
                     }
                 }
             }
         }
         for y in 0..sm_sec_h {
             for x in 0..sm_sec_w {
-                let cell = sec_cells_hflip[y][x].clone();
+                let cell = sec_cells_hflip[y][x];
                 for dy in 0..4 {
                     for dx in 0..4 {
-                        cells[y * 4 + dy + c.1][x * 4 + dx + c.0] = cell.clone();
+                        cells[y * 4 + dy + c.1][x * 4 + dx + c.0] = cell;
                     }
                 }
             }
         }
         for y in 0..sm_sec_h {
             for x in 0..sm_sec_w {
-                let cell = sec_cells_dflip[y][x].clone();
+                let cell = sec_cells_dflip[y][x];
                 for dy in 0..4 {
                     for dx in 0..4 {
-                        cells[y * 4 + dy + d.1][x * 4 + dx + d.0] = cell.clone();
+                        cells[y * 4 + dy + d.1][x * 4 + dx + d.0] = cell;
                     }
                 }
             }

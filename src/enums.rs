@@ -20,6 +20,31 @@ pub enum Cells {
     Wall2,
     Wall3,
     Wall4,
+    Broken1,
+    Broken2,
+    Broken3,
+    Broken4,
+    Roots,
+    ULCorner1,
+    ULCorner2,
+    ULCorner3,
+    ULCorner4,
+    ULCorner5,
+    URCorner1,
+    URCorner2,
+    URCorner3,
+    URCorner4,
+    URCorner5,
+    DLCorner1,
+    DLCorner2,
+    DLCorner3,
+    DLCorner4,
+    DLCorner5,
+    DRCorner1,
+    DRCorner2,
+    DRCorner3,
+    DRCorner4,
+    DRCorner5,
     Floor,
     Floor2,
     Tunnel,
@@ -85,9 +110,13 @@ pub enum Cells {
     Null,
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Items {
     HealthPotion, // +10 health
+    VitalityPotion,
+    Antidote,
+    LuckPotion,
+    AgilityPotion,
     Salve,
     Dowel,
     WoodenBoard,
@@ -143,11 +172,19 @@ pub enum Items {
     SteelShield,
 
     //
-    MagicRing,
-    WeirdCloak,
-    PhoenixFeather,
-    Antidote,
-    ShadowBoots,
+    Plants(Plants),
+    Null,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
+pub enum Plants {
+    Moss,
+    LuminousMushroom,
+    LichenousGrowth,
+    VineBulb,
+    LampenPetals,
+    LuckyClover,
+    Shroom,
     Null,
 }
 
@@ -170,6 +207,7 @@ pub enum ItemEffect {
     Attack,
     Damage,
     Defence,
+    Luck,
     Null,
 }
 
@@ -210,6 +248,14 @@ pub enum NPCWrap {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
+pub enum AniType {
+    Player,
+    Area,
+    Char,
+    Null,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum GUIMode {
     Bug,
     Normal,
@@ -228,6 +274,22 @@ pub enum GameMode {
     Interact(InterSteps),
     Fight(FightSteps),
     Dead,
+    Null,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum EncMode {
+    Auto,
+    Manual,
+    Quick,
+    Null,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum EncResult {
+    Win,
+    Lose,
+    Cont,
     Null,
 }
 
@@ -263,6 +325,9 @@ pub enum EnvInter {
     Clinic,
     GuildPost,
     ChurchPost,
+    Cauldron,
+    LockedDoor,
+    Door,
     Null,
 }
 

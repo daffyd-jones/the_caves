@@ -117,6 +117,26 @@ features
 ፠	፡	።	፣	፤	፥	፦	፧	፨
 ſǭ ṍ Ɏ
 
+⌈ ⌉ ⌠ ⎡ ⎤ ⎧ ⎫
+
+⎛	⎜	⎝	⎞	⎟ ⎠
+
+    ~~~
+    ⏠
+           
+    ⏠
+    ~~~
+
+⏡
+
+⑁	⑂	⑃	⑄
+
+〒
+
+⛆
+
+❏	❐	❑	❒
+  
 Containers?
 ፩	፪	፫	፬	፭	፮	፯
 ፰	፱	፲	፳	፴	፵	፶	፷	፸	፹	፺	፻	፼
@@ -127,8 +147,12 @@ Containers?
 attack
 X \ /
 
+܍ ܀
+፠ 
+Ŧ ŧ ƍ ǫ Ǫ ǭ Ǭ ȩ ȣ Ȣ ȩ ḉ ḝ ọ Ọ ˚ ϙ Ϙ  ৭ ૦
 
-፠
+
+ϙ ৭ ƍ ǫ
 ```
 
 # Enemies
@@ -456,6 +480,8 @@ Levels:
 - known plants can be used to make potions and other items
 
 **Luminous Mushroom**:
+
+`ų`
 
 - have a low-med probability of being spawned
 - can be used to make health potions

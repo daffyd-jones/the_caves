@@ -1,8 +1,9 @@
 //gamestate
 use crate::enemy::Enemy;
 use crate::enums::{
-    Cells, CompMode, EncOpt, Enemies, EnvInter, FightSteps, GUIMode, GameMode, InterOpt,
-    InterSteps, Interactable, ItemOpt, Items, Location, NPCWrap, NPCs, NodeType, PuzzleType,
+    Cells, CompMode, EncMode, EncOpt, Enemies, EnvInter, FightSteps, GUIMode, GameMode, InterOpt,
+    InterSteps, Interactable, ItemOpt, Items, Location, NPCWrap, NPCs, NodeType, Plants,
+    PuzzleType,
 };
 use crate::map::{Map, MAP_H, MAP_W};
 use crate::nodemap::NodeMap;
@@ -11,7 +12,7 @@ use crate::player::Player;
 use crate::puzzles::Puzzles;
 //use crate::lsystems::LSystems;
 use crate::features::Features;
-use crate::gui::GUI;
+use crate::gui::{GuiArgs, GUI};
 use crate::item::Item;
 use crate::notebook::Notebook;
 use crate::settlements::Settlements;
@@ -542,6 +543,7 @@ pub struct GameState {
     portal_cool: Instant,
     loc_map: Option<Vec<Vec<Cells>>>,
     enc: EncOpt,
+    enc_mode: EncMode,
 }
 
 impl GameState {
@@ -551,7 +553,27 @@ impl GameState {
         // let x = map.px.clone();
         // let y = map.py.clone();
         let comp_list = HashMap::new();
-        let player = Player::new(309, 196);
+        let mut player = Player::new(309, 196);
+        player.inventory.push(Item::new_luminous_mushroom(0, 0));
+        player.inventory.push(Item::new_moss(0, 0));
+        player.inventory.push(Item::new_luminous_mushroom(0, 0));
+        player.inventory.push(Item::new_moss(0, 0));
+        player.inventory.push(Item::new_luminous_mushroom(0, 0));
+        player.inventory.push(Item::new_moss(0, 0));
+        player.inventory.push(Item::new_luminous_mushroom(0, 0));
+        player.inventory.push(Item::new_moss(0, 0));
+        player.inventory.push(Item::new_luminous_mushroom(0, 0));
+        player.inventory.push(Item::new_moss(0, 0));
+        player.inventory.push(Item::new_luminous_mushroom(0, 0));
+        player.inventory.push(Item::new_moss(0, 0));
+        player.inventory.push(Item::new_luminous_mushroom(0, 0));
+        player.inventory.push(Item::new_moss(0, 0));
+        player.inventory.push(Item::new_luminous_mushroom(0, 0));
+        player.inventory.push(Item::new_moss(0, 0));
+        player.inventory.push(Item::new_luminous_mushroom(0, 0));
+        player.inventory.push(Item::new_moss(0, 0));
+        player.inventory.push(Item::new_luminous_mushroom(0, 0));
+        player.inventory.push(Item::new_moss(0, 0));
         // let player = Player::new(x, y);
         //let mut l_systems = LSystems::new();
         let enemies = place_enemies(map.cells.clone());
@@ -699,6 +721,7 @@ impl GameState {
             portal_cool: Instant::now(),
             loc_map: None,
             enc: EncOpt::Null,
+            enc_mode: EncMode::Null,
         }))
     }
 
@@ -940,7 +963,7 @@ impl GameState {
         }
         if !adj_inter.is_empty() {
             self.game_mode = GameMode::Interact(InterSteps::AdjOpt);
-            self.gui.set_info_mode(GUIMode::Interact);
+            // self.gui.set_info_mode(GUIMode::Interact);
             self.gui.set_interactable(adj_inter);
         }
     }
@@ -969,14 +992,17 @@ impl GameState {
             self.gui.item_use_draw(
                 msg_str.clone(),
                 iopts.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -1036,14 +1062,17 @@ impl GameState {
             self.gui.item_use_draw(
                 msg_str.clone(),
                 opts_str.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -1123,16 +1152,17 @@ impl GameState {
         match self.game_mode {
             GameMode::Play => {
                 loop {
-                    self.gui.item_used_draw(
-                        self.map.clone(),
-                        self.player.clone(),
-                        self.portals.clone(),
-                        self.enemies.clone(),
-                        self.items.clone(),
-                        self.npcs.clone(),
-                        loc_shop_items(self.dist_fo, self.location.clone()),
-                        self.env_inters.clone(),
-                    );
+                    self.gui.item_used_draw(&mut GuiArgs {
+                        map: &self.map,
+                        player: &self.player,
+                        enemies: &self.enemies,
+                        items: &self.items,
+                        npcs: &self.npcs,
+                        env_inter: Some(&self.env_inters),
+                        litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                        portals: Some(&self.portals),
+                        animate: None,
+                    });
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
                             // log::info!("keykind {:?}", event.kind.clone());
@@ -1155,14 +1185,17 @@ impl GameState {
                 loop {
                     self.gui.encounter_show_content(
                         itstr.clone(),
-                        self.map.clone(),
-                        self.player.clone(),
-                        self.portals.clone(),
-                        self.enemies.clone(),
-                        self.items.clone(),
-                        self.npcs.clone(),
-                        loc_shop_items(self.dist_fo, self.location.clone()),
-                        self.env_inters.clone(),
+                        &mut GuiArgs {
+                            map: &self.map,
+                            player: &self.player,
+                            enemies: &self.enemies,
+                            items: &self.items,
+                            npcs: &self.npcs,
+                            env_inter: Some(&self.env_inters),
+                            litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                            portals: Some(&self.portals),
+                            animate: None,
+                        },
                     );
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
@@ -1434,7 +1467,7 @@ impl GameState {
             }
             KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
             KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
-            KeyCode::Char('z') => {
+            KeyCode::Char('i') => {
                 self.gui.set_info_mode(GUIMode::Normal);
                 self.game_mode = GameMode::Play;
             }
@@ -1442,6 +1475,9 @@ impl GameState {
             KeyCode::Char('s') => self.gui.move_cursor("UP"),
             KeyCode::Char('d') => self.gui.move_cursor("DN"),
             KeyCode::Char('f') => self.gui.move_cursor("RT"),
+            KeyCode::Char('z') => self.enc_mode = EncMode::Auto,
+            KeyCode::Char('x') => self.enc_mode = EncMode::Manual,
+            KeyCode::Char('c') => self.enc_mode = EncMode::Quick,
             KeyCode::Enter => {
                 match self.game_mode {
                     GameMode::Fight(FightSteps::Open) => {
@@ -1597,16 +1633,17 @@ impl GameState {
     fn item_interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_opt_draw(
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
-            );
+            self.gui.inter_opt_draw(&mut GuiArgs {
+                map: &self.map,
+                player: &self.player,
+                enemies: &self.enemies,
+                items: &self.items,
+                npcs: &self.npcs,
+                env_inter: Some(&self.env_inters),
+                litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                portals: Some(&self.portals),
+                animate: None,
+            });
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1623,16 +1660,17 @@ impl GameState {
         }
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_res_draw(
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
-            );
+            self.gui.inter_res_draw(&mut GuiArgs {
+                map: &self.map,
+                player: &self.player,
+                enemies: &self.enemies,
+                items: &self.items,
+                npcs: &self.npcs,
+                env_inter: Some(&self.env_inters),
+                litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                portals: Some(&self.portals),
+                animate: None,
+            });
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1724,14 +1762,17 @@ impl GameState {
             self.gui.guild_records_draw(
                 save_str.clone(),
                 savelist.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -1801,16 +1842,17 @@ impl GameState {
         let mut paid = false;
         self.gui.reset_cursor();
         loop {
-            self.gui.clinic_draw(
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
-            );
+            self.gui.clinic_draw(&mut GuiArgs {
+                map: &self.map,
+                player: &self.player,
+                enemies: &self.enemies,
+                items: &self.items,
+                npcs: &self.npcs,
+                env_inter: Some(&self.env_inters),
+                litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                portals: Some(&self.portals),
+                animate: None,
+            });
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -1863,14 +1905,17 @@ impl GameState {
         loop {
             self.gui.clinic_resp_draw(
                 resp_string.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -1939,14 +1984,17 @@ impl GameState {
         loop {
             self.gui.guild_post_draw(
                 ppost_strings.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -2012,14 +2060,17 @@ impl GameState {
         loop {
             self.gui.church_post_draw(
                 settles.clone(),
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -2057,12 +2108,132 @@ impl GameState {
         true
     }
 
+    fn cauldron(&mut self) -> bool {
+        let inv: Vec<Item> = self
+            .player
+            .get_inventory()
+            .into_iter()
+            .filter(|item| item.craft)
+            .collect();
+        let mut craft_tallys: HashMap<Items, (u16, u16, Items)> = HashMap::new();
+        for i in &inv {
+            if let Some(c) = craft_tallys.get(&i.itype) {
+                craft_tallys.insert(i.itype, (c.0 + 1, c.1, c.2));
+            } else {
+                craft_tallys.insert(
+                    i.itype,
+                    (1, *i.properties.get("required").unwrap(), i.produces),
+                );
+            }
+        }
+        // println!("{:#?}", &craft_tallys);
+        let mut products = Vec::new();
+        for (_, tally) in &craft_tallys {
+            if tally.0 >= tally.1 {
+                products.push(tally.2);
+            }
+        }
+        // println!("{:#?}", &products);
+
+        self.gui.reset_cursor();
+        loop {
+            self.gui.cauldron_draw(
+                &products,
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                },
+            );
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Up => {
+                                self.gui.move_cursor("UP");
+                            }
+                            KeyCode::Down => {
+                                self.gui.move_cursor("DN");
+                            }
+                            KeyCode::Left => {
+                                self.gui.move_cursor("LF");
+                            }
+                            KeyCode::Right => {
+                                self.gui.move_cursor("RT");
+                            }
+                            KeyCode::Char('a') => self.gui.move_cursor("LF"),
+                            KeyCode::Char('s') => self.gui.move_cursor("UP"),
+                            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+                            KeyCode::Char('f') => self.gui.move_cursor("RT"),
+                            KeyCode::Enter => {
+                                if products.is_empty() {
+                                    break;
+                                }
+                                let cur = self.gui.get_cursor();
+                                let itype = products[cur.1];
+                                let mut inventory = self.player.inventory.clone();
+                                inventory.push(match itype {
+                                    Items::HealthPotion => Item::new_health_potion(0, 0),
+                                    Items::Salve => Item::new_salve(0, 0),
+                                    _ => Item::default(),
+                                });
+                                let craft_cln = craft_tallys.clone();
+                                let craft = {
+                                    let mut item = (Items::Null, 0);
+                                    for (i, c) in craft_cln {
+                                        if c.2 == itype {
+                                            item = (i, c.1);
+                                        }
+                                    }
+                                    item
+                                };
+                                let mut cnt = 0;
+                                let mut idcs = Vec::new();
+                                let _ = inventory
+                                    .iter()
+                                    .enumerate()
+                                    .map(|(x, i)| {
+                                        if i.itype == craft.0 && cnt < craft.1 {
+                                            idcs.push(x);
+                                            cnt += 1;
+                                        }
+                                    })
+                                    .collect::<Vec<_>>();
+                                for i in idcs.iter().rev() {
+                                    inventory.remove(*i);
+                                }
+
+                                self.player.inventory = inventory;
+
+                                break;
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+            }
+        }
+        self.game_mode = GameMode::Play;
+
+        true
+    }
+
     fn env_interaction(&mut self, env_inter: EnvInter) -> bool {
         match env_inter {
             EnvInter::Records => self.save_game(),
             EnvInter::Clinic => self.clinic(),
             EnvInter::GuildPost => self.guild_post(),
             EnvInter::ChurchPost => self.church_post(),
+            EnvInter::Cauldron => self.cauldron(),
             _ => todo!(),
         }
     }
@@ -2070,16 +2241,17 @@ impl GameState {
     fn interaction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
-            self.gui.inter_adj_draw(
-                self.map.clone(),
-                self.player.clone(),
-                self.portals.clone(),
-                self.enemies.clone(),
-                self.items.clone(),
-                self.npcs.clone(),
-                loc_shop_items(self.dist_fo, self.location.clone()),
-                self.env_inters.clone(),
-            );
+            self.gui.inter_adj_draw(&mut GuiArgs {
+                map: &self.map,
+                player: &self.player,
+                enemies: &self.enemies,
+                items: &self.items,
+                npcs: &self.npcs,
+                env_inter: Some(&self.env_inters),
+                litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                portals: Some(&self.portals),
+                animate: None,
+            });
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
                     // log::info!("keykind {:?}", event.kind.clone());
@@ -2117,11 +2289,13 @@ impl GameState {
 
     fn check_place_item(&mut self, x: usize, y: usize) -> bool {
         let mut rng = rand::thread_rng();
-        let types = vec![
+        let types = [
             Items::Rock,
             Items::EdibleRoot,
             Items::Apple,
             Items::MetalScrap,
+            Items::Plants(Plants::LuminousMushroom),
+            Items::Plants(Plants::LichenousGrowth),
         ];
         if self.map.cells[y][x] == Cells::Empty
             && !self.in_loc_check((x, y))
@@ -2141,6 +2315,12 @@ impl GameState {
                     }
                     Items::Rock => {
                         self.items.insert((x, y), Item::new_rock(x, y));
+                    }
+                    Items::Plants(Plants::LuminousMushroom) => {
+                        self.items.insert((x, y), Item::new_luminous_mushroom(x, y));
+                    }
+                    Items::Plants(Plants::LichenousGrowth) => {
+                        self.items.insert((x, y), Item::new_lichenous_growth(x, y));
                     }
                     _ => todo!(),
                 };
@@ -2356,11 +2536,17 @@ impl GameState {
             self.repop_enemies();
         }
 
-        let ppos = (self.player.x, self.player.y);
-
-        if let Some(e) = self.enemies.get(&(ppos)) {
-            self.interactee = Interactable::Enemy(e.clone());
-            self.game_mode = GameMode::Fight(FightSteps::Open);
+        let adj = [
+            (self.player.x - 1, self.player.y),
+            (self.player.x + 1, self.player.y),
+            (self.player.x, self.player.y - 1),
+            (self.player.x, self.player.y + 1),
+        ];
+        for i in adj {
+            if let Some(e) = self.enemies.get(&i) {
+                self.interactee = Interactable::Enemy(e.clone());
+                self.game_mode = GameMode::Fight(FightSteps::Open);
+            }
         }
 
         // self.new_loc_check();
@@ -2401,14 +2587,17 @@ impl GameState {
         };
         self.gui.draw(
             debug_strs.clone(),
-            self.map.clone(),
-            self.player.clone(),
-            self.portals.clone(),
-            self.enemies.clone(),
-            self.items.clone(),
-            self.npcs.clone(),
-            litems,
-            self.env_inters.clone(),
+            &mut GuiArgs {
+                map: &self.map,
+                player: &self.player,
+                enemies: &self.enemies,
+                items: &self.items,
+                npcs: &self.npcs,
+                env_inter: Some(&self.env_inters),
+                litems: Some(&litems),
+                portals: Some(&self.portals),
+                animate: None,
+            },
         );
     }
 }

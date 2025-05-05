@@ -1,5 +1,5 @@
 //gui
-use crate::enums::{Cells, Enemies, Items, NPCWrap, GUIMode, Interactable, InterOpt, EncOpt, Equip, ItemEffect, EnvInter};
+use crate::enums::{AniType, Cells, Enemies, Items, NPCWrap, GUIMode, Interactable, InterOpt, EncOpt, Equip, ItemEffect, EnvInter};
 use crate::map::Map;
 use crate::player::Player;
 use crate::enemy::{Enemy};
@@ -29,23 +29,65 @@ use ratatui::widgets::Cell;
 use std::collections::HashMap;
 // use std::collections::HashSet;
 
+pub struct GuiArgs<'a> {
+    pub map: &'a Map,
+    pub player: &'a Player,
+    pub enemies: &'a HashMap<(usize, usize), Enemy>,
+    pub items: &'a HashMap<(usize, usize), Item>,
+    pub npcs: &'a HashMap<(usize, usize), NPCWrap>,
+    pub env_inter: Option<&'a HashMap<(usize, usize), EnvInter>>,
+    pub litems: Option<&'a HashMap<(usize, usize), Item>>,
+    pub portals: Option<&'a HashMap<(usize, usize), (usize, usize)>>,
+    pub animate: Option<&'a Animation>,
+}
 
-fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usize, usize)>, enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inters: HashMap<(usize, usize), EnvInter>, ani_cnt: u8) -> Paragraph<'a> {
+type Frame = Vec<Vec<(char, Color)>>;
+pub struct Animation {
+    pub atype: AniType,
+    pub pos: (usize, usize),
+    pub frame: Option<Frame>,
+    pub char: Option<(char, Color)>,
+}
+
+fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
+    let map = gui_args.map.clone();
     let start_row = map.viewport_y;
     let end_row = (map.viewport_y + map.viewport_height).min(map.cells.len());
     let start_col = map.viewport_x;
     let end_col = (map.viewport_x + map.viewport_width).min(map.cells[0].len());
     let mut text = Vec::new();
     // log::info!("\nEnvinters: {:?}", env_inters);
+    let ani_parts = {
+        if let Some(animate) = gui_args.animate {
+            match animate.atype {
+                AniType::Player => (AniType::Player, (0,0), vec![vec![(' ', Color::Black)]], animate.char.unwrap()),
+                AniType::Char => (AniType::Char, animate.pos, vec![vec![(' ', Color::Black)]], animate.char.unwrap()),
+                AniType::Area => (AniType::Area, animate.pos, animate.frame.clone().unwrap(), (' ', Color::Black)),
+                _ => (AniType::Null, (0,0), vec![vec![(' ', Color::Black)]], (' ', Color::Black)),
+            }
+        } else {
+            (AniType::Null, (0,0), vec![vec![(' ', Color::Black)]], (' ', Color::Black))
+        }
+    };
     for (j, row) in map.cells[start_row..end_row].iter().enumerate() {
         let mut line = Vec::new();
         for (i, &cell) in row[start_col..end_col].iter().enumerate() {
             let (symbol, color) = {
                 let ix = i + start_col;
                 let jy = j + start_row;
-                if (ix, jy) == (player.x, player.y) {
+                if  (ix, jy) == (gui_args.player.x, gui_args.player.y)
+                    && ani_parts.0 == AniType::Player {
+                        ani_parts.3
+                } else if (ix, jy) == (gui_args.player.x, gui_args.player.y) {
                     ('¡', Color::LightYellow)
-                } else if let Some(enemy) = enemies.get(&(ix, jy)) {
+                } else if ani_parts.0 == AniType::Char
+                    && ani_parts.1 == (ix, jy) {
+                        ani_parts.3
+                } else if ani_parts.0 == AniType::Area 
+                    && (ani_parts.1.0..ani_parts.2[0].len()).contains(&ix)
+                    && (ani_parts.1.1..ani_parts.2.len()).contains(&jy) {
+                        ani_parts.2[jy - ani_parts.1.1][ix - ani_parts.1.0]
+                } else if let Some(enemy) = gui_args.enemies.get(&(ix, jy)) {
                     match enemy.etype {
                         Enemies::Bug => ('Ѫ', Color::Red),
                         Enemies::Goblin => ('ớ', Color::Red),
@@ -58,9 +100,9 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                         Enemies::Ghoul => ('ή', Color::Red),
                         _ => todo!(),
                     }
-                } else if portals.contains_key(&(ix, jy)) {
+                } else if gui_args.portals.unwrap().contains_key(&(ix, jy)) {
                     ('@', Color::Blue)
-                } else if let Some(npcw) = npcs.get(&(ix, jy)) {
+                } else if let Some(npcw) = gui_args.npcs.get(&(ix, jy)) {
                     // ï î ì í  Í Î Ï Ì 
                     match npcw {
                         NPCWrap::CommNPC(_)=> ('í', Color::Blue),
@@ -70,51 +112,11 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                         NPCWrap::TradeNPC(_)=> ('ï', Color::LightGreen),
                         _ => todo!(),
                     }
-                } else if let Some(item) = items.get(&(ix, jy)) {
-                    // (item.icon, Color::Yellow)
+                } else if let Some(item) = gui_args.items.get(&(ix, jy)) {
                     item.icon
-                    // match item.itype {
-                    //     Items::Rock => ('o', Color::Yellow),
-                    //     Items::EdibleRoot => ('ȝ', Color::Yellow),
-                    //     Items::Apple => ('ỏ', Color::Yellow),
-                    //     Items::MetalScrap => ('ϟ', Color::Yellow),
-                    //     Items::BugBits => ('ʚ', Color::Yellow),
-                    //     Items::HealthPotion => ('ṓ', Color::Yellow), // +10 health
-                    //     Items::Salve => ('ọ', Color::Yellow),
-                    //     Items::Dowel => ('˨', Color::Yellow),
-                    //     Items::WoodenBoard => ('ѳ', Color::Yellow),
-                    //     Items::IronShield => ('θ', Color::Yellow), // +10 defence
-                    //     Items::BronzeClaymore => ('Ṫ', Color::Yellow),
-                    //     Items::BronzeLongsword => ('†', Color::Yellow),
-                    //     Items::BronzeShortsword => ('Ϯ', Color::Yellow),
-                    //     Items::BronzeLightAxe => ('ͳ', Color::Yellow),
-                    //     Items::BronzePickHammer => ('Ƭ', Color::Yellow),
-                    //     _ => todo!(),
-                    // }
-                } else if let Some(item) = litems.get(&(ix, jy)) {
+                } else if let Some(item) = gui_args.litems.unwrap().get(&(ix, jy)) {
                     item.icon
-                    // (item.icon, Color::Yellow)
-                    // match item.itype {
-                    //     Items::Rock => ('o', Color::Yellow),
-                    //     Items::EdibleRoot => ('ȝ', Color::Yellow),
-                    //     Items::Apple => ('ỏ', Color::Yellow),
-                    //     Items::MetalScrap => ('ϟ', Color::Yellow),
-                    //     Items::BugBits => ('ʚ', Color::Yellow),
-                    //     Items::HealthPotion => ('ṓ', Color::Yellow), // +10 health
-                    //     Items::Salve => ('ọ', Color::Yellow),
-                    //     Items::Dowel => ('˨', Color::Yellow),
-                    //     Items::WoodenBoard => ('ѳ', Color::Yellow),
-                    //     Items::IronShield => ('θ', Color::Yellow), // +10 defence
-                    //     Items::IronSword => ('Ṫ', Color::Yellow),
-                    //     Items::BronzeClaymore => ('Ṫ', Color::Yellow),
-                    //     Items::BronzeLongsword => ('†', Color::Yellow),
-                    //     Items::BronzeShortsword => ('Ϯ', Color::Yellow),
-                    //     Items::BronzeLightAxe => ('ͳ', Color::Yellow),
-                    //     Items::BronzePickHammer => ('Ƭ', Color::Yellow),
-                    //     _ => todo!(),
-                    // }
-                } else if let Some(env) = env_inters.get(&(ix, jy)) {
-                    // log::info!("\nEnvinters: {:?} | {}, {}", env, ix, jy);
+                } else if let Some(env) = gui_args.env_inter.unwrap().get(&(ix, jy)) {
                     let env_col = {
                         if ani_cnt % 3 == 0 {
                             Color::Green
@@ -127,6 +129,7 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                         EnvInter::Clinic => ('─', env_col),
                         EnvInter::GuildPost => ('─', env_col),
                         EnvInter::ChurchPost => ('─', env_col),
+                        EnvInter::Cauldron => ('℧', env_col),
                         _ => todo!(),
                     }
                 } else {
@@ -146,6 +149,29 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                         Cells::Wall2 => ('▒', Color::DarkGray),
                         Cells::Wall3 => ('█', Color::DarkGray),
                         Cells::Wall4 => ('░', Color::Red),
+                        Cells::ULCorner1 => ('🬵', Color::DarkGray),
+                        Cells::ULCorner2 => ('🬞', Color::DarkGray),
+                        Cells::ULCorner3 => ('🬶', Color::DarkGray),
+                        Cells::ULCorner4 => ('🭄', Color::DarkGray),
+                        Cells::ULCorner5 => ('🭊', Color::DarkGray),
+                        Cells::URCorner1 => ('🬱', Color::DarkGray),
+                        Cells::URCorner2 => ('🬏', Color::DarkGray),
+                        Cells::URCorner3 => ('🬳', Color::DarkGray),
+                        Cells::URCorner4 => ('🭏', Color::DarkGray),
+                        Cells::URCorner5 => ('🬿', Color::DarkGray),
+                        Cells::DLCorner1 => ('🬊', Color::DarkGray),
+                        Cells::DLCorner2 => ('🬁', Color::DarkGray),
+                        Cells::DLCorner3 => ('🬙', Color::DarkGray),
+                        Cells::DLCorner4 => ('🭕', Color::DarkGray),
+                        Cells::DLCorner5 => ('🭥', Color::DarkGray),
+                        Cells::DRCorner1 => ('🬆', Color::DarkGray),
+                        Cells::DRCorner2 => ('🬀', Color::DarkGray),
+                        Cells::DRCorner3 => ('🬥', Color::DarkGray),
+                        Cells::DRCorner4 => ('🭠', Color::DarkGray),
+                        Cells::DRCorner5 => ('🭚', Color::DarkGray),
+                        Cells::Broken1 => ('🬤', Color::DarkGray),
+                        Cells::Roots => ('ඉ', Color::Yellow),
+                        Cells::Broken3 => ('🬗', Color::DarkGray),
                         Cells::NPCM => (' ', Color::White),
                         Cells::Floor => ('░', Color::Black),
                         Cells::Floor2 => ('░', Color::Gray),
@@ -193,11 +219,6 @@ fn draw_map<'a>(map: Map, player: Player, portals: HashMap<(usize, usize), (usiz
                         Cells::Table => ('π', Color::Red),  
                         Cells::Firewood => ('ж', Color::Red),  
                         Cells::Tent => ('Ʌ', Color::Gray),  
-   
-                        //Cells::Log => ('l', Color::LightGreen),
-                        //Cells::Clinic => ('c', Color::LightGreen),
-                        //Cells::GPost => ('p', Color::LightGreen),
-                        //Cells::CPost => ('s', Color::LightGreen),
                         Cells::LBrce => {
                             if ani_cnt % 2 == 0 {
                                 ('{', Color::LightBlue)
@@ -503,8 +524,21 @@ impl GUI {
     }
 
 
+                // GuiArgs {
+                //     map.clone(),
+                //     player.clone(),
+                //     portals.clone(),
+                //     enemies.clone(),
+                //     items.clone(),
+                //     npcs.clone(),
+                //     litems,
+                //     env_inters.clone(),
+                // }
 
-    pub fn draw(&mut self, debug: (String, String, String), mut map: Map, mut player: Player, portals:HashMap<(usize, usize), (usize, usize)>,  enemies: HashMap<(usize, usize), Enemy>, items: HashMap<(usize, usize), Item>, npcs: HashMap<(usize, usize), NPCWrap>, litems: HashMap<(usize, usize), Item>, env_inters: HashMap<(usize, usize), EnvInter>) {
+    pub fn draw(&mut self,
+         debug: (String, String, String),
+         gui_args: &mut GuiArgs
+    ) {
         if self.ani_updt < 120 {
             self.ani_updt += 1;
             if self.ani_cnt < 120 {
@@ -549,12 +583,16 @@ impl GUI {
             let inner_area = block_area.inner(Margin::default());
             let in_h = inner_area.height as usize;
             let in_w = inner_area.width as usize;
-
+            // let mut map = &gui_args.map;
             if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
-                map.set_viewport(in_h, in_w);
+                // map.set_viewport(in_h, in_w);
                 self.viewport_dim = (in_w, in_h);
             }
-            let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems, env_inters.clone(), self.ani_cnt);
+            let paragraph = draw_map(
+                // map.clone(),
+                gui_args,
+                self.ani_cnt
+            );
 
             f.render_widget(paragraph, inner_area);
 
@@ -569,67 +607,67 @@ impl GUI {
                     let mut rows = vec![
                         Row::new(vec![
                             Span::styled("px: ", Style::default().fg(Color::White)),
-                            Span::styled(player.x.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(gui_args.player.x.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("py: ", Style::default().fg(Color::White)),
-                            Span::styled(player.y.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(gui_args.player.y.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("vx: ", Style::default().fg(Color::White)),
-                            Span::styled(map.viewport_x.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(gui_args.map.viewport_x.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("vy: ", Style::default().fg(Color::White)),
-                            Span::styled(map.viewport_y.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(gui_args.map.viewport_y.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("vw: ", Style::default().fg(Color::White)),
-                            Span::styled(map.viewport_width.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(gui_args.map.viewport_width.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("vh: ", Style::default().fg(Color::White)),
-                            Span::styled(map.viewport_height.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(gui_args.map.viewport_height.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("su: ", Style::default().fg(Color::White)),
-                            Span::styled((map.viewport_y + (map.viewport_height / 7)).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled((gui_args.map.viewport_y + (gui_args.map.viewport_height / 7)).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("sd: ", Style::default().fg(Color::White)),
-                            Span::styled(((map.viewport_height + map.viewport_y) - (map.viewport_height / 7)).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(((gui_args.map.viewport_height + gui_args.map.viewport_y) - (gui_args.map.viewport_height / 7)).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("sl: ", Style::default().fg(Color::White)),
-                            Span::styled((map.viewport_x + (map.viewport_width / 7)).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled((gui_args.map.viewport_x + (gui_args.map.viewport_width / 7)).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("sr: ", Style::default().fg(Color::White)),
-                            Span::styled(((map.viewport_width + map.viewport_x) - (map.viewport_width / 7)).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(((gui_args.map.viewport_width + gui_args.map.viewport_x) - (gui_args.map.viewport_width / 7)).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("gx: ", Style::default().fg(Color::White)),
-                            Span::styled((map.gen_x).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled((gui_args.map.gen_x).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("gy: ", Style::default().fg(Color::White)),
-                            Span::styled((map.gen_y).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled((gui_args.map.gen_y).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("tlen: ", Style::default().fg(Color::White)),
-                            Span::styled((map.tunnels.len()).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled((gui_args.map.tunnels.len()).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("enemies: ", Style::default().fg(Color::White)),
-                            Span::styled((enemies.len()).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled((gui_args.enemies.len()).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("npcs: ", Style::default().fg(Color::White)),
-                            Span::styled((npcs.len()).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled((gui_args.npcs.len()).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("items: ", Style::default().fg(Color::White)),
-                            Span::styled((items.len()).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled((gui_args.items.len()).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("dfo: ", Style::default().fg(Color::White)),
@@ -649,7 +687,7 @@ impl GUI {
                         //  ]),
                         Row::new(vec![
                             Span::styled("env_inters: ", Style::default().fg(Color::White)),
-                            Span::styled((env_inters.len()).to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled((gui_args.env_inter.as_ref().unwrap().len()).to_string(), Style::default().fg(Color::Yellow)),
                          ]),
                     ];
 
@@ -748,35 +786,10 @@ impl GUI {
                     )
                     .split(normal_info[3]);
 
-                    // let equip_ = Layout::default()
-                    // .direction(Direction::Vertical)
-                    // .constraints(
-                    //     [
-                    //         Constraint::Percentage(30),
-                    //         Constraint::Percentage(40),
-                    //         Constraint::Percentage(30)
-                    //     ].as_ref()
-                    // )
-                    // .split(equip_layout[1]);
-
-                    // let equip_rc = Layout::default()
-                    // .direction(Direction::Vertical)
-                    // .constraints(
-                    //     [
-                    //         Constraint::Percentage(100),
-                    //     ].as_ref()
-                    // )
-                    // .split(equip_layout[2]);
-
-
-                    //f.render_widget(equip_layout, normal_info[3]);
-
-                    
-
                     let h_gauge = Gauge::default()
                         .block(Block::bordered().title("Health"))
                         .gauge_style(Style::new().light_red().on_black().italic())
-                        .percent(player.health);
+                        .percent(gui_args.player.health);
                         //.label(Span::styled(player.health.to_string(), Style::default().fg(Color::White)));
 
                     let rows = vec![
@@ -786,19 +799,19 @@ impl GUI {
                        // ]),
                         Row::new(vec![
                             Span::styled("Attack: ", Style::default().fg(Color::White)),
-                            Span::styled(player.attack.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(gui_args.player.attack.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("Defence: ", Style::default().fg(Color::White)),
-                            Span::styled(player.defence.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(gui_args.player.defence.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("Damage: ", Style::default().fg(Color::White)),
-                            Span::styled(player.damage.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(gui_args.player.damage.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("Money: ", Style::default().fg(Color::White)),
-                            Span::styled(player.money.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(gui_args.player.money.to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         // Row::new(vec![
                         //     Span::styled("dtlen: ", Style::default().fg(Color::White)),
@@ -841,7 +854,7 @@ impl GUI {
                     
                     let mut equip_items = HashMap::new();
                     //let mut equip_buff = Vec::new();
-                    let equip = player.get_equipped();
+                    let equip = gui_args.player.get_equipped();
                     let mut keys: Vec<_> = equip.keys().collect();
                     keys.sort();
                     for k in keys {
@@ -849,31 +862,18 @@ impl GUI {
                         let etype = itm.get_equip_type();
                         let prop = itm.get_properties().clone();
                         let e_type = itm.get_effect();
+                        let icon = itm.icon; 
                         let efct = match e_type {
-                            ItemEffect::Health => format!("Health: +{}", prop["health"]),
-                            ItemEffect::Attack => format!("Atack: +{}", prop["attack"]),
-                            ItemEffect::Damage => format!("Damage: +{}", prop["damage"]),
-                            ItemEffect::Defence => format!("Defence: +{}", prop["defence"]),
+                            ItemEffect::Health => format!("Health: +{} | {}", prop["health"], icon.0),
+                            ItemEffect::Attack => format!("Atack: +{} | {}", prop["attack"], icon.0),
+                            ItemEffect::Damage => format!("Damage: +{} | {}", prop["damage"], icon.0),
+                            ItemEffect::Defence => format!("Defence: +{} | {}", prop["defence"], icon.0),
                             _ => todo!(),
                         };
                         let estr = format!("{}\n{}", itm.get_sname(), efct);
                         equip_items.insert(etype, estr);
                     }
 
-                   // let equip_data: Vec<Vec<String>> = vec![
-                   //     //vec!["", "", ""],
-                   //     equip_name,
-                   //     equip_buff,
-                   // ];
-                  //  let ep_rows: Vec<Row> = equip_data.iter().enumerate().map(|(_j, row)| {
-                  //      let cells: Vec<Cell> = row.iter().enumerate().map(|(_i, &ref cell)| {
-                  //              Cell::from(Span::styled(cell, Style::default().fg(Color::White)))
-                  //                  .style(Style::default())
-                  //      }).collect();
-                  //      Row::new(cells).top_margin(2)
-                  //  }).collect();
-                  //  let eq_table = Table::new(ep_rows, &[Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25)])
-                  //      .block(table_block);
                     let def_str = "".to_string();
                     let w_str = equip_items.get(&Equip::Weapon).unwrap_or(&def_str);
                     let weapon_para = Paragraph::new(Text::raw(w_str))
@@ -884,16 +884,6 @@ impl GUI {
                     let shield_para = Paragraph::new(Text::raw(s_str))
                         .block(shield_block);
                     f.render_widget(shield_para, equip_layout[1]);
-
-                    // let h_str = equip_items.get(&Equip::Hands).unwrap_or(&def_str);
-                    // let hands_para = Paragraph::new(Text::raw(h_str))
-                    //     .block(hands_block);
-                    // f.render_widget(hands_para, equip_lc[0]);
-
-                    // let hh_str = equip_items.get(&Equip::Head).unwrap_or(&def_str);
-                    // let head_para = Paragraph::new(Text::raw(hh_str))
-                    //     .block(head_block);
-                    // f.render_widget(head_para, equip_cc[0]);
 
                     let t_str = equip_items.get(&Equip::Torso).unwrap_or(&def_str);
                     let armour_para = Paragraph::new(Text::raw(t_str))
@@ -911,124 +901,6 @@ impl GUI {
                     f.render_widget(stats, normal_info[1]);
                     f.render_widget(en_table, normal_info[2]);
                     //f.render_widget(eq_table, normal_info[3]);
-                },
-                GUIMode::Interact => {
-                    // match inter_step {
-                    //     InterSteps::AdjOpt => {
-                    //         let normal_info = Layout::default()
-                    //         .direction(Direction::Vertical)
-                    //         .constraints(
-                    //             [
-                    //                 Constraint::Percentage(70),
-                    //                 Constraint::Percentage(30)
-                    //             ].as_ref()
-                    //         )
-                    //         .split(game_chunks[1]);
-                    //         let paragraph_block = Block::default()
-                    //             .title("Paragraph Block")
-                    //             .borders(Borders::ALL)
-                    //             .style(Style::default().bg(Color::Black));
-                    //         let table_block = Block::default()
-                    //             .title("Table Block")
-                    //             .borders(Borders::ALL)
-                    //             .style(Style::default().bg(Color::Black));
-                    //         let paragraph = Paragraph::new(Span::raw("What would you like to interct with?"))
-                    //             .block(paragraph_block);
-                    //         let mut adj_list = vec![];
-                    //         let mut vec1 = vec![((0 as usize, 0 as usize), "".to_string()); 2];
-                    //         let mut vec2 = vec![((0 as usize, 0 as usize), "".to_string()); 2];
-                    //         for (pos, interable) in &self.interactable {
-                    //             let Some(inter) = interable else {todo!()};
-                    //             match inter {
-                    //                 Interactable::Item(item) => adj_list.push((*pos, item.clone().get_sname())),
-                    //                 Interactable::Enemy(enemy) => adj_list.push((*pos, enemy.clone().get_sname())),
-                    //                 Interactable::Item(npc) => adj_list.push((*pos, npc.clone().get_sname())),
-                    //             _ => todo!(),
-                    //             }
-                    //         }
-                    //         for (idx, entity) in adj_list.iter().enumerate() {
-                    //             if idx < 2 {
-                    //                 vec1[idx] = entity.clone();
-                    //             } else {
-                    //                 vec2[idx - 2] = entity.clone();
-                    //             }
-                    //         }
-                    //         let inter_entities = vec![vec1.clone(), vec2.clone()];
-                    //         self.adj_options = (vec1, vec2);
-                    //         let rows: Vec<Row> = inter_entities.iter().enumerate().map(|(j, row)| {
-                    //             let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
-                    //                 if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                    //                     Cell::from(Span::styled(cell.clone().1, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
-                    //                 } else {
-                    //                     Cell::from(cell.clone().1)
-                    //                 }
-                    //             }).collect();
-                    //             Row::new(cells)
-                    //         }).collect();
-                    //         let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
-                    //             .block(table_block);
-                    //         f.render_widget(paragraph, normal_info[0]);
-                    //         f.render_widget(table, normal_info[1]);
-                    //     },
-                    //     InterSteps::IntOpt => {
-                    //         let normal_info = Layout::default()
-                    //             .direction(Direction::Vertical)
-                    //             .constraints(
-                    //             [
-                    //                 Constraint::Percentage(70),
-                    //                 Constraint::Percentage(30)
-                    //             ].as_ref()
-                    //         )
-                    //         .split(game_chunks[1]);
-                    //         let paragraph_block = Block::default()
-                    //             .title("Paragraph Block")
-                    //             .borders(Borders::ALL)
-                    //             .style(Style::default().bg(Color::Black));
-                    //         let table_block = Block::default()
-                    //             .title("Table Block")
-                    //             .borders(Borders::ALL)
-                    //             .style(Style::default().bg(Color::Black));
-                    //         let paragraph = Paragraph::new(Span::raw("What would you like to interct with?"))
-                    //             .block(paragraph_block);
-                    //         let mut adj_list = vec![];
-                    //         let mut vec1 = vec![((0 as usize, 0 as usize), "".to_string()); 2];
-                    //         let mut vec2 = vec![((0 as usize, 0 as usize), "".to_string()); 2];
-                    //         for (pos, interable) in &self.interactable {
-                    //             let Some(inter) = interable else {todo!()};
-                    //             match inter {
-                    //                 Interactable::Item(item) => adj_list.push((*pos, item.clone().get_sname())),
-                    //                 Interactable::Enemy(enemy) => adj_list.push((*pos, enemy.clone().get_sname())),
-                    //                 Interactable::Item(npc) => adj_list.push((*pos, npc.clone().get_sname())),
-                    //             _ => todo!(),
-                    //             }
-                    //         }
-                    //         for (idx, entity) in adj_list.iter().enumerate() {
-                    //             if idx < 2 {
-                    //                 vec1[idx] = entity.clone();
-                    //             } else {
-                    //                 vec2[idx - 2] = entity.clone();
-                    //             }
-                    //         }
-                    //         let inter_entities = vec![vec1.clone(), vec2.clone()];
-                    //         self.adj_options = (vec1, vec2);
-                    //         let rows: Vec<Row> = inter_entities.iter().enumerate().map(|(j, row)| {
-                    //             let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
-                    //                 if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                    //                     Cell::from(Span::styled(cell.clone().1, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
-                    //                 } else {
-                    //                     Cell::from(cell.clone().1)
-                    //                 }
-                    //             }).collect();
-                    //             Row::new(cells)
-                    //         }).collect();
-                    //         let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
-                    //             .block(table_block);
-                    //         f.render_widget(paragraph, normal_info[0]);
-                    //         f.render_widget(table, normal_info[1]);
-                    //     },
-                    //     _ => todo!(),
-                    // }
-
                 },
                 GUIMode::Map => {
                     let normal_info = Layout::default()

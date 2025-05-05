@@ -142,7 +142,7 @@ impl Player {
         self.inventory.clone()
     }
 
-    pub fn get_equipped(&mut self) -> HashMap<Equip, Item> {
+    pub fn get_equipped(&self) -> HashMap<Equip, Item> {
         self.equipped.clone()
     }
 

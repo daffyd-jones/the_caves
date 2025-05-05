@@ -583,7 +583,7 @@ ______________________________▒                                      ▒_____
 ▒▒▒▒__________________________▒═══════════════════════════════   ════▒_____
 ▒▒▒▒__________________________▒  o│o  o│o  o│o              @        ▒_____
 ______________________________▒  ─┼─  ─┼─  ─┴─      └────────────────▒_____
-______________________________▒  o│o  o│o                            ▒_____
+____________________________℧_▒  o│o  o│o                            ▒_____
 ______________________________▒                                      ▒_____
 ______________________________▒                                      ▒_O___
 ______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_____
@@ -1108,6 +1108,9 @@ fn parse_map(
             if ch == 's' {
                 env_inters.insert((x, y), EnvInter::ChurchPost);
             }
+            if ch == '℧' {
+                env_inters.insert((x, y), EnvInter::Cauldron);
+            }
         }
     }
     (cells, npcs, sitems, items, env_inters)
@@ -1385,6 +1388,7 @@ pub struct Settlement {
     shops: HashMap<Shops, Shop>,
     env_inters: HashMap<(usize, usize), EnvInter>,
     map: Vec<Vec<Cells>>,
+    pub found: bool,
 }
 
 impl Settlement {
@@ -1397,6 +1401,7 @@ impl Settlement {
         shops: HashMap<Shops, Shop>,
         env_inters: HashMap<(usize, usize), EnvInter>,
         map: Vec<Vec<Cells>>,
+        found: bool,
     ) -> Self {
         Self {
             stype,
@@ -1409,27 +1414,13 @@ impl Settlement {
             shops,
             env_inters,
             map,
+            found,
         }
     }
 
     pub fn demo_settle(pos: (i64, i64), npcs: HashMap<(usize, usize), NPCWrap>) -> Self {
         let cells = vec![vec![Cells::Null; 150]; 50];
-        //let (map, mpcs, sitems, items) = parse_map(cave_o, cells, Shops::Item);
-        // log::info!("{:?}", &items);
         let (map, mut mpcs, sitems, items, env_inters) = build_small_settle(true);
-
-        // let mut shops = HashMap::new();
-        // let mut cnv = HashMap::new();
-        // cnv.insert("item_desc".to_string(), "Hey that {i} over there goes for {v}. Let me know if you want to buy it.".to_string());
-        // cnv.insert("item_broke".to_string(), "Uh oh! it looks like you dont have enough money for that.".to_string());
-        // cnv.insert("item_bought".to_string(), "Hey!! Thanks for the sale!! Have a good day!!.".to_string());
-        // cnv.insert("item_nbought".to_string(), "Not interested? Thats fine, have a good day!!".to_string());
-        // let npc = new_shop_npc("Janiel".to_string(), 0, 0, cnv);
-        // let npc_t = NPCWrap::ShopNPC(npc);
-        // let s_npcs = get_shop_npcs(mpcs);
-        // let shop = Shop::new_item_shop("item shop".to_string(), npc_t, sitems);
-        // shops.insert(Shops::Item, shop);
-
         let (shops, snpcs) = get_npc_shops(mpcs.clone(), sitems);
 
         Self {
@@ -1443,6 +1434,7 @@ impl Settlement {
             shops: shops,
             env_inters,
             map: map,
+            found: true,
         }
     }
 
@@ -1472,22 +1464,11 @@ impl Settlement {
             shops: shops,
             env_inters,
             map: map,
+            found: false,
         }
     }
 
     pub fn new_node_settle(pos: (i64, i64), sname: String) -> Self {
-        // let data1 = fs::read_to_string("src/locations/settle_names.json");
-        // //log::info!("{:?}", &data1);
-        // let names: Vec<String> = match data1 {
-        //     Ok(content) => serde_json::from_str(&content).unwrap(),
-        //     Err(e) => {
-        //         log::info!("{:?}", e);
-        //         Vec::new()
-        //     }
-        // };
-        // let mut rng = rand::thread_rng();
-        // let name_oops = "Jadeitite".to_string();
-        // let name = names.choose(&mut rng).unwrap_or(&name_oops.clone()).clone();
         let (map, npcs, sitems, items, env_inters) = build_small_settle(false);
         let (shops, snpcs) = get_npc_shops(npcs.clone(), sitems);
         Self {
@@ -1501,6 +1482,13 @@ impl Settlement {
             shops,
             env_inters,
             map,
+            found: false,
+        }
+    }
+
+    pub fn tog_found(&mut self) {
+        if !self.found {
+            self.found = !self.found;
         }
     }
 

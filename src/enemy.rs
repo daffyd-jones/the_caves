@@ -311,4 +311,8 @@ impl Enemy {
     pub fn get_step_grp(&self) -> u8 {
         self.step_grp.clone()
     }
+
+    pub fn inc_steps(&mut self) {
+        self.steps += 1;
+    }
 }

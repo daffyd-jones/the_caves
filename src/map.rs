@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 pub struct Map {
     pub cells: Vec<Vec<Cells>>,
+    pub fill_cells: HashMap<u8, Vec<Vec<Cells>>>,
     pub px: usize,
     pub py: usize,
     pub tunnels: HashMap<(usize, usize), (usize, usize)>,
@@ -103,7 +104,34 @@ impl Map {
         let start_x = 150 / 2;
         let start_y = 100 / 2;
         carve_passages(start_x, start_y, &mut small_cells, &mut rng);
-
+        let ul_cells = [
+            Cells::ULCorner1,
+            Cells::ULCorner2,
+            Cells::ULCorner3,
+            Cells::ULCorner4,
+            Cells::ULCorner5,
+        ];
+        let ur_cells = [
+            Cells::URCorner1,
+            Cells::URCorner2,
+            Cells::URCorner3,
+            Cells::URCorner4,
+            Cells::URCorner5,
+        ];
+        let dl_cells = [
+            Cells::DLCorner1,
+            Cells::DLCorner2,
+            Cells::DLCorner3,
+            Cells::DLCorner4,
+            Cells::DLCorner5,
+        ];
+        let dr_cells = [
+            Cells::DRCorner1,
+            Cells::DRCorner2,
+            Cells::DRCorner3,
+            Cells::DRCorner4,
+            Cells::DRCorner5,
+        ];
         for y in 0..100 {
             for x in 0..150 {
                 let cell = small_cells[y][x];
@@ -127,27 +155,52 @@ impl Map {
                             match neighbors {
                                 (Cells::Empty, _, Cells::Empty, _) => {
                                     if dx == 0 && dy == 0 {
-                                        cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        cells[y * 4 + dy][x * 4 + dx] =
+                                            *ul_cells.choose(&mut rng).unwrap_or(&Cells::Empty);
+                                        // cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
                                         continue;
                                     }
                                 }
                                 (Cells::Empty, _, _, Cells::Empty) => {
                                     if dx == 3 && dy == 0 {
-                                        cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        cells[y * 4 + dy][x * 4 + dx] =
+                                            *ur_cells.choose(&mut rng).unwrap_or(&Cells::Empty);
+                                        // cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
                                         continue;
                                     }
                                 }
                                 (_, Cells::Empty, Cells::Empty, _) => {
                                     if dx == 0 && dy == 3 {
-                                        cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        cells[y * 4 + dy][x * 4 + dx] =
+                                            *dl_cells.choose(&mut rng).unwrap_or(&Cells::Empty);
+                                        // cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
                                         continue;
                                     }
                                 }
                                 (_, Cells::Empty, _, Cells::Empty) => {
                                     if dx == 3 && dy == 3 {
-                                        cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+                                        cells[y * 4 + dy][x * 4 + dx] =
+                                            *dr_cells.choose(&mut rng).unwrap_or(&Cells::Empty);
+                                        // cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
                                         continue;
                                     }
+                                }
+                                (u, d, l, r)
+                                    if u != Cells::Empty
+                                        && d != Cells::Empty
+                                        && l != Cells::Empty
+                                        && r != Cells::Empty =>
+                                {
+                                    let cell_ch = if rng.gen_range(0..15) == 0 {
+                                        [Cells::Broken1, Cells::Broken3, Cells::Roots]
+                                            .choose(&mut rng)
+                                            .unwrap_or(&Cells::Broken4)
+                                    } else {
+                                        &cell
+                                    };
+                                    cells[y * 4 + dy][x * 4 + dx] = *cell_ch;
+                                    continue;
+                                    // ℰ
                                 }
                                 _ => {}
                             }
@@ -202,6 +255,22 @@ impl Map {
                 break;
             }
         }
+        let mut fill_cells = HashMap::new();
+        let mut v_flip = vec![vec![Cells::Wall; cells[0].len()]; cells.len()];
+        let mut h_flip = vec![vec![Cells::Wall; cells[0].len()]; cells.len()];
+        let mut d_flip = vec![vec![Cells::Wall; cells[0].len()]; cells.len()];
+
+        for y in 0..cells.len() {
+            for x in 0..cells[0].len() {
+                v_flip[y][cells[0].len() - x - 1] = cells[y][x];
+                h_flip[cells.len() - y - 1][x] = cells[y][x];
+                d_flip[cells.len() - y - 1][cells[0].len() - x - 1] = cells[y][x];
+            }
+        }
+
+        fill_cells.insert(0, v_flip);
+        fill_cells.insert(1, h_flip);
+        fill_cells.insert(2, d_flip);
 
         let tunnels = HashMap::new();
         let dead_tunnels = HashMap::new();
@@ -213,6 +282,7 @@ impl Map {
 
         Self {
             cells,
+            fill_cells,
             px,
             py,
             tunnels,
@@ -276,164 +346,156 @@ impl Map {
 
     fn map_fill(&mut self) {
         let mut rng = rand::thread_rng();
-        let mut t_cells = vec![vec![Cells::Wall; MAP_W]; MAP_H];
-        let mut small_cells = vec![vec![Cells::Wall; 150]; 100];
+        // let mut t_cells = vec![vec![Cells::Wall; MAP_W]; MAP_H];
+        // let mut small_cells = vec![vec![Cells::Wall; 150]; 100];
 
-        for _ in 0..120 {
-            let x = rng.gen_range(0..135);
-            let y = rng.gen_range(0..85);
+        // for _ in 0..120 {
+        //     let x = rng.gen_range(0..135);
+        //     let y = rng.gen_range(0..85);
 
-            let wall_cell = [Cells::Wall, Cells::Wall2, Cells::Wall3, Cells::Wall4]
-                .choose(&mut rng)
-                .unwrap_or(&Cells::Wall);
+        //     let wall_cell = [Cells::Wall, Cells::Wall2, Cells::Wall3, Cells::Wall4]
+        //         .choose(&mut rng)
+        //         .unwrap_or(&Cells::Wall);
 
-            for j in 0..8 {
-                for i in 0..8 {
-                    small_cells[y + j][x + i] = *wall_cell;
-                }
-            }
-        }
+        //     for j in 0..8 {
+        //         for i in 0..8 {
+        //             small_cells[y + j][x + i] = *wall_cell;
+        //         }
+        //     }
+        // }
 
-        fn carve_passages(
-            start_x: usize,
-            start_y: usize,
-            cells: &mut Vec<Vec<Cells>>,
-            rng: &mut rand::rngs::ThreadRng,
-        ) {
-            let mut stack = vec![(start_x, start_y)];
-            let directions: [(isize, isize); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
+        // fn carve_passages(
+        //     start_x: usize,
+        //     start_y: usize,
+        //     cells: &mut Vec<Vec<Cells>>,
+        //     rng: &mut rand::rngs::ThreadRng,
+        // ) {
+        //     let mut stack = vec![(start_x, start_y)];
+        //     let directions: [(isize, isize); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
 
-            while let Some((x, y)) = stack.pop() {
-                let mut directions = directions.to_vec();
-                directions.shuffle(rng);
+        //     while let Some((x, y)) = stack.pop() {
+        //         let mut directions = directions.to_vec();
+        //         directions.shuffle(rng);
 
-                for &(dx, dy) in &directions {
-                    let nx = x.wrapping_add(dx as usize);
-                    let ny = y.wrapping_add(dy as usize);
-                    let nnx = nx.wrapping_add(dx as usize);
-                    let nny = ny.wrapping_add(dy as usize);
+        //         for &(dx, dy) in &directions {
+        //             let nx = x.wrapping_add(dx as usize);
+        //             let ny = y.wrapping_add(dy as usize);
+        //             let nnx = nx.wrapping_add(dx as usize);
+        //             let nny = ny.wrapping_add(dy as usize);
 
-                    if nnx < 150
-                        && nny < 100
-                        && (cells[nny][nnx] == Cells::Wall
-                            || cells[nny][nnx] == Cells::Wall2
-                            || cells[nny][nnx] == Cells::Wall3
-                            || cells[nny][nnx] == Cells::Wall4)
-                        && (cells[ny][nx] == Cells::Wall
-                            || cells[ny][nx] == Cells::Wall2
-                            || cells[ny][nx] == Cells::Wall3
-                            || cells[ny][nx] == Cells::Wall4)
-                    {
-                        cells[y][x] = Cells::Empty;
-                        cells[ny][nx] = Cells::Empty;
-                        cells[nny][nnx] = Cells::Empty;
-                        stack.push((nnx, nny));
-                    }
-                }
-            }
-        }
+        //             if nnx < 150
+        //                 && nny < 100
+        //                 && (cells[nny][nnx] == Cells::Wall
+        //                     || cells[nny][nnx] == Cells::Wall2
+        //                     || cells[nny][nnx] == Cells::Wall3
+        //                     || cells[nny][nnx] == Cells::Wall4)
+        //                 && (cells[ny][nx] == Cells::Wall
+        //                     || cells[ny][nx] == Cells::Wall2
+        //                     || cells[ny][nx] == Cells::Wall3
+        //                     || cells[ny][nx] == Cells::Wall4)
+        //             {
+        //                 cells[y][x] = Cells::Empty;
+        //                 cells[ny][nx] = Cells::Empty;
+        //                 cells[nny][nnx] = Cells::Empty;
+        //                 stack.push((nnx, nny));
+        //             }
+        //         }
+        //     }
+        // }
 
-        // Start carving from the center of the map
-        let start_x = 150 / 2;
-        let start_y = 100 / 2;
-        carve_passages(start_x, start_y, &mut small_cells, &mut rng);
+        // // Start carving from the center of the map
+        // let start_x = 150 / 2;
+        // let start_y = 100 / 2;
+        // carve_passages(start_x, start_y, &mut small_cells, &mut rng);
 
         // for y in 0..100 {
         //     for x in 0..150 {
         //         let cell = small_cells[y][x];
+        //         let neighbors = if y > 0 && y < 99 && x > 0 && x < 148 {
+        //             (
+        //                 small_cells[y - 1][x],
+        //                 small_cells[y + 1][x],
+        //                 small_cells[y][x - 1],
+        //                 small_cells[y][x + 1],
+        //             )
+        //         } else {
+        //             (Cells::Null, Cells::Null, Cells::Null, Cells::Null)
+        //         };
         //         for dy in 0..4 {
         //             for dx in 0..4 {
+        //                 if cell == Cells::Wall
+        //                     || cell == Cells::Wall2
+        //                     || cell == Cells::Wall3
+        //                     || cell == Cells::Wall4
+        //                 {
+        //                     match neighbors {
+        //                         (Cells::Empty, _, Cells::Empty, _) => {
+        //                             if dx == 0 && dy == 0 {
+        //                                 t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+        //                                 continue;
+        //                             }
+        //                         }
+        //                         (Cells::Empty, _, _, Cells::Empty) => {
+        //                             if dx == 3 && dy == 0 {
+        //                                 t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+        //                                 continue;
+        //                             }
+        //                         }
+        //                         (_, Cells::Empty, Cells::Empty, _) => {
+        //                             if dx == 0 && dy == 3 {
+        //                                 t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+        //                                 continue;
+        //                             }
+        //                         }
+        //                         (_, Cells::Empty, _, Cells::Empty) => {
+        //                             if dx == 3 && dy == 3 {
+        //                                 t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
+        //                                 continue;
+        //                             }
+        //                         }
+        //                         _ => {}
+        //                     }
+        //                 }
         //                 t_cells[y * 4 + dy][x * 4 + dx] = cell;
         //             }
         //         }
         //     }
         // }
 
-        for y in 0..100 {
-            for x in 0..150 {
-                let cell = small_cells[y][x];
-                let neighbors = if y > 0 && y < 99 && x > 0 && x < 148 {
-                    (
-                        small_cells[y - 1][x],
-                        small_cells[y + 1][x],
-                        small_cells[y][x - 1],
-                        small_cells[y][x + 1],
-                    )
-                } else {
-                    (Cells::Null, Cells::Null, Cells::Null, Cells::Null)
-                };
-                for dy in 0..4 {
-                    for dx in 0..4 {
-                        if cell == Cells::Wall
-                            || cell == Cells::Wall2
-                            || cell == Cells::Wall3
-                            || cell == Cells::Wall4
-                        {
-                            match neighbors {
-                                (Cells::Empty, _, Cells::Empty, _) => {
-                                    if dx == 0 && dy == 0 {
-                                        t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
-                                        continue;
-                                    }
-                                }
-                                (Cells::Empty, _, _, Cells::Empty) => {
-                                    if dx == 3 && dy == 0 {
-                                        t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
-                                        continue;
-                                    }
-                                }
-                                (_, Cells::Empty, Cells::Empty, _) => {
-                                    if dx == 0 && dy == 3 {
-                                        t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
-                                        continue;
-                                    }
-                                }
-                                (_, Cells::Empty, _, Cells::Empty) => {
-                                    if dx == 3 && dy == 3 {
-                                        t_cells[y * 4 + dy][x * 4 + dx] = Cells::Empty;
-                                        continue;
-                                    }
-                                }
-                                _ => {}
-                            }
-                        }
-                        t_cells[y * 4 + dy][x * 4 + dx] = cell;
-                    }
-                }
-            }
-        }
+        // for _ in 0..(MAP_H * MAP_W) / 300 {
+        //     let x = rng.gen_range(0..(MAP_W - 12) / 4) * 4;
+        //     let y = rng.gen_range(0..(MAP_H - 12) / 4) * 4;
+        //     for i in x..x + 12 {
+        //         for j in y..y + 12 {
+        //             t_cells[j][i] = Cells::Empty;
+        //         }
+        //     }
+        // }
 
-        for _ in 0..(MAP_H * MAP_W) / 300 {
-            let x = rng.gen_range(0..(MAP_W - 12) / 4) * 4;
-            let y = rng.gen_range(0..(MAP_H - 12) / 4) * 4;
-            for i in x..x + 12 {
-                for j in y..y + 12 {
-                    t_cells[j][i] = Cells::Empty;
-                }
-            }
-        }
+        // for _ in 0..(MAP_H * MAP_W) / 10 {
+        //     let x1 = rng.gen_range(0..MAP_W);
+        //     let y1 = rng.gen_range(0..MAP_H);
+        //     if t_cells[y1][x1] == Cells::Empty {
+        //         let temp = {
+        //             let fl_type = rng.gen_range(0..5);
+        //             match fl_type {
+        //                 0 => Cells::Dirt1,
+        //                 1 => Cells::Dirt2,
+        //                 2 => Cells::Grass1,
+        //                 3 => Cells::Grass2,
+        //                 4 => Cells::Rock,
+        //                 _ => {
+        //                     log::info!("Wrong rand num");
+        //                     Cells::Empty
+        //                 }
+        //             }
+        //         };
+        //         t_cells[y1][x1] = temp;
+        //     }
+        // }
 
-        for _ in 0..(MAP_H * MAP_W) / 10 {
-            let x1 = rng.gen_range(0..MAP_W);
-            let y1 = rng.gen_range(0..MAP_H);
-            if t_cells[y1][x1] == Cells::Empty {
-                let temp = {
-                    let fl_type = rng.gen_range(0..5);
-                    match fl_type {
-                        0 => Cells::Dirt1,
-                        1 => Cells::Dirt2,
-                        2 => Cells::Grass1,
-                        3 => Cells::Grass2,
-                        4 => Cells::Rock,
-                        _ => {
-                            log::info!("Wrong rand num");
-                            Cells::Empty
-                        }
-                    }
-                };
-                t_cells[y1][x1] = temp;
-            }
-        }
+        let map_k = rng.gen_range(0..3);
+        let mut t_cells = self.fill_cells.get(&map_k).unwrap().clone();
 
         let y_max = self.cells.len() - 1;
         let x_max = self.cells[0].len() - 1;
@@ -515,6 +577,51 @@ impl Map {
 
         self.gen_x = 0;
         self.gen_y = 0;
+
+        match (gen_x, gen_y) {
+            (a, b) if a < 0 && b == 0 => {
+                for i in t_cells.iter_mut() {
+                    i.rotate_right(gen_x.unsigned_abs() as usize);
+                }
+            }
+            (a, b) if a > 0 && b == 0 => {
+                for i in t_cells.iter_mut() {
+                    i.rotate_left(gen_x.unsigned_abs() as usize);
+                }
+            }
+            (a, b) if a == 0 && b < 0 => {
+                t_cells.rotate_right(gen_y.unsigned_abs() as usize);
+            }
+            (a, b) if a == 0 && b > 0 => {
+                t_cells.rotate_left(gen_y.unsigned_abs() as usize);
+            }
+            (a, b) if a < 0 && b < 0 => {
+                t_cells.rotate_right(gen_y.unsigned_abs() as usize);
+                for i in t_cells.iter_mut() {
+                    i.rotate_right(gen_x.unsigned_abs() as usize);
+                }
+            }
+            (a, b) if a > 0 && b < 0 => {
+                t_cells.rotate_right(gen_y.unsigned_abs() as usize);
+                for i in t_cells.iter_mut() {
+                    i.rotate_left(gen_x.unsigned_abs() as usize);
+                }
+            }
+            (a, b) if a < 0 && b > 0 => {
+                t_cells.rotate_left(gen_y.unsigned_abs() as usize);
+                for i in t_cells.iter_mut() {
+                    i.rotate_right(gen_x.unsigned_abs() as usize);
+                }
+            }
+            (a, b) if a > 0 && b > 0 => {
+                t_cells.rotate_left(gen_y.unsigned_abs() as usize);
+                for i in t_cells.iter_mut() {
+                    i.rotate_left(gen_x.unsigned_abs() as usize);
+                }
+            }
+            _ => {}
+        }
+        self.fill_cells.insert(map_k, t_cells.clone());
     }
 
     pub fn shift(&mut self, direction: &str) {
