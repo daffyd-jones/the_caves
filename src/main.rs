@@ -2,33 +2,22 @@ mod enemy;
 mod enums;
 mod features;
 mod gui;
+mod gui_utils;
 mod item;
 mod lsystems;
 mod map;
 mod nodemap;
 mod notebook;
 mod npc;
+mod npc_utils;
 mod player;
 mod puzzle;
 mod puzzles;
 mod settlement;
 mod settlements;
 mod shop;
-// use crossterm::event::{read, Event, KeyCode};
+mod utils;
 use ratatui::crossterm::terminal;
-// use std::io::stdout;
-// use std::time::Duration;
-// use rand::Rng;
-// use ratatui::Terminal;
-// use ratatui::backend::CrosstermBackend;
-// use ratatui::prelude::Line;
-// use ratatui::widgets::{Block, Borders, Paragraph, Wrap, Padding};
-// use ratatui::layout::{Layout, Constraint, Direction, Margin};
-// use ratatui::style::{Color, Style};
-// use ratatui::text::{Text, Span};
-
-// use std::collections::HashMap;
-
 use std::thread::sleep;
 use std::time::{Duration, Instant};
 
