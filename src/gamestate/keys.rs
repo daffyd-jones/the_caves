@@ -162,7 +162,7 @@ impl GameState {
         true
     }
 
-    pub fn enc_key(&mut self, code: KeyCode) -> bool {
+    pub fn key(&mut self, code: KeyCode) -> bool {
         match code {
             KeyCode::Up => {
                 self.gui.move_cursor("UP");
@@ -186,9 +186,13 @@ impl GameState {
             KeyCode::Char('s') => self.gui.move_cursor("UP"),
             KeyCode::Char('d') => self.gui.move_cursor("DN"),
             KeyCode::Char('f') => self.gui.move_cursor("RT"),
-            KeyCode::Char('z') => self.enc_mode = EncMode::Auto,
-            KeyCode::Char('x') => self.enc_mode = EncMode::Manual,
-            KeyCode::Char('c') => self.enc_mode = EncMode::Quick,
+            _ => {}
+        }
+        true
+    }
+
+    pub fn enc_key(&mut self, code: KeyCode) -> bool {
+        match code {
             KeyCode::Enter => {
                 match self.game_mode {
                     GameMode::Fight(FightSteps::Open) => {
@@ -203,87 +207,35 @@ impl GameState {
                     GameMode::Fight(FightSteps::Enemy) => {}
                     GameMode::Fight(FightSteps::Player) => {
                         let opt = self.gui.get_enc_opt();
-                        self.enc = opt.0.clone();
-                        match opt.0 {
-                            _ => self.enc_option(),
-                            // _ => {},
-                        }
+                        self.enc = opt.0;
+                        self.enc_option();
+                        // match opt.0 {
+                        //     _ => ,
+                        //     // _ => {},
+                        // }
                     }
                     GameMode::Fight(FightSteps::Message) => {}
                     _ => {}
                 }
-
-                return false;
+                false
             }
-            KeyCode::Esc => {
-                self.game_mode = GameMode::Play;
-                return false;
-            }
-            _ => {}
+            _ => self.key(code),
         }
-        true
     }
 
     pub fn comm_key(&mut self, code: KeyCode) -> bool {
         match code {
-            KeyCode::Up => {
-                self.gui.move_cursor("UP");
-            }
-            KeyCode::Down => {
-                self.gui.move_cursor("DN");
-            }
-            KeyCode::Left => {
-                self.gui.move_cursor("LF");
-            }
-            KeyCode::Right => {
-                self.gui.move_cursor("RT");
-            }
-            KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
-            KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
-            KeyCode::Char('z') => {
-                self.gui.set_info_mode(GUIMode::Normal);
-                self.game_mode = GameMode::Play;
-            }
-            KeyCode::Char('a') => self.gui.move_cursor("LF"),
-            KeyCode::Char('s') => self.gui.move_cursor("UP"),
-            KeyCode::Char('d') => self.gui.move_cursor("DN"),
-            KeyCode::Char('f') => self.gui.move_cursor("RT"),
             KeyCode::Enter => {
                 self.game_mode = GameMode::Play;
                 self.gui.set_info_mode(GUIMode::Normal);
-
-                return false;
+                false
             }
-            // KeyCode::Esc => return false,
-            _ => {}
+            _ => self.key(code),
         }
-        true
     }
 
     pub fn inter_key(&mut self, code: KeyCode) -> bool {
         match code {
-            KeyCode::Up => {
-                self.gui.move_cursor("UP");
-            }
-            KeyCode::Down => {
-                self.gui.move_cursor("DN");
-            }
-            KeyCode::Left => {
-                self.gui.move_cursor("LF");
-            }
-            KeyCode::Right => {
-                self.gui.move_cursor("RT");
-            }
-            KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
-            KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
-            KeyCode::Char('z') => {
-                self.gui.set_info_mode(GUIMode::Normal);
-                self.game_mode = GameMode::Play;
-            }
-            KeyCode::Char('a') => self.gui.move_cursor("LF"),
-            KeyCode::Char('s') => self.gui.move_cursor("UP"),
-            KeyCode::Char('d') => self.gui.move_cursor("DN"),
-            KeyCode::Char('f') => self.gui.move_cursor("RT"),
             KeyCode::Enter => {
                 match self.game_mode {
                     GameMode::Interact(InterSteps::AdjOpt) => {
@@ -300,11 +252,10 @@ impl GameState {
                     _ => self.game_mode = GameMode::Play,
                 }
 
-                return false;
+                false
             }
-            KeyCode::Esc => return false,
-            _ => {}
+            KeyCode::Esc => false,
+            _ => self.key(code),
         }
-        true
     }
 }

@@ -47,28 +47,6 @@ impl GameState {
                     if now.duration_since(self.last_event_time) > self.key_debounce_dur {
                         self.last_event_time = now;
                         match event.code {
-                            KeyCode::Up => {
-                                self.gui.move_cursor("UP");
-                            }
-                            KeyCode::Down => {
-                                self.gui.move_cursor("DN");
-                            }
-                            KeyCode::Left => {
-                                self.gui.move_cursor("LF");
-                            }
-                            KeyCode::Right => {
-                                self.gui.move_cursor("RT");
-                            }
-                            KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
-                            KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
-                            KeyCode::Char('z') => {
-                                self.gui.set_info_mode(GUIMode::Normal);
-                                self.game_mode = GameMode::Play;
-                            }
-                            KeyCode::Char('a') => self.gui.move_cursor("LF"),
-                            KeyCode::Char('s') => self.gui.move_cursor("UP"),
-                            KeyCode::Char('d') => self.gui.move_cursor("DN"),
-                            KeyCode::Char('f') => self.gui.move_cursor("RT"),
                             KeyCode::Enter => {
                                 let res = self.gui.get_cursor();
                                 return match res.0 {
@@ -80,7 +58,9 @@ impl GameState {
                                     _ => todo!(),
                                 };
                             }
-                            _ => {}
+                            _ => {
+                                let _ = self.key(event.code);
+                            }
                         }
                     }
                 }
@@ -212,32 +192,12 @@ impl GameState {
                     if now.duration_since(self.last_event_time) > self.key_debounce_dur {
                         self.last_event_time = now;
                         match event.code {
-                            KeyCode::Up => {
-                                self.gui.move_cursor("UP");
-                            }
-                            KeyCode::Down => {
-                                self.gui.move_cursor("DN");
-                            }
-                            KeyCode::Left => {
-                                self.gui.move_cursor("LF");
-                            }
-                            KeyCode::Right => {
-                                self.gui.move_cursor("RT");
-                            }
-                            KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
-                            KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
-                            KeyCode::Char('z') => {
-                                self.gui.set_info_mode(GUIMode::Normal);
-                                self.game_mode = GameMode::Play;
-                            }
-                            KeyCode::Char('a') => self.gui.move_cursor("LF"),
-                            KeyCode::Char('s') => self.gui.move_cursor("UP"),
-                            KeyCode::Char('d') => self.gui.move_cursor("DN"),
-                            KeyCode::Char('f') => self.gui.move_cursor("RT"),
                             KeyCode::Enter => {
                                 return self.gui.get_ysno();
                             }
-                            _ => {}
+                            _ => {
+                                let _ = self.key(event.code);
+                            }
                         }
                     }
                 }
