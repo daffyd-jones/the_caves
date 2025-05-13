@@ -2,7 +2,8 @@
 
 use crate::enemy::Enemy;
 use crate::enums::{
-    AniType, EncMode, EncOpt, EncResult, Equip, FightSteps, GameMode, Interactable, Items,
+    AniType, EncMode, EncOpt, EncResult, Enemies, Equip, ExpType, FightSteps, GameMode,
+    Interactable, Items,
 };
 use crate::gamestate::{loc_shop_items, GameState};
 use crate::gui_utils::{Animation, GuiArgs};
@@ -16,12 +17,14 @@ impl GameState {
         let (atk, mut dmg) = e.fight_turn();
         let pdef = self.player.get_defence();
         let dodge = self.player.get_dodge();
-        if atk > pdef {
+        let def_xp = self.stats.player_xp.get_xp(ExpType::Defence);
+        if atk > pdef + def_xp.0 {
             if dodge {
                 self.player.toggle_dodge();
                 dmg /= 2;
             }
             self.player.apply_attack(dmg);
+            self.stats.player_xp.inc_xp(ExpType::Defence, dmg);
             return dmg;
         }
         0
@@ -55,6 +58,18 @@ impl GameState {
         for i in t_str {
             ani_frames.push((i, Color::Red));
         }
+
+        let asciis = self.enemy_asciis.clone();
+        let ascii = match enemy.etype {
+            Enemies::Spider => asciis.get("spider"),
+            Enemies::Snake => asciis.get("snake"),
+            Enemies::Slime => asciis.get("slime"),
+            Enemies::Bandit => asciis.get("bandit"),
+            Enemies::Goblin => asciis.get("goblin"),
+            Enemies::Ghoul => asciis.get("ghoul"),
+            _ => None,
+        };
+
         for i in ani_frames {
             self.gui.encounter_auto_content(&mut GuiArgs {
                 map: &self.map,
@@ -71,6 +86,7 @@ impl GameState {
                     char: Some(i),
                     frame: None,
                 }),
+                ascii,
             });
             if poll(std::time::Duration::from_millis(500)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -119,6 +135,7 @@ impl GameState {
                     char: Some(i),
                     frame: None,
                 }),
+                ascii,
             });
             if poll(std::time::Duration::from_millis(500)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {
@@ -174,9 +191,20 @@ impl GameState {
             todo!()
         };
         let mut e = enemy.clone();
+        let asciis = self.enemy_asciis.clone();
+        let ascii = match enemy.etype {
+            Enemies::Spider => asciis.get("spider"),
+            Enemies::Snake => asciis.get("snake"),
+            Enemies::Slime => asciis.get("slime"),
+            Enemies::Bandit => asciis.get("bandit"),
+            Enemies::Goblin => asciis.get("goblin"),
+            Enemies::Ghoul => asciis.get("ghoul"),
+            _ => None,
+        };
         let pstart = false;
         if !pstart {
             let enatk = "Enemy is attacking.".to_string();
+            self.gui.reset_cursor();
             loop {
                 self.gui.encounter_show_content(
                     enatk.clone(),
@@ -191,6 +219,7 @@ impl GameState {
                         litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                         portals: Some(&self.portals),
                         animate: None,
+                        ascii,
                     },
                 );
                 if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -230,6 +259,7 @@ impl GameState {
                         litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                         portals: Some(&self.portals),
                         animate: None,
+                        ascii,
                     },
                 );
                 if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -269,6 +299,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -329,6 +360,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -366,6 +398,19 @@ impl GameState {
             e.get_sname()
         );
         self.gui.reset_cursor();
+        let asciis = self.enemy_asciis.clone();
+        let ascii = match e.etype {
+            Enemies::Spider => asciis.get("spider"),
+            Enemies::Snake => asciis.get("snake"),
+            Enemies::Slime => asciis.get("slime"),
+            Enemies::Bandit => asciis.get("bandit"),
+            Enemies::Goblin => asciis.get("goblin"),
+            Enemies::Ghoul => asciis.get("ghoul"),
+            _ => {
+                println!("{:#?}", e.etype);
+                None
+            }
+        };
         loop {
             self.gui.encounter_show_content(
                 fst.clone(),
@@ -384,6 +429,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -435,6 +481,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -465,10 +512,14 @@ impl GameState {
             todo!()
         };
         let endef = enemy.get_defence();
-        if atk > endef {
-            enemy.apply_attack(dmg);
+        let atk_xp = self.stats.player_xp.get_xp(ExpType::Attack);
+        if atk + atk_xp.0 > endef {
+            let dmg_xp = self.stats.player_xp.get_xp(ExpType::Damage);
+            enemy.apply_attack(dmg + dmg_xp.0);
             self.player.set_enc_last_turn((EncOpt::Attack, dmg));
             self.interactee = Interactable::Enemy(enemy.clone());
+            self.stats.player_xp.inc_xp(ExpType::Attack, atk);
+            self.stats.player_xp.inc_xp(ExpType::Damage, dmg);
         } else {
             self.player.set_enc_last_turn((EncOpt::Attack, 0));
         }
@@ -490,6 +541,7 @@ impl GameState {
                 litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                 portals: Some(&self.portals),
                 animate: None,
+                ascii: None,
             });
             if poll(std::time::Duration::from_millis(100)).unwrap() {
                 if let Event::Key(event) = read().unwrap() {

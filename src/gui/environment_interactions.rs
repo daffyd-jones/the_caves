@@ -16,6 +16,11 @@ impl GUI {
 
     pub fn guild_records_draw(&mut self, save_str: String, savelist: Vec<String>, gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
+            let entire_screen_block = Block::default()
+                .style(Style::default().bg(Color::Black))
+                .borders(Borders::NONE);
+            f.render_widget(entire_screen_block, f.area());
+
             let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(1)
@@ -122,6 +127,10 @@ impl GUI {
 
     pub fn cauldron_draw(&mut self, product_list: &Vec<Items>, gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
+            let entire_screen_block = Block::default()
+                .style(Style::default().bg(Color::Black))
+                .borders(Borders::NONE);
+            f.render_widget(entire_screen_block, f.area());
             let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(1)
@@ -221,6 +230,10 @@ impl GUI {
 
     pub fn clinic_draw(&mut self, gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
+            let entire_screen_block = Block::default()
+                .style(Style::default().bg(Color::Black))
+                .borders(Borders::NONE);
+            f.render_widget(entire_screen_block, f.area());
             let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(1)
@@ -307,6 +320,10 @@ impl GUI {
 
     pub fn clinic_resp_draw(&mut self, heal_resp: String, gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
+            let entire_screen_block = Block::default()
+                .style(Style::default().bg(Color::Black))
+                .borders(Borders::NONE);
+            f.render_widget(entire_screen_block, f.area());
             let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(1)
@@ -393,6 +410,10 @@ impl GUI {
 
     pub fn guild_post_draw(&mut self, post_strings: Vec<String>, gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
+            let entire_screen_block = Block::default()
+                .style(Style::default().bg(Color::Black))
+                .borders(Borders::NONE);
+            f.render_widget(entire_screen_block, f.area());
             let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(1)
@@ -506,6 +527,10 @@ impl GUI {
 
     pub fn church_post_draw(&mut self, post_strings: Vec<String>, gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
+            let entire_screen_block = Block::default()
+                .style(Style::default().bg(Color::Black))
+                .borders(Borders::NONE);
+            f.render_widget(entire_screen_block, f.area());
             let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(1)

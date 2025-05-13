@@ -1070,7 +1070,8 @@ impl Item {
         Self {
             itype: Items::Plants(Plants::LampenPetals),
             sname: "Lampen Flower Petals".to_string(),
-            icon: ('ϙ', Color::LightBlue),
+            icon: ('⚵', Color::LightCyan),
+            // icon: ('ϙ⚵', Color::LightBlue),
             desc: "A flower that grows in small groups.".to_string(),
             iopts,
             equip: false,
@@ -1120,7 +1121,8 @@ impl Item {
         Self {
             itype: Items::Plants(Plants::LichenousGrowth),
             sname: "Lichenous Growth".to_string(),
-            icon: ('₴', Color::LightBlue),
+            icon: ('ც', Color::LightMagenta),
+            // icon: ('₴', Color::LightBlue),
             desc: "A spongey growth that grows in the dark.".to_string(),
             iopts,
             equip: false,
@@ -1159,7 +1161,7 @@ impl Item {
         }
     }
 
-    pub fn new_shrooms(x: usize, y: usize) -> Self {
+    pub fn new_shroom(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("required"), 5);
         // prop.insert(String::from("value"), 90);
@@ -1170,7 +1172,8 @@ impl Item {
         Self {
             itype: Items::Plants(Plants::Shroom),
             sname: "Shroom".to_string(),
-            icon: ('ƍ', Color::Magenta),
+            icon: ('ϙ', Color::Magenta),
+            // icon: ('ƍ', Color::Magenta),
             desc: "A weird looking mushroom.".to_string(),
             iopts,
             equip: false,
@@ -1193,9 +1196,9 @@ impl Item {
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
 
         Self {
-            itype: Items::Plants(Plants::Shroom),
+            itype: Items::Plants(Plants::VineBulb),
             sname: "Vine Bulb".to_string(),
-            icon: ('ƍ', Color::Green),
+            icon: ('౸', Color::Green),
             desc: "The flower bulb of a vine that covers the walls in patches.".to_string(),
             iopts,
             equip: false,

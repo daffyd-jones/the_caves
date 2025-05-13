@@ -38,6 +38,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii: None,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -108,6 +109,7 @@ impl GameState {
                         litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                         portals: Some(&self.portals),
                         animate: None,
+                        ascii: None,
                     });
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
@@ -142,6 +144,7 @@ impl GameState {
                             litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                             portals: Some(&self.portals),
                             animate: None,
+                            ascii: None,
                         },
                     );
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -183,6 +186,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii: None,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {

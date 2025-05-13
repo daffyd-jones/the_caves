@@ -2,20 +2,21 @@
 use crate::enemy::Enemy;
 use crate::enums::{
     Cells, CompMode, EncMode, EncOpt, Enemies, EnvInter, FightSteps, GameMode, Interactable, Items,
-    Location, NPCWrap, NodeType, Plants,
+    Location, NPCWrap, NodeType,
 };
 use crate::features::Features;
 use crate::gui::GUI;
 use crate::gui_utils::GuiArgs;
 use crate::item::Item;
-use crate::map::{Map, MAP_H, MAP_W};
+use crate::map::Map;
 use crate::nodemap::NodeMap;
 use crate::notebook::Notebook;
 use crate::npc::Convo;
 use crate::player::Player;
 use crate::puzzles::Puzzles;
 use crate::settlements::Settlements;
-use crate::utils::{gen_broken_range, in_range, init_items, loc_shop_items};
+use crate::stats::Stats;
+use crate::utils::{gen_broken_range, in_range, loc_shop_items};
 
 mod compass_state;
 mod enemies;
@@ -23,6 +24,7 @@ mod enemy_encounter;
 mod environment_interactions;
 mod interactions;
 mod inventory_state;
+mod item_state;
 mod keys;
 mod locations;
 mod map_state;
@@ -31,7 +33,6 @@ mod npcs;
 mod puzzle_state;
 mod settle_state;
 
-use rand::prelude::SliceRandom;
 use rand::Rng;
 use ratatui::crossterm::event::{poll, read, Event, KeyCode, KeyEventKind};
 use std::fs;
@@ -44,49 +45,6 @@ use std::time::{Duration, Instant};
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Write};
 
-fn place_enemies(map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
-    let mut enemies = HashMap::new();
-    let mut rng = rand::thread_rng();
-    let etype = Enemies::Bug;
-    let m_h = map.len() - 1;
-    let m_w = map[0].len() - 1;
-    for i in 0..50 {
-        loop {
-            // let y = rng.gen_range(10..m_h-10);
-            let (x, y) = if i % 2 == 0 {
-                let x = gen_broken_range(
-                    &mut rng,
-                    10,
-                    (m_w / 3) as i32,
-                    (m_w / 3) as i32 * 2,
-                    (m_w - 10) as i32,
-                ) as usize;
-                let y = rng.gen_range(10..m_h - 10);
-                (x, y)
-            } else {
-                let x = rng.gen_range(10..m_w - 10);
-                let y = gen_broken_range(
-                    &mut rng,
-                    10,
-                    (m_h / 3) as i32,
-                    (m_h / 3) as i32 * 2,
-                    (m_h - 10) as i32,
-                ) as usize;
-                (x, y)
-            };
-            if map[y][x] == Cells::Empty {
-                // let mut temp_vec = Vec::new();
-                // temp_vec.push(Items::BugBits);
-                let temp_vec = vec![Items::Guts];
-                let e_temp = Enemy::new(etype, "Bug".to_string(), (x, y), 20, 15, 5, 5, temp_vec);
-                enemies.insert((x, y), e_temp);
-                break;
-            }
-        }
-    }
-    enemies
-}
-
 //#[derive(Serialize, Deserialize, Debug)]
 pub struct GameState {
     game_mode: GameMode,
@@ -97,6 +55,7 @@ pub struct GameState {
     settles: Settlements,
     puzzles: Puzzles,
     player: Player,
+    stats: Stats,
     features: Features,
     dist_fo: (i64, i64),
     comp_head: (i64, i64),
@@ -105,14 +64,15 @@ pub struct GameState {
     loc_rad: u16,
     depth: u16,
     level: u32,
-    //l_systems: LSystems,
     pressed_keys: HashMap<KeyCode, bool>,
     enemies: HashMap<(usize, usize), Enemy>,
     step_group: u8,
     items: HashMap<(usize, usize), Item>,
     npcs: HashMap<(usize, usize), NPCWrap>,
     env_inters: HashMap<(usize, usize), EnvInter>,
+    enemy_asciis: HashMap<String, String>,
     npc_names: Vec<String>,
+    npc_asciis: Vec<String>,
     npc_comms: Vec<String>,
     npc_convos: Vec<Convo>,
     npc_spconvos: Vec<Convo>,
@@ -136,7 +96,7 @@ impl GameState {
         // let x = map.px.clone();
         // let y = map.py.clone();
         let comp_list = HashMap::new();
-        let mut player = Player::new(309, 196);
+        let mut player = Player::new(308, 194);
         player.inventory.push(Item::new_luminous_mushroom(0, 0));
         player.inventory.push(Item::new_moss(0, 0));
         player.inventory.push(Item::new_luminous_mushroom(0, 0));
@@ -157,11 +117,12 @@ impl GameState {
         player.inventory.push(Item::new_moss(0, 0));
         player.inventory.push(Item::new_luminous_mushroom(0, 0));
         player.inventory.push(Item::new_moss(0, 0));
-        // let player = Player::new(x, y);
-        //let mut l_systems = LSystems::new();
-        let enemies = place_enemies(map.cells.clone());
-        let items = init_items(map.cells.clone(), enemies.clone());
-        //let npcs = place_npcs(map.cells.clone());
+        // let enemies = place_enemies(map.cells.clone());
+        // let items = init_items(map.cells.clone(), enemies.clone());
+        let stats = Stats::new();
+        let enemies = HashMap::new();
+        let items = HashMap::new();
+
         let npcs = HashMap::new();
         let env_inters = HashMap::new();
 
@@ -174,6 +135,27 @@ impl GameState {
                 Vec::new()
             }
         };
+
+        let data7 = fs::read_to_string("src/ascii/npc_asciis.json");
+        //log::info!("{:?}", &data1);
+        let npc_asciis: Vec<String> = match data7 {
+            Ok(content) => serde_json::from_str(&content).unwrap(),
+            Err(e) => {
+                log::info!("{:?}", e);
+                Vec::new()
+            }
+        };
+
+        let data8 = fs::read_to_string("src/ascii/enemy_asciis.json");
+        //log::info!("{:?}", &data1);
+        let enemy_asciis: HashMap<String, String> = match data8 {
+            Ok(content) => serde_json::from_str(&content).unwrap(),
+            Err(e) => {
+                log::info!("{:?}", e);
+                HashMap::new()
+            }
+        };
+
         let data2 = fs::read_to_string("src/npcs/npc_comms.json");
         //log::info!("{:?}", &data2);
         let npc_comms: Vec<String> = match data2 {
@@ -275,6 +257,7 @@ impl GameState {
             settles,
             puzzles,
             player,
+            stats,
             features,
             dist_fo: (0, 0),
             comp_head: (0, 0),
@@ -290,7 +273,9 @@ impl GameState {
             items,
             npcs,
             env_inters,
+            enemy_asciis,
             npc_names,
+            npc_asciis,
             npc_comms,
             npc_convos,
             npc_spconvos,
@@ -392,6 +377,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii: None,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -458,193 +444,206 @@ impl GameState {
         }
     }
 
-    fn check_place_item(&mut self, x: usize, y: usize) -> bool {
-        let mut rng = rand::thread_rng();
-        let types = [
-            Items::Rock,
-            Items::EdibleRoot,
-            Items::Apple,
-            Items::MetalScrap,
-            Items::Plants(Plants::LuminousMushroom),
-            Items::Plants(Plants::LichenousGrowth),
-        ];
-        if self.map.cells[y][x] == Cells::Empty
-            && !self.in_loc_check((x, y))
-            && !self.enemies.contains_key(&(x, y))
-            && !self.items.contains_key(&(x, y))
-        {
-            if let Some(i_type) = types.choose(&mut rng) {
-                match i_type {
-                    Items::EdibleRoot => {
-                        self.items.insert((x, y), Item::new_edible_root(x, y));
-                    }
-                    Items::Apple => {
-                        self.items.insert((x, y), Item::new_apple(x, y));
-                    }
-                    Items::MetalScrap => {
-                        self.items.insert((x, y), Item::new_metal_scrap(x, y));
-                    }
-                    Items::Rock => {
-                        self.items.insert((x, y), Item::new_rock(x, y));
-                    }
-                    Items::Plants(Plants::LuminousMushroom) => {
-                        self.items.insert((x, y), Item::new_luminous_mushroom(x, y));
-                    }
-                    Items::Plants(Plants::LichenousGrowth) => {
-                        self.items.insert((x, y), Item::new_lichenous_growth(x, y));
-                    }
-                    _ => todo!(),
-                };
-                return true;
-            }
-        }
-        false
-    }
+    // fn check_place_item(&mut self, x: usize, y: usize) -> bool {
+    //     let mut rng = rand::thread_rng();
+    //     let types = [
+    //         Items::Rock,
+    //         Items::EdibleRoot,
+    //         Items::Apple,
+    //         Items::MetalScrap,
+    //         Items::Plants(Plants::LuminousMushroom),
+    //         Items::Plants(Plants::LichenousGrowth),
+    //         Items::Plants(Plants::LampenPetals),
+    //         Items::Plants(Plants::LuckyClover),
+    //         Items::Plants(Plants::Shroom),
+    //     ];
+    //     if self.map.cells[y][x] == Cells::Empty
+    //         && !self.in_loc_check((x, y))
+    //         && !self.enemies.contains_key(&(x, y))
+    //         && !self.items.contains_key(&(x, y))
+    //     {
+    //         if let Some(i_type) = types.choose(&mut rng) {
+    //             match i_type {
+    //                 Items::EdibleRoot => {
+    //                     self.items.insert((x, y), Item::new_edible_root(x, y));
+    //                 }
+    //                 Items::Apple => {
+    //                     self.items.insert((x, y), Item::new_apple(x, y));
+    //                 }
+    //                 Items::MetalScrap => {
+    //                     self.items.insert((x, y), Item::new_metal_scrap(x, y));
+    //                 }
+    //                 Items::Rock => {
+    //                     self.items.insert((x, y), Item::new_rock(x, y));
+    //                 }
+    //                 Items::Plants(Plants::LuminousMushroom) => {
+    //                     self.items.insert((x, y), Item::new_luminous_mushroom(x, y));
+    //                 }
+    //                 Items::Plants(Plants::LichenousGrowth) => {
+    //                     self.items.insert((x, y), Item::new_lichenous_growth(x, y));
+    //                 }
+    //                 Items::Plants(Plants::LampenPetals) => {
+    //                     self.items
+    //                         .insert((x, y), Item::new_lampen_flower_petals(x, y));
+    //                 }
+    //                 Items::Plants(Plants::LuckyClover) => {
+    //                     self.items.insert((x, y), Item::new_lucky_clover(x, y));
+    //                 }
+    //                 Items::Plants(Plants::Shroom) => {
+    //                     self.items.insert((x, y), Item::new_shroom(x, y));
+    //                 }
+    //                 _ => todo!(),
+    //             };
+    //             return true;
+    //         }
+    //     }
+    //     false
+    // }
 
-    fn repop_items(&mut self) {
-        let mut rng = rand::thread_rng();
-        let (vx, vy, vw, vh) = self.map.get_viewport();
-        //xx
-        match (-self.map.gen_x, -self.map.gen_y) {
-            (x, y) if x < 0 && y == 0 => {
-                for _ in 0..30 {
-                    loop {
-                        let x = rng.gen_range(10..vx - 5);
-                        let y = rng.gen_range(10..MAP_H - 10);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-            }
-            (x, y) if x > 0 && y == 0 => {
-                for _ in 0..30 {
-                    loop {
-                        let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
-                        let y = rng.gen_range(10..MAP_H - 10);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-            }
-            (x, y) if y < 0 && x == 0 => {
-                for _ in 0..30 {
-                    loop {
-                        let x = rng.gen_range(10..MAP_W - 10);
-                        let y = rng.gen_range(10..vy - 5);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-            }
-            (x, y) if y > 0 && x == 0 => {
-                for _ in 0..30 {
-                    loop {
-                        let x = rng.gen_range(10..MAP_W - 10);
-                        let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-            } // asdf
-            (x, y) if x > 0 && y > 0 => {
-                for _ in 0..15 {
-                    loop {
-                        let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
-                        let y = rng.gen_range(10..MAP_H - 10);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-                for _ in 0..15 {
-                    loop {
-                        let x = rng.gen_range(10..MAP_W - 10);
-                        let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-            }
-            (x, y) if x > 0 && y < 0 => {
-                for _ in 0..15 {
-                    loop {
-                        let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
-                        let y = rng.gen_range(10..MAP_H - 10);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-                for _ in 0..15 {
-                    loop {
-                        let x = rng.gen_range(10..MAP_W - 10);
-                        let y = rng.gen_range(10..vy - 5);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-            }
-            (x, y) if x < 0 && y > 0 => {
-                for _ in 0..15 {
-                    loop {
-                        let x = rng.gen_range(10..vx - 5);
-                        let y = rng.gen_range(10..MAP_H - 10);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-                for _ in 0..15 {
-                    loop {
-                        let x = rng.gen_range(10..MAP_W - 10);
-                        let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-            }
-            (x, y) if x < 0 && y < 0 => {
-                for _ in 0..15 {
-                    loop {
-                        let x = rng.gen_range(10..vx - 5);
-                        let y = rng.gen_range(10..MAP_H - 10);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-                for _ in 0..15 {
-                    loop {
-                        let x = rng.gen_range(10..MAP_W - 10);
-                        let y = rng.gen_range(10..vy - 5);
-                        let res = self.check_place_item(x, y);
-                        if res {
-                            break;
-                        }
-                    }
-                }
-            }
-            _ => {}
-        }
-    }
+    // fn repop_items(&mut self) {
+    //     let mut rng = rand::thread_rng();
+    //     let (vx, vy, vw, vh) = self.map.get_viewport();
+    //     //xx
+    //     match (-self.map.gen_x, -self.map.gen_y) {
+    //         (x, y) if x < 0 && y == 0 => {
+    //             for _ in 0..30 {
+    //                 loop {
+    //                     let x = rng.gen_range(10..vx - 5);
+    //                     let y = rng.gen_range(10..MAP_H - 10);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         (x, y) if x > 0 && y == 0 => {
+    //             for _ in 0..30 {
+    //                 loop {
+    //                     let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
+    //                     let y = rng.gen_range(10..MAP_H - 10);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         (x, y) if y < 0 && x == 0 => {
+    //             for _ in 0..30 {
+    //                 loop {
+    //                     let x = rng.gen_range(10..MAP_W - 10);
+    //                     let y = rng.gen_range(10..vy - 5);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         (x, y) if y > 0 && x == 0 => {
+    //             for _ in 0..30 {
+    //                 loop {
+    //                     let x = rng.gen_range(10..MAP_W - 10);
+    //                     let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         } // asdf
+    //         (x, y) if x > 0 && y > 0 => {
+    //             for _ in 0..15 {
+    //                 loop {
+    //                     let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
+    //                     let y = rng.gen_range(10..MAP_H - 10);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             for _ in 0..15 {
+    //                 loop {
+    //                     let x = rng.gen_range(10..MAP_W - 10);
+    //                     let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         (x, y) if x > 0 && y < 0 => {
+    //             for _ in 0..15 {
+    //                 loop {
+    //                     let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
+    //                     let y = rng.gen_range(10..MAP_H - 10);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             for _ in 0..15 {
+    //                 loop {
+    //                     let x = rng.gen_range(10..MAP_W - 10);
+    //                     let y = rng.gen_range(10..vy - 5);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         (x, y) if x < 0 && y > 0 => {
+    //             for _ in 0..15 {
+    //                 loop {
+    //                     let x = rng.gen_range(10..vx - 5);
+    //                     let y = rng.gen_range(10..MAP_H - 10);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             for _ in 0..15 {
+    //                 loop {
+    //                     let x = rng.gen_range(10..MAP_W - 10);
+    //                     let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         (x, y) if x < 0 && y < 0 => {
+    //             for _ in 0..15 {
+    //                 loop {
+    //                     let x = rng.gen_range(10..vx - 5);
+    //                     let y = rng.gen_range(10..MAP_H - 10);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             for _ in 0..15 {
+    //                 loop {
+    //                     let x = rng.gen_range(10..MAP_W - 10);
+    //                     let y = rng.gen_range(10..vy - 5);
+    //                     let res = self.check_place_item(x, y);
+    //                     if res {
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         _ => {}
+    //     }
+    // }
 
     pub fn start_update_threads(game_state: Arc<Mutex<Self>>) {
         // let game_state = Arc::new(Mutex::new(self));
@@ -695,15 +694,16 @@ impl GameState {
             return false;
         }
 
-        if self.items.len() < 50 {
+        if self.items.len() < 80 {
             self.repop_items();
+            // self.repop_plants();
         }
 
-        if self.npcs.len() < 20 {
+        if self.npcs.len() < 30 {
             self.repop_npcs();
         }
 
-        if self.enemies.len() < 50 {
+        if self.enemies.len() < 60 {
             self.repop_enemies();
         }
 
@@ -768,6 +768,7 @@ impl GameState {
                 litems: Some(&litems),
                 portals: Some(&self.portals),
                 animate: None,
+                ascii: None,
             },
         );
     }

@@ -76,7 +76,7 @@ impl GameState {
         let types = {
             let rnd = rng.gen_range(0..30);
             if rnd == 0 {
-                vec![NPCs::CommNPC, NPCs::ConvNPC, NPCs::SpawnNPC]
+                vec![NPCs::CommNPC, NPCs::ConvNPC]
             } else {
                 vec![NPCs::CommNPC, NPCs::ConvNPC, NPCs::TradeNPC]
             }

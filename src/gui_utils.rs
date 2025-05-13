@@ -24,6 +24,48 @@ use std::collections::HashMap;
 // use std::collections::HashMap;
 use std::time::Duration;
 
+pub enum CustomColors {
+    Black,
+    Red,
+    Green,
+    Yellow,
+    Blue,
+    Magenta,
+    Cyan,
+    Gray,
+    DarkGray,
+    LightRed,
+    LightGreen,
+    LightYellow,
+    LightBlue,
+    LightMagenta,
+    LightCyan,
+    White,
+}
+
+impl CustomColors {
+    pub fn to_custom_color(&self) -> Color {
+        match self {
+            CustomColors::Black => Color::Rgb(34, 39, 39),
+            CustomColors::Red => Color::Rgb(42, 161, 152),
+            CustomColors::Green => Color::Rgb(42, 161, 152),
+            CustomColors::Yellow => Color::Rgb(42, 161, 152),
+            CustomColors::Blue => Color::Rgb(42, 161, 152),
+            CustomColors::Magenta => Color::Rgb(42, 161, 152),
+            CustomColors::Cyan => Color::Rgb(42, 161, 152),
+            CustomColors::Gray => Color::Rgb(42, 161, 152),
+            CustomColors::DarkGray => Color::Rgb(42, 161, 152),
+            CustomColors::LightRed => Color::Rgb(42, 161, 152),
+            CustomColors::LightGreen => Color::Rgb(42, 161, 152),
+            CustomColors::LightYellow => Color::Rgb(42, 161, 152),
+            CustomColors::LightBlue => Color::Rgb(42, 161, 152),
+            CustomColors::LightMagenta => Color::Rgb(42, 161, 152),
+            CustomColors::LightCyan => Color::Rgb(42, 161, 152),
+            CustomColors::White => Color::Rgb(42, 161, 152),
+        }
+    }
+}
+
 pub fn wrap_text(text: &str, max_width: usize) -> Text {
     let mut lines = Vec::new();
     let mut current_line = String::new();
@@ -56,6 +98,7 @@ pub struct GuiArgs<'a> {
     pub litems: Option<&'a HashMap<(usize, usize), Item>>,
     pub portals: Option<&'a HashMap<(usize, usize), (usize, usize)>>,
     pub animate: Option<&'a Animation>,
+    pub ascii: Option<&'a String>,
 }
 
 type Frame = Vec<Vec<(char, Color)>>;
@@ -168,11 +211,11 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         }
                     };
                     match env {
-                        EnvInter::Records => ('│', env_col),
-                        EnvInter::Clinic => ('─', env_col),
-                        EnvInter::GuildPost => ('─', env_col),
-                        EnvInter::ChurchPost => ('─', env_col),
-                        EnvInter::Cauldron => ('℧', env_col),
+                        EnvInter::Records => ('│', Color::Green),
+                        EnvInter::Clinic => ('─', Color::Green),
+                        EnvInter::GuildPost => ('─', Color::Green),
+                        EnvInter::ChurchPost => ('─', Color::Green),
+                        EnvInter::Cauldron => ('℧', Color::Green),
                         _ => todo!(),
                     }
                 } else {

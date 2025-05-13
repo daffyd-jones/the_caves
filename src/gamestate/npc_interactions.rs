@@ -5,6 +5,7 @@ use crate::gamestate::GameState;
 use crate::gamestate::Item;
 use crate::gui_utils::GuiArgs;
 use crate::npc::{ConvNPC, Convo, ShopNPC, SpawnNPC, TradeNPC, NPC};
+use crate::npc_utils::box_npc;
 use std::time::Instant;
 
 use crate::gamestate::loc_shop_items;
@@ -20,6 +21,7 @@ impl GameState {
         loop {
             self.gui.npc_comm_draw(
                 comms.clone(),
+                // self.npc_asciis[0].clone(),
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
@@ -30,6 +32,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii: Some(&self.npc_asciis[0].clone()),
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -85,6 +88,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii: None,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -164,6 +168,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii: None,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -178,7 +183,13 @@ impl GameState {
                                 if !self.trade_buy(inv_opt.1) {
                                     break;
                                 }
-                                items.remove(inv_opt.0);
+                                let mut npc = match self.interactee.clone() {
+                                    Interactable::NPC(NPCWrap::TradeNPC(npc)) => npc,
+                                    _ => todo!(),
+                                };
+                                npc.remove_item(inv_opt.0);
+                                items = npc.get_items();
+                                self.interactee = Interactable::NPC(NPCWrap::TradeNPC(npc));
                             }
                             KeyCode::Backspace => {
                                 break;
@@ -216,6 +227,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii: None,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -248,7 +260,7 @@ impl GameState {
 
     pub fn npc_trade_inter(&mut self, mut npc: TradeNPC) -> bool {
         let sh_conv = npc.get_sh_conv();
-        let nitems = npc.get_items();
+        // let nitems = npc.get_items();
         let pitems = self.player.get_inventory();
         let name = npc.get_sname();
         let comms = format!("{}#{}", name, sh_conv["trade_msg"]);
@@ -266,6 +278,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
+                    ascii: None,
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -279,7 +292,13 @@ impl GameState {
                                 let cursor = self.gui.get_cursor();
                                 let choice = cursor.0;
                                 match choice {
-                                    0 => self.trade_buy_items(nitems.clone()),
+                                    0 => {
+                                        let mut npc = match self.interactee.clone() {
+                                            Interactable::NPC(NPCWrap::TradeNPC(npc)) => npc,
+                                            _ => todo!(),
+                                        };
+                                        self.trade_buy_items(npc.get_items())
+                                    }
                                     1 => self.trade_sell_items(pitems.clone()),
                                     2 => {
                                         self.game_mode = GameMode::Play;
@@ -319,29 +338,39 @@ impl GameState {
             Interactable::NPC(NPCWrap::CommNPC(mut comm_npc)) => {
                 let comm = self.npc_comm_inter(comm_npc.get_sname(), comm_npc.get_comm());
                 self.notebook.enter_convo(&comm[0]);
-                true
+                // true
             }
             Interactable::NPC(NPCWrap::ConvNPC(mut conv_npc)) => {
                 let convo = self.npc_conv_inter(conv_npc.clone());
                 self.notebook
                     .enter_convo(&comb_conv(conv_npc.get_sname(), convo));
-                true
+                // true
             }
             Interactable::NPC(NPCWrap::SpawnNPC(mut spawn_npc)) => {
                 let convo = self.npc_spawn_inter(spawn_npc.clone());
                 self.notebook
                     .enter_convo(&comb_conv(spawn_npc.get_sname(), convo));
-                true
+                // true
             }
             Interactable::NPC(NPCWrap::ShopNPC(mut shop_npc)) => {
                 let convo = self.npc_shop_inter(shop_npc.clone());
                 self.notebook
                     .enter_convo(&comb_conv(shop_npc.get_sname(), convo));
-                true
+                // true
             }
-            Interactable::NPC(NPCWrap::TradeNPC(trade_npc)) => self.npc_trade_inter(trade_npc),
+            Interactable::NPC(NPCWrap::TradeNPC(trade_npc)) => {
+                self.npc_trade_inter(trade_npc);
+            }
             _ => todo!(),
         }
+        match self.interactee.clone() {
+            Interactable::NPC(npc) => {
+                // box_npc(npc).get_pos()
+                self.npcs.insert(box_npc(npc.clone()).get_pos(), npc);
+            }
+            _ => todo!(),
+        };
+        true
     }
 
     pub fn pop_trade_items(&self) -> Vec<Item> {

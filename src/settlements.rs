@@ -17,8 +17,8 @@ impl Settlements {
     }
 
     pub fn demo_self() -> Self {
-        let xb = 300 - 75;
-        let yb = 200 - 24;
+        let xb = 300 - 76;
+        let yb = 200 - 26;
         //let xb = -50;
         //let yb = -50;
         let mut settlements = HashMap::new();

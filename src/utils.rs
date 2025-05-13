@@ -1,13 +1,52 @@
 use crate::enemy::Enemy;
-use crate::enums::{
-    Cells, CompMode, EncMode, EncOpt, Enemies, EnvInter, FightSteps, GUIMode, GameMode, InterOpt,
-    InterSteps, Interactable, ItemOpt, Items, Location, NPCWrap, NPCs, NodeType, Plants,
-    PuzzleType,
-};
+use crate::enums::{Cells, Enemies, Items, Location};
 use crate::item::Item;
 use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::collections::HashMap;
+
+fn place_enemies(map: Vec<Vec<Cells>>) -> HashMap<(usize, usize), Enemy> {
+    let mut enemies = HashMap::new();
+    let mut rng = rand::thread_rng();
+    let etype = Enemies::Bug;
+    let m_h = map.len() - 1;
+    let m_w = map[0].len() - 1;
+    for i in 0..50 {
+        loop {
+            // let y = rng.gen_range(10..m_h-10);
+            let (x, y) = if i % 2 == 0 {
+                let x = gen_broken_range(
+                    &mut rng,
+                    10,
+                    (m_w / 3) as i32,
+                    (m_w / 3) as i32 * 2,
+                    (m_w - 10) as i32,
+                ) as usize;
+                let y = rng.gen_range(10..m_h - 10);
+                (x, y)
+            } else {
+                let x = rng.gen_range(10..m_w - 10);
+                let y = gen_broken_range(
+                    &mut rng,
+                    10,
+                    (m_h / 3) as i32,
+                    (m_h / 3) as i32 * 2,
+                    (m_h - 10) as i32,
+                ) as usize;
+                (x, y)
+            };
+            if map[y][x] == Cells::Empty {
+                // let mut temp_vec = Vec::new();
+                // temp_vec.push(Items::BugBits);
+                let temp_vec = vec![Items::Guts];
+                let e_temp = Enemy::new(etype, "Bug".to_string(), (x, y), 20, 15, 5, 5, temp_vec);
+                enemies.insert((x, y), e_temp);
+                break;
+            }
+        }
+    }
+    enemies
+}
 
 pub fn gen_broken_range<R: Rng>(
     rng: &mut R,

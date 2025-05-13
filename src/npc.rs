@@ -703,6 +703,10 @@ impl TradeNPC {
         self.items.clone()
     }
 
+    pub fn remove_item(&mut self, idx: usize) {
+        self.items.remove(idx);
+    }
+
     pub fn get_sh_conv(&mut self) -> HashMap<String, String> {
         self.sh_conv.clone()
     }

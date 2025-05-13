@@ -15,6 +15,10 @@ impl GUI {
     pub fn inter_adj_draw(&mut self, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -160,6 +164,10 @@ impl GUI {
     pub fn inter_opt_draw(&mut self, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -265,6 +273,10 @@ impl GUI {
     pub fn inter_res_draw(&mut self, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -354,6 +366,10 @@ impl GUI {
     pub fn item_use_draw(&mut self, msg_str: String, iopts: String, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -446,6 +462,11 @@ impl GUI {
     pub fn item_used_draw(&mut self, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
+
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)

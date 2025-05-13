@@ -19,6 +19,10 @@ impl GUI {
     pub fn npc_comm_draw(&mut self, comms: String, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -71,10 +75,23 @@ impl GUI {
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
 
-                let comm = npc_str[1];
-                let npc = Paragraph::new(Span::styled(comm, Style::default().white()))
+                let mut ascii_str = Vec::new();
+                ascii_str.push(Span::styled(npc_str[1], Style::default().white()));
+                let padding = " ".repeat(((&normal_info[0].width - 60) / 2) as usize);
+
+                let ascii = gui_args.ascii.unwrap();
+
+                for i in 0..(ascii.len() / 60) {
+                    let line = &ascii[i * 60..(i * 60 + 60)];
+                    let padded_line = format!("{}{}", padding, line);
+                    ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                }
+
+                let texts: Text = ascii_str.into_iter().collect();
+
+                let npc = Paragraph::new(texts)
                     .block(paragraph_block)
-                    .wrap(ratatui::widgets::Wrap { trim: true });
+                    .wrap(ratatui::widgets::Wrap { trim: false });
                 let plyr = Paragraph::new(Span::raw("")).block(table_block);
                 f.render_widget(npc, normal_info[0]);
                 f.render_widget(plyr, normal_info[1]);
@@ -85,6 +102,10 @@ impl GUI {
     pub fn npc_trade_type_draw(&mut self, comms: String, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -186,6 +207,10 @@ impl GUI {
     pub fn npc_trade_draw(&mut self, titems: Vec<Item>, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -342,6 +367,10 @@ impl GUI {
     ) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -394,7 +423,21 @@ impl GUI {
                 let table_width = table_inner.width;
 
                 // let comm = npc_str[1];
-                //
+
+                // let mut ascii_str = Vec::new();
+                // ascii_str.push(Span::styled(npc_str[1], Style::default().white()));
+                // let padding = " ".repeat(((&normal_info[0].width - 60) / 2) as usize);
+
+                // let ascii = gui_args.ascii.unwrap();
+
+                // for i in 0..(ascii.len() / 60) {
+                //     let line = &ascii[i * 60..(i * 60 + 60)];
+                //     let padded_line = format!("{}{}", padding, line);
+                //     ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                // }
+
+                // let texts: Text = ascii_str.into_iter().collect();
+
                 let npc = Paragraph::new(Span::styled(text, Style::default().white()))
                     .block(paragraph_block)
                     .wrap(ratatui::widgets::Wrap { trim: true });
@@ -426,6 +469,11 @@ impl GUI {
     pub fn shop_convo_draw(&mut self, sname: String, dialogue: String, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
+
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)

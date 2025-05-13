@@ -177,6 +177,46 @@ pub enum Items {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
+pub enum Month {
+    Opal,
+    Quartz,
+    Jade,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
+pub enum ToggleState {
+    PlayerTraits(PlayerTraits),
+    NPCIntros(NPCIntros),
+    Plants(Plants),
+}
+
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
+pub enum PlayerTraits {
+    Poisoned,
+    Agility,
+    Vitality,
+    Invisible,
+    Null,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
+pub enum NPCIntros {
+    Herbalist,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
+pub enum ExpType {
+    Attack,
+    Damage,
+    Defence,
+    Luck,
+    Trading,
+    Lockpicking,
+    Navigation,
+    Herbalism,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
 pub enum Plants {
     Moss,
     LuminousMushroom,

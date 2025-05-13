@@ -1,17 +1,13 @@
 //gui
-use crate::enums::{AniType, Cells, Enemies, Items, NPCWrap, GUIMode, Interactable, InterOpt, EncOpt, Equip, ItemEffect, EnvInter};
-use crate::map::Map;
-use crate::player::Player;
-use crate::enemy::{Enemy};
-// use crate::npc::{NPC};
+use crate::enums::{GUIMode, Interactable, InterOpt, EncOpt, Equip, ItemEffect};
 use crate::item::Item;
 
-use crate::notebook::{Quest, Place, Person, Lore};
 mod gui_man_draw;
 mod npc_interactions;
 mod enemy_encounters;
 mod environment_interactions;
 
+use ratatui::crossterm::style::PrintStyledContent;
 use ratatui::widgets::Clear;
 use ratatui::layout::Flex;
 use std::io::stdout;
@@ -19,7 +15,7 @@ use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
 use ratatui::prelude::Line;
 use ratatui::prelude::Rect;
-use ratatui::widgets::{Block, Borders, Paragraph, Padding, Gauge};
+use ratatui::widgets::{Block, Borders, Paragraph, Gauge};
 use ratatui::layout::{Layout, Constraint, Direction, Margin};
 use ratatui::style::{Color, Style, Stylize};
 use ratatui::text::{Text, Span};
@@ -52,7 +48,6 @@ pub struct GUI {
     active_notes: (HashMap<String, String>, Vec<String>, HashMap<String, String>, HashMap<String, String>),
     enc_opt: (Vec<(EncOpt, String)>, Vec<(EncOpt, String)>),
     help: bool,
-    // ysno: Vec<(String, String)>,
 }
 
 
@@ -75,10 +70,6 @@ impl GUI {
             vec![(InterOpt::Null, "".to_string()); 3],
             vec![(InterOpt::Null, "".to_string()); 3],
         );
-        // let prop = HashMap::new();
-        // let itype = String::new();
-        // let desc = String::new();
-        // let iopts = HashMap::new();
         let i_temp = Item::default();
         // let i_temp = Item::new(Items::Null, itype, ' ', desc, iopts, false, Equip::Null, ItemEffect::Null, 0, 0, prop);
         let inv_opt = (
@@ -91,10 +82,6 @@ impl GUI {
             vec!["".to_string(); 3],
             vec!["".to_string(); 3],
         );
-        // let quests = vec![Quest::default()];
-        // let places = vec![Place::default()];
-        // let people = vec![Person::default()];
-        // let lore = vec![Lore::default()];
         let enc_opt = (
             vec![(EncOpt::Null, "".to_string()); 3],
             vec![(EncOpt::Null, "".to_string()); 3],
@@ -271,18 +258,6 @@ impl GUI {
         }
     }
 
-
-                // GuiArgs {
-                //     map.clone(),
-                //     player.clone(),
-                //     portals.clone(),
-                //     enemies.clone(),
-                //     items.clone(),
-                //     npcs.clone(),
-                //     litems,
-                //     env_inters.clone(),
-                // }
-
     pub fn draw(&mut self,
          debug: (String, String, String),
          gui_args: &mut GuiArgs
@@ -300,6 +275,11 @@ impl GUI {
             self.ani_updt = 0;
         }
         self.terminal.draw(|f| {
+            let entire_screen_block = Block::default()
+                .style(Style::default().bg(Color::Black))
+                .borders(Borders::NONE);
+            f.render_widget(entire_screen_block, f.area());
+
             let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(1)
@@ -311,6 +291,7 @@ impl GUI {
                 ].as_ref()
             )
             .split(f.area());
+
 
             let game_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -682,94 +663,128 @@ impl GUI {
 
                     //-----------
 
-                    match self.comp_head {
-                        (dx, dy) if dx > 0 && dx.abs() >= dy.abs() => {
-                            for y in 0..height {
-                                for x in 0..width {
-                                    if y < cen_y && (y + 1) as f32 >= slope * (width - (x + 1)) as f32 {
-                                        content.push('#');
-                                    } else if y >= cen_y && x > cen_x && (y + 0) as f32 <= slope * (x - 0) as f32 {
-                                        content.push('#');
-                                    } else {
-                                        content.push('.');
-                                    }
+                    
+                    let map = false;
+                    if map {
+                        for y in 0..height {
+                            for x in 0..width {
+                                if y % 5 == 0 && x % 4 == 0 {
+                                    content.push('#');
+                                } else {
+                                    content.push('.');
                                 }
-                                content.push('\n');
                             }
-                            let compass = Paragraph::new(Text::raw(content))
-                                .block(paragraph_block);
-                            f.render_widget(compass, upper_region);
-                        },
-                        (dx, dy) if dx < 0 && dx.abs() >= dy.abs() => {
-                            for y in 0..height {
-                                for x in 0..width {
-                                    if y <= cen_y && y as f32 >= slope * x as f32 {
-                                        content.push('#');
-                                    } else if y > cen_y && y as f32 <= slope * (width - x) as f32{
-                                        content.push('#');
-                                    } else {
-                                        content.push('.');
+                            content.push('\n');
+                        }
+                        let compass = Paragraph::new(Text::raw(content))
+                            .block(paragraph_block);
+                        f.render_widget(compass, upper_region);
+                    } else {
+                        match self.comp_head {
+                            (dx, dy) if dx > 0 && dx.abs() >= dy.abs() => {
+                                for y in 0..height {
+                                    for x in 0..width {
+                                        if y < cen_y && (y + 1) as f32 >= slope * (width - (x + 1)) as f32 {
+                                            content.push('#');
+                                        } else if y >= cen_y && x > cen_x && (y + 0) as f32 <= slope * (x - 0) as f32 {
+                                            content.push('#');
+                                        } else {
+                                            content.push('.');
+                                        }
                                     }
+                                    content.push('\n');
                                 }
-                                content.push('\n');
-                            }
-                            let compass = Paragraph::new(Text::raw(content))
-                                .block(paragraph_block);
-                            f.render_widget(compass, upper_region);
-                        },
-                        (dx, dy) if dy > 0 && dy.abs() >= dx.abs() => {
-                            for y in 0..height {
-                                for x in 0..width {
-                                    if x < cen_x && y >= cen_y - 1 && (y + 1) as f32 >= slope * (width - (x + 3)) as f32 {
-                                        content.push('#');
-                                    } else if x >= cen_x && y >= cen_y - 1 && y as f32 >= slope * (x - 2) as f32 {
-                                        content.push('#');
-                                    } else {
-                                        content.push('.');
+                                let compass = Paragraph::new(Text::raw(content))
+                                    .block(paragraph_block);
+                                f.render_widget(compass, upper_region);
+                            },
+                            (dx, dy) if dx < 0 && dx.abs() >= dy.abs() => {
+                                for y in 0..height {
+                                    for x in 0..width {
+                                        if y <= cen_y && y as f32 >= slope * x as f32 {
+                                            content.push('#');
+                                        } else if y > cen_y && y as f32 <= slope * (width - x) as f32{
+                                            content.push('#');
+                                        } else {
+                                            content.push('.');
+                                        }
                                     }
+                                    content.push('\n');
                                 }
-                                content.push('\n');
-                            }
-                            let compass = Paragraph::new(Text::raw(content))
-                                .block(paragraph_block);
-                            f.render_widget(compass, upper_region);
-                        },
-                        (dx, dy) if dy < 0 &&  dy.abs() >= dx.abs() => {
-                            for y in 0..height {
-                                for x in 0..width {
-                                    if x < cen_x && y < cen_y && y as f32 <= slope * x as f32 {
-                                        content.push('#');
-                                    } else if x >= cen_x && y < cen_y && (y + 0) as f32 <= slope * (width - (x + 1)) as f32 {
-                                        content.push('#');
-                                    } else {
-                                        content.push('.');
+                                let compass = Paragraph::new(Text::raw(content))
+                                    .block(paragraph_block);
+                                f.render_widget(compass, upper_region);
+                            },
+                            (dx, dy) if dy > 0 && dy.abs() >= dx.abs() => {
+                                for y in 0..height {
+                                    for x in 0..width {
+                                        if x < cen_x && y >= cen_y - 1 && (y + 1) as f32 >= slope * (width - (x + 3)) as f32 {
+                                            content.push('#');
+                                        } else if x >= cen_x && y >= cen_y - 1 && y as f32 >= slope * (x - 2) as f32 {
+                                            content.push('#');
+                                        } else {
+                                            content.push('.');
+                                        }
                                     }
+                                    content.push('\n');
                                 }
-                                content.push('\n');
-                            }
-                            let compass = Paragraph::new(Text::raw(content))
-                                .block(paragraph_block);
-                            f.render_widget(compass, upper_region);
-                        },
-                        (0, 0) => {
-                            for y in 0..height {
-                                for x in 0..width {
-                                    let dx = (cen_x as isize - x as isize).abs();
-                                    let dy = (cen_y as isize - y as isize).abs();
-                                    if dx + dy <= cen_x as isize {
-                                        content.push(symbol_char);
-                                    } else {
-                                        content.push('.');
+                                let compass = Paragraph::new(Text::raw(content))
+                                    .block(paragraph_block);
+                                f.render_widget(compass, upper_region);
+                            },
+                            (dx, dy) if dy < 0 &&  dy.abs() >= dx.abs() => {
+                                for y in 0..height {
+                                    for x in 0..width {
+                                        if x < cen_x && y < cen_y && y as f32 <= slope * x as f32 {
+                                            content.push('#');
+                                        } else if x >= cen_x && y < cen_y && (y + 0) as f32 <= slope * (width - (x + 1)) as f32 {
+                                            content.push('#');
+                                        } else {
+                                            content.push('.');
+                                        }
                                     }
+                                    content.push('\n');
                                 }
-                                content.push('\n');
-                            }
-                            let compass = Paragraph::new(Text::raw(content))
-                                .block(paragraph_block);
-                            f.render_widget(compass, upper_region);
-                        },
-                        _ => {},
+                                let compass = Paragraph::new(Text::raw(content))
+                                    .block(paragraph_block);
+                                f.render_widget(compass, upper_region);
+                            },
+                            (0, 0) => {
+                                for y in 0..height {
+                                    for x in 0..width {
+                                        let dx = (cen_x as isize - x as isize).abs();
+                                        let dy = (cen_y as isize - y as isize).abs();
+                                        if dx + dy <= cen_x as isize {
+                                            content.push(symbol_char);
+                                        } else {
+                                            content.push('.');
+                                        }
+                                    }
+                                    content.push('\n');
+                                }
+                                let compass = Paragraph::new(Text::raw(content))
+                                    .block(paragraph_block);
+                                f.render_widget(compass, upper_region);
+                            },
+                            _ => {},
+                        }
                     }
+                   
+                    let xy_block = Block::default()
+                        .borders(Borders::ALL)
+                        .style(Style::default().bg(Color::Black));
+                    let xy_area = Rect {
+                        x: upper_region.x + (upper_region.width / 3) * 2,
+                        y: upper_region.y,
+                        width: upper_region.width / 3,
+                        height: 3,
+                    };
+                    let xy_str = format!("target: ({}, {})", self.comp_head.0, self.comp_head.1);
+                    let xy_para = Paragraph::new(Text::raw(xy_str))
+                        .block(xy_block);
+                    f.render_widget(Clear, xy_area);
+                    f.render_widget(xy_para, xy_area);
+                    
 
                     let mut vec1 = vec!["".to_string(); 4];
                     let mut vec2 = vec!["".to_string(); 4];

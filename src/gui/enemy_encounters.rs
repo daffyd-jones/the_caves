@@ -26,6 +26,11 @@ impl GUI {
     ) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
+
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -41,7 +46,7 @@ impl GUI {
 
                 let game_chunks = Layout::default()
                     .direction(Direction::Horizontal)
-                    .constraints([Constraint::Percentage(60), Constraint::Percentage(40)].as_ref())
+                    .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
                     .split(chunks[1]);
 
                 let block = Block::default().title("Game").borders(Borders::ALL);
@@ -58,36 +63,46 @@ impl GUI {
                 }
 
                 let paragraph = draw_map(gui_args, self.ani_cnt);
-                // let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
                 f.render_widget(paragraph, inner_area);
 
-                //alksdjlfkj---
-
                 let chunks = Layout::default()
-                    .direction(Direction::Horizontal)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                    .direction(Direction::Vertical)
+                    .constraints(
+                        [
+                            Constraint::Percentage(70),
+                            Constraint::Percentage(10),
+                            Constraint::Percentage(20),
+                        ]
+                        .as_ref(),
+                    )
                     .split(game_chunks[1]);
 
-                let left_chunk = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                    .split(chunks[0]);
-
-                let right_chunk = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                    .split(chunks[1]);
-
                 //------
-                let enc_text_block = Block::default()
+
+                let mut ascii_str = Vec::new();
+                ascii_str.push(Span::styled(cntnt, Style::default().white()));
+                let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
+
+                let ascii = gui_args.ascii.unwrap();
+
+                for i in 0..(ascii.len() / 60) {
+                    let line = &ascii[i * 60..(i * 60 + 60)];
+                    let padded_line = format!("{}{}", padding, line);
+                    ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                }
+
+                let texts: Text = ascii_str.into_iter().collect();
+
+                let paragraph_block = Block::default()
                     .title("Encounter")
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
-                let paragraph = Paragraph::new(Span::styled(&cntnt, Style::default().white()))
-                    .block(enc_text_block)
-                    .wrap(ratatui::widgets::Wrap { trim: true });
 
-                f.render_widget(paragraph, left_chunk[0]);
+                let paragraph = Paragraph::new(texts)
+                    .block(paragraph_block)
+                    .wrap(ratatui::widgets::Wrap { trim: false });
+
+                f.render_widget(paragraph, chunks[0]);
 
                 //------
 
@@ -97,7 +112,6 @@ impl GUI {
                     .style(Style::default().bg(Color::Black));
 
                 let vec1 = opts;
-                // let vec1 = vec!["Ok".to_string(); 1];
                 let vec2 = vec!["".to_string(); 1];
 
                 let inter_opts = [vec1.clone(), vec2.clone()];
@@ -133,16 +147,7 @@ impl GUI {
                 )
                 .block(options_block);
 
-                f.render_widget(table, left_chunk[1]);
-
-                //-----
-
-                let entity_block = Block::default()
-                    .title("")
-                    .borders(Borders::ALL)
-                    .style(Style::default().bg(Color::Black));
-                let paragraph = Paragraph::new(Span::raw("entity design")).block(entity_block);
-                f.render_widget(paragraph, right_chunk[0]);
+                f.render_widget(table, chunks[1]);
 
                 //-----
 
@@ -187,9 +192,7 @@ impl GUI {
                 )
                 .block(stats_block);
 
-                // let paragraph = Paragraph::new(Span::raw("Item used"))
-                //     .block(stats_block);
-                f.render_widget(table, right_chunk[1]);
+                f.render_widget(table, chunks[2]);
             })
             .unwrap();
     }
@@ -197,6 +200,10 @@ impl GUI {
     pub fn encounter_auto_content(&mut self, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -212,7 +219,7 @@ impl GUI {
 
                 let game_chunks = Layout::default()
                     .direction(Direction::Horizontal)
-                    .constraints([Constraint::Percentage(60), Constraint::Percentage(40)].as_ref())
+                    .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
                     .split(chunks[1]);
 
                 let block = Block::default().title("Game").borders(Borders::ALL);
@@ -235,30 +242,40 @@ impl GUI {
                 //alksdjlfkj---
 
                 let chunks = Layout::default()
-                    .direction(Direction::Horizontal)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                    .direction(Direction::Vertical)
+                    .constraints(
+                        [
+                            Constraint::Percentage(70),
+                            Constraint::Percentage(10),
+                            Constraint::Percentage(20),
+                        ]
+                        .as_ref(),
+                    )
                     .split(game_chunks[1]);
 
-                let left_chunk = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                    .split(chunks[0]);
-
-                let right_chunk = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                    .split(chunks[1]);
-
                 //------
-                let enc_text_block = Block::default()
+                let mut ascii_str = Vec::new();
+                let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
+
+                let ascii = gui_args.ascii.unwrap();
+
+                for i in 0..(ascii.len() / 60) {
+                    let line = &ascii[i * 60..(i * 60 + 60)];
+                    let padded_line = format!("{}{}", padding, line);
+                    ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                }
+
+                let texts: Text = ascii_str.into_iter().collect();
+
+                let paragraph_block = Block::default()
                     .title("Encounter")
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
-                let paragraph = Paragraph::new(Span::styled("AAAAA", Style::default().white()))
-                    .block(enc_text_block)
-                    .wrap(ratatui::widgets::Wrap { trim: true });
+                let paragraph = Paragraph::new(texts)
+                    .block(paragraph_block)
+                    .wrap(ratatui::widgets::Wrap { trim: false });
 
-                f.render_widget(paragraph, left_chunk[0]);
+                f.render_widget(paragraph, chunks[0]);
 
                 //------
 
@@ -299,16 +316,16 @@ impl GUI {
                 )
                 .block(options_block);
 
-                f.render_widget(table, left_chunk[1]);
+                f.render_widget(table, chunks[1]);
 
                 //-----
 
-                let entity_block = Block::default()
-                    .title("")
-                    .borders(Borders::ALL)
-                    .style(Style::default().bg(Color::Black));
-                let paragraph = Paragraph::new(Span::raw("entity design")).block(entity_block);
-                f.render_widget(paragraph, right_chunk[0]);
+                // let entity_block = Block::default()
+                //     .title("")
+                //     .borders(Borders::ALL)
+                //     .style(Style::default().bg(Color::Black));
+                // let paragraph = Paragraph::new(Span::raw("entity design")).block(entity_block);
+                // f.render_widget(paragraph, right_chunk[0]);
 
                 //-----
 
@@ -355,7 +372,7 @@ impl GUI {
 
                 // let paragraph = Paragraph::new(Span::raw("Item used"))
                 //     .block(stats_block);
-                f.render_widget(table, right_chunk[1]);
+                f.render_widget(table, chunks[2]);
             })
             .unwrap();
     }
@@ -367,6 +384,10 @@ impl GUI {
     ) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -382,7 +403,7 @@ impl GUI {
 
                 let game_chunks = Layout::default()
                     .direction(Direction::Horizontal)
-                    .constraints([Constraint::Percentage(60), Constraint::Percentage(40)].as_ref())
+                    .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
                     .split(chunks[1]);
 
                 let block = Block::default().title("Game").borders(Borders::ALL);
@@ -398,36 +419,46 @@ impl GUI {
                     self.viewport_dim = (in_w, in_h);
                 }
                 let paragraph = draw_map(gui_args, self.ani_cnt);
-                // let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
                 f.render_widget(paragraph, inner_area);
 
                 let chunks = Layout::default()
-                    .direction(Direction::Horizontal)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                    .direction(Direction::Vertical)
+                    .constraints(
+                        [
+                            Constraint::Percentage(70),
+                            Constraint::Percentage(10),
+                            Constraint::Percentage(20),
+                        ]
+                        .as_ref(),
+                    )
                     .split(game_chunks[1]);
 
-                let left_chunk = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                    .split(chunks[0]);
-
-                let right_chunk = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                    .split(chunks[1]);
-
                 //------
-                let enc_text_block = Block::default()
+
+                let mut ascii_str = Vec::new();
+                ascii_str.push(Span::styled(
+                    "What would you like to do?",
+                    Style::default().white(),
+                ));
+                let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
+
+                let ascii = gui_args.ascii.unwrap();
+
+                for i in 0..(ascii.len() / 60) {
+                    let line = &ascii[i * 60..(i * 60 + 60)];
+                    let padded_line = format!("{}{}", padding, line);
+                    ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                }
+
+                let texts: Text = ascii_str.into_iter().collect();
+
+                let paragraph_block = Block::default()
                     .title("Encounter")
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
-                let paragraph = Paragraph::new(Span::styled(
-                    "What would you like to do?",
-                    Style::default().white(),
-                ))
-                .block(enc_text_block);
+                let paragraph = Paragraph::new(texts).block(paragraph_block);
 
-                f.render_widget(paragraph, left_chunk[0]);
+                f.render_widget(paragraph, chunks[0]);
 
                 //------
 
@@ -451,10 +482,6 @@ impl GUI {
                 let enc_opts = [vec1.clone(), vec2.clone()];
                 self.enc_opt = (vec1, vec2);
 
-                // let mut vec1 = vec!["Ok".to_string(); 1];
-                // let mut vec2 = vec!["".to_string(); 1];
-
-                // let enc_opts = vec![vec1.clone(), vec2.clone()];
                 let rows: Vec<Row> = enc_opts
                     .iter()
                     .enumerate()
@@ -487,16 +514,7 @@ impl GUI {
                 )
                 .block(options_block);
 
-                f.render_widget(table, left_chunk[1]);
-
-                //-----
-
-                let entity_block = Block::default()
-                    .title("")
-                    .borders(Borders::ALL)
-                    .style(Style::default().bg(Color::Black));
-                let paragraph = Paragraph::new(Span::raw("Enemy thing.")).block(entity_block);
-                f.render_widget(paragraph, right_chunk[0]);
+                f.render_widget(table, chunks[1]);
 
                 //-----
 
@@ -541,9 +559,7 @@ impl GUI {
                 )
                 .block(stats_block);
 
-                // let paragraph = Paragraph::new(Span::raw("Item used"))
-                //     .block(stats_block);
-                f.render_widget(table, right_chunk[1]);
+                f.render_widget(table, chunks[2]);
             })
             .unwrap();
     }
@@ -551,6 +567,10 @@ impl GUI {
     pub fn encounter_pick_item(&mut self, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
                     .margin(1)
@@ -586,30 +606,27 @@ impl GUI {
                 f.render_widget(paragraph, inner_area);
 
                 let chunks = Layout::default()
-                    .direction(Direction::Horizontal)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+                    .direction(Direction::Vertical)
+                    .constraints(
+                        [
+                            Constraint::Percentage(10),
+                            Constraint::Percentage(70),
+                            Constraint::Percentage(20),
+                        ]
+                        .as_ref(),
+                    )
                     .split(game_chunks[1]);
 
-                let left_chunk = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                    .split(chunks[0]);
-
-                let right_chunk = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-                    .split(chunks[1]);
-
                 //------
-                let enc_text_block = Block::default()
+                let paragraph_block = Block::default()
                     .title("Encounter")
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
                 let paragraph =
                     Paragraph::new(Span::styled("What item to use?", Style::default().white()))
-                        .block(enc_text_block);
+                        .block(paragraph_block);
 
-                f.render_widget(paragraph, left_chunk[0]);
+                f.render_widget(paragraph, chunks[0]);
 
                 //------
 
@@ -702,16 +719,7 @@ impl GUI {
                 )
                 .block(options_block);
 
-                f.render_widget(table, left_chunk[1]);
-
-                //-----
-
-                let entity_block = Block::default()
-                    .title("")
-                    .borders(Borders::ALL)
-                    .style(Style::default().bg(Color::Black));
-                let paragraph = Paragraph::new(Span::raw("Enemy thing.")).block(entity_block);
-                f.render_widget(paragraph, right_chunk[0]);
+                f.render_widget(table, chunks[1]);
 
                 //-----
 
@@ -755,7 +763,7 @@ impl GUI {
                     &[Constraint::Percentage(50), Constraint::Percentage(50)],
                 )
                 .block(stats_block);
-                f.render_widget(table, right_chunk[1]);
+                f.render_widget(table, chunks[2]);
             })
             .unwrap();
     }

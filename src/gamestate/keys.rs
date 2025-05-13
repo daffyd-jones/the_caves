@@ -209,10 +209,6 @@ impl GameState {
                         let opt = self.gui.get_enc_opt();
                         self.enc = opt.0;
                         self.enc_option();
-                        // match opt.0 {
-                        //     _ => ,
-                        //     // _ => {},
-                        // }
                     }
                     GameMode::Fight(FightSteps::Message) => {}
                     _ => {}
