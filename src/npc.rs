@@ -711,3 +711,74 @@ impl TradeNPC {
         self.sh_conv.clone()
     }
 }
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct TaskNPC {
+    base: BaseNPC,
+    reward: Item,
+    convo: Convo,
+    comms: Vec<String>,
+}
+
+impl NPC for TaskNPC {
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
+
+    fn get_ntype(&mut self) -> NPCs {
+        self.base.ntype
+    }
+
+    fn get_sname(&mut self) -> String {
+        self.base.sname.clone()
+    }
+
+    fn get_pos(&mut self) -> (usize, usize) {
+        (self.base.x, self.base.y)
+    }
+
+    fn set_pos(&mut self, pos: (usize, usize)) {
+        self.base.x = pos.0;
+        self.base.y = pos.1;
+    }
+
+    fn set_steps(&mut self, steps: u8) {
+        self.base.steps = steps;
+    }
+
+    fn get_steps(&mut self) -> u8 {
+        self.base.steps
+    }
+
+    fn inc_steps(&mut self) {
+        self.base.steps += 1;
+    }
+
+    fn get_step_grp(&mut self) -> u8 {
+        self.base.step_grp
+    }
+
+    fn mmove(&mut self, dir: &str) {
+        match dir {
+            "UP" => self.base.y -= 1,
+            "DN" => self.base.y += 1,
+            "LF" => self.base.x -= 1,
+            "RT" => self.base.x += 1,
+            _ => println!(""),
+        }
+    }
+}
+
+impl TaskNPC {
+    pub fn get_reward(&mut self) -> Item {
+        self.reward.clone()
+    }
+
+    pub fn get_convo(&mut self) -> Convo {
+        self.convo.clone()
+    }
+
+    pub fn get_comms(&mut self) -> Vec<String> {
+        self.comms.clone()
+    }
+}
