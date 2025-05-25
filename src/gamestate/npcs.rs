@@ -150,8 +150,7 @@ impl GameState {
                         let rnd_comms = {
                             let mut tvec = Vec::new();
                             for _ in 0..4 {
-                                let tidx = rng.gen_range(0..self.npc_comms.len());
-                                tvec.push(self.npc_comms[tidx].clone());
+                                tvec.push(self.dialogue.get_cave_comm().clone());
                             }
                             tvec
                         };
@@ -166,7 +165,7 @@ impl GameState {
                         let conv: Convo = self
                             .npc_convos
                             .choose(&mut rng)
-                            .unwrap_or(&self.npc_convos[0].clone())
+                            .unwrap_or(self.dialogue.get_cave_convo())
                             .clone();
                         let name = self
                             .npc_names

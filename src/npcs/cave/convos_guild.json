@@ -1,0 +1,38 @@
+[
+  {
+    "id": "guild1",
+    "0": {
+      "text": "The guild has been doing work on the caves. I guess they are trying to repair the maze?",
+      "opts": [
+        { "text": "Maze? The caves are a maze?", "next": "1" },
+        { "text": "Is it working?", "next": "2" },
+        { "text": "Ya ive seen them doing work.", "next": "3" }
+      ]
+    },
+    "1": {
+      "text": "Ya can't you tell? The maze used to protect the Obsidian City. I guess the guild hopes they can controll the maze once they fix it.",
+      "opts": [
+        { "text": "I guess I see it now. I'd imagine its easier to get around when it's broken.", "next": "4" },
+        { "text": "I hope they can control it if they do. It's hard enough to get around as is.", "next": "2" }
+      ]
+    },
+    "2": {
+      "text": "Ya I know, I got lost for a whole two days last week.",
+      "opts": [
+        { "text": "That sucks, cya around.", "next": "e" }
+      ]
+    },
+    "3": {
+      "text": "Ya, I wonder how long it will take.",
+      "opts": [
+        { "text": "I dunno.", "next": "e" }
+      ]
+    },
+    "4": {
+      "text": "Ya the caves can be alot, you get used to it I guess.",
+      "opts": [
+        { "text": "Ya.", "next": "e" }
+      ]
+    }
+  }
+]

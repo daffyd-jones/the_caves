@@ -1,4 +1,5 @@
 //gamestate
+use crate::dialogue::Dialogue;
 use crate::enemy::Enemy;
 use crate::enums::{
     Cells, CompMode, EncMode, EncOpt, Enemies, EnvInter, FightSteps, GameMode, Interactable, Items,
@@ -17,7 +18,6 @@ use crate::puzzles::Puzzles;
 use crate::settlements::Settlements;
 use crate::stats::Stats;
 use crate::utils::{gen_broken_range, in_range, loc_shop_items};
-// use crate::dialogue::Dialogue;
 
 mod compass_state;
 mod enemies;
@@ -74,6 +74,7 @@ pub struct GameState {
     enemy_asciis: HashMap<String, String>,
     npc_names: Vec<String>,
     npc_asciis: Vec<String>,
+    dialogue: Dialogue,
     npc_comms: Vec<String>,
     npc_convos: Vec<Convo>,
     npc_spconvos: HashMap<String, Vec<Convo>>,
@@ -277,6 +278,7 @@ impl GameState {
             enemy_asciis,
             npc_names,
             npc_asciis,
+            dialogue: Dialogue::new(),
             npc_comms,
             npc_convos,
             npc_spconvos,
@@ -444,207 +446,6 @@ impl GameState {
             }
         }
     }
-
-    // fn check_place_item(&mut self, x: usize, y: usize) -> bool {
-    //     let mut rng = rand::thread_rng();
-    //     let types = [
-    //         Items::Rock,
-    //         Items::EdibleRoot,
-    //         Items::Apple,
-    //         Items::MetalScrap,
-    //         Items::Plants(Plants::LuminousMushroom),
-    //         Items::Plants(Plants::LichenousGrowth),
-    //         Items::Plants(Plants::LampenPetals),
-    //         Items::Plants(Plants::LuckyClover),
-    //         Items::Plants(Plants::Shroom),
-    //     ];
-    //     if self.map.cells[y][x] == Cells::Empty
-    //         && !self.in_loc_check((x, y))
-    //         && !self.enemies.contains_key(&(x, y))
-    //         && !self.items.contains_key(&(x, y))
-    //     {
-    //         if let Some(i_type) = types.choose(&mut rng) {
-    //             match i_type {
-    //                 Items::EdibleRoot => {
-    //                     self.items.insert((x, y), Item::new_edible_root(x, y));
-    //                 }
-    //                 Items::Apple => {
-    //                     self.items.insert((x, y), Item::new_apple(x, y));
-    //                 }
-    //                 Items::MetalScrap => {
-    //                     self.items.insert((x, y), Item::new_metal_scrap(x, y));
-    //                 }
-    //                 Items::Rock => {
-    //                     self.items.insert((x, y), Item::new_rock(x, y));
-    //                 }
-    //                 Items::Plants(Plants::LuminousMushroom) => {
-    //                     self.items.insert((x, y), Item::new_luminous_mushroom(x, y));
-    //                 }
-    //                 Items::Plants(Plants::LichenousGrowth) => {
-    //                     self.items.insert((x, y), Item::new_lichenous_growth(x, y));
-    //                 }
-    //                 Items::Plants(Plants::LampenPetals) => {
-    //                     self.items
-    //                         .insert((x, y), Item::new_lampen_flower_petals(x, y));
-    //                 }
-    //                 Items::Plants(Plants::LuckyClover) => {
-    //                     self.items.insert((x, y), Item::new_lucky_clover(x, y));
-    //                 }
-    //                 Items::Plants(Plants::Shroom) => {
-    //                     self.items.insert((x, y), Item::new_shroom(x, y));
-    //                 }
-    //                 _ => todo!(),
-    //             };
-    //             return true;
-    //         }
-    //     }
-    //     false
-    // }
-
-    // fn repop_items(&mut self) {
-    //     let mut rng = rand::thread_rng();
-    //     let (vx, vy, vw, vh) = self.map.get_viewport();
-    //     //xx
-    //     match (-self.map.gen_x, -self.map.gen_y) {
-    //         (x, y) if x < 0 && y == 0 => {
-    //             for _ in 0..30 {
-    //                 loop {
-    //                     let x = rng.gen_range(10..vx - 5);
-    //                     let y = rng.gen_range(10..MAP_H - 10);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         (x, y) if x > 0 && y == 0 => {
-    //             for _ in 0..30 {
-    //                 loop {
-    //                     let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
-    //                     let y = rng.gen_range(10..MAP_H - 10);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         (x, y) if y < 0 && x == 0 => {
-    //             for _ in 0..30 {
-    //                 loop {
-    //                     let x = rng.gen_range(10..MAP_W - 10);
-    //                     let y = rng.gen_range(10..vy - 5);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         (x, y) if y > 0 && x == 0 => {
-    //             for _ in 0..30 {
-    //                 loop {
-    //                     let x = rng.gen_range(10..MAP_W - 10);
-    //                     let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //         } // asdf
-    //         (x, y) if x > 0 && y > 0 => {
-    //             for _ in 0..15 {
-    //                 loop {
-    //                     let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
-    //                     let y = rng.gen_range(10..MAP_H - 10);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //             for _ in 0..15 {
-    //                 loop {
-    //                     let x = rng.gen_range(10..MAP_W - 10);
-    //                     let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         (x, y) if x > 0 && y < 0 => {
-    //             for _ in 0..15 {
-    //                 loop {
-    //                     let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
-    //                     let y = rng.gen_range(10..MAP_H - 10);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //             for _ in 0..15 {
-    //                 loop {
-    //                     let x = rng.gen_range(10..MAP_W - 10);
-    //                     let y = rng.gen_range(10..vy - 5);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         (x, y) if x < 0 && y > 0 => {
-    //             for _ in 0..15 {
-    //                 loop {
-    //                     let x = rng.gen_range(10..vx - 5);
-    //                     let y = rng.gen_range(10..MAP_H - 10);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //             for _ in 0..15 {
-    //                 loop {
-    //                     let x = rng.gen_range(10..MAP_W - 10);
-    //                     let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         (x, y) if x < 0 && y < 0 => {
-    //             for _ in 0..15 {
-    //                 loop {
-    //                     let x = rng.gen_range(10..vx - 5);
-    //                     let y = rng.gen_range(10..MAP_H - 10);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //             for _ in 0..15 {
-    //                 loop {
-    //                     let x = rng.gen_range(10..MAP_W - 10);
-    //                     let y = rng.gen_range(10..vy - 5);
-    //                     let res = self.check_place_item(x, y);
-    //                     if res {
-    //                         break;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         _ => {}
-    //     }
-    // }
 
     pub fn start_update_threads(game_state: Arc<Mutex<Self>>) {
         // let game_state = Arc::new(Mutex::new(self));

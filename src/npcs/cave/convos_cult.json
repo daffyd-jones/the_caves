@@ -1,0 +1,38 @@
+[
+  {
+    "id": "cultists",
+    "0": {
+      "text": "Have you heard about the cultists that live in the caves?",
+      "opts": [
+        { "text": "No I havent!", "next": "1" },
+        { "text": "Ya, they're freaky!", "next": "2" },
+        { "text": "Ya, they seem interesting.", "next": "3" }
+      ]
+    },
+    "1": {
+      "text": "You havent!? They are people who came down here and became obsessed with the caves. They worship them and have churches and everything!! I dont know about you but it kinda freaks me out.",
+      "opts": [
+        { "text": "What?! Thats crazy! Not my kind of thing, I'll keep an eye out for trouble.", "next": "4" },
+        { "text": "Oh really? Thats kinda interesting. I might go and check it out!", "next": "3" }
+      ]
+    },
+    "2": {
+      "text": "I know! I hope none of them give me any trouble.",
+      "opts": [
+        { "text": "Ya me too!", "next": "e" }
+      ]
+    },
+    "3": {
+      "text": "Really?! I mean you do you, but keep me out of it.",
+      "opts": [
+        { "text": "ok", "next": "e" }
+      ]
+    },
+    "4": {
+      "text": "See that you do.",
+      "opts": [
+        { "text": "ok", "next": "e" }
+      ]
+    }
+  }
+]

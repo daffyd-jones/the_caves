@@ -1,6 +1,6 @@
 //stats
 
-use crate::enums::{ExpType, Month, ToggleState};
+use crate::enums::{ExpType, Month, NPCIntros, Plants, PlayerTraits, ToggleState};
 use rand::Rng;
 use std::collections::HashMap;
 
@@ -140,11 +140,28 @@ pub struct Stats {
     pub player_xp: Experience,
 }
 
+fn build_state_toggle() -> HashMap<ToggleState, bool> {
+    HashMap::from([
+        (ToggleState::PlayerTraits(PlayerTraits::Poisoned), false),
+        (ToggleState::PlayerTraits(PlayerTraits::Agility), false),
+        (ToggleState::PlayerTraits(PlayerTraits::Vitality), false),
+        (ToggleState::PlayerTraits(PlayerTraits::Invisible), false),
+        (ToggleState::NPCIntros(NPCIntros::Herbalist), false),
+        (ToggleState::Plants(Plants::Moss), false),
+        (ToggleState::Plants(Plants::LuminousMushroom), false),
+        (ToggleState::Plants(Plants::LichenousGrowth), false),
+        (ToggleState::Plants(Plants::VineBulb), false),
+        (ToggleState::Plants(Plants::LampenPetals), false),
+        (ToggleState::Plants(Plants::LuckyClover), false),
+        (ToggleState::Plants(Plants::Shroom), false),
+    ])
+}
+
 impl Stats {
     pub fn new() -> Self {
         Self {
             world_stats: WorldStats::new(),
-            state_toggle: HashMap::new(),
+            state_toggle: build_state_toggle(),
             player_stats: PlayerStats::new(),
             player_xp: Experience::new(),
         }
