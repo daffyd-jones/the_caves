@@ -333,6 +333,47 @@ impl GameState {
         true
     }
 
+    fn herbalist(&mut self) -> bool {
+        self.gui.reset_cursor();
+        loop {
+            self.gui.herbalist_draw(
+                "Hey there! what can I help you with?#What do you sell here?#Can you idenitfy some plants for me?".to_string(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                    ascii: None,
+                },
+            );
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Enter => {
+                                let cur = self.gui.get_cursor();
+
+                                break;
+                            }
+                            _ => {
+                                let _ = self.key(event.code);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        true
+    }
+
     pub fn env_interaction(&mut self, env_inter: EnvInter) -> bool {
         match env_inter {
             EnvInter::Records => self.save_game(),
@@ -340,6 +381,7 @@ impl GameState {
             EnvInter::GuildPost => self.guild_post(),
             EnvInter::ChurchPost => self.church_post(),
             EnvInter::Cauldron => self.cauldron(),
+            EnvInter::Herbalist => self.herbalist(),
             _ => todo!(),
         }
     }

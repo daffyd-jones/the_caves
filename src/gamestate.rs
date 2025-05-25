@@ -17,6 +17,7 @@ use crate::puzzles::Puzzles;
 use crate::settlements::Settlements;
 use crate::stats::Stats;
 use crate::utils::{gen_broken_range, in_range, loc_shop_items};
+// use crate::dialogue::Dialogue;
 
 mod compass_state;
 mod enemies;
@@ -75,7 +76,7 @@ pub struct GameState {
     npc_asciis: Vec<String>,
     npc_comms: Vec<String>,
     npc_convos: Vec<Convo>,
-    npc_spconvos: Vec<Convo>,
+    npc_spconvos: HashMap<String, Vec<Convo>>,
     npc_spcomms: Vec<String>,
     npc_trade: Vec<HashMap<String, String>>,
     key_debounce_dur: Duration,
@@ -176,11 +177,11 @@ impl GameState {
         };
         let data4 = fs::read_to_string("src/npcs/npc_spawn_convos.json");
         //log::info!("{:?}", &data3);
-        let npc_spconvos: Vec<Convo> = match data4 {
+        let npc_spconvos: HashMap<String, Vec<Convo>> = match data4 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
                 log::info!("{:?}", e);
-                Vec::new()
+                HashMap::new()
             }
         };
         let data5 = fs::read_to_string("src/npcs/npc_spawn_comms.json");

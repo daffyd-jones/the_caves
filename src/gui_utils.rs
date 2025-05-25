@@ -176,14 +176,14 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                 } else if let Some(enemy) = gui_args.enemies.get(&(ix, jy)) {
                     match enemy.etype {
                         Enemies::Bug => ('Ѫ', Color::Red),
-                        Enemies::Goblin => ('ớ', Color::Red),
-                        Enemies::CrazedExplorer => ('ḯ', Color::Red),
-                        Enemies::Slime => ('ǚ', Color::Red),
-                        Enemies::Golem => ('Ṏ', Color::Red),
-                        Enemies::Snake => ('ʑ', Color::Red),
                         Enemies::Spider => ('ẅ', Color::Red),
-                        Enemies::Bandit => ('Ồ', Color::Red),
+                        Enemies::Snake => ('ʑ', Color::Red),
+                        Enemies::Slime => ('ǚ', Color::Red),
+                        Enemies::Bandit => ('ḯ', Color::Red),
+                        Enemies::CrazedExplorer => ('ĩ', Color::Red),
+                        Enemies::Goblin => ('ớ', Color::Red),
                         Enemies::Ghoul => ('ή', Color::Red),
+                        Enemies::Golem => ('Ṏ', Color::Red),
                         _ => todo!(),
                     }
                 } else if gui_args.portals.unwrap().contains_key(&(ix, jy)) {
@@ -216,6 +216,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::GuildPost => ('─', Color::Green),
                         EnvInter::ChurchPost => ('─', Color::Green),
                         EnvInter::Cauldron => ('℧', Color::Green),
+                        EnvInter::Herbalist => ('ì', Color::Yellow),
                         _ => todo!(),
                     }
                 } else {
@@ -300,9 +301,11 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Arch => ('Π', Color::Red),
                         Cells::Bricks => ('ʭ', Color::Red),
                         Cells::Crops => ('ʬ', Color::Yellow),
-                        Cells::SmallCampfire => ('ѧ', Color::Gray),
-                        Cells::Campfire => ('Ѧ', Color::Red),
-                        Cells::Table => ('π', Color::Red),
+                        Cells::SmallCampfire => ('ѧ', Color::LightRed),
+                        Cells::Campfire => ('Ѧ', Color::LightRed),
+                        Cells::Table => ('π', Color::DarkGray),
+                        Cells::Jar => ('ṑ', Color::DarkGray),
+                        Cells::Chair => ('⑁', Color::DarkGray),
                         Cells::Firewood => ('ж', Color::Red),
                         Cells::Tent => ('Ʌ', Color::Gray),
                         Cells::LBrce => {

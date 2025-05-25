@@ -130,10 +130,10 @@ impl GameState {
         }
         npc.toggle_spawned();
         let spwn_conv = npc.get_conv();
-        let ptype = npc.get_ptype();
+        // let ptype = npc.get_ptype();
         let name = npc.get_sname();
-        let pos = self.dist_fo;
-        self.puzzles.spawn_new_puzzle(pos, ptype.clone());
+        // let pos = self.dist_fo;
+        // self.puzzles.spawn_new_puzzle(pos, ptype.clone());
         self.conv_step(spwn_conv, "0".to_string(), name, Vec::new())
     }
 

@@ -12,9 +12,11 @@ pub enum Cells {
     Grass1,
     Grass2,
     Grass3,
+    TallGrass,
     Dirt1,
     Dirt2,
     Dirt3,
+    Moss,
     Rock,
     Wall,
     Wall2,
@@ -92,8 +94,10 @@ pub enum Cells {
     SmallCampfire,
     Campfire,
     Table,
+    Chair,
     Firewood,
     Tent,
+    Jar,
     NPCM,
     LBrce,
     RBrce,
@@ -107,6 +111,7 @@ pub enum Cells {
     Clinic,
     GPost,
     CPost,
+    Herbalist,
     Null,
 }
 
@@ -368,6 +373,7 @@ pub enum EnvInter {
     Cauldron,
     LockedDoor,
     Door,
+    Herbalist,
     Null,
 }
 
@@ -449,4 +455,9 @@ pub enum PuzzleType {
     Maze,
     Teleport,
     Inverted,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum DialogueTypes {
+    None,
 }

@@ -228,6 +228,93 @@ impl GUI {
         }).unwrap();
     }
 
+    pub fn herbalist_draw(&mut self, herbalist_msg: String, gui_args: &mut GuiArgs) {
+        self.terminal.draw(|f| {
+            let entire_screen_block = Block::default()
+                .style(Style::default().bg(Color::Black))
+                .borders(Borders::NONE);
+            f.render_widget(entire_screen_block, f.area());
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(gui_args, self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+
+            let paragraph_block = Block::default()
+                .title("Cauldron")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("Save")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+            let save_text = Paragraph::new(Span::styled(herbalist_msg, Style::default().white()))
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+
+            let opts = [[""]];
+            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
+                    if j == self.cursor_pos.1 && i == self.cursor_pos.0 {
+                        Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                    } else {
+                        Cell::from(*cell)
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(100), Constraint::Percentage(100), Constraint::Percentage(100)])
+                .block(table_block);
+            f.render_widget(table, normal_info[1]);
+            f.render_widget(save_text, normal_info[0]);
+        }).unwrap();
+    }
+
     pub fn clinic_draw(&mut self, gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
             let entire_screen_block = Block::default()

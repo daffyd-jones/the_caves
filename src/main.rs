@@ -1,3 +1,4 @@
+mod dialogue;
 mod enemy;
 mod enums;
 mod features;

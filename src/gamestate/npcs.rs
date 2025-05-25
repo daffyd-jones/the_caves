@@ -1,7 +1,8 @@
 use crate::enums::{Cells, NPCWrap, NPCs, PuzzleType};
 use crate::gamestate::GameState;
 use crate::map::{MAP_H, MAP_W};
-use crate::npc::{new_comm_npc, new_conv_npc, new_spawn_npc, new_trade_npc, Convo};
+use crate::npc::{new_comm_npc, new_conv_npc, new_spawn_npc, new_trade_npc, ConOpt, Convo, Stage};
+use crate::puzzle::Puzzle;
 
 use crate::npc_utils::box_npc;
 use crate::npc_utils::npc_move;
@@ -71,14 +72,69 @@ impl GameState {
         self.npcs = new_n;
     }
 
+    fn build_maze_npc(&self, mut puzzle: (i64, Puzzle)) -> (String, Convo, Vec<String>) {
+        let mut rng = rand::thread_rng();
+        let name = self
+            .npc_names
+            .choose(&mut rng)
+            .unwrap_or(&"Kevthony".to_string())
+            .clone();
+        let rnd_comms = {
+            let mut tvec = Vec::new();
+            for _ in 0..4 {
+                let tidx = rng.gen_range(0..self.npc_spcomms.len());
+                tvec.push(self.npc_spcomms[tidx].clone());
+            }
+            tvec
+        };
+        let convos = self.npc_spconvos.get("maze").unwrap();
+        let mut conv: Convo = convos
+            .choose(&mut rng)
+            .unwrap_or(&convos[0].clone())
+            .clone();
+        let ppos = puzzle.1.get_pos();
+        let dx = ppos.0 - -self.dist_fo.0;
+        let dy = ppos.1 - -self.dist_fo.1;
+        let dir = match (dx, dy) {
+            (x, y) if x < 0 && y < 0 => "North West",
+            (x, y) if x < 0 && y > 0 => "South West",
+            (x, y) if x > 0 && y < 0 => "North East",
+            (x, y) if x > 0 && y > 0 => "South East",
+            (x, y) if x < 0 && y == 0 => "West",
+            (x, y) if x > 0 && y == 0 => "East",
+            (x, y) if x == 0 && y < 0 => "North",
+            (x, y) if x == 0 && y > 0 => "South",
+            _ => "",
+        };
+        let dis = puzzle.0;
+        let text = format!("It was about {dis} paces {dir}");
+
+        let stage = Stage {
+            text,
+            opts: vec![
+                ConOpt {
+                    text: "Thank's Ill look for it. Good luck!".to_string(),
+                    next: "e".to_string(),
+                },
+                ConOpt {
+                    text: "What did it look like?".to_string(),
+                    next: "desc".to_string(),
+                },
+            ],
+        };
+        conv.stages.insert("where".to_string(), stage);
+
+        (name, conv, rnd_comms)
+    }
+
     pub fn check_place_npcs(&mut self, x: usize, y: usize) -> bool {
         let mut rng = rand::thread_rng();
         let types = {
             let rnd = rng.gen_range(0..30);
             if rnd == 0 {
-                vec![NPCs::CommNPC, NPCs::ConvNPC]
+                vec![NPCs::CommNPC, NPCs::ConvNPC, NPCs::SpawnNPC]
             } else {
-                vec![NPCs::CommNPC, NPCs::ConvNPC, NPCs::TradeNPC]
+                vec![NPCs::CommNPC, NPCs::ConvNPC, NPCs::TradeNPC, NPCs::SpawnNPC]
             }
         };
         if self.map.cells[y][x] == Cells::Empty
@@ -120,39 +176,15 @@ impl GameState {
                         NPCWrap::ConvNPC(new_conv_npc(name.to_string(), x, y, conv))
                     }
                     NPCs::SpawnNPC => {
-                        let rnd_comms = {
-                            let mut tvec = Vec::new();
-                            for _ in 0..4 {
-                                let tidx = rng.gen_range(0..self.npc_spcomms.len());
-                                tvec.push(self.npc_spcomms[tidx].clone());
-                            }
-                            tvec
-                        };
-                        let conv: Convo = self
-                            .npc_spconvos
-                            .choose(&mut rng)
-                            .unwrap_or(&self.npc_spconvos[0].clone())
-                            .clone();
-                        let pt_str = conv.id.clone();
-                        let ptype = match pt_str {
-                            pt if pt.contains("maze") => PuzzleType::Maze,
-                            pt if pt.contains("teleport") => PuzzleType::Teleport,
-                            pt if pt.contains("inverted") => PuzzleType::Inverted,
+                        let mut puzzle = self.puzzles.nearest_puzzle(self.dist_fo);
+                        let ptype = puzzle.1.get_ptype();
+                        let parts = match ptype {
+                            PuzzleType::Maze => self.build_maze_npc(puzzle),
+                            // PuzzleType::Teleport => self.build_teleport_npc(puzzle),
+                            // PuzzleType::Inverted => self.build_inverted_npc(puzzle),
                             _ => todo!(),
                         };
-                        let name = self
-                            .npc_names
-                            .choose(&mut rng)
-                            .unwrap_or(&def_name.clone())
-                            .clone();
-                        NPCWrap::SpawnNPC(new_spawn_npc(
-                            name.to_string(),
-                            x,
-                            y,
-                            conv,
-                            rnd_comms,
-                            ptype,
-                        ))
+                        NPCWrap::SpawnNPC(new_spawn_npc(parts.0, x, y, parts.1, parts.2, ptype))
                     }
                     NPCs::TradeNPC => {
                         let name = self

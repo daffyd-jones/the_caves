@@ -401,11 +401,14 @@ impl GameState {
         let asciis = self.enemy_asciis.clone();
         let ascii = match e.etype {
             Enemies::Spider => asciis.get("spider"),
+            Enemies::Bug => asciis.get("bug"),
             Enemies::Snake => asciis.get("snake"),
             Enemies::Slime => asciis.get("slime"),
             Enemies::Bandit => asciis.get("bandit"),
+            Enemies::CrazedExplorer => asciis.get("explorer"),
             Enemies::Goblin => asciis.get("goblin"),
             Enemies::Ghoul => asciis.get("ghoul"),
+            Enemies::Golem => asciis.get("golem"),
             _ => {
                 println!("{:#?}", e.etype);
                 None
