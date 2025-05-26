@@ -122,7 +122,7 @@ pub struct Dialogue {
     pub file_paths: HashMap<String, String>,
 }
 
-fn load_comms(ntype: &String) -> CommDialogue {
+pub fn load_comms(ntype: &String) -> CommDialogue {
     let city_path = format!("src/npcs/{}/comms_city.json", ntype);
     let engine_path = format!("src/npcs/{}/comms_engine.json", ntype);
     let guild_path = format!("src/npcs/{}/comms_guild.json", ntype);
@@ -174,7 +174,7 @@ fn load_comms(ntype: &String) -> CommDialogue {
     }
 }
 
-fn load_convos(ntype: &String) -> ConvoDialogue {
+pub fn load_convos(ntype: &String) -> ConvoDialogue {
     let city_path = format!("src/npcs/{}/convos_city.json", ntype);
     let engine_path = format!("src/npcs/{}/convos_engine.json", ntype);
     let guild_path = format!("src/npcs/{}/convos_guild.json", ntype);
@@ -262,17 +262,17 @@ impl Dialogue {
                 .cave_comms
                 .engine
                 .choose(&mut rng)
-                .unwrap_or(&self.cave_comms.city[0]),
+                .unwrap_or(&self.cave_comms.engine[0]),
             2 => self
                 .cave_comms
                 .guild
                 .choose(&mut rng)
-                .unwrap_or(&self.cave_comms.city[0]),
+                .unwrap_or(&self.cave_comms.guild[0]),
             3 => self
                 .cave_comms
                 .cult
                 .choose(&mut rng)
-                .unwrap_or(&self.cave_comms.city[0]),
+                .unwrap_or(&self.cave_comms.cult[0]),
             _ => todo!(),
         }
     }
@@ -289,17 +289,17 @@ impl Dialogue {
                 .guild_comms
                 .engine
                 .choose(&mut rng)
-                .unwrap_or(&self.guild_comms.city[0]),
+                .unwrap_or(&self.guild_comms.engine[0]),
             2 => self
                 .guild_comms
                 .guild
                 .choose(&mut rng)
-                .unwrap_or(&self.guild_comms.city[0]),
+                .unwrap_or(&self.guild_comms.guild[0]),
             3 => self
                 .guild_comms
                 .cult
                 .choose(&mut rng)
-                .unwrap_or(&self.guild_comms.city[0]),
+                .unwrap_or(&self.guild_comms.cult[0]),
             _ => todo!(),
         }
     }
@@ -316,17 +316,17 @@ impl Dialogue {
                 .cult_comms
                 .engine
                 .choose(&mut rng)
-                .unwrap_or(&self.cult_comms.city[0]),
+                .unwrap_or(&self.cult_comms.engine[0]),
             2 => self
                 .cult_comms
                 .cult
                 .choose(&mut rng)
-                .unwrap_or(&self.cult_comms.city[0]),
+                .unwrap_or(&self.cult_comms.guild[0]),
             3 => self
                 .cult_comms
                 .cult
                 .choose(&mut rng)
-                .unwrap_or(&self.cult_comms.city[0]),
+                .unwrap_or(&self.cult_comms.cult[0]),
             _ => todo!(),
         }
     }
@@ -343,17 +343,17 @@ impl Dialogue {
                 .cave_convos
                 .engine
                 .choose(&mut rng)
-                .unwrap_or(&self.cave_convos.city[0]),
+                .unwrap_or(&self.cave_convos.engine[0]),
             2 => self
                 .cave_convos
                 .guild
                 .choose(&mut rng)
-                .unwrap_or(&self.cave_convos.city[0]),
+                .unwrap_or(&self.cave_convos.guild[0]),
             3 => self
                 .cave_convos
                 .cult
                 .choose(&mut rng)
-                .unwrap_or(&self.cave_convos.city[0]),
+                .unwrap_or(&self.cave_convos.cult[0]),
             _ => todo!(),
         }
     }
@@ -370,17 +370,17 @@ impl Dialogue {
                 .guild_convos
                 .engine
                 .choose(&mut rng)
-                .unwrap_or(&self.guild_convos.city[0]),
+                .unwrap_or(&self.guild_convos.engine[0]),
             2 => self
                 .guild_convos
                 .guild
                 .choose(&mut rng)
-                .unwrap_or(&self.guild_convos.city[0]),
+                .unwrap_or(&self.guild_convos.guild[0]),
             3 => self
                 .guild_convos
                 .guild
                 .choose(&mut rng)
-                .unwrap_or(&self.guild_convos.city[0]),
+                .unwrap_or(&self.guild_convos.cult[0]),
             _ => todo!(),
         }
     }
@@ -397,17 +397,17 @@ impl Dialogue {
                 .cult_convos
                 .engine
                 .choose(&mut rng)
-                .unwrap_or(&self.cult_convos.city[0]),
+                .unwrap_or(&self.cult_convos.engine[0]),
             2 => self
                 .cult_convos
                 .cult
                 .choose(&mut rng)
-                .unwrap_or(&self.cult_convos.city[0]),
+                .unwrap_or(&self.cult_convos.guild[0]),
             3 => self
                 .cult_convos
                 .cult
                 .choose(&mut rng)
-                .unwrap_or(&self.cult_convos.city[0]),
+                .unwrap_or(&self.cult_convos.cult[0]),
             _ => todo!(),
         }
     }

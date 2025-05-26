@@ -470,7 +470,7 @@ impl GameState {
                         }
                     }
                 }
-                thread::sleep(Duration::from_millis(30));
+                thread::sleep(Duration::from_millis(60));
             }
         });
     }

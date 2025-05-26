@@ -1,4 +1,5 @@
 mod dialogue;
+mod dialogue_utils;
 mod enemy;
 mod enums;
 mod features;

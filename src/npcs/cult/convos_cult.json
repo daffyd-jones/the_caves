@@ -1,0 +1,39 @@
+[
+  {
+    "id": "cult1",
+    "0": {
+      "text": "We've been living here in the caves for generations, trying to keep the Obsidians alive.",
+      "opts": [
+        { "text": "How many of you are left?", "next": "1" },
+        { "text": "How long has it been?", "next": "2" }
+      ]
+    },
+    "1": {
+      "text": "Quite a few, we're spread pretty far throughout the caves at this point. Our main problem now is restoring our traditions.",
+      "opts": [
+        { "text": "Traditions? So you've lost part of your culture? ", "next": "3" },
+        { "text": "Interesting. Would I be able to read some of your historical documents?", "next": "4" }
+      ]
+    },
+    "2": {
+      "text": "Its been about 50 generations. There was about a 100 of us out here originally. We've been growing since.",
+      "opts": [
+        { "text": "That's good. At least you aren't dying out or anything.", "next": "e" },
+        { "text": "And your ancestors passed down all your knowlwedge to you?", "next": "3" }
+      ]
+    },
+    "3": {
+      "text": "Ya, we dont really like to talk about it, but we only know what those left in the caves passed down to us.",
+      "opts": [
+        { "text": "Oh, I see.", "next": "e" },
+        { "text": "That's a shame, would I be able to read any of your history?", "next": "4" }
+      ]
+    },
+    "4": {
+      "text": "Unfortunately no. We don't let outsiders read our historical texts typically. It's very rare.",
+      "opts": [
+        { "text": "That's a shame, oh well.", "next": "e" }
+      ]
+    }
+  }
+]

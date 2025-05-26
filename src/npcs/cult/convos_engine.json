@@ -1,0 +1,38 @@
+[
+  {
+    "id": "engine",
+    "0": {
+      "text": "We have been looking for our engine for 50 generations. We hope that by finding it, that we'll find our city as well.",
+      "opts": [
+        { "text": "An engine? What does it do?", "next": "1" },
+        { "text": "Is the city behind the engine or something?", "next": "2" },
+        { "text": "Wow, thats a long time. You guys have any leads?", "next": "3" }
+      ]
+    },
+    "1": {
+      "text": "It's what the ancient Obsidians used to control the caves. They used it to create an ever shifting maze to hide our city. It's what moves the walls still.",
+      "opts": [
+        { "text": "And the city is hiding behind the engine?", "next": "2" },
+        { "text": "Do you know how the engine works?", "next": "4" }
+      ]
+    },
+    "2": {
+      "text": "I dunno, something like that I guess. Maybe the city's not behind the engine, but its hidden by it. Just moving the walls to lead everyone astray.",
+      "opts": [
+        { "text": "Huh, not sure how you'll find it if that's the case.", "next": "e" }
+      ]
+    },
+    "3": {
+      "text": "Not really unfortunately. We find the odd relic here and there, but not a clue as to its whereabouts.",
+      "opts": [
+        { "text": "That sucks, good luck.", "next": "e" }
+      ]
+    },
+    "4": {
+      "text": "No, we don't know how it works. I guess if we did we'd have a better idea how to find it.",
+      "opts": [
+        { "text": "Ya, that makes sense.", "next": "e" }
+      ]
+    }
+  }
+]

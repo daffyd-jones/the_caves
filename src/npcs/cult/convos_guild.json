@@ -1,0 +1,31 @@
+[
+  {
+    "id": "guild1",
+    "0": {
+      "text": "The guild has been doing work to repair the caves. Not sure if they are going about resoration the right way though.",
+      "opts": [
+        { "text": "Repairs? Like they are restoring the walls?", "next": "1" },
+        { "text": "What do you mean the right way?", "next": "2" }
+      ]
+    },
+    "1": {
+      "text": "Ya, they've been doing repairs on the cave walls. You can see the construction sites her and there.",
+      "opts": [
+        { "text": "Oh, I've seen those. Wasn't sure what they were doing,", "next": "3" },
+        { "text": "Ya, I've seen those around. What do you mean the right way?", "next": "2" }
+      ]
+    },
+    "2": {
+      "text": "Oh you know, nevermind. We're not really supposed to talk about these things really.",
+      "opts": [
+        { "text": "Oh, I see. Thanks anyway.", "next": "e" }
+      ]
+    },
+    "3": {
+      "text": "Ya, they've been doing them for a while. Not sure what they're plan is.",
+      "opts": [
+        { "text": "What do you mean?", "next": "2" }
+      ]
+    }
+  }
+]

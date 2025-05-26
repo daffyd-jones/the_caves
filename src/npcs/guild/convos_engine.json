@@ -1,0 +1,38 @@
+[
+  {
+    "id": "engine",
+    "0": {
+      "text": "Ever wonder why the caves are shifting all the time? There's an engine some where in the caves that moves the walls. It's broken now though, so its easier to get through.",
+      "opts": [
+        { "text": "An engine? Whats all this for?", "next": "1" },
+        { "text": "Broken? What happened?", "next": "2" },
+        { "text": "Ya, I've heard all about the engine.", "next": "3" }
+      ]
+    },
+    "1": {
+      "text": "It was made by the Obsidians, It was designed to hide the city and keep them safe. I guess it broke and the city was lost.",
+      "opts": [
+        { "text": "That's interesting, I'll keep an eye out for it.", "next": "4" },
+        { "text": "Do you know how the engine broke?", "next": "2" }
+      ]
+    },
+    "2": {
+      "text": "Nobody knows! Not even those cultists apparently! Oh well, maybe they'll find it some day.",
+      "opts": [
+        { "text": "Ya maybe.", "next": "e" }
+      ]
+    },
+    "3": {
+      "text": "Oh, good. I guess I'll be going.",
+      "opts": [
+        { "text": "Ok.", "next": "e" }
+      ]
+    },
+    "4": {
+      "text": "Good luck with that, I hope you find it!",
+      "opts": [
+        { "text": "ok", "next": "e" }
+      ]
+    }
+  }
+]

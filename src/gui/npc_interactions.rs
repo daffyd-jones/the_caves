@@ -77,7 +77,8 @@ impl GUI {
 
                 let mut ascii_str = Vec::new();
                 ascii_str.push(Span::styled(npc_str[1], Style::default().white()));
-                let padding = " ".repeat(((&normal_info[0].width - 60) / 2) as usize);
+                // let padding = " ".repeat(((&normal_info[0].width - 60) / 2) as usize);
+                let padding = " ".repeat((normal_info[0].width.saturating_sub(60) / 2) as usize);
 
                 let ascii = gui_args.ascii.unwrap();
 

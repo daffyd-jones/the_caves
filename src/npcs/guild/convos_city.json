@@ -1,0 +1,38 @@
+[
+  {
+    "id": "city1",
+    "0": {
+      "text": "Have you heard anything about the Obsidian City?",
+      "opts": [
+        { "text": "No I havent!", "next": "1" },
+        { "text": "Ya, I've heard a bit", "next": "2" },
+        { "text": "Ya, I know enough.", "next": "3" }
+      ]
+    },
+    "1": {
+      "text": "You havent?! There used to be a city down in the caves somewhere. The engine that shifts the walls broke and the city was lost.",
+      "opts": [
+        { "text": "Whoa! So the whole civilization was lost?", "next": "4" },
+        { "text": "Oh really? Thats amazing! I might try and find it!", "next": "3" }
+      ]
+    },
+    "2": {
+      "text": "Ah yea, it's a common topic down here. Makes sense I guess.",
+      "opts": [
+        { "text": "Ya.", "next": "e" }
+      ]
+    },
+    "3": {
+      "text": "Ah, ok. Have a good day.",
+      "opts": [
+        { "text": "Ok.", "next": "e" }
+      ]
+    },
+    "4": {
+      "text": "No, that's the crazy part! The culty guys that you see around, they're the decendents of the original Obsidians. I guess some were in the caves when the engine broke.",
+      "opts": [
+        { "text": "That's good to know, thanks!", "next": "e" }
+      ]
+    }
+  }
+]

@@ -162,11 +162,7 @@ impl GameState {
                         NPCWrap::CommNPC(new_comm_npc(name.to_string(), x, y, rnd_comms))
                     }
                     NPCs::ConvNPC => {
-                        let conv: Convo = self
-                            .npc_convos
-                            .choose(&mut rng)
-                            .unwrap_or(self.dialogue.get_cave_convo())
-                            .clone();
+                        let conv: Convo = self.dialogue.get_cave_convo().clone();
                         let name = self
                             .npc_names
                             .choose(&mut rng)
