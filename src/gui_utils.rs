@@ -228,6 +228,10 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Grass1 => (',', Color::LightGreen),
                         Cells::Grass2 => ('\'', Color::Green),
                         Cells::Grass3 => ('\"', Color::LightMagenta),
+                        Cells::Bramble1 => ('ᘉ', Color::Green),
+                        Cells::Bramble2 => ('ᘈ', Color::Green),
+                        Cells::Bramble3 => ('ᘍ', Color::Green),
+                        Cells::Bramble4 => ('ᘊ', Color::Green),
                         Cells::Rock => ('*', Color::DarkGray),
                         Cells::Wall => {
                             // ('░', Color::LightCyan)

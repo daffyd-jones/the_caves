@@ -498,6 +498,7 @@ impl GameState {
 
         if self.items.len() < 80 {
             self.repop_items();
+            self.repop_area_plants();
             // self.repop_plants();
         }
 

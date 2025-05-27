@@ -7,7 +7,236 @@ use crate::map::{MAP_H, MAP_W};
 use rand::prelude::SliceRandom;
 use rand::Rng;
 
+const EMPTY_CELLS: [Cells; 8] = [
+    Cells::Empty,
+    Cells::Grass1,
+    Cells::Grass2,
+    Cells::Grass3,
+    Cells::Dirt1,
+    Cells::Dirt2,
+    Cells::Dirt3,
+    Cells::Rock,
+];
+
 impl GameState {
+    fn place_moss(&mut self, x: usize, y: usize) {
+        // let rng = rand::thread_rng();
+        let tmap = self.map.cells.clone();
+        for j in 0..6 {
+            for i in 0..10 {
+                let yy = j + y;
+                let xx = i + x;
+                if EMPTY_CELLS.contains(&tmap[yy][xx]) && !EMPTY_CELLS.contains(&tmap[yy - 1][xx])
+                    || EMPTY_CELLS.contains(&tmap[yy][xx])
+                        && !EMPTY_CELLS.contains(&tmap[yy + 1][xx])
+                    || EMPTY_CELLS.contains(&tmap[yy][xx])
+                        && !EMPTY_CELLS.contains(&tmap[yy][xx - 1])
+                    || EMPTY_CELLS.contains(&tmap[yy][xx])
+                        && !EMPTY_CELLS.contains(&tmap[yy][xx + 1])
+                {
+                    self.items.insert((xx, yy), Item::new_moss(xx, yy));
+                }
+            }
+        }
+    }
+
+    fn place_vine(&mut self, x: usize, y: usize) {
+        let mut rng = rand::thread_rng();
+        let tmap = self.map.cells.clone();
+        for j in 0..6 {
+            for i in 0..10 {
+                let yy = j + y;
+                let xx = i + x;
+                if EMPTY_CELLS.contains(&tmap[yy][xx]) && !EMPTY_CELLS.contains(&tmap[yy - 1][xx])
+                    || EMPTY_CELLS.contains(&tmap[yy][xx])
+                        && !EMPTY_CELLS.contains(&tmap[yy + 1][xx])
+                    || EMPTY_CELLS.contains(&tmap[yy][xx])
+                        && !EMPTY_CELLS.contains(&tmap[yy][xx - 1])
+                    || EMPTY_CELLS.contains(&tmap[yy][xx])
+                        && !EMPTY_CELLS.contains(&tmap[yy][xx + 1])
+                {
+                    self.map.cells[yy][xx] = *[
+                        Cells::Bramble1,
+                        Cells::Bramble2,
+                        Cells::Bramble3,
+                        Cells::Bramble4,
+                    ]
+                    .choose(&mut rng)
+                    .unwrap_or(&Cells::Bramble1);
+                    if rng.gen_range(0..5) == 0 {
+                        self.items.insert((xx, yy), Item::new_vine_bulb(xx, yy));
+                    }
+                }
+            }
+        }
+    }
+
+    fn place_area_plants(&mut self, x: usize, y: usize) -> bool {
+        let mut rng = rand::thread_rng();
+        let types = [Items::Plants(Plants::Moss), Items::Plants(Plants::VineBulb)];
+        if let Some(i_type) = types.choose(&mut rng) {
+            match i_type {
+                Items::Plants(Plants::Moss) => self.place_moss(x, y),
+                Items::Plants(Plants::VineBulb) => self.place_vine(x, y),
+                _ => todo!(),
+            }
+            return true;
+        }
+        false
+    }
+
+    pub fn repop_area_plants(&mut self) {
+        let mut rng = rand::thread_rng();
+        let (vx, vy, vw, vh) = self.map.get_viewport();
+        //xx
+        match (-self.map.gen_x, -self.map.gen_y) {
+            (x, y) if x < 0 => {
+                for _ in 0..5 {
+                    loop {
+                        let x = rng.gen_range(10..vx - 5);
+                        let y = rng.gen_range(10..MAP_H - 10);
+                        let res = self.place_area_plants(x, y);
+                        if res {
+                            break;
+                        }
+                    }
+                }
+                if y < 0 {
+                    for _ in 0..5 {
+                        loop {
+                            let x = rng.gen_range(10..MAP_W - 10);
+                            let y = rng.gen_range(10..vy - 5);
+                            let res = self.place_area_plants(x, y);
+                            if res {
+                                break;
+                            }
+                        }
+                    }
+                }
+                if y > 0 {
+                    for _ in 0..5 {
+                        loop {
+                            let x = rng.gen_range(10..MAP_W - 10);
+                            let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
+                            let res = self.place_area_plants(x, y);
+                            if res {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            (x, y) if x > 0 => {
+                for _ in 0..5 {
+                    loop {
+                        let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
+                        let y = rng.gen_range(10..MAP_H - 10);
+                        let res = self.place_area_plants(x, y);
+                        if res {
+                            break;
+                        }
+                    }
+                }
+                if y < 0 {
+                    for _ in 0..5 {
+                        loop {
+                            let x = rng.gen_range(10..MAP_W - 10);
+                            let y = rng.gen_range(10..vy - 5);
+                            let res = self.place_area_plants(x, y);
+                            if res {
+                                break;
+                            }
+                        }
+                    }
+                }
+                if y > 0 {
+                    for _ in 0..5 {
+                        loop {
+                            let x = rng.gen_range(10..MAP_W - 10);
+                            let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
+                            let res = self.place_area_plants(x, y);
+                            if res {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            (x, y) if y < 0 => {
+                for _ in 0..5 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W - 10);
+                        let y = rng.gen_range(10..vy - 5);
+                        let res = self.place_area_plants(x, y);
+                        if res {
+                            break;
+                        }
+                    }
+                }
+                if x < 0 {
+                    for _ in 0..5 {
+                        loop {
+                            let x = rng.gen_range(10..vx - 5);
+                            let y = rng.gen_range(10..MAP_H - 10);
+                            let res = self.place_area_plants(x, y);
+                            if res {
+                                break;
+                            }
+                        }
+                    }
+                }
+                if x > 0 {
+                    for _ in 0..5 {
+                        loop {
+                            let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
+                            let y = rng.gen_range(10..MAP_H - 10);
+                            let res = self.place_area_plants(x, y);
+                            if res {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            (x, y) if y > 0 => {
+                for _ in 0..5 {
+                    loop {
+                        let x = rng.gen_range(10..MAP_W - 10);
+                        let y = rng.gen_range((vy + vh + 5)..MAP_H - 10);
+                        let res = self.place_area_plants(x, y);
+                        if res {
+                            break;
+                        }
+                    }
+                }
+                if x < 0 {
+                    for _ in 0..5 {
+                        loop {
+                            let x = rng.gen_range(10..vx - 5);
+                            let y = rng.gen_range(10..MAP_H - 10);
+                            let res = self.place_area_plants(x, y);
+                            if res {
+                                break;
+                            }
+                        }
+                    }
+                }
+                if x > 0 {
+                    for _ in 0..5 {
+                        loop {
+                            let x = rng.gen_range((vx + vw + 5)..MAP_W - 10);
+                            let y = rng.gen_range(10..MAP_H - 10);
+                            let res = self.place_area_plants(x, y);
+                            if res {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
     pub fn check_place_item(&mut self, x: usize, y: usize) -> bool {
         let mut rng = rand::thread_rng();
         let types = [
