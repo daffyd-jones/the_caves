@@ -6,17 +6,20 @@ use crate::enums::{
 use crate::gui::GUI;
 use crate::gui_utils::{draw_map, wrap_text, GuiArgs};
 use crate::item::Item;
+use ratatui::layout::Flex;
 use ratatui::layout::{Constraint, Direction, Layout, Margin};
+use ratatui::prelude::Rect;
 use ratatui::style::{Color, Style, Stylize};
 use ratatui::text::Line;
 use ratatui::text::{Span, Text};
 use ratatui::widgets::Cell;
+use ratatui::widgets::Clear;
 use ratatui::widgets::Row;
 use ratatui::widgets::Table;
 use ratatui::widgets::{Block, Borders, Paragraph};
 
 impl GUI {
-    pub fn npc_comm_draw(&mut self, comms: String, gui_args: &mut GuiArgs) {
+    pub fn npc_commdraw(&mut self, comms: String, gui_args: &mut GuiArgs) {
         self.terminal
             .draw(|f| {
                 let entire_screen_block = Block::default()
@@ -96,6 +99,133 @@ impl GUI {
                 let plyr = Paragraph::new(Span::raw("")).block(table_block);
                 f.render_widget(npc, normal_info[0]);
                 f.render_widget(plyr, normal_info[1]);
+            })
+            .unwrap();
+    }
+
+    pub fn npc_comm_draw(&mut self, comms: String, gui_args: &mut GuiArgs) {
+        self.terminal
+            .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .margin(1)
+                    .constraints(
+                        [
+                            Constraint::Percentage(10),
+                            Constraint::Percentage(80),
+                            Constraint::Percentage(10),
+                        ]
+                        .as_ref(),
+                    )
+                    .split(f.area());
+
+                let game_chunks = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
+                    .split(chunks[1]);
+
+                let block = Block::default().title("Game").borders(Borders::ALL);
+                f.render_widget(block.clone(), game_chunks[0]);
+                let block_area = game_chunks[0];
+                f.render_widget(block.clone(), block_area);
+                let inner_area = block_area.inner(Margin::default());
+                let in_h = inner_area.height as usize;
+                let in_w = inner_area.width as usize;
+
+                if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                    // map.set_viewport(in_h, in_w);
+                    self.viewport_dim = (in_w, in_h);
+                }
+                let paragraph = draw_map(gui_args, self.ani_cnt);
+                // let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+                f.render_widget(paragraph, inner_area);
+
+                // let normal_info = Layout::default()
+                //     .split(game_chunks[1]);
+
+                let npc_str: Vec<&str> = comms.split("#").collect();
+
+                let name = npc_str[0];
+
+                let info_block = Block::default()
+                    .title("")
+                    .borders(Borders::ALL)
+                    .style(Style::default().bg(Color::Black));
+                f.render_widget(info_block, game_chunks[1]);
+
+                // let table_block = Block::default()
+                //     .title("")
+                //     .borders(Borders::ALL)
+                //     .style(Style::default().bg(Color::Black));
+
+                let a = f.area();
+                let b = Block::bordered()
+                    .title(name)
+                    .style(Style::default().bg(Color::Black));
+                let (xper, yper) = (80, 20);
+                let harea = |a, xper, yper| {
+                    let vertical =
+                        Layout::vertical([Constraint::Percentage(yper)]).flex(Flex::Center);
+                    let horizontal =
+                        Layout::horizontal([Constraint::Percentage(xper)]).flex(Flex::Center);
+                    let [area] = vertical.areas(a);
+                    let [area] = horizontal.areas(a);
+                    area
+                };
+                let h_area = harea(a, xper, yper);
+                f.render_widget(Clear, h_area);
+                f.render_widget(b, h_area);
+
+                // let text = "Welcome to the caves!!\n\nHave a look around and see what you find. There are settlements scattered throughout the caves as well as ruins with puzzles and treasure! Be careful however and be sure to use your Compass! The caves constantly change and its easy to get lost!\n\nThe Caves are full of mosters and those who have lost themselves to the caves, so make sure you are careful and learn to protect yourself. Eating some items will heal you, others you can sell.\n\nHave a look around and have fun, chatting with others down here might give you more insight and point you in the right direction.\n\nMove around with the Arrow Keys, and use the 'q, w, e, r' buttons to access your menus. In standard play, the menus are navigated using the 'a, s, d, f' keys and Enter. During Encounters and Interactions, the menus are navigated using the Arrow Keys and Enter. In the notebook, Backspace is used to go up a level.";
+                let paragraph = Paragraph::new(npc_str[1])
+                    .block(Block::bordered())
+                    .style(Style::default().bg(Color::Black))
+                    .wrap(ratatui::widgets::Wrap { trim: true });
+                let para_area = Rect {
+                    x: h_area.x + 2,
+                    y: h_area.y + 2,
+                    width: h_area.width / 2 - 3,
+                    height: (h_area.height / 3) * 2,
+                };
+                f.render_widget(paragraph, para_area);
+
+                let opts = Paragraph::new(Span::raw(""))
+                    .block(Block::bordered())
+                    .style(Style::default().bg(Color::Black))
+                    .wrap(ratatui::widgets::Wrap { trim: true });
+                let opts_area = Rect {
+                    x: h_area.x + 2,
+                    y: h_area.y + 2 + (h_area.height / 3) * 2,
+                    width: h_area.width / 2 - 3,
+                    height: (h_area.height / 3) - 4,
+                };
+                f.render_widget(opts, opts_area);
+
+                let table_area = Rect {
+                    x: h_area.x + h_area.width / 2 + 2,
+                    y: h_area.y + 2,
+                    width: h_area.width / 2 - 4,
+                    height: h_area.height - 4,
+                };
+                let mut ascii_str = Vec::new();
+                let padding = " ".repeat((table_area.width.saturating_sub(60) / 2) as usize);
+                let ascii = gui_args.ascii.unwrap();
+                for i in 0..(ascii.len() / 60) {
+                    let line = &ascii[i * 60..(i * 60 + 60)];
+                    let padded_line = format!("{}{}", padding, line);
+                    ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                }
+                let f_ascii: Text = ascii_str.into_iter().collect();
+                let plyr = Paragraph::new(f_ascii)
+                    .block(Block::bordered())
+                    .style(Style::default().bg(Color::Black));
+
+                // f.render_widget(npc, para_area);
+                f.render_widget(plyr, table_area);
             })
             .unwrap();
     }

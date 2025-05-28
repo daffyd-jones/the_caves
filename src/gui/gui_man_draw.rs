@@ -114,6 +114,7 @@ impl GUI {
                                 adj_list.push((*pos, "Church Posting".to_string()))
                             }
                             EnvInter::Cauldron => adj_list.push((*pos, "Cauldron".to_string())),
+                            EnvInter::Herbalist => adj_list.push((*pos, "Herbalist".to_string())),
                             _ => todo!(),
                         },
                         _ => todo!(),

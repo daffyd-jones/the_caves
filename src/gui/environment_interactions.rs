@@ -228,7 +228,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn herbalist_draw(&mut self, herbalist_msg: String, gui_args: &mut GuiArgs) {
+    pub fn herbalist_draw(&mut self, herbalist_msg: String, plants: Option<Vec<String>>, gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
             let entire_screen_block = Block::default()
                 .style(Style::default().bg(Color::Black))
@@ -285,30 +285,36 @@ impl GUI {
 
 
             let paragraph_block = Block::default()
-                .title("Cauldron")
+                .title("Herbalist")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
             let table_block = Block::default()
-                .title("Save")
+                .title("Options")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
 
-            let save_text = Paragraph::new(Span::styled(herbalist_msg, Style::default().white()))
+            let (str, opts) = if let Some(plnts) = plants {
+                (herbalist_msg, plnts)
+            } else {
+                let tmsg = herbalist_msg.split("#").collect::<Vec<&str>>();
+                let op_vec: Vec<String> = tmsg[1..].iter().map(|s| s.to_string()).collect();
+                (tmsg[0].to_string(), op_vec)
+            };
+            
+            let save_text = Paragraph::new(Span::styled(str, Style::default().white()))
                 .block(paragraph_block)
                 .wrap(ratatui::widgets::Wrap { trim: true });
-
-            let opts = [[""]];
-            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
-                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
-                    if j == self.cursor_pos.1 && i == self.cursor_pos.0 {
-                        Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+          
+            // let opts = [opt];
+            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, cell)| {
+                    let row = if j == self.cursor_pos.1 {
+                        vec![Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))]
                     } else {
-                        Cell::from(*cell)
-                    }
-                }).collect();
-                Row::new(cells)
+                        vec![Cell::from(Span::styled(cell, Style::default().white()))]
+                    };
+                Row::new(row)
             }).collect();
-            let table = Table::new(rows, &[Constraint::Percentage(100), Constraint::Percentage(100), Constraint::Percentage(100)])
+            let table = Table::new(rows, &[Constraint::Percentage(100)])
                 .block(table_block);
             f.render_widget(table, normal_info[1]);
             f.render_widget(save_text, normal_info[0]);

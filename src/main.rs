@@ -19,6 +19,7 @@ mod settlement;
 mod settlements;
 mod shop;
 mod stats;
+mod tasks;
 mod utils;
 use ratatui::crossterm::terminal;
 use std::thread::sleep;
