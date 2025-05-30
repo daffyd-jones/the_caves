@@ -11,7 +11,7 @@ use ratatui::crossterm::style::PrintStyledContent;
 use ratatui::widgets::Clear;
 use ratatui::layout::Flex;
 use std::io::stdout;
-use ratatui::Terminal;
+use ratatui::{Terminal, Frame};
 use ratatui::backend::CrosstermBackend;
 use ratatui::prelude::Line;
 use ratatui::prelude::Rect;
@@ -51,6 +51,51 @@ pub struct GUI {
 }
 
 
+fn draw_setup(f: &mut Frame) -> (std::rc::Rc<[ratatui::layout::Rect]>, ratatui::layout::Rect) {
+    let entire_screen_block = Block::default()
+        .style(Style::default().bg(Color::Black))
+        .borders(Borders::NONE);
+    f.render_widget(entire_screen_block, f.area());
+
+    let chunks = Layout::default()
+    .direction(Direction::Vertical)
+    .margin(1)
+    .constraints(
+        [
+            Constraint::Percentage(10),
+            Constraint::Percentage(80),
+            Constraint::Percentage(10)
+        ].as_ref()
+    )
+    .split(f.area());
+
+
+    let game_chunks = Layout::default()
+    .direction(Direction::Horizontal)
+    .constraints(
+        [
+            Constraint::Percentage(70),
+            Constraint::Percentage(30)
+        ].as_ref()
+    )
+    .split(chunks[1]);
+
+    let block = Block::default()
+                .title("Game")
+                .borders(Borders::ALL);
+    f.render_widget(block.clone(), game_chunks[0]);
+    let block_area = game_chunks[0];
+    f.render_widget(block.clone(), block_area);
+    let inner_area = block_area.inner(Margin::default());
+    let in_h = inner_area.height as usize;
+    let in_w = inner_area.width as usize;
+    // let mut map = &gui_args.map;
+    // if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+    //     // map.set_viewport(in_h, in_w);
+    //     self.viewport_dim = (in_w, in_h);
+    // }
+    (game_chunks, inner_area)
+}
 
 impl GUI {
     pub fn new() -> Self {
@@ -258,6 +303,8 @@ impl GUI {
         }
     }
 
+    
+
     pub fn draw(&mut self,
          debug: (String, String, String),
          gui_args: &mut GuiArgs
@@ -275,41 +322,7 @@ impl GUI {
             self.ani_updt = 0;
         }
         self.terminal.draw(|f| {
-            let entire_screen_block = Block::default()
-                .style(Style::default().bg(Color::Black))
-                .borders(Borders::NONE);
-            f.render_widget(entire_screen_block, f.area());
-
-            let chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .margin(1)
-            .constraints(
-                [
-                    Constraint::Percentage(10),
-                    Constraint::Percentage(80),
-                    Constraint::Percentage(10)
-                ].as_ref()
-            )
-            .split(f.area());
-
-
-            let game_chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints(
-                [
-                    Constraint::Percentage(70),
-                    Constraint::Percentage(30)
-                ].as_ref()
-            )
-            .split(chunks[1]);
-
-            let block = Block::default()
-                        .title("Game")
-                        .borders(Borders::ALL);
-            f.render_widget(block.clone(), game_chunks[0]);
-            let block_area = game_chunks[0];
-            f.render_widget(block.clone(), block_area);
-            let inner_area = block_area.inner(Margin::default());
+            let (game_chunks, inner_area) = draw_setup(f);
             let in_h = inner_area.height as usize;
             let in_w = inner_area.width as usize;
             // let mut map = &gui_args.map;
@@ -1119,7 +1132,10 @@ impl GUI {
                 };
                 let h_area = harea(a, xper, yper);
                 f.render_widget(Clear, h_area);
-                f.render_widget(block, h_area);
+                let h_block = Block::default()
+                            .title("Game")
+                            .borders(Borders::ALL);
+                f.render_widget(h_block, h_area);
                 
                 let text = "Welcome to the caves!!\n\nHave a look around and see what you find. There are settlements scattered throughout the caves as well as ruins with puzzles and treasure! Be careful however and be sure to use your Compass! The caves constantly change and its easy to get lost!\n\nThe Caves are full of mosters and those who have lost themselves to the caves, so make sure you are careful and learn to protect yourself. Eating some items will heal you, others you can sell.\n\nHave a look around and have fun, chatting with others down here might give you more insight and point you in the right direction.\n\nMove around with the Arrow Keys, and use the 'q, w, e, r' buttons to access your menus. In standard play, the menus are navigated using the 'a, s, d, f' keys and Enter. During Encounters and Interactions, the menus are navigated using the Arrow Keys and Enter. In the notebook, Backspace is used to go up a level."; 
                 let paragraph = Paragraph::new(text)

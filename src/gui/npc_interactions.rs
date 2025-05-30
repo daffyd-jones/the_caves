@@ -135,20 +135,15 @@ impl GUI {
                 let inner_area = block_area.inner(Margin::default());
                 let in_h = inner_area.height as usize;
                 let in_w = inner_area.width as usize;
-
                 if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
                     // map.set_viewport(in_h, in_w);
                     self.viewport_dim = (in_w, in_h);
                 }
+
                 let paragraph = draw_map(gui_args, self.ani_cnt);
-                // let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
                 f.render_widget(paragraph, inner_area);
 
-                // let normal_info = Layout::default()
-                //     .split(game_chunks[1]);
-
                 let npc_str: Vec<&str> = comms.split("#").collect();
-
                 let name = npc_str[0];
 
                 let info_block = Block::default()
@@ -156,11 +151,6 @@ impl GUI {
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
                 f.render_widget(info_block, game_chunks[1]);
-
-                // let table_block = Block::default()
-                //     .title("")
-                //     .borders(Borders::ALL)
-                //     .style(Style::default().bg(Color::Black));
 
                 let a = f.area();
                 let b = Block::bordered()
@@ -180,7 +170,6 @@ impl GUI {
                 f.render_widget(Clear, h_area);
                 f.render_widget(b, h_area);
 
-                // let text = "Welcome to the caves!!\n\nHave a look around and see what you find. There are settlements scattered throughout the caves as well as ruins with puzzles and treasure! Be careful however and be sure to use your Compass! The caves constantly change and its easy to get lost!\n\nThe Caves are full of mosters and those who have lost themselves to the caves, so make sure you are careful and learn to protect yourself. Eating some items will heal you, others you can sell.\n\nHave a look around and have fun, chatting with others down here might give you more insight and point you in the right direction.\n\nMove around with the Arrow Keys, and use the 'q, w, e, r' buttons to access your menus. In standard play, the menus are navigated using the 'a, s, d, f' keys and Enter. During Encounters and Interactions, the menus are navigated using the Arrow Keys and Enter. In the notebook, Backspace is used to go up a level.";
                 let paragraph = Paragraph::new(npc_str[1])
                     .block(Block::bordered())
                     .style(Style::default().bg(Color::Black))
@@ -223,8 +212,6 @@ impl GUI {
                 let plyr = Paragraph::new(f_ascii)
                     .block(Block::bordered())
                     .style(Style::default().bg(Color::Black));
-
-                // f.render_widget(npc, para_area);
                 f.render_widget(plyr, table_area);
             })
             .unwrap();

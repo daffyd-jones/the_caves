@@ -81,7 +81,8 @@ impl GUI {
 
                 let mut ascii_str = Vec::new();
                 ascii_str.push(Span::styled(cntnt, Style::default().white()));
-                let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
+                // let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
+                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
 
                 let ascii = gui_args.ascii.unwrap();
 
@@ -255,7 +256,8 @@ impl GUI {
 
                 //------
                 let mut ascii_str = Vec::new();
-                let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
+                // let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
+                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
 
                 let ascii = gui_args.ascii.unwrap();
 
@@ -440,7 +442,8 @@ impl GUI {
                     "What would you like to do?",
                     Style::default().white(),
                 ));
-                let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
+                // let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
+                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
 
                 let ascii = gui_args.ascii.unwrap();
 

@@ -1,27 +1,20 @@
 //gui_utils
 use crate::enemy::Enemy;
 use crate::enums::{AniType, Cells, Enemies, EnvInter, NPCWrap};
+use crate::item::Item;
 use crate::map::Map;
 use crate::player::Player;
-// use crate::npc::{NPC};
-use crate::item::Item;
-// mod gui_man_draw;
-// mod npc_interactions;
 use rand::Rng;
-// use ratatui::crossterm::style::Color;
 use ratatui::layout::{Constraint, Direction, Layout, Margin};
 use ratatui::prelude::Alignment;
 use ratatui::prelude::Line;
 use ratatui::style::{Color, Style, Stylize};
-// use ratatui::text::Line;
 use ratatui::text::{Span, Text};
-// use ratatui::text::{Span, Text};
 use ratatui::widgets::Cell;
 use ratatui::widgets::Row;
 use ratatui::widgets::Table;
 use ratatui::widgets::{Block, Borders, Padding, Paragraph};
 use std::collections::HashMap;
-// use std::collections::HashMap;
 use std::time::Duration;
 
 pub enum CustomColors {
@@ -108,6 +101,43 @@ pub struct Animation {
     pub frame: Option<Frame>,
     pub char: Option<(char, Color)>,
 }
+
+// pub fn gui_setup(f: Frame) -> () {
+//     let entire_screen_block = Block::default()
+//         .style(Style::default().bg(Color::Black))
+//         .borders(Borders::NONE);
+//     f.render_widget(entire_screen_block, f.area());
+//     let chunks = Layout::default()
+//         .direction(Direction::Vertical)
+//         .margin(1)
+//         .constraints(
+//             [
+//                 Constraint::Percentage(10),
+//                 Constraint::Percentage(80),
+//                 Constraint::Percentage(10),
+//             ]
+//             .as_ref(),
+//         )
+//         .split(f.area());
+
+//     let game_chunks = Layout::default()
+//         .direction(Direction::Horizontal)
+//         .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
+//         .split(chunks[1]);
+
+//     let block = Block::default().title("Game").borders(Borders::ALL);
+//     f.render_widget(block.clone(), game_chunks[0]);
+//     let block_area = game_chunks[0];
+//     f.render_widget(block.clone(), block_area);
+//     let inner_area = block_area.inner(Margin::default());
+//     let in_h = inner_area.height as usize;
+//     let in_w = inner_area.width as usize;
+//     if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+//         // map.set_viewport(in_h, in_w);
+//         self.viewport_dim = (in_w, in_h);
+//     }
+//     (inner_area, game_chunks)
+// }
 
 pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
     let map = gui_args.map.clone();
@@ -226,8 +256,8 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Dirt2 => (':', Color::DarkGray),
                         Cells::Dirt3 => ('.', Color::DarkGray),
                         Cells::Grass1 => (',', Color::LightGreen),
-                        Cells::Grass2 => ('\'', Color::Green),
-                        Cells::Grass3 => ('\"', Color::LightMagenta),
+                        Cells::Grass2 => ('\'', Color::LightMagenta),
+                        Cells::Grass3 => ('\"', Color::Green),
                         Cells::Bramble1 => ('ᘉ', Color::Green),
                         Cells::Bramble2 => ('ᘈ', Color::Green),
                         Cells::Bramble3 => ('ᘍ', Color::Green),
@@ -266,31 +296,31 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::NPCM => (' ', Color::White),
                         Cells::Floor => ('░', Color::Black),
                         Cells::Floor2 => ('░', Color::Gray),
-                        Cells::MwH => ('═', Color::DarkGray),
-                        Cells::MwV => ('║', Color::DarkGray),
-                        Cells::MwVL => ('╣', Color::DarkGray),
-                        Cells::MwVR => ('╠', Color::DarkGray),
-                        Cells::MwHU => ('╩', Color::DarkGray),
-                        Cells::MwHD => ('╦', Color::DarkGray),
-                        Cells::MwUL => ('╝', Color::DarkGray),
-                        Cells::MwUR => ('╚', Color::DarkGray),
-                        Cells::MwDL => ('╗', Color::DarkGray),
-                        Cells::MwDR => ('╔', Color::DarkGray),
-                        Cells::MwCR => ('╬', Color::DarkGray),
-                        Cells::SwH => ('─', Color::DarkGray),
-                        Cells::SwV => ('│', Color::DarkGray),
-                        Cells::SwVL => ('┤', Color::DarkGray),
-                        Cells::SwVR => ('├', Color::DarkGray),
-                        Cells::SwHU => ('┴', Color::DarkGray),
-                        Cells::SwHD => ('┬', Color::DarkGray),
-                        Cells::SwUL => ('┘', Color::DarkGray),
-                        Cells::SwUR => ('└', Color::DarkGray),
-                        Cells::SwDL => ('┐', Color::DarkGray),
-                        Cells::SwDR => ('┌', Color::DarkGray),
-                        Cells::SwCR => ('┼', Color::DarkGray),
-                        Cells::Cong => ('≡', Color::LightBlue),
-                        Cells::Deg => ('°', Color::LightBlue),
-                        Cells::Mult => ('×', Color::LightBlue),
+                        Cells::MwH => ('═', Color::Gray),
+                        Cells::MwV => ('║', Color::Gray),
+                        Cells::MwVL => ('╣', Color::Gray),
+                        Cells::MwVR => ('╠', Color::Gray),
+                        Cells::MwHU => ('╩', Color::Gray),
+                        Cells::MwHD => ('╦', Color::Gray),
+                        Cells::MwUL => ('╝', Color::Gray),
+                        Cells::MwUR => ('╚', Color::Gray),
+                        Cells::MwDL => ('╗', Color::Gray),
+                        Cells::MwDR => ('╔', Color::Gray),
+                        Cells::MwCR => ('╬', Color::Gray),
+                        Cells::SwH => ('─', Color::Gray),
+                        Cells::SwV => ('│', Color::Gray),
+                        Cells::SwVL => ('┤', Color::Gray),
+                        Cells::SwVR => ('├', Color::Gray),
+                        Cells::SwHU => ('┴', Color::Gray),
+                        Cells::SwHD => ('┬', Color::Gray),
+                        Cells::SwUL => ('┘', Color::Gray),
+                        Cells::SwUR => ('└', Color::Gray),
+                        Cells::SwDL => ('┐', Color::Gray),
+                        Cells::SwDR => ('┌', Color::Gray),
+                        Cells::SwCR => ('┼', Color::Gray),
+                        Cells::Cong => ('≡', Color::Magenta),
+                        Cells::Deg => ('°', Color::Cyan),
+                        Cells::Mult => ('×', Color::Magenta),
                         Cells::Ced => ('¸', Color::LightBlue),
                         Cells::Diae => ('¨', Color::LightBlue),
                         Cells::Inter => ('·', Color::LightBlue),
