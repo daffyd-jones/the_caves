@@ -4,6 +4,7 @@ use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, Convo, ShopConvos, Sh
 use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::collections::HashMap;
+use std::f64::consts;
 use std::fs;
 
 const GRASS_PATCH: &str = r#"
@@ -17,18 +18,7 @@ const GRASS_PATCH: &str = r#"
 ',',',',',',',',
 "#;
 
-// const GRASS_PATCH_IN_CORNER: &str = r#"
-// ',',',',',',',',
-// ',",',',',',",',
-// ',',',',',',',',
-// ',',',",' ',' ',
-// ',','
-// ',",',
-// ',','
-// ',',',
-// "#;
-
-const GRASS_PATCH_IN_CORNER: &str = r#"
+const GRASS_IN_CORNER_UL: &str = r#"
 ',',',',',',',',
 ',",',',',',",',
 ',',',',',',',',
@@ -39,7 +29,7 @@ const GRASS_PATCH_IN_CORNER: &str = r#"
 ',',','         
 "#;
 
-const GRASS_PATCH_IN_CORNER: &str = r#"
+const GRASS_IN_CORNER_BL: &str = r#"
 ',',',',        
 ',",','         
 ',',',",        
@@ -50,7 +40,7 @@ const GRASS_PATCH_IN_CORNER: &str = r#"
 ',',',',',',',',
 "#;
 
-const GRASS_PATCH_IN_CORNER: &str = r#"
+const GRASS_IN_CORNER_UR: &str = r#"
 ',',',',',',',',
 ',',",',',',",',
 ',',',',',',',',
@@ -61,7 +51,7 @@ const GRASS_PATCH_IN_CORNER: &str = r#"
         ',',',',
 "#;
 
-const GRASS_PATCH_IN_CORNER: &str = r#"
+const GRASS_IN_CORNER_BR: &str = r#"
         ',',',',
         ',',",',
          ,',',',
@@ -72,7 +62,7 @@ const GRASS_PATCH_IN_CORNER: &str = r#"
 ',',',',',',',',
 "#;
 
-const GRASS_PATCH_OUT_CORNER: &str = r#"
+const GRASS_OUT_CORNER_UL: &str = r#"
                 
                 
                 
@@ -83,7 +73,7 @@ const GRASS_PATCH_OUT_CORNER: &str = r#"
       ',',',',',
 "#;
 
-const GRASS_PATCH_OUT_CORNER: &str = r#"
+const GRASS_OUT_CORNER_BL: &str = r#"
        ,',",',',
        ,',',',',
        ,',",',',
@@ -94,15 +84,26 @@ const GRASS_PATCH_OUT_CORNER: &str = r#"
                 
 "#;
 
-const GRASS_PATCH_OUT_CORNER: &str = r#"
-       ,',",',',
-       ,',',',',
-       ,',",',',
-        ',',',',
-         '  ' ' 
+const GRASS_OUT_CORNER_BR: &str = r#"
+',',',','       
+',',',",        
+',",',','       
+',',',',        
+ '  ' '         
                 
                 
                 
+"#;
+
+const GRASS_OUT_CORNER_UR: &str = r#"
+                
+                
+                
+ ,  , ,         
+',',',','       
+',',',",        
+',",',','       
+',',',',        
 "#;
 
 const GRASS_PATCH_HORZ_EDGE: &str = r#"
@@ -599,6 +600,22 @@ enum Field {
     Null,
 }
 
+const UP_FULL: [Field; 4] = [
+    Field::Normal,
+    Field::InCornerDL,
+    Field::InCornerDR,
+    Field::HorzEdgeU,
+];
+
+const UP_LEFT: [Field; 3] = [Field::VertEdgeR, Field::InCornerUL, Field::OutCornerUR];
+
+const UP_RIGHT: [Field; 3] = [Field::VertEdgeL, Field::InCornerUR, Field::OutCornerUL];
+
+const UP_EMPTY: [Field; 2] = [Field::Empty, Field::HorzEdgeD];
+
+const LEFT_FULL: [Field; 4] = 
+
+
 // fn make_field() -> (
 //     Vec<Vec<Cells>>,
 //     HashMap<(usize, usize), NPCWrap>,
@@ -618,36 +635,14 @@ fn make_field() -> () {
         for i in (0..temp[0].len()) {
             let up = if j > 0 { temp[j - 1][i] } else { Field::Null };
             let left = if i > 0 { temp[j][i - 1] } else { Field::Null };
-            temp[j][i] = match (up, left) {
-                (Field::Normal, left)
-                    if left == Field::Normal
-                        || left == Field::VertEdgeL
-                        || left == Field::InCornerUR
-                        || left == Field::InCornerDR =>
-                {
-                    *[Field::Normal, Field::InCornerUL, Field::Shrub]
-                        .choose(&mut rng)
-                        .unwrap_or(&Field::Normal)
-                }
-                (Field::Normal, left)
-                    if left == Field::InCornerUL || left == Field::OutCornerDL =>
-                {
-                    *[Field::HorzEdgeD, Field::InCornerUR]
-                        .choose(&mut rng)
-                        .unwrap_or(&Field::HorzEdgeD)
-                } // --
-                (Field::OutCornerUL, left)
-                    if left == Field::HorzEdgeU || left == Field::InCornerDL =>
-                {
-                    Field::InCornerUR
-                }
-                (Field::OutCornerUL, Field::Empty) => Field::VertEdgeL,
-                (Field::Normal, Field::VertEdgeL) => {
-                    *[Field::Normal, Field::InCornerUL, Field::Shrub]
-                        .choose(&mut rng)
-                        .unwrap_or(&Field::Normal)
-                }
-                _ => Field::Normal,
+            temp[j][i] = {
+                //     (Field::Normal, Field::VertEdgeL) => {
+                //         *[Field::Normal, Field::InCornerUL, Field::Shrub]
+                //             .choose(&mut rng)
+                //             .unwrap_or(&Field::Normal)
+                //     }
+                //     _ => Field::Normal,
+                Field::Null
             }
         }
     }
