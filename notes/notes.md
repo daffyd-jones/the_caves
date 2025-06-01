@@ -33,10 +33,23 @@
   - [ ] implement completion convo/reward
 
 - [ ] add notes for settlements, cave knowledge, discoveries (puzzles, intresting features)
+  - [ ] add get_info for settlement
+  - [ ] add settle info to settlements notes
+  - [ ] add info for lore env inters
+  - [ ] add get_info for puzzles
 - [ ] implement ascii
   - [ ] implement variations for npcs
   - [ ] implement variations for items
 - [ ] implement features - creation/nodemap placement
+  - [+] nodemap creation
+  - [+] feature creation
+  - [ ] add feature types
+    - [+] Abandoned Shack
+    - [ ] Ruins
+    - [ ] Pond
+    - [ ] Field
+    - [ ] Stream
+    - [ ] Hermit
   - [ ] implement Hermit
 - [ ] renown good/evil
 

@@ -17,6 +17,11 @@ impl GameState {
                     let m = puzzle.get_map();
                     (p, m)
                 }
+                Location::Feature(feature) => {
+                    let p = feature.pos;
+                    let m = feature.map;
+                    (p, m)
+                }
                 _ => todo!(),
             };
             let mut map_vec = self.map.cells.clone();
@@ -76,6 +81,7 @@ impl GameState {
         self.location = match location {
             Location::Settlement(settle) => self.update_settlement(settle),
             Location::Puzzle(puzzle) => self.update_puzzle(puzzle),
+            Location::Feature(feature) => self.update_feature(feature),
             _ => todo!(),
         };
     }
@@ -85,12 +91,16 @@ impl GameState {
         match loc {
             Location::Settlement(mut settle) => settle.get_pos(),
             Location::Puzzle(mut puzz) => puzz.get_pos(),
+            Location::Feature(feat) => feat.pos,
             _ => (0, 0),
         }
     }
 
     pub fn location_check(&mut self) {
         if self.location == Location::Null {
+            if let Some(feature) = self.features.check_location(self.dist_fo, self.loc_rad / 2) {
+                self.location = Location::Feature(feature);
+            }
             if let Some(settlement) = self.settles.check_location(self.dist_fo, self.loc_rad) {
                 self.location = Location::Settlement(settlement);
             };
@@ -115,6 +125,16 @@ impl GameState {
                         self.location = Location::Null;
                     }
                 }
+                Location::Feature(ref mut feature) => {
+                    if !in_range(
+                        feature.pos,
+                        (-self.dist_fo.0, -self.dist_fo.1),
+                        self.loc_rad,
+                    ) {
+                        feature.cont_sent = false;
+                        self.features.update_feature(feature.clone());
+                    }
+                }
                 _ => todo!(),
             }
         }
@@ -132,6 +152,11 @@ impl GameState {
             }
             Location::Puzzle(mut puzzle) => {
                 let lpos = puzzle.get_pos();
+                let (xx, yy) = ((lpos.0 + dpos.0) as usize, (lpos.1 + dpos.1) as usize);
+                pos.0 >= xx && pos.0 <= xx + 300 && pos.1 >= yy && pos.1 <= yy + 200
+            }
+            Location::Feature(puzzle) => {
+                let lpos = puzzle.pos;
                 let (xx, yy) = ((lpos.0 + dpos.0) as usize, (lpos.1 + dpos.1) as usize);
                 pos.0 >= xx && pos.0 <= xx + 300 && pos.1 >= yy && pos.1 <= yy + 200
             }

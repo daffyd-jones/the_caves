@@ -197,6 +197,7 @@ pub fn loc_shop_items(dist_fo: (i64, i64), loc: Location) -> HashMap<(usize, usi
             }
         }
         Location::Puzzle(_puzzle) => HashMap::new(),
+        Location::Feature(_) => HashMap::new(),
         _ => todo!(),
     }
 }

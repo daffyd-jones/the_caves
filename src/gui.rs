@@ -306,7 +306,7 @@ impl GUI {
     
 
     pub fn draw(&mut self,
-         debug: (String, String, String),
+         debug: (String, String, String, String),
          gui_args: &mut GuiArgs
     ) {
         if self.ani_updt < 120 {
@@ -439,6 +439,17 @@ impl GUI {
                         rows.push(
                             Row::new(vec![
                                 Span::styled("-", Style::default().fg(Color::White)),
+                                Span::styled(i, Style::default().fg(Color::Yellow)),
+                             ])
+                        );
+                    }
+
+                    let feat_pos = debug.3.split("#");
+
+                    for i in feat_pos {
+                        rows.push(
+                            Row::new(vec![
+                                Span::styled(":", Style::default().fg(Color::White)),
                                 Span::styled(i, Style::default().fg(Color::Yellow)),
                              ])
                         );

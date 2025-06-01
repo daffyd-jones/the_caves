@@ -17,15 +17,59 @@ const GRASS_PATCH: &str = r#"
 ',',',',',',',',
 "#;
 
+// const GRASS_PATCH_IN_CORNER: &str = r#"
+// ',',',',',',',',
+// ',",',',',',",',
+// ',',',',',',',',
+// ',',',",' ',' ',
+// ',','
+// ',",',
+// ',','
+// ',',',
+// "#;
+
 const GRASS_PATCH_IN_CORNER: &str = r#"
 ',',',',',',',',
 ',",',',',',",',
 ',',',',',',',',
 ',',',",' ',' ',
-',','           
-',",',          
-',','           
-',',',          
+',',','         
+',",','         
+',',',",        
+',',','         
+"#;
+
+const GRASS_PATCH_IN_CORNER: &str = r#"
+',',',',        
+',",','         
+',',',",        
+',',','         
+',',',", ,', ,',
+',',',',',',',',
+',",',',',',",',
+',',',',',',',',
+"#;
+
+const GRASS_PATCH_IN_CORNER: &str = r#"
+',',',',',',',',
+',',",',',',",',
+',',',',',',',',
+' ',' ',",',',',
+        ',',',',
+        ',',",',
+         ,',',',
+        ',',',',
+"#;
+
+const GRASS_PATCH_IN_CORNER: &str = r#"
+        ',',',',
+        ',',",',
+         ,',',',
+        ',',',',
+',', ,',",',',',
+',',',',',',',',
+',',",',',',",',
+',',',',',',',',
 "#;
 
 const GRASS_PATCH_OUT_CORNER: &str = r#"
@@ -37,6 +81,28 @@ const GRASS_PATCH_OUT_CORNER: &str = r#"
      ,',',',',',
       ',',",',',
       ',',',',',
+"#;
+
+const GRASS_PATCH_OUT_CORNER: &str = r#"
+       ,',",',',
+       ,',',',',
+       ,',",',',
+        ',',',',
+         '  ' ' 
+                
+                
+                
+"#;
+
+const GRASS_PATCH_OUT_CORNER: &str = r#"
+       ,',",',',
+       ,',',',',
+       ,',",',',
+        ',',',',
+         '  ' ' 
+                
+                
+                
 "#;
 
 const GRASS_PATCH_HORZ_EDGE: &str = r#"
@@ -198,6 +264,46 @@ i ̾¡  ͔¡  ͊¡  ͛¡  ̷¡  ̸¡  ̚¡  ͆¡ ¡˞ ¡ˡ  ̢¡ ¡
 "#;
 
 const SMALL_RUIN_2: &str = r#"
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+"#;
+
+const ralette: &str = r#"
+empty: ' . , ' * |
+wall: ▒ |
+other ▓ ░ ~ |
+pipes:
+═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬
+┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │
+
+ʬ ỻ Π Ħ ʭ                     
+ж ѧ π
+ 
+≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©
+
+i ̾¡  ͔¡  ͊¡  ͛¡  ̷¡  ̸¡  ̚¡  ͆¡ ¡˞ ¡ˡ  ̢¡ ¡     
+
+"#;
+
+const TEMP: &str = r#"
 ________________________________________________________________________________
 ________________________________________________________________________________
 ________________________________________________________________________________
@@ -454,12 +560,7 @@ fn make_small_ruin_feature() -> (
 ) {
     let cells = vec![vec![Cells::Empty; 80]; 20];
     let mut rng = rand::thread_rng();
-    parse_map(
-        ABANDONED_SHACKS
-            .choose(&mut rng)
-            .unwrap_or(&ABANDONED_SHACK_1),
-        cells,
-    )
+    parse_map(SMALL_RUINS.choose(&mut rng).unwrap_or(&SMALL_RUIN_1), cells)
 }
 
 fn make_abandoned_shack() -> (
@@ -468,19 +569,99 @@ fn make_abandoned_shack() -> (
     HashMap<(usize, usize), Item>,
     HashMap<(usize, usize), EnvInter>,
 ) {
-    let cells = vec![vec![Cells::Empty; 40]; 20];
+    let cells = vec![vec![Cells::Empty; 40]; 12];
     let mut rng = rand::thread_rng();
-    parse_map(SMALL_RUINS.choose(&mut rng).unwrap_or(&SMALL_RUIN_1), cells)
+    parse_map(
+        ABANDONED_SHACKS
+            .choose(&mut rng)
+            .unwrap_or(&ABANDONED_SHACK_1),
+        cells,
+    )
+}
+
+#[derive(Clone, PartialEq, Eq, Copy, PartialOrd, Ord)]
+enum Field {
+    Normal,
+    InCornerUL,
+    InCornerUR,
+    InCornerDL,
+    InCornerDR,
+    OutCornerUL,
+    OutCornerUR,
+    OutCornerDL,
+    OutCornerDR,
+    HorzEdgeU,
+    HorzEdgeD,
+    VertEdgeL,
+    VertEdgeR,
+    Shrub,
+    Empty,
+    Null,
+}
+
+// fn make_field() -> (
+//     Vec<Vec<Cells>>,
+//     HashMap<(usize, usize), NPCWrap>,
+//     HashMap<(usize, usize), Item>,
+//     HashMap<(usize, usize), EnvInter>,
+// ) {
+fn make_field() -> () {
+    let mut rng = rand::thread_rng();
+    let cells = vec![vec![Cells::Empty; 80]; 20];
+    let mut temp = vec![vec![Field::Empty; 8]; 8];
+    // let start = {
+    //     let t = rng.gen_range(0..64);
+    //     (t/8, t%8)
+    // };
+    temp[0][0] = Field::OutCornerUL;
+    for j in (0..temp.len()) {
+        for i in (0..temp[0].len()) {
+            let up = if j > 0 { temp[j - 1][i] } else { Field::Null };
+            let left = if i > 0 { temp[j][i - 1] } else { Field::Null };
+            temp[j][i] = match (up, left) {
+                (Field::Normal, left)
+                    if left == Field::Normal
+                        || left == Field::VertEdgeL
+                        || left == Field::InCornerUR
+                        || left == Field::InCornerDR =>
+                {
+                    *[Field::Normal, Field::InCornerUL, Field::Shrub]
+                        .choose(&mut rng)
+                        .unwrap_or(&Field::Normal)
+                }
+                (Field::Normal, left)
+                    if left == Field::InCornerUL || left == Field::OutCornerDL =>
+                {
+                    *[Field::HorzEdgeD, Field::InCornerUR]
+                        .choose(&mut rng)
+                        .unwrap_or(&Field::HorzEdgeD)
+                } // --
+                (Field::OutCornerUL, left)
+                    if left == Field::HorzEdgeU || left == Field::InCornerDL =>
+                {
+                    Field::InCornerUR
+                }
+                (Field::OutCornerUL, Field::Empty) => Field::VertEdgeL,
+                (Field::Normal, Field::VertEdgeL) => {
+                    *[Field::Normal, Field::InCornerUL, Field::Shrub]
+                        .choose(&mut rng)
+                        .unwrap_or(&Field::Normal)
+                }
+                _ => Field::Normal,
+            }
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Feature {
-    ftype: FeatureType,
-    pos: (i64, i64),
-    map: Vec<Vec<Cells>>,
-    items: HashMap<(usize, usize), Item>,
-    npcs: HashMap<(usize, usize), NPCWrap>,
-    env_inters: HashMap<(usize, usize), EnvInter>,
+    pub ftype: FeatureType,
+    pub pos: (i64, i64),
+    pub map: Vec<Vec<Cells>>,
+    pub items: HashMap<(usize, usize), Item>,
+    pub npcs: HashMap<(usize, usize), NPCWrap>,
+    pub env_inters: HashMap<(usize, usize), EnvInter>,
+    pub cont_sent: bool,
 }
 
 pub struct Features {
@@ -492,6 +673,14 @@ impl Features {
         Self {
             features: HashMap::new(),
         }
+    }
+
+    pub fn get_feature_positions(&self) -> Vec<String> {
+        let mut feat_vec = Vec::new();
+        for (pos, f) in self.features.clone() {
+            feat_vec.push(format!("({}, {}): {:?}", pos.0, pos.1, f.ftype));
+        }
+        feat_vec
     }
 
     pub fn new_small_ruin_feature(&mut self, pos: (i64, i64)) {
@@ -506,6 +695,7 @@ impl Features {
                 items,
                 npcs,
                 env_inters,
+                cont_sent: false,
             },
         );
         // self.features.insert(pos, small_cells);
@@ -528,8 +718,25 @@ impl Features {
                 items,
                 npcs,
                 env_inters,
+                cont_sent: false,
             },
         );
+    }
+
+    pub fn check_location(&self, bpos: (i64, i64), rad: u16) -> Option<Feature> {
+        for (spos, s) in &self.features {
+            let xx = spos.0 - bpos.0 * -1;
+            let yy = spos.1 - bpos.1 * -1;
+            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i64;
+            if hyp <= rad.into() {
+                return Some(s.clone());
+            }
+        }
+        return None;
+    }
+
+    pub fn update_feature(&mut self, feature: Feature) {
+        self.features.insert(feature.pos, feature);
     }
 
     pub fn feature_check(&mut self, pos: (i64, i64)) -> bool {

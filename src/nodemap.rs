@@ -1,4 +1,5 @@
-use crate::enums::NodeType;
+use crate::enums::{FeatureType, NodeType};
+use crate::features::Feature;
 use rand::{seq::SliceRandom, Rng};
 use std::collections::HashMap;
 use std::fs;
@@ -19,6 +20,10 @@ pub struct NodeMap {
     ur_nodes: HashMap<u16, Vec<Node>>,
     dl_nodes: HashMap<u16, Vec<Node>>,
     dr_nodes: HashMap<u16, Vec<Node>>,
+    ul_features: HashMap<u16, Vec<Node>>,
+    ur_features: HashMap<u16, Vec<Node>>,
+    dl_features: HashMap<u16, Vec<Node>>,
+    dr_features: HashMap<u16, Vec<Node>>,
 }
 
 impl NodeMap {
@@ -27,13 +32,101 @@ impl NodeMap {
         let ur_nodes = HashMap::new();
         let dl_nodes = HashMap::new();
         let dr_nodes = HashMap::new();
+        let ul_features = HashMap::new();
+        let ur_features = HashMap::new();
+        let dl_features = HashMap::new();
+        let dr_features = HashMap::new();
         NodeMap {
             depth: 0,
             ul_nodes,
             ur_nodes,
             dl_nodes,
             dr_nodes,
+            ul_features,
+            ur_features,
+            dl_features,
+            dr_features,
         }
+    }
+
+    pub fn add_features(&mut self, quad: &str) -> Vec<Node> {
+        let (mut nodes, dir) = match quad {
+            "ul" => (self.ul_features.clone(), (-1, -1)),
+            "ur" => (self.ur_features.clone(), (1, -1)),
+            "dl" => (self.dl_features.clone(), (-1, 1)),
+            "dr" => (self.dr_features.clone(), (1, 1)),
+            _ => todo!(),
+        };
+        let mut fnodes = Vec::new();
+
+        let depth = self.depth;
+        let base = {
+            match depth % 2 {
+                0 => 0,
+                1 => 800,
+                _ => todo!(),
+            }
+        };
+        let mut rng = rand::thread_rng();
+        for i in (base..(800 * depth) + 1).step_by(1600) {
+            let pos = match i {
+                0 => (0, 0),
+                800 => {
+                    let x = (depth * 800, i);
+                    let xpoint = rng.gen_range((x.0 - 400)..(x.0 + 300));
+                    let ypoint = rng.gen_range((x.1 - 800)..(x.1 - 200));
+                    (xpoint as i64 * dir.0, ypoint as i64 * dir.1)
+                }
+                _ => {
+                    let x = (depth * 800, i);
+                    let xpoint = rng.gen_range((x.0 - 400)..(x.0 + 300));
+                    let ypoint = rng.gen_range((x.1 - 1300)..(x.1 - 200));
+                    (xpoint as i64 * dir.0, ypoint as i64 * dir.1)
+                }
+            };
+
+            let neighbors = Vec::new();
+            let neighbor_ids = Vec::new();
+
+            fnodes.push(Node {
+                id: format!("{}|{}", pos.0, pos.1),
+                ntype: NodeType::Feature,
+                pos,
+                name: "".to_string(),
+                neighbors,
+                neighbor_ids,
+            });
+
+            if i != (depth * 800) && i != 0 {
+                let pos = {
+                    let x = (i, depth * 800);
+                    let xpoint = rng.gen_range((x.0 - 400)..(x.0 + 300));
+                    let ypoint = rng.gen_range((x.1 - 1300)..(x.1 - 200));
+                    (xpoint as i64 * dir.0, ypoint as i64 * dir.1)
+                };
+                let neighbors = Vec::new();
+                let neighbor_ids = Vec::new();
+
+                fnodes.push(Node {
+                    id: format!("{}|{}", pos.0, pos.1),
+                    ntype: NodeType::Feature,
+                    pos,
+                    name: "".to_string(),
+                    neighbors,
+                    neighbor_ids,
+                });
+            }
+        }
+
+        nodes.insert(depth, fnodes.clone());
+        match quad {
+            "ul" => self.ul_features = nodes,
+            "ur" => self.ur_features = nodes,
+            "dl" => self.dl_features = nodes,
+            "dr" => self.dr_features = nodes,
+            _ => todo!(),
+        };
+        fnodes
     }
 
     pub fn increase_depth(&mut self, quad: &str) -> Vec<Node> {
@@ -112,8 +205,8 @@ impl NodeMap {
 
             id_cnt += 1;
 
-            if i != 0 && pos.0 != pos.1 {
-                let x = (depth * 800, i);
+            if i != (depth * 800) && i != 0 {
+                let x = (i, depth * 800);
                 let xpoint = rng.gen_range(x.0 - 100..x.0 + 100);
                 let ypoint = rng.gen_range(x.1 - 100..x.1 + 100);
                 let pos = ((xpoint as i64 * dir.0), (ypoint as i64 * dir.1));
@@ -155,5 +248,4 @@ impl NodeMap {
         };
         d_nodes
     }
-
 }

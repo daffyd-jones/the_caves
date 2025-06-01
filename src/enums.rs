@@ -1,10 +1,10 @@
 //enum
 use crate::enemy::Enemy;
+use crate::features::Feature;
 use crate::item::Item;
 use crate::npc::{BaseNPC, CommNPC, ConvNPC, ShopNPC, SpawnNPC, TradeNPC};
 use crate::puzzle::Puzzle;
 use crate::settlement::Settlement;
-
 // Define the Cell enum
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Cells {
@@ -434,6 +434,7 @@ pub enum Shops {
 pub enum Location {
     Settlement(Settlement),
     Puzzle(Puzzle),
+    Feature(Feature),
     Null,
 }
 

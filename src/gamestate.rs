@@ -23,6 +23,7 @@ mod compass_state;
 mod enemies;
 mod enemy_encounter;
 mod environment_interactions;
+mod feature_state;
 mod interactions;
 mod inventory_state;
 mod item_state;
@@ -211,6 +212,10 @@ impl GameState {
                     _ => {}
                 }
             }
+            let ulfeats = nodemap.add_features("ul");
+            for f in ulfeats {
+                features.new_abandoned_shack(f.pos);
+            }
             let urnodes = nodemap.increase_depth("ur");
             for n in urnodes {
                 match n.ntype {
@@ -218,6 +223,10 @@ impl GameState {
                     NodeType::Puzzle => puzzles.spawn_node_puzzle(n.pos),
                     _ => {}
                 }
+            }
+            let urfeats = nodemap.add_features("ur");
+            for f in urfeats {
+                features.new_abandoned_shack(f.pos);
             }
             let dlnodes = nodemap.increase_depth("dl");
             for n in dlnodes {
@@ -227,6 +236,10 @@ impl GameState {
                     _ => {}
                 }
             }
+            let dlfeats = nodemap.add_features("dl");
+            for f in dlfeats {
+                features.new_abandoned_shack(f.pos);
+            }
             let drnodes = nodemap.increase_depth("dr");
             for n in drnodes {
                 match n.ntype {
@@ -234,6 +247,10 @@ impl GameState {
                     NodeType::Puzzle => puzzles.spawn_node_puzzle(n.pos),
                     _ => {}
                 }
+            }
+            let drfeats = nodemap.add_features("dr");
+            for f in drfeats {
+                features.new_abandoned_shack(f.pos);
             }
         }
 
@@ -252,7 +269,7 @@ impl GameState {
             comp_head: (0, 0),
             comp_list,
             comp_mode: CompMode::Search,
-            loc_rad: 500,
+            loc_rad: 360,
             depth: 1,
             level: 0,
             //l_systems,
@@ -544,7 +561,8 @@ impl GameState {
                 .map(|((x, y), s)| format!("({}, {}): {}", x, y, s))
                 .collect::<Vec<String>>()
                 .join("#");
-            (dist_fo, spos_s, comp)
+            let fpos_s = self.features.get_feature_positions().join("#");
+            (dist_fo, spos_s, comp, fpos_s)
         };
         self.gui.draw(
             debug_strs.clone(),

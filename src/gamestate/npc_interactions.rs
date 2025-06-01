@@ -88,7 +88,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: None,
+                    ascii: Some(&self.npc_asciis[0].clone()),
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -132,8 +132,6 @@ impl GameState {
         let spwn_conv = npc.get_conv();
         // let ptype = npc.get_ptype();
         let name = npc.get_sname();
-        // let pos = self.dist_fo;
-        // self.puzzles.spawn_new_puzzle(pos, ptype.clone());
         self.conv_step(spwn_conv, "0".to_string(), name, Vec::new())
     }
 

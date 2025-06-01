@@ -523,22 +523,22 @@ impl GUI {
                 // let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
                 f.render_widget(paragraph, inner_area);
 
-                let normal_info = Layout::default()
-                    .direction(Direction::Vertical)
-                    .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
-                    .split(game_chunks[1]);
+                // let normal_info = Layout::default()
+                //     .direction(Direction::Vertical)
+                //     .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
+                //     .split(game_chunks[1]);
 
-                let paragraph_block = Block::default()
-                    .title(name)
-                    .borders(Borders::ALL)
-                    .style(Style::default().bg(Color::Black));
-                let table_block = Block::default()
-                    .title("")
-                    .borders(Borders::ALL)
-                    .style(Style::default().bg(Color::Black));
+                // let paragraph_block = Block::default()
+                //     .title(name)
+                //     .borders(Borders::ALL)
+                //     .style(Style::default().bg(Color::Black));
+                // let table_block = Block::default()
+                //     .title("")
+                //     .borders(Borders::ALL)
+                //     .style(Style::default().bg(Color::Black));
 
-                let table_inner = table_block.inner(normal_info[1]);
-                let table_width = table_inner.width;
+                // let table_inner = table_block.inner(normal_info[1]);
+                // let table_width = table_inner.width;
 
                 // let comm = npc_str[1];
 
@@ -556,10 +556,75 @@ impl GUI {
 
                 // let texts: Text = ascii_str.into_iter().collect();
 
-                let npc = Paragraph::new(Span::styled(text, Style::default().white()))
-                    .block(paragraph_block)
-                    .wrap(ratatui::widgets::Wrap { trim: true });
+                let info_block = Block::default()
+                    .title("")
+                    .borders(Borders::ALL)
+                    .style(Style::default().bg(Color::Black));
+                f.render_widget(info_block, game_chunks[1]);
 
+                let a = f.area();
+                let b = Block::bordered()
+                    .title(name)
+                    .style(Style::default().bg(Color::Black));
+                let (xper, yper) = (80, 20);
+                let harea = |a, xper, yper| {
+                    let vertical =
+                        Layout::vertical([Constraint::Percentage(yper)]).flex(Flex::Center);
+                    let horizontal =
+                        Layout::horizontal([Constraint::Percentage(xper)]).flex(Flex::Center);
+                    let [area] = vertical.areas(a);
+                    let [area] = horizontal.areas(a);
+                    area
+                };
+                let h_area = harea(a, xper, yper);
+                f.render_widget(Clear, h_area);
+                f.render_widget(b, h_area);
+
+                let paragraph = Paragraph::new(text)
+                    .block(Block::bordered())
+                    .style(Style::default().bg(Color::Black))
+                    .wrap(ratatui::widgets::Wrap { trim: true });
+                let para_area = Rect {
+                    x: h_area.x + 2,
+                    y: h_area.y + 2,
+                    width: h_area.width / 2 - 3,
+                    height: (h_area.height / 3) * 2,
+                };
+                f.render_widget(paragraph, para_area);
+
+                let table_area = Rect {
+                    x: h_area.x + h_area.width / 2 + 2,
+                    y: h_area.y + 2,
+                    width: h_area.width / 2 - 4,
+                    height: h_area.height - 4,
+                };
+                let mut ascii_str = Vec::new();
+                let padding = " ".repeat((table_area.width.saturating_sub(60) / 2) as usize);
+                let ascii = gui_args.ascii.unwrap();
+                for i in 0..(ascii.len() / 60) {
+                    let line = &ascii[i * 60..(i * 60 + 60)];
+                    let padded_line = format!("{}{}", padding, line);
+                    ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                }
+                let f_ascii: Text = ascii_str.into_iter().collect();
+                let plyr = Paragraph::new(f_ascii)
+                    .block(Block::bordered())
+                    .style(Style::default().bg(Color::Black));
+                f.render_widget(plyr, table_area);
+
+                let opts_area = Rect {
+                    x: h_area.x + 2,
+                    y: h_area.y + 2 + (h_area.height / 3) * 2,
+                    width: h_area.width / 2 - 3,
+                    height: (h_area.height / 3) - 4,
+                };
+
+                let table_block = Block::default()
+                    .title("")
+                    .borders(Borders::ALL)
+                    .style(Style::default().bg(Color::Black));
+                let table_inner = table_block.inner(opts_area);
+                let table_width = table_inner.width;
                 let rows: Vec<Row> = opts_vec
                     .iter()
                     .enumerate()
@@ -578,8 +643,7 @@ impl GUI {
                     })
                     .collect();
                 let table = Table::new(rows, &[Constraint::Percentage(100)]).block(table_block);
-                f.render_widget(npc, normal_info[0]);
-                f.render_widget(table, normal_info[1]);
+                f.render_widget(table, opts_area);
             })
             .unwrap();
     }
