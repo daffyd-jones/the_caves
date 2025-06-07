@@ -26,7 +26,8 @@ impl GameState {
         let comp_list = self.comp_list.clone();
         let dfo = self.dist_fo;
         for (pos, name) in comp_list {
-            let hyp = (((pos.0 - -dfo.0).pow(2) + (pos.1 - -dfo.1).pow(2)) as f64).sqrt() as i64;
+            let hyp = ((((pos.0 - -dfo.0) as i32).pow(2) + ((pos.1 - -dfo.1) as i32).pow(2)) as f64)
+                .sqrt() as u16;
             hyp_list.push((hyp, name));
         }
         let mut names = Vec::new();

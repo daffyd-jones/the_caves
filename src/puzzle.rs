@@ -310,7 +310,7 @@ fn place_portals(cells: Vec<Vec<Cells>>) -> HashMap<(usize, usize), (usize, usiz
 //#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct Puzzle {
     ptype: PuzzleType,
-    pos: (i64, i64),
+    pos: (i16, i16),
     map: Vec<Vec<Cells>>,
     portals: HashMap<(usize, usize), (usize, usize)>,
     items: HashMap<(usize, usize), Item>,
@@ -323,7 +323,7 @@ pub struct Puzzle {
 impl Puzzle {
     pub fn new(
         ptype: PuzzleType,
-        pos: (i64, i64),
+        pos: (i16, i16),
         map: Vec<Vec<Cells>>,
         portals: HashMap<(usize, usize), (usize, usize)>,
         items: HashMap<(usize, usize), Item>,
@@ -345,7 +345,7 @@ impl Puzzle {
         }
     }
 
-    pub fn new_maze(pos: (i64, i64)) -> Self {
+    pub fn new_maze(pos: (i16, i16)) -> Self {
         let map = make_maze_map();
         let portals = HashMap::new();
         let items = HashMap::new();
@@ -365,7 +365,7 @@ impl Puzzle {
         }
     }
 
-    pub fn new_teleport(pos: (i64, i64)) -> Self {
+    pub fn new_teleport(pos: (i16, i16)) -> Self {
         let map = make_teleport_map();
         let portals = place_portals(map.clone());
         let items = HashMap::new();
@@ -385,11 +385,11 @@ impl Puzzle {
         }
     }
 
-    pub fn get_pos(&mut self) -> (i64, i64) {
+    pub fn get_pos(&mut self) -> (i16, i16) {
         self.pos.clone()
     }
 
-    pub fn set_pos(&mut self, tpos: (i64, i64)) {
+    pub fn set_pos(&mut self, tpos: (i16, i16)) {
         self.pos = tpos;
     }
 

@@ -1,6 +1,6 @@
 // tasks.rs
 
-use crate::enums::ToggleState;
+use crate::enums::{Location, ToggleState};
 use crate::item::Item;
 use crate::npc::Convo;
 
@@ -60,6 +60,18 @@ use crate::npc::Convo;
 //   + if reward: give
 //  $ Remove task
 
+/*
+
+req:
+- needs start properties
+ - npc pos, loctype, name, convo
+- needs goal properties
+ - npc pos, loctype, name, convo
+
+
+
+*/
+
 enum TaskType {
     Plot,
     RetrieveItem,
@@ -69,8 +81,10 @@ enum TaskType {
 
 struct Task {
     ttype: TaskType,
-    start_pos: (i64, i64),
-    goal_pos: (i64, i64),
+    start_pos: (i16, i16),
+    start_location: Location,
+    goal_pos: (i16, i16),
+    goal_location: Location,
     reward: Item,
     task_item: Item,
     start_name: String,
@@ -81,14 +95,32 @@ struct Task {
     stat_triggers: Vec<ToggleState>,
 }
 
-struct Tasks {
-    tasks: Vec<Task>,
-}
-
-impl Tasks {
+impl Task {
     // pub fn new_retrieve_task() -> Self {
     //     Self {
-
+    //         ttype: TaskType::RetrieveItem,
+    //         start_pos,
+    //         start_location,
+    //         goal_pos,
+    //         goal_location,
+    //         reward,
+    //         task_item,
+    //         start_name,
+    //         goal_name,
+    //         start_convo,
+    //         goal_convo,
+    //         final_convo,
+    //         stat_triggers,
     //     }
     // }
 }
+
+struct Tasks {
+    tasks: Vec<Task>,
+    task_locations: Vec<(i16, i16)>,
+    active_tasks: Vec<Task>,
+    guild_tasks: Vec<Task>,
+    active_guild_task: Task,
+}
+
+impl Tasks {}

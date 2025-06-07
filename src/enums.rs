@@ -9,6 +9,7 @@ use crate::settlement::Settlement;
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Cells {
     Empty,
+    Transparent,
     Grass1,
     Grass2,
     Grass3,
@@ -17,6 +18,7 @@ pub enum Cells {
     Bramble2,
     Bramble3,
     Bramble4,
+    Bush,
     Dirt1,
     Dirt2,
     Dirt3,
@@ -375,10 +377,25 @@ pub enum EnvInter {
     GuildPost,
     ChurchPost,
     Cauldron,
-    LockedDoor,
-    Door,
+    Task(TaskType),
+    Door(Door),
     Herbalist,
     Null,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Door {
+    Open,
+    Unlocked,
+    Locked(u8),
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum TaskType {
+    Plot,
+    RetrieveItem,
+    PassMessage,
+    PassItem,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Ord, PartialOrd)]
@@ -438,7 +455,7 @@ pub enum Location {
     Null,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum FeatureType {
     Field,
     Stream,

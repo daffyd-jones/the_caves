@@ -79,14 +79,14 @@ pub struct Experience {
 impl Experience {
     fn new() -> Self {
         Self {
-            attack: (0, 0, 100),
-            damage: (0, 0, 100),
-            defence: (0, 0, 100),
-            luck: (0, 0, 10),
-            trading: (0, 0, 10),
-            lockpicking: (0, 0, 10),
-            navigation: (0, 0, 10),
-            herbalism: (0, 0, 10),
+            attack: (1, 0, 100),
+            damage: (1, 0, 100),
+            defence: (1, 0, 100),
+            luck: (1, 0, 10),
+            trading: (1, 0, 10),
+            lockpicking: (1, 0, 10),
+            navigation: (1, 0, 10),
+            herbalism: (1, 0, 10),
         }
     }
 

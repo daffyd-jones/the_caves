@@ -2,7 +2,7 @@
 
 use crate::gamestate::GameState;
 
-use crate::enums::{EnvInter, GameMode, Items, Plants, PuzzleType};
+use crate::enums::{Door, EnvInter, GameMode, Interactable, Items, Plants, PuzzleType};
 use crate::gui_utils::GuiArgs;
 use crate::item::Item;
 use crate::utils::loc_shop_items;
@@ -184,9 +184,10 @@ impl GameState {
                     (xdir, ydir) if xdir > 0 && ydir > 0 => "South West".to_string(),
                     _ => "dunno".to_string(),
                 };
-                let settle_name = s.get_sname();
-                let settle_str = format!("{}#{}", settle_name.clone(), dir_string.clone());
-                settles.push(settle_str);
+                // let settle_name = s.get_sname();
+                // let settle_str = format!("{}#{}", settle_name.clone(), dir_string.clone());
+                let stats = s.get_stats();
+                settles.push((dir_string, stats.0, stats.1, stats.2));
             }
         }
 
@@ -524,7 +525,90 @@ impl GameState {
         true
     }
 
+    fn unlock_door(&mut self, door: Door) {
+        let adj = [
+            (self.player.x - 1, self.player.y),
+            (self.player.x + 1, self.player.y),
+            (self.player.x, self.player.y - 1),
+            (self.player.x, self.player.y + 1),
+        ];
+
+        let env_temp = self.env_inters.clone();
+
+        for (pos, env) in env_temp {
+            if adj.contains(&pos) && env == EnvInter::Door(door) {
+                self.env_inters.insert(pos, EnvInter::Door(Door::Open));
+                self.interactee = Interactable::Null;
+            }
+        }
+    }
+
+    fn locked_door(&mut self, door: Door) -> bool {
+        log::info!("intee3: {:?}", door);
+        let pick_level = match door {
+            Door::Locked(lvl) => lvl,
+            _ => 0,
+        };
+
+        if pick_level == 0 {
+            self.unlock_door(door);
+            self.game_mode = GameMode::Play;
+            return true;
+        }
+
+        let result = if self
+            .stats
+            .player_xp
+            .get_xp(crate::enums::ExpType::Lockpicking)
+            .0 as u8
+            >= pick_level
+        {
+            self.unlock_door(door);
+            "You have unlocked the door.".to_string()
+        } else {
+            "You are not skilled enough to pick this lock.".to_string()
+        };
+        self.gui.reset_cursor();
+        loop {
+            self.gui.locked_draw(
+                result.clone(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                    ascii: None,
+                },
+            );
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Enter => {
+                                break;
+                            }
+                            _ => {
+                                let _ = self.key(event.code);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        self.game_mode = GameMode::Play;
+        true
+    }
+
     pub fn env_interaction(&mut self, env_inter: EnvInter) -> bool {
+        log::info!("intee2: {:?}", env_inter);
         match env_inter {
             EnvInter::Records => self.save_game(),
             EnvInter::Clinic => self.clinic(),
@@ -532,7 +616,12 @@ impl GameState {
             EnvInter::ChurchPost => self.church_post(),
             EnvInter::Cauldron => self.cauldron(),
             EnvInter::Herbalist => self.herbalist(),
-            _ => todo!(),
+            EnvInter::Door(door) => self.locked_door(door),
+            _ => {
+                log::info!("Not entering locked_door");
+                self.game_mode = GameMode::Play;
+                true
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 //gui_utils
 use crate::enemy::Enemy;
-use crate::enums::{AniType, Cells, Enemies, EnvInter, NPCWrap};
+use crate::enums::{AniType, Cells, Door, Enemies, EnvInter, NPCWrap};
 use crate::item::Item;
 use crate::map::Map;
 use crate::player::Player;
@@ -247,14 +247,16 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::ChurchPost => ('─', Color::Green),
                         EnvInter::Cauldron => ('℧', Color::Green),
                         EnvInter::Herbalist => ('ì', Color::Yellow),
+                        EnvInter::Door(Door::Locked(_)) => ('╎', Color::White),
+                        EnvInter::Door(Door::Open) => ('🮀', Color::White),
                         _ => todo!(),
                     }
                 } else {
                     match cell {
                         Cells::Empty => (' ', Color::White),
                         Cells::Dirt1 => ('·', Color::DarkGray),
-                        Cells::Dirt2 => (':', Color::DarkGray),
-                        Cells::Dirt3 => ('.', Color::DarkGray),
+                        Cells::Dirt2 => ('.', Color::DarkGray),
+                        Cells::Dirt3 => (':', Color::DarkGray),
                         Cells::Grass1 => (',', Color::LightGreen),
                         Cells::Grass2 => ('\'', Color::LightMagenta),
                         Cells::Grass3 => ('\"', Color::Green),
@@ -262,6 +264,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Bramble2 => ('ᘈ', Color::Green),
                         Cells::Bramble3 => ('ᘍ', Color::Green),
                         Cells::Bramble4 => ('ᘊ', Color::Green),
+                        Cells::Bush => ('&', Color::Green),
                         Cells::Rock => ('*', Color::DarkGray),
                         Cells::Wall => {
                             // ('░', Color::LightCyan)
@@ -330,10 +333,10 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::SmZer => ('ø', Color::LightBlue),
                         Cells::BZer => ('Ø', Color::LightBlue),
                         Cells::Cop => ('©', Color::LightRed),
-                        Cells::DblBracedGate => ('Ħ', Color::Red),
-                        Cells::BracedGate => ('ỻ', Color::Red),
-                        Cells::Arch => ('Π', Color::Red),
-                        Cells::Bricks => ('ʭ', Color::Red),
+                        Cells::DblBracedGate => ('Ħ', Color::DarkGray),
+                        Cells::BracedGate => ('ỻ', Color::DarkGray),
+                        Cells::Arch => ('Π', Color::DarkGray),
+                        Cells::Bricks => ('ʭ', Color::DarkGray),
                         Cells::Crops => ('ʬ', Color::Yellow),
                         Cells::SmallCampfire => ('ѧ', Color::LightRed),
                         Cells::Campfire => ('Ѧ', Color::LightRed),

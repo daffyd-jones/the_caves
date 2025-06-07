@@ -72,7 +72,7 @@ impl GameState {
         self.npcs = new_n;
     }
 
-    fn build_maze_npc(&self, mut puzzle: (i64, Puzzle)) -> (String, Convo, Vec<String>) {
+    fn build_maze_npc(&self, mut puzzle: (i16, Puzzle)) -> (String, Convo, Vec<String>) {
         let mut rng = rand::thread_rng();
         let name = self
             .npc_names

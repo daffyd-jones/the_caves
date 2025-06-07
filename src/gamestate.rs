@@ -59,9 +59,9 @@ pub struct GameState {
     player: Player,
     stats: Stats,
     features: Features,
-    dist_fo: (i64, i64),
-    comp_head: (i64, i64),
-    comp_list: HashMap<(i64, i64), String>,
+    dist_fo: (i16, i16),
+    comp_head: (i16, i16),
+    comp_list: HashMap<(i16, i16), String>,
     comp_mode: CompMode,
     loc_rad: u16,
     depth: u16,
@@ -214,7 +214,7 @@ impl GameState {
             }
             let ulfeats = nodemap.add_features("ul");
             for f in ulfeats {
-                features.new_abandoned_shack(f.pos);
+                features.new_rand_feature(f.pos);
             }
             let urnodes = nodemap.increase_depth("ur");
             for n in urnodes {
@@ -226,7 +226,7 @@ impl GameState {
             }
             let urfeats = nodemap.add_features("ur");
             for f in urfeats {
-                features.new_abandoned_shack(f.pos);
+                features.new_rand_feature(f.pos);
             }
             let dlnodes = nodemap.increase_depth("dl");
             for n in dlnodes {
@@ -238,7 +238,7 @@ impl GameState {
             }
             let dlfeats = nodemap.add_features("dl");
             for f in dlfeats {
-                features.new_abandoned_shack(f.pos);
+                features.new_rand_feature(f.pos);
             }
             let drnodes = nodemap.increase_depth("dr");
             for n in drnodes {
@@ -250,7 +250,7 @@ impl GameState {
             }
             let drfeats = nodemap.add_features("dr");
             for f in drfeats {
-                features.new_abandoned_shack(f.pos);
+                features.new_rand_feature(f.pos);
             }
         }
 

@@ -33,7 +33,7 @@
   - [ ] implement completion convo/reward
 
 - [ ] add notes for settlements, cave knowledge, discoveries (puzzles, intresting features)
-  - [ ] add get_info for settlement
+  - [+] add get_info for settlement
   - [ ] add settle info to settlements notes
   - [ ] add info for lore env inters
   - [ ] add get_info for puzzles
@@ -45,9 +45,9 @@
   - [+] feature creation
   - [ ] add feature types
     - [+] Abandoned Shack
-    - [ ] Ruins
+    - [+] Ruins
     - [ ] Pond
-    - [ ] Field
+    - [+] Field
     - [ ] Stream
     - [ ] Hermit
   - [ ] implement Hermit

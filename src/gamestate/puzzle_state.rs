@@ -30,12 +30,12 @@ impl GameState {
             let ports = puzzle.get_portals();
             for ((ix, iy), (ox, oy)) in ports {
                 let i_npos = (
-                    (self.dist_fo.0 + ix as i64 + lpos.0) as usize,
-                    (self.dist_fo.1 + iy as i64 + lpos.1) as usize,
+                    (self.dist_fo.0 + ix as i16 + lpos.0) as usize,
+                    (self.dist_fo.1 + iy as i16 + lpos.1) as usize,
                 );
                 let o_npos = (
-                    (self.dist_fo.0 + ox as i64 + lpos.0) as usize,
-                    (self.dist_fo.1 + oy as i64 + lpos.1) as usize,
+                    (self.dist_fo.0 + ox as i16 + lpos.0) as usize,
+                    (self.dist_fo.1 + oy as i16 + lpos.1) as usize,
                 );
                 self.portals.insert(i_npos, o_npos);
             }
@@ -73,7 +73,7 @@ impl GameState {
         );
 
         let tdfo = self.dist_fo;
-        let ndfo = (tdfo.0 + dcen.0 as i64, tdfo.1 + dcen.1 as i64);
+        let ndfo = (tdfo.0 + dcen.0 as i16, tdfo.1 + dcen.1 as i16);
         log::info!("dcen: {:#?}\ndfo: {:#?}\nndfo {:#?}", dcen, tdfo, ndfo);
         self.dist_fo = ndfo;
         // self.translate_state(dcen.0, dcen.1);

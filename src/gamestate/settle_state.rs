@@ -31,8 +31,8 @@ impl GameState {
         match self.location.clone() {
             Location::Settlement(mut settle) => {
                 if let Some(shop) = settle.get_shop_from_item_pos((
-                    ipos.0 as i64 - self.dist_fo.0,
-                    ipos.1 as i64 - self.dist_fo.1,
+                    ipos.0 as i16 - self.dist_fo.0,
+                    ipos.1 as i16 - self.dist_fo.1,
                 )) {
                     shop
                 } else {
@@ -54,15 +54,15 @@ impl GameState {
                 let ipos = i.get_pos();
                 if pos == (0, 0) {
                     let npos = (
-                        (self.dist_fo.0 + ipos.0 as i64 + lpos.0) as usize,
-                        (self.dist_fo.1 + ipos.1 as i64 + lpos.1) as usize,
+                        (self.dist_fo.0 + ipos.0 as i16 + lpos.0) as usize,
+                        (self.dist_fo.1 + ipos.1 as i16 + lpos.1) as usize,
                     );
                     i.set_pos(npos);
                     self.items.insert(npos, i.clone());
                 } else {
                     let npos = (
-                        (self.dist_fo.0 + ipos.0 as i64 + lpos.0) as usize,
-                        (self.dist_fo.1 + ipos.1 as i64 + lpos.1) as usize,
+                        (self.dist_fo.0 + ipos.0 as i16 + lpos.0) as usize,
+                        (self.dist_fo.1 + ipos.1 as i16 + lpos.1) as usize,
                     );
                     i.set_pos(npos);
                     self.items.insert(npos, i.clone());
@@ -72,8 +72,8 @@ impl GameState {
             for ((x, y), n) in tnpcs {
                 let mut nbox = box_npc(n);
                 let nwpos = (
-                    (self.dist_fo.0 + x as i64 + lpos.0) as usize,
-                    (self.dist_fo.1 + y as i64 + lpos.1) as usize,
+                    (self.dist_fo.0 + x as i16 + lpos.0) as usize,
+                    (self.dist_fo.1 + y as i16 + lpos.1) as usize,
                 );
                 nbox.set_pos(nwpos);
                 self.npcs.insert(nwpos, wrap_nbox(nbox));
@@ -81,8 +81,8 @@ impl GameState {
             let ten_inters = settle.get_env_inters();
             for ((x, y), ei) in ten_inters {
                 let nwpos = (
-                    (self.dist_fo.0 + x as i64 + lpos.0) as usize,
-                    (self.dist_fo.1 + y as i64 + lpos.1) as usize,
+                    (self.dist_fo.0 + x as i16 + lpos.0) as usize,
+                    (self.dist_fo.1 + y as i16 + lpos.1) as usize,
                 );
                 self.env_inters.insert(nwpos, ei);
             }
@@ -112,8 +112,8 @@ impl GameState {
             let lpos = loc.get_pos();
             shop.set_paid(true);
             shop.remove_item((
-                (ipos.0 as i64 - lpos.0 - self.dist_fo.0) as usize,
-                (ipos.1 as i64 - lpos.1 - self.dist_fo.1) as usize,
+                (ipos.0 as i16 - lpos.0 - self.dist_fo.0) as usize,
+                (ipos.1 as i16 - lpos.1 - self.dist_fo.1) as usize,
             ));
             loc.update_shop(shop);
             self.location = Location::Settlement(loc);

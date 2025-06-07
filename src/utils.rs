@@ -159,15 +159,15 @@ pub const COLLISION_CELLS: [Cells; 38] = [
     Cells::CPost,
 ];
 
-pub fn in_range(pos1: (i64, i64), pos2: (i64, i64), rad: u16) -> bool {
-    let xx = pos1.0 - pos2.0;
-    let yy = pos1.1 - pos2.1;
-    let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i64;
+pub fn in_range(pos1: (i16, i16), pos2: (i16, i16), rad: u16) -> bool {
+    let xx = (pos1.0 - pos2.0) as i32;
+    let yy = (pos1.1 - pos2.1) as i32;
+    let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u16;
     //log::info!("hyp: {}, eCx: {}, ey: {}", e.steps.clone(), x.clone(), y.clone());
-    hyp.abs() <= rad.into()
+    hyp <= rad
 }
 
-pub fn get_dir(vec: (i64, i64)) -> (i8, i8) {
+pub fn get_dir(vec: (i16, i16)) -> (i8, i8) {
     match vec {
         (x, y) if x < 0 && y < 0 => (-1, -1),
         (x, y) if x >= 0 && y < 0 => (1, -1),
@@ -177,7 +177,7 @@ pub fn get_dir(vec: (i64, i64)) -> (i8, i8) {
     }
 }
 
-pub fn loc_shop_items(dist_fo: (i64, i64), loc: Location) -> HashMap<(usize, usize), Item> {
+pub fn loc_shop_items(dist_fo: (i16, i16), loc: Location) -> HashMap<(usize, usize), Item> {
     match loc {
         Location::Null => HashMap::new(),
         Location::Settlement(mut settle) => {
@@ -185,8 +185,8 @@ pub fn loc_shop_items(dist_fo: (i64, i64), loc: Location) -> HashMap<(usize, usi
             if let Some(sitems) = settle.get_all_shop_items() {
                 let spos = settle.get_pos();
                 for ((x, y), mut i) in sitems {
-                    let nx = (dist_fo.0 + x as i64 + spos.0) as usize;
-                    let ny = (dist_fo.1 + y as i64 + spos.1) as usize;
+                    let nx = (dist_fo.0 + x as i16 + spos.0) as usize;
+                    let ny = (dist_fo.1 + y as i16 + spos.1) as usize;
                     // let ipos = i.get_pos();
                     i.set_pos((nx, ny));
                     itms.insert((nx, ny), i);

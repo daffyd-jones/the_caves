@@ -1,17 +1,17 @@
 //shop.rs
-use crate::enums::{Shops, NPCWrap};
-use crate::npc::{ShopNPC};
-use crate::item::{Item};
-use std::collections::HashMap;
+use crate::enums::{NPCWrap, Shops};
+use crate::item::Item;
+use crate::npc::ShopNPC;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 //#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct Shop {
-    sptype: Shops,
-    sname: String,
-    npc: NPCWrap,
-    stock: HashMap<(usize, usize), Item>,
-    paid: bool,
+    pub sptype: Shops,
+    pub sname: String,
+    pub npc: NPCWrap,
+    pub stock: HashMap<(usize, usize), Item>,
+    pub paid: bool,
 }
 
 impl Default for Shop {
@@ -29,10 +29,12 @@ impl Default for Shop {
     }
 }
 
-
-
 impl Shop {
-    pub fn new_item_shop(sname: String, npc: NPCWrap, stock: HashMap<(usize, usize), Item>) -> Self {
+    pub fn new_item_shop(
+        sname: String,
+        npc: NPCWrap,
+        stock: HashMap<(usize, usize), Item>,
+    ) -> Self {
         Self {
             sptype: Shops::Item,
             sname: sname,

@@ -9,7 +9,7 @@ use std::collections::HashMap;
 
 //#[derive(Serialize, Deserialize, Debug)]
 pub struct Puzzles {
-    puzzles: HashMap<(i64, i64), Puzzle>,
+    puzzles: HashMap<(i16, i16), Puzzle>,
 }
 
 impl Puzzles {
@@ -28,7 +28,7 @@ impl Puzzles {
         Self { puzzles }
     }
 
-    pub fn spawn_new_puzzle(&mut self, pos: (i64, i64), ptype: PuzzleType) -> PuzzleType {
+    pub fn spawn_new_puzzle(&mut self, pos: (i16, i16), ptype: PuzzleType) -> PuzzleType {
         let new_settle_pos = {
             let mut rng = rand::thread_rng();
             let cxabs = pos.0.abs();
@@ -50,13 +50,13 @@ impl Puzzles {
         ptype
     }
 
-    pub fn nearest_puzzle(&self, pos: (i64, i64)) -> (i64, Puzzle) {
-        let keys: Vec<(i64, i64)> = self.puzzles.clone().into_keys().collect();
+    pub fn nearest_puzzle(&self, pos: (i16, i16)) -> (i16, Puzzle) {
+        let keys: Vec<(i16, i16)> = self.puzzles.clone().into_keys().collect();
         let mut mpos = (1000, (0, 0));
         for ppos in keys {
-            let xx = (ppos.0 - -pos.0).abs();
-            let yy = (ppos.1 - -pos.1).abs();
-            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i64;
+            let xx = (ppos.0 - -pos.0).abs() as u32;
+            let yy = (ppos.1 - -pos.1).abs() as u32;
+            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i16;
             if hyp < mpos.0 {
                 mpos = (hyp, (ppos));
             }
@@ -64,15 +64,15 @@ impl Puzzles {
         (mpos.0, self.puzzles.get(&mpos.1).unwrap().clone())
     }
 
-    pub fn spawn_node_puzzle(&mut self, pos: (i64, i64)) {
+    pub fn spawn_node_puzzle(&mut self, pos: (i16, i16)) {
         self.puzzles.insert(pos, Puzzle::new_maze(pos));
     }
 
-    pub fn check_location(&self, bpos: (i64, i64), rad: u16) -> Option<Puzzle> {
+    pub fn check_location(&self, bpos: (i16, i16), rad: u16) -> Option<Puzzle> {
         for (ppos, p) in &self.puzzles {
-            let xx = ppos.0 - -bpos.0;
-            let yy = ppos.1 - -bpos.1;
-            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i64;
+            let xx = (ppos.0 - -bpos.0) as i32;
+            let yy = (ppos.1 - -bpos.1) as i32;
+            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u16;
             if hyp <= rad.into() {
                 return Some(p.clone());
             }
@@ -85,20 +85,20 @@ impl Puzzles {
         self.puzzles.insert(ppos, puzzle);
     }
 
-    pub fn get_local_puzzles(&mut self, pos: (i64, i64)) -> HashMap<(i64, i64), Puzzle> {
+    pub fn get_local_puzzles(&mut self, pos: (i16, i16)) -> HashMap<(i16, i16), Puzzle> {
         let mut local_ps = HashMap::new();
         for (ppos, p) in &self.puzzles {
             let xx = ppos.0 - -pos.0;
             let yy = ppos.1 - -pos.1;
-            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i64;
-            if hyp <= 2000.into() {
+            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u16;
+            if hyp <= 2000 {
                 local_ps.insert(ppos.clone(), p.clone());
             }
         }
         local_ps.clone()
     }
 
-    pub fn puzzle_check(&mut self, pos: (i64, i64)) -> bool {
+    pub fn puzzle_check(&mut self, pos: (i16, i16)) -> bool {
         let dir = (pos.0 / pos.0.abs(), pos.1 / pos.1.abs());
         let space = {
             match dir {
@@ -110,7 +110,7 @@ impl Puzzles {
             }
         };
         for (k, _) in self.puzzles.clone() {
-            let xrange: Vec<i64> = {
+            let xrange: Vec<i16> = {
                 let mut xa = space.0 .0;
                 let mut xb = space.1 .0;
                 if xa > xb {
@@ -118,7 +118,7 @@ impl Puzzles {
                 }
                 (xa..xb).collect()
             };
-            let yrange: Vec<i64> = {
+            let yrange: Vec<i16> = {
                 let mut ya = space.0 .0;
                 let mut yb = space.1 .0;
                 if ya > yb {

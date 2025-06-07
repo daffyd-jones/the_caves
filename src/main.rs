@@ -25,6 +25,8 @@ use ratatui::crossterm::terminal;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
 
+use std::env;
+
 mod gamestate;
 use gamestate::GameState;
 
@@ -77,6 +79,7 @@ pub fn init() -> Result<(), SetLoggerError> {
 }
 
 fn main() {
+    env::set_var("RUST_BACKTRACE", "1");
     init().unwrap();
     let mut game_state = GameState::new();
 

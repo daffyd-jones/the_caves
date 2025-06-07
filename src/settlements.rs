@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 //#[derive(Serialize, Deserialize, Debug)]
 pub struct Settlements {
-    settlements: HashMap<(i64, i64), Settlement>,
+    settlements: HashMap<(i16, i16), Settlement>,
 }
 
 impl Settlements {
@@ -28,11 +28,11 @@ impl Settlements {
         Self { settlements }
     }
 
-    pub fn check_location(&self, bpos: (i64, i64), rad: u16) -> Option<Settlement> {
+    pub fn check_location(&self, bpos: (i16, i16), rad: u16) -> Option<Settlement> {
         for (spos, s) in &self.settlements {
-            let xx = spos.0 - bpos.0 * -1;
-            let yy = spos.1 - bpos.1 * -1;
-            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i64;
+            let xx = (spos.0 - bpos.0 * -1) as i32;
+            let yy = (spos.1 - bpos.1 * -1) as i32;
+            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u64;
             if hyp <= rad.into() {
                 return Some(s.clone());
             }
@@ -45,7 +45,7 @@ impl Settlements {
         self.settlements.insert(spos, settle);
     }
 
-    pub fn spawn_new_settlement(&mut self, cpos: (i64, i64)) {
+    pub fn spawn_new_settlement(&mut self, cpos: (i16, i16)) {
         let new_settle_pos = {
             let mut rng = rand::thread_rng();
             let cxabs = cpos.0.abs();
@@ -67,16 +67,16 @@ impl Settlements {
         self.settlements.insert(new_settle_pos, settlement.clone());
     }
 
-    pub fn spawn_node_settlement(&mut self, pos: (i64, i64), name: String) {
+    pub fn spawn_node_settlement(&mut self, pos: (i16, i16), name: String) {
         self.settlements
             .insert(pos, Settlement::new_node_settle(pos, name));
     }
 
-    pub fn get_settle_pos(&mut self) -> Vec<(i64, i64)> {
+    pub fn get_settle_pos(&mut self) -> Vec<(i16, i16)> {
         self.settlements.clone().into_keys().collect()
     }
 
-    pub fn get_compass_pos(&mut self) -> HashMap<(i64, i64), String> {
+    pub fn get_compass_pos(&mut self) -> HashMap<(i16, i16), String> {
         let mut tvec = HashMap::new();
         for (pos, mut s) in self.settlements.clone() {
             if s.found {
@@ -86,13 +86,13 @@ impl Settlements {
         tvec.clone()
     }
 
-    pub fn get_local_settles(&mut self, pos: (i64, i64)) -> HashMap<(i64, i64), Settlement> {
+    pub fn get_local_settles(&mut self, pos: (i16, i16)) -> HashMap<(i16, i16), Settlement> {
         let mut local_settles = HashMap::new();
         for (spos, s) in &self.settlements {
             let xx = spos.0 - pos.0 * -1;
             let yy = spos.1 - pos.1 * -1;
-            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as i64;
-            if hyp <= 5000.into() {
+            let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u16;
+            if hyp <= 5000 {
                 local_settles.insert(spos.clone(), s.clone());
             }
         }

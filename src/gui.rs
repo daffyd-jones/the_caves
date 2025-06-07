@@ -41,7 +41,7 @@ pub struct GUI {
     inter_options: (Vec<(InterOpt, String)>, Vec<(InterOpt, String)>),
     inventory: Vec<Item>,
     inv_opt: (Vec<(usize, Item)>, Vec<(usize, Item)>, Vec<(usize, Item)>),
-    comp_head: (i64, i64),
+    comp_head: (i16, i16),
     comp_list: Vec<String>,
     comp_opts: (Vec<String>, Vec<String>, Vec<String>, Vec<String>),
     notes_opt: (Vec<String>, Vec<String>),
@@ -182,7 +182,7 @@ impl GUI {
         self.active_notes = notes;
     }
 
-    pub fn set_comp_head(&mut self, temp: (i64, i64)) {
+    pub fn set_comp_head(&mut self, temp: (i16, i16)) {
         self.comp_head = ((temp.0 - 224), (temp.1 - 174));
     }
 

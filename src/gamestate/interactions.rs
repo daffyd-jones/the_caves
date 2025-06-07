@@ -69,6 +69,7 @@ impl GameState {
         let Some(intee) = self.get_interactee(pos) else {
             todo!()
         };
+        log::info!("intee: {:?}", intee);
         self.interactee = intee.clone();
         match intee {
             Interactable::Item(item) => {
@@ -200,6 +201,7 @@ impl GameState {
         }
 
         let intee = self.interactee.clone();
+        log::info!("intee1: {:#?}", intee);
         let res = match intee {
             Interactable::Item(_) => self.item_interaction(),
             Interactable::ShopItem(si) => self.shop_item_interaction(si),

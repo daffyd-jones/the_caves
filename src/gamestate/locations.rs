@@ -1,4 +1,4 @@
-use crate::enums::{CompMode, Location};
+use crate::enums::{Cells, CompMode, Location};
 use crate::gamestate::in_range;
 use crate::gamestate::GameState;
 use std::collections::HashMap;
@@ -28,10 +28,12 @@ impl GameState {
             let pos = self.dist_fo;
             for (i, row) in lmap.iter().enumerate() {
                 for (j, &cell) in row.iter().enumerate() {
-                    let main_i = (pos.1 + i as i64 + lpos.1) as usize;
-                    let main_j = (pos.0 + j as i64 + lpos.0) as usize;
-                    if main_i < map_vec.len() && main_j < map_vec[0].len() {
-                        map_vec[main_i][main_j] = cell;
+                    if cell != Cells::Transparent {
+                        let main_i = (pos.1 + i as i16 + lpos.1) as usize;
+                        let main_j = (pos.0 + j as i16 + lpos.0) as usize;
+                        if main_i < map_vec.len() && main_j < map_vec[0].len() {
+                            map_vec[main_i][main_j] = cell;
+                        }
                     }
                 }
             }
@@ -51,8 +53,8 @@ impl GameState {
         let mut distances = HashMap::new();
         let mut d_min = 0;
         for ((x, y), _) in spos_list {
-            let (dx, dy) = (x - -dfo.0, y - -dfo.1);
-            let hyp = ((dx.pow(2) + dy.pow(2)) as f64).sqrt() as i64;
+            let (dx, dy) = ((x - -dfo.0) as i32, (y - -dfo.1) as i32);
+            let hyp = ((dx.pow(2) + dy.pow(2)) as f64).sqrt() as u16;
             if hyp < d_min || d_min == 0 {
                 d_min = hyp;
             }
@@ -66,7 +68,7 @@ impl GameState {
 
     pub fn new_loc_check(&mut self) {
         let cpos = self.dist_fo;
-        let chyp = ((cpos.0.pow(2) + cpos.1.pow(2)) as f64).sqrt() as i64;
+        let chyp = ((cpos.0.pow(2) + cpos.1.pow(2)) as f64).sqrt() as u16;
         if chyp > 800 {
             let ks = chyp / 800;
             if ks > self.depth.into() {
@@ -86,7 +88,7 @@ impl GameState {
         };
     }
 
-    pub fn location_pos(&mut self) -> (i64, i64) {
+    pub fn location_pos(&mut self) -> (i16, i16) {
         let loc = self.location.clone();
         match loc {
             Location::Settlement(mut settle) => settle.get_pos(),

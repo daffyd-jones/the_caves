@@ -1,4 +1,4 @@
-use crate::enums::{EnvInter, InterOpt, Interactable, NPCWrap};
+use crate::enums::{Door, EnvInter, InterOpt, Interactable, NPCWrap};
 use crate::gui::GUI;
 use crate::gui_utils::{draw_map, GuiArgs};
 use crate::npc::NPC;
@@ -115,6 +115,9 @@ impl GUI {
                             }
                             EnvInter::Cauldron => adj_list.push((*pos, "Cauldron".to_string())),
                             EnvInter::Herbalist => adj_list.push((*pos, "Herbalist".to_string())),
+                            EnvInter::Door(Door::Locked(_)) => {
+                                adj_list.push((*pos, "Locked Door".to_string()))
+                            }
                             _ => todo!(),
                         },
                         _ => todo!(),

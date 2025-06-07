@@ -8,7 +8,7 @@ use std::fs;
 pub struct Node {
     pub id: String,
     pub ntype: NodeType,
-    pub pos: (i64, i64),
+    pub pos: (i16, i16),
     pub name: String,
     pub neighbors: Vec<String>,
     pub neighbor_ids: Vec<String>,
@@ -75,13 +75,13 @@ impl NodeMap {
                     let x = (depth * 800, i);
                     let xpoint = rng.gen_range((x.0 - 400)..(x.0 + 300));
                     let ypoint = rng.gen_range((x.1 - 800)..(x.1 - 200));
-                    (xpoint as i64 * dir.0, ypoint as i64 * dir.1)
+                    (xpoint as i16 * dir.0, ypoint as i16 * dir.1)
                 }
                 _ => {
                     let x = (depth * 800, i);
                     let xpoint = rng.gen_range((x.0 - 400)..(x.0 + 300));
                     let ypoint = rng.gen_range((x.1 - 1300)..(x.1 - 200));
-                    (xpoint as i64 * dir.0, ypoint as i64 * dir.1)
+                    (xpoint as i16 * dir.0, ypoint as i16 * dir.1)
                 }
             };
 
@@ -102,7 +102,7 @@ impl NodeMap {
                     let x = (i, depth * 800);
                     let xpoint = rng.gen_range((x.0 - 400)..(x.0 + 300));
                     let ypoint = rng.gen_range((x.1 - 1300)..(x.1 - 200));
-                    (xpoint as i64 * dir.0, ypoint as i64 * dir.1)
+                    (xpoint as i16 * dir.0, ypoint as i16 * dir.1)
                 };
                 let neighbors = Vec::new();
                 let neighbor_ids = Vec::new();
@@ -161,7 +161,7 @@ impl NodeMap {
             let pos = if i == (800 * depth) {
                 let xpoint = rng.gen_range(i - 100..i + 100);
                 let ypoint = rng.gen_range(i - 100..i + 100);
-                ((xpoint as i64 * dir.0), (ypoint as i64 * dir.1))
+                ((xpoint as i16 * dir.0), (ypoint as i16 * dir.1))
                 // println!("{:?}", point);
                 // continue;
             } else {
@@ -172,7 +172,7 @@ impl NodeMap {
                     0 => rng.gen_range(x.1..x.1 + 100),
                     _ => rng.gen_range(x.1 - 100..x.1 + 100),
                 };
-                ((xpoint as i64 * dir.0), (ypoint as i64 * dir.1))
+                ((xpoint as i16 * dir.0), (ypoint as i16 * dir.1))
                 // (xpoint as i64, ypoint as i64)
             };
 
@@ -209,7 +209,7 @@ impl NodeMap {
                 let x = (i, depth * 800);
                 let xpoint = rng.gen_range(x.0 - 100..x.0 + 100);
                 let ypoint = rng.gen_range(x.1 - 100..x.1 + 100);
-                let pos = ((xpoint as i64 * dir.0), (ypoint as i64 * dir.1));
+                let pos = ((xpoint as i16 * dir.0), (ypoint as i16 * dir.1));
                 // (xpoint as i64, ypoint as i64)
 
                 let ntype = *[NodeType::Settlement, NodeType::Puzzle, NodeType::Null]

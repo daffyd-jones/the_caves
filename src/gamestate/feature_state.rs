@@ -16,8 +16,8 @@ impl GameState {
             for (_, mut i) in items {
                 let ipos = i.get_pos();
                 let npos = (
-                    (pos.0 + ipos.0 as i64 + fpos.0) as usize,
-                    (pos.1 + ipos.1 as i64 + fpos.1) as usize,
+                    (pos.0 + ipos.0 as i16 + fpos.0) as usize,
+                    (pos.1 + ipos.1 as i16 + fpos.1) as usize,
                 );
                 i.set_pos(npos);
                 self.items.insert(npos, i.clone());
@@ -25,8 +25,8 @@ impl GameState {
             let env_inters = feature.env_inters.clone();
             for ((x, y), env) in env_inters {
                 let nwpos = (
-                    (self.dist_fo.0 + x as i64 + fpos.0) as usize,
-                    (self.dist_fo.1 + y as i64 + fpos.1) as usize,
+                    (self.dist_fo.0 + x as i16 + fpos.0) as usize,
+                    (self.dist_fo.1 + y as i16 + fpos.1) as usize,
                 );
                 self.env_inters.insert(nwpos, env);
             }
