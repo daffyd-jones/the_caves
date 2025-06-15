@@ -1,8 +1,13 @@
 // tasks.rs
 
+use std::collections::HashMap;
+use std::fs;
+
+use rand::seq::SliceRandom;
+
 use crate::enums::{Location, ToggleState};
 use crate::item::Item;
-use crate::npc::Convo;
+use crate::npc::{ConOpt, Convo, Stage};
 
 // # task is defined in settlement/feature
 //  $ location is built
@@ -72,55 +77,249 @@ req:
 
 */
 
-enum TaskType {
+#[derive(Clone, Debug, PartialEq)]
+pub enum TaskType {
     Plot,
     RetrieveItem,
     PassMessage,
     PassItem,
 }
 
-struct Task {
-    ttype: TaskType,
-    start_pos: (i16, i16),
-    start_location: Location,
-    goal_pos: (i16, i16),
-    goal_location: Location,
-    reward: Item,
-    task_item: Item,
-    start_name: String,
-    goal_name: String,
-    start_convo: Convo,
-    goal_convo: Convo,
-    final_convo: Option<Convo>,
-    stat_triggers: Vec<ToggleState>,
+#[derive(Clone, Debug, PartialEq)]
+pub struct Task {
+    pub ttype: TaskType,
+    pub start_loc: (i16, i16),
+    pub start_loc_name: String,
+    pub start_entity_name: String,
+    pub goal_loc: (i16, i16),
+    pub goal_loc_name: String,
+    pub goal_entity_name: String,
+    pub reward: Item,
+    pub task_items: Option<Vec<(bool, Item)>>,
+    pub start_convo: Convo,
+    pub goal_convo: Convo,
+    pub final_convo: Option<Convo>,
+    pub note_entries: Vec<(bool, String)>,
+    pub stat_triggers: Vec<ToggleState>,
 }
 
 impl Task {
-    // pub fn new_retrieve_task() -> Self {
-    //     Self {
-    //         ttype: TaskType::RetrieveItem,
-    //         start_pos,
-    //         start_location,
-    //         goal_pos,
-    //         goal_location,
-    //         reward,
-    //         task_item,
-    //         start_name,
-    //         goal_name,
-    //         start_convo,
-    //         goal_convo,
-    //         final_convo,
-    //         stat_triggers,
-    //     }
-    // }
+    pub fn new_retrieve_task(start_loc: (i16, i16), start_loc_name: String) -> Self {
+        let start_entity_name = "Daniel".to_string();
+        let goal_entity_name = "Eric".to_string();
+        let reward = Item::new_health_potion(0, 0);
+        let task_items = Some(vec![(false, Item::new_apple(0, 0))]);
+        let mut stages = HashMap::new();
+        stages.insert(
+            "0".to_string(),
+            Stage {
+                text: "This is npc dialogue.".to_string(),
+                opts: vec![
+                    ConOpt {
+                        text: "Thank's Ill look for it. Good luck!".to_string(),
+                        next: "e".to_string(),
+                    },
+                    ConOpt {
+                        text: "What did it look like?".to_string(),
+                        next: "desc".to_string(),
+                    },
+                ],
+            },
+        );
+        let start_convo = Convo {
+            id: "Retrieve Item".to_string(),
+            stages,
+        };
+
+        let mut stages = HashMap::new();
+        stages.insert(
+            "0".to_string(),
+            Stage {
+                text: "This is npc dialogue.".to_string(),
+                opts: vec![
+                    ConOpt {
+                        text: "Thank's Ill look for it. Good luck!".to_string(),
+                        next: "e".to_string(),
+                    },
+                    ConOpt {
+                        text: "What did it look like?".to_string(),
+                        next: "desc".to_string(),
+                    },
+                ],
+            },
+        );
+        let goal_convo = Convo {
+            id: "Retrieve Item".to_string(),
+            stages,
+        };
+
+        let mut stages = HashMap::new();
+        stages.insert(
+            "0".to_string(),
+            Stage {
+                text: "This is npc dialogue.".to_string(),
+                opts: vec![
+                    ConOpt {
+                        text: "Thank's Ill look for it. Good luck!".to_string(),
+                        next: "e".to_string(),
+                    },
+                    ConOpt {
+                        text: "What did it look like?".to_string(),
+                        next: "desc".to_string(),
+                    },
+                ],
+            },
+        );
+        let final_convo = Some(Convo {
+            id: "Retrieve Item".to_string(),
+            stages,
+        });
+
+        // let convo_path = format!("src/npcs/{}/convos_city.json", "task");
+        // let data1 = fs::read_to_string(convo_path);
+        // print!("{:?}", data1);
+        // let convos: Vec<Convo> = match data1 {
+        //     Ok(content) => serde_json::from_str(&content).unwrap(),
+        //     Err(e) => {
+        //         log::info!("{:?}", e);
+        //         Vec::new()
+        //     }
+        // };
+
+        let note_entries = vec![(
+            false,
+            format!(
+                r#"
+{} is looking for {} {}.
+
+They live in {}, and can be found there to deliver the item.
+
+They are willing to give {} as a reward.
+            "#,
+                start_entity_name,
+                task_items.clone().unwrap().len(),
+                task_items.clone().unwrap()[0].1.sname,
+                start_loc_name,
+                reward.sname
+            ),
+        )];
+        let stat_triggers = Vec::new();
+
+        Self {
+            ttype: TaskType::RetrieveItem,
+            start_loc,
+            start_loc_name,
+            start_entity_name,
+            goal_loc: (0, 0),
+            goal_loc_name: "".to_string(),
+            goal_entity_name,
+            reward,
+            task_items,
+            start_convo,
+            goal_convo,
+            final_convo,
+            note_entries,
+            stat_triggers,
+        }
+    }
 }
 
-struct Tasks {
-    tasks: Vec<Task>,
-    task_locations: Vec<(i16, i16)>,
-    active_tasks: Vec<Task>,
-    guild_tasks: Vec<Task>,
-    active_guild_task: Task,
+#[derive(Clone, Debug, PartialEq)]
+pub struct Tasks {
+    pub tasks: Vec<Task>,
+    pub locals: Vec<((i16, i16), String)>,
+    pub task_locations: Vec<((i16, i16), String)>,
+    pub active_tasks: Vec<Task>,
+    pub board_tasks: Vec<Task>,
+    pub active_board_task: Option<Task>,
 }
 
-impl Tasks {}
+impl Tasks {
+    pub fn new() -> Self {
+        Self {
+            tasks: Vec::new(),
+            locals: Vec::new(),
+            task_locations: Vec::new(),
+            active_tasks: Vec::new(),
+            board_tasks: Vec::new(),
+            active_board_task: None,
+        }
+    }
+
+    pub fn set_board_task(&mut self, task: Task) {
+        let idx = self.board_tasks.iter().position(|x| *x == task).unwrap();
+        self.board_tasks.remove(idx);
+        self.active_board_task = Some(task);
+    }
+
+    pub fn new_board_task(&mut self) {
+        let mut rng = rand::thread_rng();
+        let ttype = [
+            // TaskType::Plot,
+            TaskType::RetrieveItem,
+            // TaskType::PassMessage,
+            // TaskType::PassItem,
+        ]
+        .choose(&mut rng)
+        .unwrap_or(&TaskType::RetrieveItem);
+
+        match ttype {
+            TaskType::Plot => {
+                // self.board_task.push(Task::new_retrieve_task(
+                //     start_loc,
+                //     start_loc_name,
+                //     start_entity_name,
+                //     goal_loc,
+                //     goal_loc_name,
+                //     goal_entity_name,
+                //     reward,
+                //     task_item,
+                //     start_convo,
+                //     goal_convo,
+                //     final_convo,
+                //     note_entries,
+                //     stat_triggers,
+                // ));
+            }
+            TaskType::RetrieveItem => {
+                let start_loc = self.locals.pop().unwrap();
+                self.board_tasks
+                    .push(Task::new_retrieve_task(start_loc.0, start_loc.1));
+            }
+            TaskType::PassMessage => {
+                // self.board_task.push(Task::new_retrieve_task(
+                //     start_loc,
+                //     start_loc_name,
+                //     start_entity_name,
+                //     goal_loc,
+                //     goal_loc_name,
+                //     goal_entity_name,
+                //     reward,
+                //     task_item,
+                //     start_convo,
+                //     goal_convo,
+                //     final_convo,
+                //     note_entries,
+                //     stat_triggers,
+                // ));
+            }
+            TaskType::PassItem => {
+                // self.board_task.push(Task::new_retrieve_task(
+                //     start_loc,
+                //     start_loc_name,
+                //     start_entity_name,
+                //     goal_loc,
+                //     goal_loc_name,
+                //     goal_entity_name,
+                //     reward,
+                //     task_item,
+                //     start_convo,
+                //     goal_convo,
+                //     final_convo,
+                //     note_entries,
+                //     stat_triggers,
+                // ));
+            }
+        }
+    }
+}

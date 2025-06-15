@@ -101,7 +101,7 @@ pub struct Notebook {
     settles: HashMap<String, String>,
     convos: Vec<String>,
     knowledge: HashMap<String, String>,
-    discover: HashMap<String, String>,
+    tasks: HashMap<String, String>,
 }
 
 impl Notebook {
@@ -110,7 +110,7 @@ impl Notebook {
             settles: HashMap::new(),
             convos: Vec::new(),
             knowledge: HashMap::new(),
-            discover: HashMap::new(),
+            tasks: HashMap::new(),
         })
     }
 
@@ -127,8 +127,8 @@ impl Notebook {
         self.knowledge.insert(sname, snote);
     }
 
-    pub fn enter_discover(&mut self, sname: String, snote: String) {
-        self.discover.insert(sname, snote);
+    pub fn enter_tasks(&mut self, sname: String, snote: String) {
+        self.tasks.insert(sname, snote);
     }
 
     pub fn get_notes(
@@ -143,7 +143,7 @@ impl Notebook {
             self.settles.clone(),
             self.convos.clone(),
             self.knowledge.clone(),
-            self.discover.clone(),
+            self.tasks.clone(),
         )
     }
 }

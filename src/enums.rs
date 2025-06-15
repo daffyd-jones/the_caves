@@ -32,6 +32,8 @@ pub enum Cells {
     Broken2,
     Broken3,
     Broken4,
+    Broken5,
+    Broken6,
     Roots,
     ULCorner1,
     ULCorner2,
@@ -184,6 +186,10 @@ pub enum Items {
 
     //
     Plants(Plants),
+    // wearable
+    ShieldingPendant,
+    AgilityPendant,
+    StrengthPendant,
     Null,
 }
 
@@ -376,18 +382,29 @@ pub enum EnvInter {
     Clinic,
     GuildPost,
     ChurchPost,
+    Construction,
     Cauldron,
     Task(TaskType),
     Door(Door),
     Herbalist,
+    TaskEnv(TaskEnv),
     Null,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
+pub enum TaskEnv {
+    BoardStartEntity,
+    BoardGoalEntity,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Door {
-    Open,
-    Unlocked,
-    Locked(u8),
+    HOpen,
+    HUnlocked,
+    HLocked(u8),
+    VOpen,
+    VUnlocked,
+    VLocked(u8),
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -460,6 +477,7 @@ pub enum FeatureType {
     Field,
     Stream,
     Pond,
+    Construction,
     Ruin,
     AbandonedShack,
     AbandonedSettlement,
@@ -472,9 +490,10 @@ pub enum CompMode {
     Location,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum PuzzleType {
     Maze,
+    Ruin,
     Teleport,
     Inverted,
 }

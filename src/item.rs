@@ -1032,12 +1032,94 @@ impl Item {
         }
     }
 
+    // wearable
+    pub fn new_shielding_pendant(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("defence"), 30);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 30);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::ShieldingPendant,
+            sname: "Shielding Pendant".to_string(),
+            icon: ('ȣ', Color::LightYellow),
+            desc: "A pendant that emits a protective aura around the user.".to_string(),
+            iopts,
+            equip: true,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Wearing,
+            effect: ItemEffect::Defence,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_agility_pendant(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("attack"), 30);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 30);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::AgilityPendant,
+            sname: "Agility Pendant".to_string(),
+            icon: ('ȣ', Color::LightYellow),
+            desc: "A pendant that gives the user faster attacks.".to_string(),
+            iopts,
+            equip: true,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Wearing,
+            effect: ItemEffect::Attack,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_strength_pendant(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("damage"), 30);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 30);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::StrengthPendant,
+            sname: "Strength Pendant".to_string(),
+            icon: ('ȣ', Color::LightYellow),
+            desc: "A pendant that gives the user stronger attacks.".to_string(),
+            iopts,
+            equip: true,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Wearing,
+            effect: ItemEffect::Damage,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
     ////////////////////////// Plants
 
     pub fn new_luminous_mushroom(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("required"), 5);
-        // prop.insert(String::from("value"), 90);
+        prop.insert(String::from("value"), 8);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -1062,7 +1144,7 @@ impl Item {
     pub fn new_lampen_flower_petals(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("required"), 5);
-        // prop.insert(String::from("value"), 90);
+        prop.insert(String::from("value"), 8);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -1088,7 +1170,7 @@ impl Item {
     pub fn new_moss(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("required"), 10);
-        // prop.insert(String::from("value"), 90);
+        prop.insert(String::from("value"), 5);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -1113,7 +1195,7 @@ impl Item {
     pub fn new_lichenous_growth(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("required"), 8);
-        // prop.insert(String::from("value"), 90);
+        prop.insert(String::from("value"), 8);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -1139,7 +1221,7 @@ impl Item {
     pub fn new_lucky_clover(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("required"), 10);
-        // prop.insert(String::from("value"), 90);
+        prop.insert(String::from("value"), 20);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -1164,7 +1246,7 @@ impl Item {
     pub fn new_shroom(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("required"), 5);
-        // prop.insert(String::from("value"), 90);
+        prop.insert(String::from("value"), 30);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -1190,7 +1272,7 @@ impl Item {
     pub fn new_vine_bulb(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("required"), 5);
-        // prop.insert(String::from("value"), 90);
+        prop.insert(String::from("value"), 10);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
@@ -1198,7 +1280,7 @@ impl Item {
         Self {
             itype: Items::Plants(Plants::VineBulb),
             sname: "Vine Bulb".to_string(),
-            icon: ('౸', Color::Green),
+            icon: ('౸', Color::LightRed),
             desc: "The flower bulb of a vine that covers the walls in patches.".to_string(),
             iopts,
             equip: false,

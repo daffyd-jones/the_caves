@@ -107,6 +107,9 @@ impl GUI {
                         Interactable::EnvInter(env_inter) => match env_inter {
                             EnvInter::Records => adj_list.push((*pos, "Local Records".to_string())),
                             EnvInter::Clinic => adj_list.push((*pos, "Clinic".to_string())),
+                            EnvInter::Construction => {
+                                adj_list.push((*pos, "Guild Worker".to_string()))
+                            }
                             EnvInter::GuildPost => {
                                 adj_list.push((*pos, "Guild Posting".to_string()))
                             }
@@ -115,7 +118,10 @@ impl GUI {
                             }
                             EnvInter::Cauldron => adj_list.push((*pos, "Cauldron".to_string())),
                             EnvInter::Herbalist => adj_list.push((*pos, "Herbalist".to_string())),
-                            EnvInter::Door(Door::Locked(_)) => {
+                            EnvInter::Door(Door::HLocked(_)) => {
+                                adj_list.push((*pos, "Locked Door".to_string()))
+                            }
+                            EnvInter::Door(Door::VLocked(_)) => {
                                 adj_list.push((*pos, "Locked Door".to_string()))
                             }
                             _ => todo!(),

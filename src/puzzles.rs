@@ -3,7 +3,7 @@
 //use crate::enums{};
 use crate::enums::PuzzleType;
 use crate::puzzle::Puzzle;
-use rand::Rng;
+use rand::{seq::SliceRandom, Rng};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -19,8 +19,9 @@ impl Puzzles {
     }
 
     pub fn demo_self() -> Self {
+        // let pos = (100, 100);
         let pos = (-100, -500);
-        let puzzle = Puzzle::new_maze(pos);
+        let puzzle = Puzzle::new_ruin(pos);
         // let puzzle = Puzzle::new_teleport(pos);
         // log::info!("\nPuzzleFound: {:?}", puzzle);
         let mut puzzles = HashMap::new();
@@ -29,20 +30,21 @@ impl Puzzles {
     }
 
     pub fn spawn_new_puzzle(&mut self, pos: (i16, i16), ptype: PuzzleType) -> PuzzleType {
-        let new_settle_pos = {
-            let mut rng = rand::thread_rng();
-            let cxabs = pos.0.abs();
-            let cyabs = pos.1.abs();
-            let nx = rng.gen_range((cxabs + 300)..(cxabs + 800));
-            let ny = rng.gen_range((cyabs + 200)..(cyabs + 600));
-            let xdir = pos.0 / cxabs;
-            let ydir = pos.1 / cyabs;
-            (nx * xdir * -1, ny * ydir * -1)
-        };
+        // let new_settle_pos = {
+        //     let mut rng = rand::thread_rng();
+        //     let cxabs = pos.0.abs();
+        //     let cyabs = pos.1.abs();
+        //     let nx = rng.gen_range((cxabs + 300)..(cxabs + 800));
+        //     let ny = rng.gen_range((cyabs + 200)..(cyabs + 600));
+        //     let xdir = pos.0 / cxabs;
+        //     let ydir = pos.1 / cyabs;
+        //     (nx * xdir * -1, ny * ydir * -1)
+        // };
         let puzzle = {
             match &ptype {
                 PuzzleType::Maze => Puzzle::new_maze(pos),
-                PuzzleType::Teleport => Puzzle::new_maze(pos),
+                PuzzleType::Ruin => Puzzle::new_ruin(pos),
+                PuzzleType::Teleport => Puzzle::new_ruin(pos),
                 PuzzleType::Inverted => Puzzle::new_maze(pos),
             }
         };
@@ -65,7 +67,19 @@ impl Puzzles {
     }
 
     pub fn spawn_node_puzzle(&mut self, pos: (i16, i16)) {
-        self.puzzles.insert(pos, Puzzle::new_maze(pos));
+        let mut rng = rand::thread_rng();
+        let choice = *[PuzzleType::Maze, PuzzleType::Ruin]
+            .choose(&mut rng)
+            .unwrap_or(&PuzzleType::Maze);
+
+        let puzzle = match choice {
+            PuzzleType::Maze => Puzzle::new_maze(pos),
+            PuzzleType::Ruin => Puzzle::new_ruin(pos),
+            PuzzleType::Teleport => Puzzle::new_ruin(pos),
+            PuzzleType::Inverted => Puzzle::new_maze(pos),
+        };
+        self.puzzles.insert(pos, puzzle.clone());
+        // self.puzzles.insert(pos, Puzzle::new_ruin(pos));
     }
 
     pub fn check_location(&self, bpos: (i16, i16), rad: u16) -> Option<Puzzle> {
@@ -88,8 +102,8 @@ impl Puzzles {
     pub fn get_local_puzzles(&mut self, pos: (i16, i16)) -> HashMap<(i16, i16), Puzzle> {
         let mut local_ps = HashMap::new();
         for (ppos, p) in &self.puzzles {
-            let xx = ppos.0 - -pos.0;
-            let yy = ppos.1 - -pos.1;
+            let xx = (ppos.0 - -pos.0) as i32;
+            let yy = (ppos.1 - -pos.1) as i32;
             let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u16;
             if hyp <= 2000 {
                 local_ps.insert(ppos.clone(), p.clone());

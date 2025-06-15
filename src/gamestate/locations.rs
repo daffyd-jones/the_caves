@@ -103,7 +103,9 @@ impl GameState {
             if let Some(feature) = self.features.check_location(self.dist_fo, self.loc_rad / 2) {
                 self.location = Location::Feature(feature);
             }
-            if let Some(settlement) = self.settles.check_location(self.dist_fo, self.loc_rad) {
+            if let Some(mut settlement) = self.settles.check_location(self.dist_fo, self.loc_rad) {
+                self.notebook
+                    .enter_settles(settlement.get_sname(), settlement.get_stats().1);
                 self.location = Location::Settlement(settlement);
             };
             if let Some(puzzle) = self.puzzles.check_location(self.dist_fo, self.loc_rad) {

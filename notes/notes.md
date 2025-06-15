@@ -48,8 +48,9 @@
     - [+] Ruins
     - [ ] Pond
     - [+] Field
-    - [ ] Stream
+    - [+] Stream
     - [ ] Hermit
+    - [ ] Construction
   - [ ] implement Hermit
 - [ ] renown good/evil
 
@@ -71,6 +72,8 @@
 - [ ] convert ShopNPCs to EnvInter?
 - [ ] test area animate
 - [ ] cursor limit
+- [+] fix wall corners
+- [+] fix collisions
 
 # Enemies
 

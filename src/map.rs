@@ -251,7 +251,6 @@ impl Map {
             px = rng.gen_range(x_centre - 20..x_centre + 20);
             py = rng.gen_range(y_centre - 10..y_centre + 10);
             if cells[py][px] == Cells::Empty {
-                // cells[py][px] = Cells::Player;
                 break;
             }
         }
@@ -262,9 +261,47 @@ impl Map {
 
         for y in 0..cells.len() {
             for x in 0..cells[0].len() {
-                v_flip[y][cells[0].len() - x - 1] = cells[y][x];
-                h_flip[cells.len() - y - 1][x] = cells[y][x];
-                d_flip[cells.len() - y - 1][cells[0].len() - x - 1] = cells[y][x];
+                v_flip[y][cells[0].len() - x - 1] = {
+                    if ul_cells.contains(&cells[y][x]) {
+                        *dl_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else if ur_cells.contains(&cells[y][x]) {
+                        *dr_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else if dl_cells.contains(&cells[y][x]) {
+                        *ul_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else if dr_cells.contains(&cells[y][x]) {
+                        *ur_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else {
+                        cells[y][x]
+                    }
+                };
+                h_flip[y][cells[0].len() - x - 1] = {
+                    if ul_cells.contains(&cells[y][x]) {
+                        *ur_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else if ur_cells.contains(&cells[y][x]) {
+                        *ul_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else if dl_cells.contains(&cells[y][x]) {
+                        *dr_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else if dr_cells.contains(&cells[y][x]) {
+                        *dl_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else {
+                        cells[y][x]
+                    }
+                };
+                d_flip[y][cells[0].len() - x - 1] = {
+                    if ul_cells.contains(&cells[y][x]) {
+                        *dr_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else if ur_cells.contains(&cells[y][x]) {
+                        *dl_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else if dl_cells.contains(&cells[y][x]) {
+                        *ur_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else if dr_cells.contains(&cells[y][x]) {
+                        *ul_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
+                    } else {
+                        cells[y][x]
+                    }
+                };
+                // h_flip[cells.len() - y - 1][x] = cells[y][x];
+                // d_flip[cells.len() - y - 1][cells[0].len() - x - 1] = cells[y][x];
             }
         }
 

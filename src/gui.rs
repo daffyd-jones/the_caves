@@ -196,6 +196,8 @@ impl GUI {
 
     pub fn reset_cursor(&mut self) {
         self.cursor_pos = (0, 0);
+        self.cursor_hold = (0, 0);
+        self.menu_lvl = 0;
     }
 
     pub fn get_mode(&mut self) -> GUIMode {
@@ -267,6 +269,10 @@ impl GUI {
         self.cursor_pos
     }
 
+    pub fn get_cursor_hold(&mut self) -> (usize, usize) {
+        self.cursor_hold
+    }
+
     pub fn set_interactable(&mut self, temp: HashMap<(usize, usize), Option<Interactable>>) {
         self.interactable = temp;
     }
@@ -289,15 +295,21 @@ impl GUI {
         }
     }
 
+    pub fn get_menu_lvl(&mut self) -> usize {
+        self.menu_lvl
+    }
+
     pub fn menu_lvl(&mut self, dir: &str) {
         match dir {
-            "DN" => {
+            "DN" => if self.menu_lvl < 1 {
                 self.menu_lvl += 1;
                 self.cursor_hold = self.cursor_pos;
+                self.cursor_pos = (0, 0);
             },
             "UP" => if self.menu_lvl > 0 {
                 self.menu_lvl -= 1;
                 self.cursor_pos = self.cursor_hold;
+                self.cursor_hold = (0, 0);
             },
             _ => {},
         }
@@ -506,88 +518,91 @@ impl GUI {
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                    // let torso_block = Block::default()
-                    //     .title(Span::styled("Torso", Style::default().fg(Color::DarkGray)))
-                    //     .borders(Borders::ALL)
-                    //     .style(Style::default().bg(Color::Black));
-
-                    // let feet_block = Block::default()
-                    //     .title(Span::styled("Feet", Style::default().fg(Color::DarkGray)))
-                    //     .borders(Borders::ALL)
-                    //     .style(Style::default().bg(Color::Black));
-
-                    // let equip_layout = Layout::default()
-                    // .direction(Direction::Horizontal)
-                    // .constraints(
-                    //     [
-                    //         Constraint::Percentage(33),
-                    //         Constraint::Percentage(34),
-                    //         Constraint::Percentage(33)
-                    //     ].as_ref()
-                    // )
-                    // .split(normal_info[3]);
-
                     let equip_layout = Layout::default()
                     .direction(Direction::Vertical)
                     .constraints(
                         [
-                            Constraint::Percentage(25),
-                            Constraint::Percentage(25),
-                            Constraint::Percentage(25),
-                            Constraint::Percentage(25),
+                            Constraint::Percentage(50),
+                            Constraint::Percentage(50),
                         ].as_ref()
                     )
                     .split(normal_info[3]);
+
+                    let hands_layout = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .constraints(
+                        [
+                            Constraint::Percentage(50),
+                            Constraint::Percentage(50),
+                        ].as_ref()
+                    )
+                    .split(equip_layout[0]);
+
+                    let body_layout = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .constraints(
+                        [
+                            Constraint::Percentage(50),
+                            Constraint::Percentage(50),
+                        ].as_ref()
+                    )
+                    .split(equip_layout[1]);
 
                     let h_gauge = Gauge::default()
                         .block(Block::bordered().title("Health"))
                         .gauge_style(Style::new().light_red().on_black().italic())
                         .percent(gui_args.player.health);
-                        //.label(Span::styled(player.health.to_string(), Style::default().fg(Color::White)));
 
                     let rows = vec![
-                       // Row::new(vec![
-                       //     Span::styled("Health: ", Style::default().fg(Color::White)),
-                       //     Span::styled(player.health.to_string(), Style::default().fg(Color::Yellow)),
-                       // ]),
                         Row::new(vec![
                             Span::styled("Attack: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.attack.to_string(), Style::default().fg(Color::Yellow)),
-                        ]),
-                        Row::new(vec![
-                            Span::styled("Defence: ", Style::default().fg(Color::White)),
-                            Span::styled(gui_args.player.defence.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled("Attack xp: ", Style::default().fg(Color::White)),
+                            Span::styled(gui_args.stats[0].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled("Trading xp: ", Style::default().fg(Color::White)),
+                            Span::styled(gui_args.stats[4].to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("Damage: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.damage.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled("Damage xp: ", Style::default().fg(Color::White)),
+                            Span::styled(gui_args.stats[1].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled("Lockpicking xp: ", Style::default().fg(Color::White)),
+                            Span::styled(gui_args.stats[5].to_string(), Style::default().fg(Color::Yellow)),
+                        ]),
+                        Row::new(vec![
+                            Span::styled("Defence: ", Style::default().fg(Color::White)),
+                            Span::styled(gui_args.player.defence.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled("Defence xp: ", Style::default().fg(Color::White)),
+                            Span::styled(gui_args.stats[2].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled("Navigation xp: ", Style::default().fg(Color::White)),
+                            Span::styled(gui_args.stats[6].to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("Money: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.money.to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled("Luck xp: ", Style::default().fg(Color::White)),
+                            Span::styled(gui_args.stats[3].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled("Herbalism xp: ", Style::default().fg(Color::White)),
+                            Span::styled(gui_args.stats[7].to_string(), Style::default().fg(Color::Yellow)),
                         ]),
-                        // Row::new(vec![
-                        //     Span::styled("dtlen: ", Style::default().fg(Color::White)),
-                        //     Span::styled((map.dead_tunnels.len()).to_string(), Style::default().fg(Color::Yellow)),
-                        // ]),
+                        Row::new(vec![
+                            Span::styled("", Style::default().fg(Color::White)),
+                            Span::styled("", Style::default().fg(Color::Yellow)),
+                            Span::styled("", Style::default().fg(Color::White)),
+                            Span::styled("", Style::default().fg(Color::Yellow)),
+                            Span::styled("", Style::default().fg(Color::White)),
+                            Span::styled("", Style::default().fg(Color::Yellow)),
+                        ]),
                     ];
-                    let stats = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
-                                    .block(stat_block);
-                   // let stat_data = vec![
-                   //     vec!["", "", ""],
-                   // ];
-                   // let stat_rows: Vec<Row> = stat_data.iter().enumerate().map(|(j, row)| {
-                   //     let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &cell)| {
-                   //         if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                   //             Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
-                   //         } else {
-                   //             Cell::from(cell)
-                   //         }
-                   //     }).collect();
-                   //     Row::new(cells)
-                   // }).collect();
-                   // let stat_table = Table::new(stat_rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
-                   //     .block(stat_block);
+                    let stats = Table::new(rows, &[
+                        Constraint::Percentage(25),
+                        Constraint::Percentage(5),
+                        Constraint::Percentage(25),
+                        Constraint::Percentage(5),
+                        Constraint::Percentage(27),
+                        Constraint::Percentage(10)])
+                        .block(stat_block);
 
                     let enchant_data = [
                         vec!["", "", ""],
@@ -631,22 +646,22 @@ impl GUI {
                     let w_str = equip_items.get(&Equip::Weapon).unwrap_or(&def_str);
                     let weapon_para = Paragraph::new(Text::raw(w_str))
                         .block(weapon_block);
-                    f.render_widget(weapon_para, equip_layout[0]);
+                    f.render_widget(weapon_para, hands_layout[0]);
 
                     let s_str = equip_items.get(&Equip::Shield).unwrap_or(&def_str);
                     let shield_para = Paragraph::new(Text::raw(s_str))
                         .block(shield_block);
-                    f.render_widget(shield_para, equip_layout[1]);
+                    f.render_widget(shield_para, hands_layout[1]);
 
-                    let t_str = equip_items.get(&Equip::Torso).unwrap_or(&def_str);
+                    let t_str = equip_items.get(&Equip::Armour).unwrap_or(&def_str);
                     let armour_para = Paragraph::new(Text::raw(t_str))
                         .block(armour_block);
-                    f.render_widget(armour_para, equip_layout[2]);
+                    f.render_widget(armour_para, body_layout[0]);
 
-                    let f_str = equip_items.get(&Equip::Feet).unwrap_or(&def_str);
+                    let f_str = equip_items.get(&Equip::Wearing).unwrap_or(&def_str);
                     let wearing_para = Paragraph::new(Text::raw(f_str))
                         .block(wearing_block);
-                    f.render_widget(wearing_para, equip_layout[3]);
+                    f.render_widget(wearing_para, body_layout[1]);
 
                   
                     f.render_widget(h_block, normal_info[0]);
@@ -798,9 +813,9 @@ impl GUI {
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
                     let xy_area = Rect {
-                        x: upper_region.x + (upper_region.width / 3) * 2,
+                        x: upper_region.x,
                         y: upper_region.y,
-                        width: upper_region.width / 3,
+                        width: upper_region.width / 2,
                         height: 3,
                     };
                     let xy_str = format!("target: ({}, {})", self.comp_head.0, self.comp_head.1);
@@ -834,11 +849,6 @@ impl GUI {
                             vec4[idx-11] = names.clone();
                         }
                     }
-
-
-
-                    //let mut vec1 = vec!["compass"];
-                    //let mut vec2 = vec!["", ""];
                     self.comp_opts = (vec1.clone(), vec2.clone(), vec3.clone(), vec4.clone()); 
                     let inv_table = [vec1.clone(), vec2.clone(), vec3.clone(), vec4.clone()];
                     //
@@ -927,6 +937,12 @@ impl GUI {
                         let fmt_prop = format!("{}: {}", s, i);
                         props.push(Line::from(Span::raw(fmt_prop)));
                     }
+                    let fmt_prop = "┌───┐".to_string();
+                    props.push(Line::from(Span::raw(fmt_prop)));
+                    let fmt_prop = format!("| {} |", itm.icon.0);
+                    props.push(Line::from(Span::raw(fmt_prop)));
+                    let fmt_prop = "└───┘".to_string();
+                    props.push(Line::from(Span::raw(fmt_prop)));
 
 
                     let paragraph = Paragraph::new(Text::from(props))
@@ -956,7 +972,7 @@ impl GUI {
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                    let vec1 = vec!["Settlements".to_string(), "Conversations".to_string(), "Knowledge".to_string(), "Discoveries".to_string()];
+                    let vec1 = vec!["Settlements".to_string(), "Conversations".to_string(), "Knowledge".to_string(), "Tasks".to_string()];
                     let vec2 = vec!["".to_string(), "".to_string(), "".to_string(), "".to_string()];
 
                     let inv_table: Vec<Vec<String>, > = vec![vec1.clone(), vec2.clone()];
@@ -979,7 +995,7 @@ impl GUI {
                         }).collect();
                         Row::new(cells)
                     }).collect();
-                    let table = Table::new(rows, &[Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25), Constraint::Percentage(25)])
+                    let table = Table::new(rows, &[Constraint::Percentage(27), Constraint::Percentage(30), Constraint::Percentage(20), Constraint::Percentage(10)])
                         .block(notes_block);
 
                     let c_hold = &self.cursor_hold.0;
@@ -998,6 +1014,7 @@ impl GUI {
                                 let text = Text::from(tvec);
                                 let paragraph = Paragraph::new(text)
                                     .block(note_block)
+                                    .alignment(ratatui::layout::Alignment::Center)
                                     .wrap(ratatui::widgets::Wrap { trim: true });
                                 paragraph
                             },
@@ -1024,7 +1041,7 @@ impl GUI {
                             },
                             2 => {
                                 let mut tvec = Vec::new();
-                                for (i, v) in self.active_notes.0.keys().enumerate() {
+                                for (i, v) in self.active_notes.2.keys().enumerate() {
                                     if self.cursor_pos.1 == i {
                                         tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::Yellow))));
                                     } else {
@@ -1039,7 +1056,7 @@ impl GUI {
                             },
                             3 => {
                                 let mut tvec = Vec::new();
-                                for (i, v) in self.active_notes.0.keys().enumerate() {
+                                for (i, v) in self.active_notes.3.keys().enumerate() {
                                     if self.cursor_pos.1 == i {
                                         tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::Yellow))));
                                     } else {
@@ -1061,18 +1078,19 @@ impl GUI {
                     } else {
                         match c_hold {
                             0 => {
-                                let mut tvec = Vec::new();
-                                for (k, v) in &self.active_notes.0 {
-                                    tvec.push(
-                                        Line::from(Span::raw(k))
-                                    );
-                                    tvec.push(
-                                        Line::from(Span::raw(v))
-                                    );
-                                }
-                                let text = Text::from(tvec);
-                                let paragraph = Paragraph::new(text)
+                                // let mut tvec = Vec::new();
+                                // for (k, v) in &self.active_notes.0 {
+                                //     tvec.push(
+                                //         Line::from(Span::raw(k))
+                                //     );
+                                //     tvec.push(
+                                //         Line::from(Span::raw(v))
+                                //     );
+                                // }
+                                let settle = self.active_notes.0.clone().into_values().collect::<Vec<String>>()[self.cursor_pos.1].clone();
+                                let paragraph = Paragraph::new(Text::raw(settle))
                                     .block(note_block)
+                                    .alignment(ratatui::layout::Alignment::Center)
                                     .wrap(ratatui::widgets::Wrap { trim: true });
                                 paragraph
                             },

@@ -84,7 +84,7 @@ impl Experience {
             defence: (1, 0, 100),
             luck: (1, 0, 10),
             trading: (1, 0, 10),
-            lockpicking: (1, 0, 10),
+            lockpicking: (10, 0, 10),
             navigation: (1, 0, 10),
             herbalism: (1, 0, 10),
         }
@@ -130,6 +130,19 @@ impl Experience {
             ExpType::Navigation => self.navigation,
             ExpType::Herbalism => self.herbalism,
         }
+    }
+
+    pub fn get_xps(&mut self) -> Vec<u16> {
+        vec![
+            self.attack.0,
+            self.damage.0,
+            self.defence.0,
+            self.luck.0,
+            self.trading.0,
+            self.lockpicking.0,
+            self.navigation.0,
+            self.herbalism.0,
+        ]
     }
 }
 

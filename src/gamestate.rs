@@ -17,6 +17,7 @@ use crate::player::Player;
 use crate::puzzles::Puzzles;
 use crate::settlements::Settlements;
 use crate::stats::Stats;
+use crate::tasks::{Task, Tasks};
 use crate::utils::{gen_broken_range, in_range, loc_shop_items};
 
 mod compass_state;
@@ -34,6 +35,7 @@ mod npc_interactions;
 mod npcs;
 mod puzzle_state;
 mod settle_state;
+mod task_state;
 
 use rand::Rng;
 use ratatui::crossterm::event::{poll, read, Event, KeyCode, KeyEventKind};
@@ -54,6 +56,7 @@ pub struct GameState {
     gui: GUI,
     map: Map,
     nodemap: NodeMap,
+    tasks: Tasks,
     settles: Settlements,
     puzzles: Puzzles,
     player: Player,
@@ -254,12 +257,15 @@ impl GameState {
             }
         }
 
+        let mut tasks = Tasks::new();
+
         Arc::new(Mutex::new(GameState {
             game_mode: GameMode::Play,
             notebook,
             gui,
             map,
             nodemap,
+            tasks,
             settles,
             puzzles,
             player,
@@ -377,6 +383,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -514,6 +521,22 @@ impl GameState {
             self.repop_enemies();
         }
 
+        if self.tasks.locals.len() < 2 {
+            self.tasks.locals = {
+                let settles = self
+                    .settles
+                    .get_local_settles((self.dist_fo.0, self.dist_fo.1));
+                let mut locals = Vec::new();
+                for s in settles {
+                    locals.push((s.0, s.1.sname));
+                }
+                locals
+            };
+            self.tasks.new_board_task();
+            self.tasks.new_board_task();
+            self.tasks.new_board_task();
+        }
+
         let adj = [
             (self.player.x - 1, self.player.y),
             (self.player.x + 1, self.player.y),
@@ -569,6 +592,7 @@ impl GameState {
             &mut GuiArgs {
                 map: &self.map,
                 player: &self.player,
+                stats: &self.stats.player_xp.get_xps(),
                 enemies: &self.enemies,
                 items: &self.items,
                 npcs: &self.npcs,

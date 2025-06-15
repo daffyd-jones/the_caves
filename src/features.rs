@@ -1,4 +1,4 @@
-use crate::enums::{Cells, EnvInter, FeatureType, NPCWrap};
+use crate::enums::{Cells, Door, EnvInter, FeatureType, NPCWrap};
 use crate::item::Item;
 use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, Convo, ShopConvos, ShopData};
 use rand::prelude::SliceRandom;
@@ -6,6 +6,327 @@ use rand::Rng;
 use std::collections::HashMap;
 use std::f64::consts;
 use std::fs;
+
+const STREAM: &str = r#"
+________________
+________________
+________________
+________________
+________________
+________________
+________________
+________________
+"#;
+
+const PALETTE: &str = r#"
+empty: ' . , ' * |
+wall: ▒ |
+other ▓ ░ ~ |
+pipes:
+═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬
+┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │
+ʬ ỻ Π Ħ ʭ ṑ ⑁                   
+ж ѧ π
+ᘉ ᘈ ᘍ ᘊ
+≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©
+"#;
+
+const STREAM_SOURCE_L: &str = r#"
+################
+___________#####
+_~~~~____╔╦╗____
+~~~~~~~~~~~╣_###
+~~~~~~~~~~╦╣_###
+~____~~~_____###
+___________#####
+##########_#####
+"#;
+
+const STREAM_SOURCE_R: &str = r#"
+################
+####____________
+####_╔╦╗__~~~~__
+####_╠~~~~~~~~~~
+####_╠╦~~~~~~~~~
+________~~~__~~~
+#######_________
+################
+"#;
+
+const STREAM_SOURCE_B: &str = r#"
+################
+####________####
+______╔╦╦╗__####
+####__╠~~╣___###
+####__~~~~__####
+###__~~~~~__####
+####_~~~~~~__###
+####__~~~~~_####
+"#;
+
+const STREAM_SOURCE_U: &str = r#"
+###__~~~~~__####
+####_~~~~~~__###
+###___~~~~~_####
+####__~~~~__####
+####__╣~~╠___###
+###___╚╦╦╝__####
+####____________
+################
+"#;
+
+const STREAM_TRANS: &str = r#"
+################
+################
+################
+################
+################
+################
+################
+################
+"#;
+
+const STREAM_UR: &str = r#"
+####__~~~~__####
+####__~~~~______
+###__~~~~~__~~~_
+###__~~~~~~~~~~~
+####__~~~~~~~~~~
+###_____~~~~____
+####____________
+################
+"#;
+
+const STREAM_UL: &str = r#"
+####__~~~~__####
+#_#____~~~~__###
+______~~~~~__###
+~~~_~~~~~~~__###
+~~~~~~~~~~__####
+__~~~~~______###
+____________####
+################
+"#;
+
+const STREAM_BL: &str = r#"
+################
+_________#######
+__~~~~~____#####
+~~~~~~~~~~__####
+~~~__~~~~~~__###
+______~~~~~__###
+##___~~~~~~__###
+###___~~~~__####
+"#;
+
+const STREAM_BR: &str = r#"
+################
+#######_________
+#####____~~~~___
+####___~~~~~~~~~
+####__~~~~~~~~~~
+###__~~~~~______
+###__~~~~____###
+####__~~~~__####
+"#;
+
+const STREAM_VERT: &str = r#"
+####__~~~~__####
+###__~~~~~__####
+###__~~~~~~__###
+###__~~~~~~__###
+####__~~~~~__###
+###__~~~~~~__###
+###__~~~~~__####
+####__~~~~__####
+"#;
+
+const STREAM_HORZ: &str = r#"
+################
+#______#_______#
+__~~~~___~~~~~__
+~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
+_____~~~~~______
+###________#####
+################
+"#;
+
+#[derive(Clone, PartialEq, Eq, Copy, PartialOrd, Ord)]
+enum Stream {
+    Horz,
+    Vert,
+    SourceU,
+    SourceB,
+    SourceL,
+    SourceR,
+    UR,
+    UL,
+    BL,
+    BR,
+    Trans,
+    Null,
+}
+
+const STREAM_UP_FULL: [Stream; 4] = [Stream::Vert, Stream::BL, Stream::BR, Stream::SourceB];
+
+const STREAM_UP_EMPTY: [Stream; 7] = [
+    Stream::Horz,
+    Stream::UR,
+    Stream::UL,
+    Stream::Trans,
+    Stream::SourceU,
+    Stream::SourceR,
+    Stream::SourceL,
+];
+
+const STREAM_LEFT_FULL: [Stream; 4] = [Stream::Horz, Stream::UR, Stream::BR, Stream::SourceR];
+
+const STREAM_LEFT_EMPTY: [Stream; 7] = [
+    Stream::Vert,
+    Stream::UL,
+    Stream::BL,
+    Stream::Trans,
+    Stream::SourceU,
+    Stream::SourceB,
+    Stream::SourceL,
+];
+
+fn build_stream() -> String {
+    let mut rng = rand::thread_rng();
+    let mut cells = vec![vec![' '; 128]; 64];
+    let mut temp = vec![vec![Stream::Trans; 8]; 8];
+    // temp[0][0] = Field::OutCornerUL;
+    for j in (0..temp.len()) {
+        for i in (0..temp[0].len()) {
+            let up = if j > 0 { temp[j - 1][i] } else { Stream::Null };
+            let left = if i > 0 { temp[j][i - 1] } else { Stream::Null };
+            temp[j][i] = {
+                match (up, left) {
+                    (Stream::Null, Stream::Null) => *[Stream::SourceB, Stream::SourceR]
+                        .choose(&mut rng)
+                        .unwrap_or(&Stream::SourceB),
+                    (up, right) if j == temp.len() - 1 && i == temp[0].len() - 1 => {
+                        if STREAM_UP_FULL.contains(&up) {
+                            Stream::SourceU
+                        } else if STREAM_LEFT_FULL.contains(&right) {
+                            Stream::SourceL
+                        } else {
+                            Stream::Trans
+                        }
+                    }
+                    (Stream::Null, left) => {
+                        if i == temp[0].len() - 1 && STREAM_LEFT_FULL.contains(&left) {
+                            Stream::BL
+                        } else if i == temp[0].len() - 1 && STREAM_LEFT_EMPTY.contains(&left) {
+                            Stream::Trans
+                        } else if STREAM_LEFT_FULL.contains(&left) {
+                            *[Stream::Horz, Stream::BL]
+                                .choose(&mut rng)
+                                .unwrap_or(&Stream::Horz)
+                        } else {
+                            Stream::Trans
+                        }
+                    }
+                    (up, Stream::Null) => {
+                        if j == temp.len() - 1 && STREAM_UP_FULL.contains(&up) {
+                            Stream::UR
+                        } else if j == temp.len() - 1 && STREAM_UP_EMPTY.contains(&up) {
+                            Stream::Trans
+                        } else if STREAM_UP_FULL.contains(&up) {
+                            *[Stream::Vert, Stream::UR]
+                                .choose(&mut rng)
+                                .unwrap_or(&Stream::Vert)
+                        } else {
+                            Stream::Trans
+                        }
+                    }
+                    (up, left) if i == temp[0].len() - 1 => {
+                        if STREAM_UP_FULL.contains(&up) && STREAM_LEFT_FULL.contains(&left) {
+                            Stream::UL
+                        } else if STREAM_UP_FULL.contains(&up) && STREAM_LEFT_EMPTY.contains(&left)
+                        {
+                            Stream::Vert
+                        } else if STREAM_UP_EMPTY.contains(&up) && STREAM_LEFT_FULL.contains(&left)
+                        {
+                            Stream::BL
+                        } else {
+                            Stream::Trans
+                        }
+                    }
+                    (up, left) if j == temp.len() - 1 => {
+                        if STREAM_UP_FULL.contains(&up) && STREAM_LEFT_FULL.contains(&left) {
+                            Stream::UL
+                        } else if STREAM_UP_EMPTY.contains(&up) && STREAM_LEFT_FULL.contains(&left)
+                        {
+                            Stream::Horz
+                        } else if STREAM_UP_FULL.contains(&up) && STREAM_LEFT_EMPTY.contains(&left)
+                        {
+                            Stream::UR
+                        } else {
+                            Stream::Trans
+                        }
+                    }
+                    (up, left)
+                        if STREAM_UP_FULL.contains(&up) && STREAM_LEFT_FULL.contains(&left) =>
+                    {
+                        Stream::UL
+                    }
+                    (up, left)
+                        if STREAM_UP_FULL.contains(&up) && STREAM_LEFT_EMPTY.contains(&left) =>
+                    {
+                        *[Stream::Vert, Stream::UR]
+                            .choose(&mut rng)
+                            .unwrap_or(&Stream::Vert)
+                    }
+                    (up, left)
+                        if STREAM_UP_EMPTY.contains(&up) && STREAM_LEFT_FULL.contains(&left) =>
+                    {
+                        *[Stream::Horz, Stream::BL]
+                            .choose(&mut rng)
+                            .unwrap_or(&Stream::Horz)
+                    }
+                    (up, left)
+                        if STREAM_UP_EMPTY.contains(&up) && STREAM_LEFT_EMPTY.contains(&left) =>
+                    {
+                        *[Stream::SourceB, Stream::SourceR, Stream::Trans, Stream::BR]
+                            .choose(&mut rng)
+                            .unwrap_or(&Stream::Trans)
+                    }
+                    _ => Stream::Trans,
+                }
+            }
+        }
+    }
+    for j in 0..temp.len() {
+        for i in 0..temp[0].len() {
+            let patch = match temp[j][i] {
+                Stream::Horz => STREAM_HORZ,
+                Stream::Vert => STREAM_VERT,
+                Stream::SourceU => STREAM_SOURCE_U,
+                Stream::SourceB => STREAM_SOURCE_B,
+                Stream::SourceL => STREAM_SOURCE_L,
+                Stream::SourceR => STREAM_SOURCE_R,
+                Stream::UL => STREAM_UL,
+                Stream::UR => STREAM_UR,
+                Stream::BL => STREAM_BL,
+                Stream::BR => STREAM_BR,
+                Stream::Trans => STREAM_TRANS,
+                _ => todo!(),
+            };
+            let patch_chars = tile_to_chars(patch);
+            for y in 0..8 {
+                for x in 0..16 {
+                    cells[j * 8 + y][i * 16 + x] = patch_chars[y][x];
+                }
+            }
+        }
+    }
+    std::iter::once("Null|Null|Null".to_string())
+        .chain(cells.iter().map(|row| row.iter().collect::<String>()))
+        .collect::<Vec<String>>()
+        .join("\n")
+}
 
 const GRASS_PATCH: &str = r#"
 ',',',',',',',',
@@ -194,7 +515,137 @@ const SHRUB_PATCH: &str = r#"
 ',',',',',',',',
 "#;
 
+// Hermit
+
+const HERMIT_BLANK: &str = r#"Null|Null|Null
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+"#;
+
+const HERMIT_1: &str = r#"Null|Null|Null
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+______________________┌────────┐________
+_______________________________│________
+_______________________________│________
+__________________________H____┘________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+"#;
+
+// Construction
+
+const CONSTRUCTION_BLANK: &str = r#"Null|Null|Null
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+"#;
+
+/*
+ 🬐🬑  🝗  🝠
+
+ 🬮 🬡
+*/
+
+const PALETTE1: &str = r#"
+empty: ' . , ' * |
+wall: ▒ |
+other ▓ ░ ~ |
+pipes:
+═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬
+┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │
+ʬ ỻ Π Ħ ʭ ṑ ⑁                   
+ж ѧ π
+ᘉ ᘈ ᘍ ᘊ
+≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©
+"#;
+
+const CONSTRUCTION_1: &str = r#"CommNPC CommNPC CommNPC CommNPC CommNPC|Null|Null
+######░░░░░░░░░░▓▓▓▓  . ,  C ·  ▓▓▓▓####
+######░░░░░░░░░░▓▓▓▓┬┬┬┬┬┐┌┬┬┬┬┬▓▓▓▓▓▓##
+░░░░░░░🬗░░░░░░░░▓▓🬐🬑        '  │▓▓▓▓▓▓##
+░░░░░░░░░░░░░░░░▓▓🬮🬡@      *   │▓▓▓▓▓▓##
+,   ░░░░     ·, │ @ ··'   ·    ├┬┬┬┐▓▓##
+    ░░░░     ,  │   ,   ·   ⑁  ┌─┐ │▓▓##
+.  ·░░░░ *.     ├┬┬┐    @ ѧ  ⑁ ├╦┤ ├▓▓##
+    ░░░░   '   , , ├┬┬┐   ' ,,   @  ▓▓##
+,   ░░░░   . ,      * ├┐┌┐     @🬮🬡🬑▓▓🬗▓▓
+    ░░░░   .          C  ├┬┬┐ · ▓▓▓▓🬗▓▓▓
+    ░░░░                '   ├┬┬┬▓▓▓▓▓🬗▓▓
+    🬁░░░               , ·      ▓▓▓▓▓▓▓▓
+"#;
+
+const CONSTRUCTION_2: &str = r#"CommNPC CommNPC CommNPC CommNPC CommNPC CommNPC|Null|Null
+' ######### 🬞▓▓▓     C   '  ▓▓▓▓▓▓▓▓▓▓▓🭏
+##        , ▓▓▓▓┌┬┬┬┬┐┌┬┬┬┬┐▓▓▓▓▓▓▓▓▓▓▓▓
+## *        ▓▓▓▓         .  ▓▓▓▓▓▓▓▓▓▓▓▓
+##.         ▓▓🬑🬗   @  ⑁    @🬑▓▓▓▓▓▓▓▓▓▓▓
+##       , '▓▓▓🬡     ѧ ⑁    🬡🬮▓▓   ·    
+##          ▓▓▓🬗@   ▓▓▓🭏   @🬦▓▓▓    '   
+##          ▓▓▓▓π@  ▓▓▓▓··  ▓▓▓▓   .  , 
+## *    '   ▓▓▓▓,   ▓▓▓▓   ·🬡🬗▓▓        
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓·  @🬑▓▓▓▓▓▓▓▓▓▓🬿
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓   *▓▓▓▓▓▓▓▓▓▓▓▓
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓┌┬┬┐▓▓▓▓▓▓▓▓▓▓▓▓
+▓▓▓▓▓▓▓ඉ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓🭠 C  ▓▓▓▓▓▓▓▓▓▓▓▓
+"#;
+
+const CONSTRUCTION_3: &str = r#"CommNPC CommNPC CommNPC CommNPC CommNPC|Null|Null
+## '   ,,    '   ,,#########▓▓▓▓   *▓▓▓▓
+## . ,    * *           ▓▓▓▓▓🬗▓▓▓▓▓▓▓▓▓▓
+## .                *  ·▓▓▓▓🬗▓▓▓▓▓▓▓▓▓▓▓
+##          '        ┌┬┐▓▓▓▓▓🬗▓▓▓▓▓▓▓▓▓▓
+##              ,C·┌┬┤  ▓▓🬡🬑🬑▓▓▓▓▓▓▓▓▓▓ඉ
+.'     ,   ,  ┌┬┐┌┬┤   Ʌ .@ 🬮▓▓▓    ▓▓▓▓
+            ┌┬┤             ▓▓▓▓    ▓▓▓▓
+   *      ┌┬┤        ѧ ⑁ '' 🬑▓▓▓  . ▓▓▓▓
+     · ,  │  *  @  @     @ @🬗▓▓▓.   ▓▓▓▓
+▒▒▒▒▒▒▒▒▓▓▓▓▓▓▓🬑🬡🬑🬗🬑🬮▓▓▓🬑🬮🬡🬮🬑▓▓▓ *  ▓▓▓▓
+▒▒▒▒▒▒▒▒▓▓▓▓▓▓▓▓🬑🬮🬡▓▓▓▓▓▓▓▓▓▓▓▓▓    ▓▓▓▓
+▒▒▒▒▒▒▒▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓    ▓▓▓▓
+"#;
+
+const CONSTRUCTION: [&str; 3] = [CONSTRUCTION_1, CONSTRUCTION_2, CONSTRUCTION_3];
+
 // Abandoned shacks
+
+const ABANDONED_SHACK_BLANK: &str = r#"Null|Null|BronzeWarAxe
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+________________________________________
+"#;
 
 const ABANDONED_SHACK_1: &str = r#"Null|Null|BronzeWarAxe
 ###___________________________________##
@@ -343,26 +794,9 @@ ______║________________________________________________.______________________
 ______╚══*,_________________══════__________══════______________________________
 ________"_____________________________________________________________ѧ_________
 ##___________________________________________'__________________________________
-##____________________________,_______________________________________________##
-##____________________________________________________________________________##
-##_______________________________________________________________________#######
-"#;
-
-const palette: &str = r#"
-empty: ' . , ' * |
-wall: ▒ |
-other ▓ ░ ~ |
-pipes:
-═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬
-┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │
-
-ʬ ỻ Π Ħ ʭ                     
-ж ѧ π
-ᘉ ᘈ ᘍ ᘊ
-
-≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©
-
-i ̾¡  ͔¡  ͊¡  ͛¡  ̷¡  ̸¡  ̚¡  ͆¡ ¡˞ ¡ˡ  ̢¡ ¡     
+##__________________########__,_______________________________________________##
+##________________###########_______________########__________________________##
+##_______________#############__________################_________________#######
 "#;
 
 const SMALL_RUIN_0: &str = r#"
@@ -430,7 +864,7 @@ ________________________________________________________________________________
 
 const SMALL_RUINS: [&str; 3] = [SMALL_RUIN_1, SMALL_RUIN_2, SMALL_RUIN_3];
 
-fn parse_map(
+pub fn parse_map(
     s_map: &str,
     mut cells: Vec<Vec<Cells>>,
 ) -> (
@@ -495,8 +929,17 @@ fn parse_map(
                 ':' => Cells::Dirt3,
                 '*' => Cells::Rock,
                 '▒' => Cells::Wall,
+                '▓' => Cells::Wall2,
+                '█' => Cells::Wall3,
+                '░' => Cells::Wall4,
+                'ඉ' => Cells::Roots,
+                '🬤' => Cells::Broken1,
+                '🬗' => Cells::Broken2,
+                '🬐' => Cells::Broken3,
+                '🬑' => Cells::Broken4,
+                '🬮' => Cells::Broken5,
+                '🬡' => Cells::Broken6,
                 ' ' => Cells::Floor,
-                '░' => Cells::Floor2,
                 '~' => Cells::Water,
                 '═' => Cells::MwH,
                 '║' => Cells::MwV,
@@ -655,6 +1098,39 @@ fn parse_map(
                 }
                 icount += 1;
             }
+            if ch == 'l' {
+                env_inters.insert((x, y), EnvInter::Records);
+            }
+            if ch == 'p' {
+                env_inters.insert((x, y), EnvInter::GuildPost);
+            }
+            if ch == 'c' {
+                env_inters.insert((x, y), EnvInter::Clinic);
+            }
+            if ch == 'C' {
+                env_inters.insert((x, y), EnvInter::Construction);
+            }
+            if ch == 's' {
+                env_inters.insert((x, y), EnvInter::ChurchPost);
+            }
+            if ch == '℧' {
+                env_inters.insert((x, y), EnvInter::Cauldron);
+            }
+            if ch == 'h' {
+                env_inters.insert((x, y), EnvInter::Herbalist);
+            }
+            if ch == 'd' {
+                env_inters.insert(
+                    (x, y),
+                    EnvInter::Door(Door::HLocked(rng.gen_range(0..10) as u8)),
+                );
+            }
+            if ch == 'D' {
+                env_inters.insert(
+                    (x, y),
+                    EnvInter::Door(Door::VLocked(rng.gen_range(0..10) as u8)),
+                );
+            }
         }
     }
     (cells, npcs, items, env_inters)
@@ -683,6 +1159,20 @@ fn make_abandoned_shack() -> (
         ABANDONED_SHACKS
             .choose(&mut rng)
             .unwrap_or(&ABANDONED_SHACK_1),
+        cells,
+    )
+}
+
+fn make_construction_feature() -> (
+    Vec<Vec<Cells>>,
+    HashMap<(usize, usize), NPCWrap>,
+    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), EnvInter>,
+) {
+    let cells = vec![vec![Cells::Empty; 40]; 12];
+    let mut rng = rand::thread_rng();
+    parse_map(
+        CONSTRUCTION.choose(&mut rng).unwrap_or(&CONSTRUCTION_1),
         cells,
     )
 }
@@ -751,7 +1241,7 @@ const LEFT_EMPTY: [Field; 5] = [
     Field::OutCornerUR,
 ];
 
-fn tile_to_chars(tile: &str) -> Vec<Vec<char>> {
+pub fn tile_to_chars(tile: &str) -> Vec<Vec<char>> {
     tile.trim()
         .lines()
         .map(|line| line.chars().collect())
@@ -770,7 +1260,7 @@ fn build_field() -> String {
             temp[j][i] = {
                 match (up, left) {
                     (Field::Null, Field::Null) => Field::OutCornerUL,
-                    (up, right) if j == temp.len() - 1 && i == temp[0].len() - 1 => {
+                    (up, left) if j == temp.len() - 1 && i == temp[0].len() - 1 => {
                         if UP_EMPTY.contains(&up) {
                             Field::Empty
                         } else {
@@ -931,6 +1421,16 @@ fn make_field() -> (
     parse_map(&build_field(), cells)
 }
 
+fn make_stream() -> (
+    Vec<Vec<Cells>>,
+    HashMap<(usize, usize), NPCWrap>,
+    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), EnvInter>,
+) {
+    let cells = vec![vec![Cells::Empty; 128]; 64];
+    parse_map(&build_stream(), cells)
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Feature {
     pub ftype: FeatureType,
@@ -963,18 +1463,22 @@ impl Features {
 
     pub fn new_rand_feature(&mut self, pos: (i16, i16)) {
         let mut rng = rand::thread_rng();
-        // let choice = *[
-        //     FeatureType::AbandonedShack,
-        //     FeatureType::Field,
-        //     FeatureType::Ruin,
-        // ]
-        // .choose(&mut rng)
-        // .unwrap_or(&FeatureType::AbandonedShack);
-        let choice = FeatureType::Ruin;
+        let choice = *[
+            FeatureType::AbandonedShack,
+            FeatureType::Field,
+            FeatureType::Ruin,
+            FeatureType::Stream,
+            FeatureType::Construction,
+        ]
+        .choose(&mut rng)
+        .unwrap_or(&FeatureType::AbandonedShack);
+        // let choice = FeatureType::Construction;
         match choice {
             FeatureType::AbandonedShack => self.new_abandoned_shack(pos),
             FeatureType::Field => self.new_field_feature(pos),
             FeatureType::Ruin => self.new_small_ruin_feature(pos),
+            FeatureType::Stream => self.new_stream_feature(pos),
+            FeatureType::Construction => self.new_construction_feature(pos),
             _ => self.new_abandoned_shack(pos),
         }
     }
@@ -995,12 +1499,44 @@ impl Features {
         );
     }
 
+    pub fn new_construction_feature(&mut self, pos: (i16, i16)) {
+        let (map, npcs, items, env_inters) = make_construction_feature();
+        self.features.insert(
+            pos,
+            Feature {
+                ftype: FeatureType::Construction,
+                pos,
+                map,
+                items,
+                npcs,
+                env_inters,
+                cont_sent: false,
+            },
+        );
+    }
+
     pub fn new_field_feature(&mut self, pos: (i16, i16)) {
         let (map, npcs, items, env_inters) = make_field();
         self.features.insert(
             pos,
             Feature {
                 ftype: FeatureType::Field,
+                pos,
+                map,
+                items,
+                npcs,
+                env_inters,
+                cont_sent: false,
+            },
+        );
+    }
+
+    pub fn new_stream_feature(&mut self, pos: (i16, i16)) {
+        let (map, npcs, items, env_inters) = make_stream();
+        self.features.insert(
+            pos,
+            Feature {
+                ftype: FeatureType::Stream,
                 pos,
                 map,
                 items,

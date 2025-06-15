@@ -4,6 +4,7 @@ use crate::enums::Location;
 use crate::features::Feature;
 use crate::gamestate::GameState;
 use crate::map::{MAP_H, MAP_W};
+use crate::npc_utils::{box_npc, wrap_nbox};
 
 impl GameState {
     pub fn update_feature(&mut self, mut feature: Feature) -> Location {
@@ -29,6 +30,16 @@ impl GameState {
                     (self.dist_fo.1 + y as i16 + fpos.1) as usize,
                 );
                 self.env_inters.insert(nwpos, env);
+            }
+            let tnpcs = feature.npcs.clone();
+            for ((x, y), n) in tnpcs {
+                let mut nbox = box_npc(n);
+                let nwpos = (
+                    (self.dist_fo.0 + x as i16 + fpos.0) as usize,
+                    (self.dist_fo.1 + y as i16 + fpos.1) as usize,
+                );
+                nbox.set_pos(nwpos);
+                self.npcs.insert(nwpos, wrap_nbox(nbox));
             }
             feature.cont_sent = true;
         }

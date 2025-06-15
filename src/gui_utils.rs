@@ -71,7 +71,12 @@ pub fn wrap_text(text: &str, max_width: usize) -> Text {
         if !current_line.is_empty() {
             current_line.push(' ');
         }
-        current_line.push_str(word);
+        if word.eq("nl") {
+            lines.push(Line::from(current_line.clone()));
+            current_line.clear();
+        } else {
+            current_line.push_str(word);
+        }
     }
     if !current_line.is_empty() {
         //lines.push(current_line);
@@ -84,6 +89,7 @@ pub fn wrap_text(text: &str, max_width: usize) -> Text {
 pub struct GuiArgs<'a> {
     pub map: &'a Map,
     pub player: &'a Player,
+    pub stats: &'a Vec<u16>,
     pub enemies: &'a HashMap<(usize, usize), Enemy>,
     pub items: &'a HashMap<(usize, usize), Item>,
     pub npcs: &'a HashMap<(usize, usize), NPCWrap>,
@@ -245,10 +251,13 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::Clinic => ('─', Color::Green),
                         EnvInter::GuildPost => ('─', Color::Green),
                         EnvInter::ChurchPost => ('─', Color::Green),
+                        EnvInter::Construction => ('ì', Color::Blue),
                         EnvInter::Cauldron => ('℧', Color::Green),
                         EnvInter::Herbalist => ('ì', Color::Yellow),
-                        EnvInter::Door(Door::Locked(_)) => ('╎', Color::White),
-                        EnvInter::Door(Door::Open) => ('🮀', Color::White),
+                        EnvInter::Door(Door::VLocked(_)) => ('╎', Color::White),
+                        EnvInter::Door(Door::VOpen) => ('🮀', Color::White),
+                        EnvInter::Door(Door::HLocked(_)) => ('╌', Color::White),
+                        EnvInter::Door(Door::HOpen) => (' ', Color::White),
                         _ => todo!(),
                     }
                 } else {
@@ -266,11 +275,8 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Bramble4 => ('ᘊ', Color::Green),
                         Cells::Bush => ('&', Color::Green),
                         Cells::Rock => ('*', Color::DarkGray),
-                        Cells::Wall => {
-                            // ('░', Color::LightCyan)
-                            ('▓', Color::DarkGray)
-                        }
-                        Cells::Wall2 => ('▒', Color::DarkGray),
+                        Cells::Wall => ('▒', Color::DarkGray),
+                        Cells::Wall2 => ('▓', Color::DarkGray),
                         Cells::Wall3 => ('█', Color::DarkGray),
                         Cells::Wall4 => ('░', Color::Red),
                         Cells::ULCorner1 => ('🬵', Color::DarkGray),
@@ -294,8 +300,12 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::DRCorner4 => ('🭠', Color::DarkGray),
                         Cells::DRCorner5 => ('🭚', Color::DarkGray),
                         Cells::Broken1 => ('🬤', Color::DarkGray),
+                        Cells::Broken2 => ('🬗', Color::DarkGray),
+                        Cells::Broken3 => ('🬐', Color::DarkGray),
+                        Cells::Broken4 => ('🬑', Color::DarkGray),
+                        Cells::Broken5 => ('🬮', Color::DarkGray),
+                        Cells::Broken6 => ('🬡', Color::DarkGray),
                         Cells::Roots => ('ඉ', Color::Yellow),
-                        Cells::Broken3 => ('🬗', Color::DarkGray),
                         Cells::NPCM => (' ', Color::White),
                         Cells::Floor => ('░', Color::Black),
                         Cells::Floor2 => ('░', Color::Gray),
@@ -389,6 +399,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                                 ('~', Color::LightBlue)
                             }
                         }
+                        // Cells::Null => ('#', Color::Red),
                         _ => (' ', Color::Red),
                     }
                 }

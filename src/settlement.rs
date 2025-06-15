@@ -251,7 +251,7 @@ ________________________________________________________________________________
 ______________________________________________________________________________________________________________________________________________________
 "#;
 
-const cave_o1: &str = r#"ShopNPC|HealthPotion BronzeLongsword BronzeLightAxe Salve Salve Dowel SmallWoodShield BronzePickHammer BronzeShortsword Apple|Apple
+const cave_o1: &str = r#"ShopNPC|HealthPotion BronzeLongsword ShieldingPendant Salve LightArmour Dowel SmallWoodShield BronzePickHammer BronzeShortsword Apple|Apple
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_________########______________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_________########______________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_______
@@ -262,16 +262,16 @@ const cave_o1: &str = r#"ShopNPC|HealthPotion BronzeLongsword BronzeLightAxe Sal
 ▒▒▒▒_______________________________________________________________________
 ▒▒▒▒_______________:____________________,",',______________________________
 ▒▒▒▒__________________________▒▒▒▒▒▒__▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_____
-__________________________┌───▒≡ ℧       π⑁ │  ║  2 ≡≡≡≡≡≡ ≡≡≡≡≡ ≡≡≡≡▒_____
-__________________________│_,'▒ṑ            │  ║  │         ≡≡≡≡≡≡   ▒_____
-▒▒▒▒______________________│',"▒ṑ    ┌───────┘  ║≡ ├───────┤          ▒_____
-▒▒▒▒______________________│','▒       h        ║       ≡≡≡│      ≡≡≡ ▒_____
+__________________________┌───▒≡ ℧       π⑁ │  ║  D    ≡≡    ≡≡≡   ≡≡▒_____
+__________________________│_,'▒ṑ            │  ║  │≡≡≡     ≡     ≡  ≡▒_____
+▒▒▒▒______________________│',"▒ṑ    ┌───────┘  ║≡ ├───────┤≡≡≡≡≡≡≡≡ ≡▒_____
+▒▒▒▒______________________│','▒       h        ║       ≡≡≡│         ≡▒_____
 ▒▒▒▒______________________│','▒════════════════╩══════════════   ════▒_____
-▒▒▒▒______________________│','▒  o│o  o│o  o│o              @        ▒_____
-####______________________│','▒  ─┼─  ─┼─  ─┴─      └────────────────▒_____
-####_________,____________│','▒  o│o  o│o                            ▒_____
-####______________________│__'▒                                      ▒_____
-####______________________└───▒                                      ▒_O___
+▒▒▒▒______________________│','▒  o│o  o│o  o│o                       ▒_____
+####______________________│','▒  ─┼─  ─┼─  ─┴─      └─────────┐      ▒_____
+####_________,____________│','▒  o│o  o│o                     │      ▒_____
+####______________________│__'▒                               │@     ▒_____
+####______________________└───▒                               │      ▒_O___
 ______________________________▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_____
 _______________________________"__________"________________________________
 ___________________________________________________________________________
@@ -406,26 +406,6 @@ fn parse_map(
         _ => load_convos(&"cave".to_string()),
     };
 
-    // let data2 = fs::read_to_string("src/npcs/npc_comms.json");
-    // //log::info!("{:?}", &data2);
-    // let comms: Vec<String> = match data2 {
-    //     Ok(content) => serde_json::from_str(&content).unwrap(),
-    //     Err(e) => {
-    //         log::info!("{:?}", e);
-    //         Vec::new()
-    //     }
-    // };
-
-    // let data3 = fs::read_to_string("src/npcs/npc_convos.json");
-    // //log::info!("{:?}", &data3);
-    // let convos: Vec<Convo> = match data3 {
-    //     Ok(content) => serde_json::from_str(&content).unwrap(),
-    //     Err(e) => {
-    //         log::info!("{:?}", e);
-    //         Vec::new()
-    //     }
-    // };
-
     let data4 = fs::read_to_string("src/npcs/npc_shops.json");
     //log::info!("{:?}", &data4);
     let shops: ShopData = match data4 {
@@ -477,6 +457,12 @@ fn parse_map(
                 ':' => Cells::Dirt3,
                 '*' => Cells::Rock,
                 '▒' => Cells::Wall,
+                '🬤' => Cells::Broken1,
+                '🬗' => Cells::Broken2,
+                '🬐' => Cells::Broken3,
+                '🬑' => Cells::Broken4,
+                '🬮' => Cells::Broken5,
+                '🬡' => Cells::Broken6,
                 ' ' => Cells::Floor,
                 '░' => Cells::Floor2,
                 '~' => Cells::Water,
@@ -728,6 +714,18 @@ fn parse_map(
                         let ti = Item::new_light_armour(x, y);
                         sitems.insert((x, y), ti.clone());
                     }
+                    "ShieldingPendant" => {
+                        let ti = Item::new_shielding_pendant(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
+                    "StrengthPendant" => {
+                        let ti = Item::new_strength_pendant(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
+                    "AgilityPendant" => {
+                        let ti = Item::new_agility_pendant(x, y);
+                        sitems.insert((x, y), ti.clone());
+                    }
                     _ => {
                         log::info!("itm {:?}", sitem_types[sicount]);
                     }
@@ -807,6 +805,9 @@ fn parse_map(
             if ch == 'c' {
                 env_inters.insert((x, y), EnvInter::Clinic);
             }
+            if ch == 'C' {
+                env_inters.insert((x, y), EnvInter::Construction);
+            }
             if ch == 's' {
                 env_inters.insert((x, y), EnvInter::ChurchPost);
             }
@@ -816,10 +817,16 @@ fn parse_map(
             if ch == 'h' {
                 env_inters.insert((x, y), EnvInter::Herbalist);
             }
-            if ch.is_digit(10) {
+            if ch == 'd' {
                 env_inters.insert(
                     (x, y),
-                    EnvInter::Door(Door::Locked(ch.to_digit(10).unwrap() as u8)),
+                    EnvInter::Door(Door::HLocked(rng.gen_range(0..10) as u8)),
+                );
+            }
+            if ch == 'D' {
+                env_inters.insert(
+                    (x, y),
+                    EnvInter::Door(Door::VLocked(rng.gen_range(0..10) as u8)),
                 );
             }
         }
@@ -1089,16 +1096,16 @@ fn get_npc_shops(
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Settlement {
-    stype: Settle,
-    sname: String,
-    pos: (i16, i16),
-    npcs: HashMap<(usize, usize), NPCWrap>,
-    items: HashMap<(usize, usize), Item>,
-    npcs_sent: bool,
-    items_sent: bool,
-    shops: HashMap<Shops, Shop>,
-    env_inters: HashMap<(usize, usize), EnvInter>,
-    map: Vec<Vec<Cells>>,
+    pub stype: Settle,
+    pub sname: String,
+    pub pos: (i16, i16),
+    pub npcs: HashMap<(usize, usize), NPCWrap>,
+    pub items: HashMap<(usize, usize), Item>,
+    pub npcs_sent: bool,
+    pub items_sent: bool,
+    pub shops: HashMap<Shops, Shop>,
+    pub env_inters: HashMap<(usize, usize), EnvInter>,
+    pub map: Vec<Vec<Cells>>,
     pub found: bool,
 }
 
@@ -1229,7 +1236,7 @@ impl Settlement {
         None
     }
 
-    pub fn get_stats(&mut self) -> (String, Vec<String>, Vec<String>) {
+    pub fn get_stats(&mut self) -> (String, String) {
         let mut npc_names = Vec::new();
         for (_, n) in self.npcs.clone() {
             let sname = box_npc(n).get_sname();
@@ -1245,12 +1252,42 @@ impl Settlement {
             };
             shops.push(s_string);
         }
-        (self.sname.clone(), shops, npc_names)
+        (
+            self.sname.clone(),
+            format!(
+                r#"
+{}
+---
+
+Shops:
+{}
+
+Residents:
+{}
+        "#,
+                self.sname.clone(),
+                shops.join("\n"),
+                npc_names.join("\n")
+            ),
+        )
     }
 
     pub fn update_shop(&mut self, mut shop: Shop) {
         let stype = shop.get_sptype();
         self.shops.insert(stype, shop);
+    }
+
+    pub fn add_task_env(&mut self, env: EnvInter) {
+        let mut rng = rand::thread_rng();
+        let map = self.map.clone();
+        loop {
+            let x = rng.gen_range(0..map[0].len() - 1);
+            let y = rng.gen_range(0..map.len() - 1);
+            if map[y][x] == Cells::Empty && !self.env_inters.contains_key(&(x, y)) {
+                self.env_inters.insert((x, y), env);
+                break;
+            }
+        }
     }
 
     pub fn get_pos(&mut self) -> (i16, i16) {

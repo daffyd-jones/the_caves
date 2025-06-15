@@ -1,7 +1,8 @@
 //puzzle.rs
 //
 use crate::enemy::Enemy;
-use crate::enums::{Cells, NPCWrap, PuzzleType};
+use crate::enums::{Cells, EnvInter, NPCWrap, PuzzleType};
+use crate::features::{parse_map, tile_to_chars};
 use crate::item::Item;
 use rand::prelude::SliceRandom;
 use rand::Rng;
@@ -306,6 +307,545 @@ fn place_portals(cells: Vec<Vec<Cells>>) -> HashMap<(usize, usize), (usize, usiz
     portals
 }
 
+// ruin puzzle
+
+const RUIN_ROOM_BLANK: &str = r#"
+________________________________
+________________________________
+________________________________
+________________________________
+________________________________
+________________________________
+________________________________
+________________________________
+________________________________
+________________________________
+________________________________
+________________________________
+"#;
+
+const PALETTE: &str = r#"
+empty: ' . , ' * |
+wall: ▒ |
+other ▓ ░ ~ |
+pipes:
+═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬
+┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │
+ʬ ỻ Π Ħ ʭ ṑ ⑁                   
+ж ѧ π
+ᘉ ᘈ ᘍ ᘊ
+≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©
+"#;
+
+const RUIN_ROOM_B: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+const RUIN_ROOM_T: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+const RUIN_ROOM_L: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+_______________________________▒
+_______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+const RUIN_ROOM_R: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒_______________________________
+▒_______________________________
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+const RUIN_ROOM_UR: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒_______________________________
+▒_______________________________
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+const RUIN_ROOM_UL: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+_______________________________▒
+_______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+const RUIN_ROOM_BR: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒_______________________________
+▒_______________________________
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+const RUIN_ROOM_BL: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+_______________________________▒
+_______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+// const RIN_ROOM_BL: &str = r#"
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒___________________▒▒▒▒▒▒▒▒▒▒▒▒
+// ____________________▒▒▒▒▒▒▒▒▒▒▒▒
+// ____________________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒___________________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// "#;
+
+const RUIN_ROOM_ALL: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+________________________________
+________________________________
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+const RUIN_ROOM_TB: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+// const UIN_ROOM_TB: &str = r#"
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒________▒▒▒▒▒▒▒▒▒▒▒▒
+// ▒▒▒▒▒▒▒▒▒▒▒▒▒▒____▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+// "#;
+
+const RUIN_ROOM_LR: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+________________________________
+________________________________
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒______________________________▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+const RUIN_ROOM_X: &str = r#"
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+"#;
+
+#[derive(Debug, Clone, PartialEq, Eq, Copy, PartialOrd, Ord)]
+enum RuinRoom {
+    B,
+    T,
+    L,
+    R,
+    TB,
+    LR,
+    TL,
+    TR,
+    BL,
+    BR,
+    All,
+    Default,
+    Null,
+}
+
+const RUIN_TOP_OPEN: [RuinRoom; 5] = [
+    RuinRoom::B,
+    RuinRoom::TB,
+    RuinRoom::BL,
+    RuinRoom::BR,
+    RuinRoom::All,
+];
+
+const RUIN_TOP_BLOCKED: [RuinRoom; 6] = [
+    RuinRoom::T,
+    RuinRoom::L,
+    RuinRoom::R,
+    RuinRoom::LR,
+    RuinRoom::TL,
+    RuinRoom::TR,
+];
+
+const RUIN_LEFT_OPEN: [RuinRoom; 5] = [
+    RuinRoom::R,
+    RuinRoom::LR,
+    RuinRoom::TR,
+    RuinRoom::BR,
+    RuinRoom::All,
+];
+
+const RUIN_LEFT_BLOCKED: [RuinRoom; 6] = [
+    RuinRoom::L,
+    RuinRoom::T,
+    RuinRoom::B,
+    RuinRoom::TB,
+    RuinRoom::TL,
+    RuinRoom::BL,
+];
+
+fn build_ruin() -> String {
+    let mut rng = rand::thread_rng();
+    let mut cells = vec![vec![' '; 224]; 84];
+    let mut temp = vec![vec![RuinRoom::Default; 7]; 7];
+    // temp[0][0] = Field::OutCornerUL;
+    for j in (0..temp.len()) {
+        for i in (0..temp[0].len()) {
+            let up = if j > 0 {
+                temp[j - 1][i]
+            } else {
+                RuinRoom::Null
+            };
+            let left = if i > 0 {
+                temp[j][i - 1]
+            } else {
+                RuinRoom::Null
+            };
+            temp[j][i] = {
+                match (up, left) {
+                    (RuinRoom::Null, RuinRoom::Null) => {
+                        *[RuinRoom::BR].choose(&mut rng).unwrap_or(&RuinRoom::BR)
+                    }
+                    (up, left) if j == temp.len() - 1 && i == temp[0].len() - 1 => {
+                        if RUIN_TOP_OPEN.contains(&up) && RUIN_LEFT_OPEN.contains(&left) {
+                            RuinRoom::TL
+                        } else if RUIN_LEFT_OPEN.contains(&left) {
+                            RuinRoom::L
+                        } else if RUIN_TOP_OPEN.contains(&up) {
+                            RuinRoom::T
+                        } else {
+                            RuinRoom::Default
+                        }
+                    }
+                    (RuinRoom::Null, left) => {
+                        if i == temp[0].len() - 1 && RUIN_LEFT_OPEN.contains(&left) {
+                            RuinRoom::BL
+                        } else if i == temp[0].len() - 1 && RUIN_LEFT_BLOCKED.contains(&left) {
+                            RuinRoom::B
+                        } else if i == (temp[0].len() - 1) / 2 {
+                            if RUIN_LEFT_OPEN.contains(&left) {
+                                *[RuinRoom::TL, RuinRoom::All]
+                                    .choose(&mut rng)
+                                    .unwrap_or(&RuinRoom::TL)
+                            } else {
+                                *[RuinRoom::TR, RuinRoom::TB]
+                                    .choose(&mut rng)
+                                    .unwrap_or(&RuinRoom::TR)
+                            }
+                        } else {
+                            if RUIN_LEFT_OPEN.contains(&left) {
+                                *[
+                                    RuinRoom::L,
+                                    RuinRoom::BL,
+                                    RuinRoom::LR,
+                                    RuinRoom::BL,
+                                    RuinRoom::LR,
+                                ]
+                                .choose(&mut rng)
+                                .unwrap_or(&RuinRoom::BL)
+                            } else {
+                                RuinRoom::BR
+                            }
+                        }
+                    }
+                    (up, RuinRoom::Null) => {
+                        if j == temp.len() - 1 && RUIN_TOP_OPEN.contains(&up) {
+                            RuinRoom::TR
+                        } else if j == temp.len() - 1 && RUIN_TOP_BLOCKED.contains(&up) {
+                            RuinRoom::R
+                        } else if j == (temp.len() - 1) / 2 {
+                            if RUIN_TOP_OPEN.contains(&up) {
+                                *[RuinRoom::TL, RuinRoom::All]
+                                    .choose(&mut rng)
+                                    .unwrap_or(&RuinRoom::TL)
+                            } else {
+                                *[RuinRoom::BL, RuinRoom::LR]
+                                    .choose(&mut rng)
+                                    .unwrap_or(&RuinRoom::BL)
+                            }
+                        } else {
+                            if RUIN_TOP_OPEN.contains(&up) {
+                                *[
+                                    RuinRoom::T,
+                                    RuinRoom::TR,
+                                    RuinRoom::TB,
+                                    RuinRoom::TR,
+                                    RuinRoom::TB,
+                                ]
+                                .choose(&mut rng)
+                                .unwrap_or(&RuinRoom::TR)
+                            } else {
+                                RuinRoom::BR
+                            }
+                        }
+                    }
+                    (up, left) if i == temp[0].len() - 1 => {
+                        if j == (temp.len() - 1) / 2 {
+                            if RUIN_TOP_OPEN.contains(&up) && RUIN_LEFT_OPEN.contains(&left) {
+                                RuinRoom::All
+                            } else if RUIN_TOP_OPEN.contains(&up)
+                                && RUIN_LEFT_BLOCKED.contains(&left)
+                            {
+                                // *[RuinRoom::T, RuinRoom::TB, RuinRoom::TB]
+                                //     .choose(&mut rng)
+                                //     .unwrap_or(&RuinRoom::TB)
+                                RuinRoom::TR
+                            } else if RUIN_TOP_BLOCKED.contains(&up)
+                                && RUIN_LEFT_OPEN.contains(&left)
+                            {
+                                RuinRoom::LR
+                            } else {
+                                RuinRoom::BR
+                            }
+                        } else {
+                            if RUIN_TOP_OPEN.contains(&up) && RUIN_LEFT_OPEN.contains(&left) {
+                                RuinRoom::TL
+                            } else if RUIN_TOP_OPEN.contains(&up)
+                                && RUIN_LEFT_BLOCKED.contains(&left)
+                            {
+                                *[RuinRoom::T, RuinRoom::TB, RuinRoom::TB]
+                                    .choose(&mut rng)
+                                    .unwrap_or(&RuinRoom::TB)
+                            } else if RUIN_TOP_BLOCKED.contains(&up)
+                                && RUIN_LEFT_OPEN.contains(&left)
+                            {
+                                RuinRoom::BL
+                            } else {
+                                RuinRoom::B
+                            }
+                        }
+                    }
+                    (up, left) if j == temp.len() - 1 => {
+                        if i == (temp[0].len() - 1) / 2 {
+                            if RUIN_TOP_OPEN.contains(&up) && RUIN_LEFT_OPEN.contains(&left) {
+                                RuinRoom::All
+                            } else if RUIN_TOP_BLOCKED.contains(&up)
+                                && RUIN_LEFT_OPEN.contains(&left)
+                            {
+                                RuinRoom::BL
+                            } else if RUIN_TOP_OPEN.contains(&up)
+                                && RUIN_LEFT_BLOCKED.contains(&left)
+                            {
+                                RuinRoom::TB
+                            } else {
+                                RuinRoom::All
+                            }
+                        } else {
+                            if RUIN_TOP_OPEN.contains(&up) && RUIN_LEFT_OPEN.contains(&left) {
+                                RuinRoom::TL
+                            } else if RUIN_TOP_BLOCKED.contains(&up)
+                                && RUIN_LEFT_OPEN.contains(&left)
+                            {
+                                *[RuinRoom::L, RuinRoom::LR, RuinRoom::LR]
+                                    .choose(&mut rng)
+                                    .unwrap_or(&RuinRoom::LR)
+                            } else if RUIN_TOP_OPEN.contains(&up)
+                                && RUIN_LEFT_BLOCKED.contains(&left)
+                            {
+                                RuinRoom::TR
+                            } else {
+                                RuinRoom::R
+                            }
+                        }
+                    }
+                    (up, left) if RUIN_TOP_OPEN.contains(&up) && RUIN_LEFT_OPEN.contains(&left) => {
+                        RuinRoom::All
+                    }
+                    (up, left)
+                        if RUIN_TOP_OPEN.contains(&up) && RUIN_LEFT_BLOCKED.contains(&left) =>
+                    {
+                        *[
+                            RuinRoom::T,
+                            RuinRoom::TR,
+                            RuinRoom::TB,
+                            RuinRoom::TR,
+                            RuinRoom::TB,
+                        ]
+                        .choose(&mut rng)
+                        .unwrap_or(&RuinRoom::TR)
+                    }
+                    (up, left)
+                        if RUIN_TOP_BLOCKED.contains(&up) && RUIN_LEFT_OPEN.contains(&left) =>
+                    {
+                        *[
+                            RuinRoom::L,
+                            RuinRoom::BL,
+                            RuinRoom::LR,
+                            RuinRoom::BL,
+                            RuinRoom::LR,
+                        ]
+                        .choose(&mut rng)
+                        .unwrap_or(&RuinRoom::BL)
+                    }
+                    (up, left)
+                        if RUIN_TOP_BLOCKED.contains(&up) && RUIN_LEFT_BLOCKED.contains(&left) =>
+                    {
+                        *[RuinRoom::BR, RuinRoom::BR, RuinRoom::B, RuinRoom::R]
+                            .choose(&mut rng)
+                            .unwrap_or(&RuinRoom::BR)
+                    }
+                    _ => RuinRoom::Default,
+                }
+            }
+        }
+    }
+    println!("{:?}", temp);
+    for j in 0..temp.len() {
+        for i in 0..temp[0].len() {
+            let patch = match temp[j][i] {
+                // RuinRoom::Horz => STREAM_HORZ,
+                // RuinRoom::Vert => STREAM_VERT,
+                RuinRoom::T => RUIN_ROOM_T,
+                RuinRoom::B => RUIN_ROOM_B,
+                RuinRoom::L => RUIN_ROOM_L,
+                RuinRoom::R => RUIN_ROOM_R,
+                RuinRoom::TL => RUIN_ROOM_UL,
+                RuinRoom::TR => RUIN_ROOM_UR,
+                RuinRoom::BL => RUIN_ROOM_BL,
+                RuinRoom::BR => RUIN_ROOM_BR,
+                RuinRoom::TB => RUIN_ROOM_TB,
+                RuinRoom::LR => RUIN_ROOM_LR,
+                RuinRoom::All => RUIN_ROOM_ALL,
+                _ => RUIN_ROOM_X,
+            };
+            let patch_chars = tile_to_chars(patch);
+            for y in 0..12 {
+                for x in 0..32 {
+                    cells[j * 12 + y][i * 32 + x] = patch_chars[y][x];
+                }
+            }
+        }
+    }
+    std::iter::once("Null|Null|Null".to_string())
+        .chain(cells.iter().map(|row| row.iter().collect::<String>()))
+        .collect::<Vec<String>>()
+        .join("\n")
+}
+
+fn make_ruin() -> (
+    Vec<Vec<Cells>>,
+    HashMap<(usize, usize), NPCWrap>,
+    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), EnvInter>,
+) {
+    let cells = vec![vec![Cells::Empty; 224]; 84];
+    parse_map(&build_ruin(), cells)
+}
+
 #[derive(Clone, Debug, PartialEq)]
 //#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct Puzzle {
@@ -352,6 +892,26 @@ impl Puzzle {
         let enemies = HashMap::new();
         let npcs = HashMap::new();
         let prize = Item::new_health_potion(150, 100);
+        Self {
+            ptype: PuzzleType::Maze,
+            pos,
+            map,
+            portals,
+            items,
+            enemies,
+            npcs,
+            prize,
+            prop_pass: false,
+        }
+    }
+
+    pub fn new_ruin(pos: (i16, i16)) -> Self {
+        let (map, npcs, items, env_inters) = make_ruin();
+        let portals = HashMap::new();
+        // let items = HashMap::new();
+        let enemies = HashMap::new();
+        // let npcs = HashMap::new();
+        let prize = Item::new_health_potion(112, 42);
         Self {
             ptype: PuzzleType::Maze,
             pos,

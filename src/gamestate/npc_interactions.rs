@@ -21,10 +21,10 @@ impl GameState {
         loop {
             self.gui.npc_comm_draw(
                 comms.clone(),
-                // self.npc_asciis[0].clone(),
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -81,6 +81,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -159,6 +160,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -218,6 +220,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -269,6 +272,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,

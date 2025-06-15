@@ -1,6 +1,8 @@
+use crate::enums::{EnvInter, TaskEnv};
 //settlements
 //use crate::enums::{Settle};
 use crate::settlement::Settlement;
+use crate::tasks::{Task, TaskType};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -79,9 +81,11 @@ impl Settlements {
     pub fn get_compass_pos(&mut self) -> HashMap<(i16, i16), String> {
         let mut tvec = HashMap::new();
         for (pos, mut s) in self.settlements.clone() {
-            if s.found {
-                tvec.insert(pos, s.get_sname());
-            }
+            // if s.found {
+            //     tvec.insert(pos, s.get_sname());
+            // }
+
+            tvec.insert(pos, s.get_sname());
         }
         tvec.clone()
     }
@@ -89,14 +93,37 @@ impl Settlements {
     pub fn get_local_settles(&mut self, pos: (i16, i16)) -> HashMap<(i16, i16), Settlement> {
         let mut local_settles = HashMap::new();
         for (spos, s) in &self.settlements {
-            let xx = spos.0 - pos.0 * -1;
-            let yy = spos.1 - pos.1 * -1;
+            let xx = (spos.0 - -pos.0) as i32;
+            let yy = (spos.1 - -pos.1) as i32;
             let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u16;
             if hyp <= 5000 {
                 local_settles.insert(spos.clone(), s.clone());
             }
         }
         local_settles.clone()
+    }
+
+    pub fn set_task_content(&mut self, task: Task) {
+        match task.ttype {
+            TaskType::RetrieveItem => self.set_retrieve_item_content(task),
+            TaskType::PassItem => self.set_pass_item_content(task),
+            TaskType::PassMessage => self.set_pass_msg_content(task),
+            _ => {}
+        }
+    }
+
+    fn set_retrieve_item_content(&self, task: Task) {
+        let settle_loc = task.start_loc;
+        let mut settle = self.settlements.get(&settle_loc).unwrap().clone();
+        settle.add_task_env(EnvInter::TaskEnv(TaskEnv::BoardStartEntity));
+    }
+
+    fn set_pass_item_content(&self, task: Task) {
+        todo!()
+    }
+
+    fn set_pass_msg_content(&self, task: Task) {
+        todo!()
     }
 }
 

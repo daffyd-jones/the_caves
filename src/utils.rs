@@ -1,5 +1,5 @@
 use crate::enemy::Enemy;
-use crate::enums::{Cells, Enemies, Items, Location};
+use crate::enums::{Cells, Door, Enemies, EnvInter, Items, Location};
 use crate::item::Item;
 use rand::prelude::SliceRandom;
 use rand::Rng;
@@ -157,6 +157,29 @@ pub const COLLISION_CELLS: [Cells; 38] = [
     Cells::Clinic,
     Cells::GPost,
     Cells::CPost,
+];
+
+pub const COLLISION_INTERS: [EnvInter; 20] = [
+    EnvInter::Door(Door::VLocked(0)),
+    EnvInter::Door(Door::VLocked(1)),
+    EnvInter::Door(Door::VLocked(2)),
+    EnvInter::Door(Door::VLocked(3)),
+    EnvInter::Door(Door::VLocked(4)),
+    EnvInter::Door(Door::VLocked(5)),
+    EnvInter::Door(Door::VLocked(6)),
+    EnvInter::Door(Door::VLocked(7)),
+    EnvInter::Door(Door::VLocked(8)),
+    EnvInter::Door(Door::VLocked(9)),
+    EnvInter::Door(Door::HLocked(0)),
+    EnvInter::Door(Door::HLocked(1)),
+    EnvInter::Door(Door::HLocked(2)),
+    EnvInter::Door(Door::HLocked(3)),
+    EnvInter::Door(Door::HLocked(4)),
+    EnvInter::Door(Door::HLocked(5)),
+    EnvInter::Door(Door::HLocked(6)),
+    EnvInter::Door(Door::HLocked(7)),
+    EnvInter::Door(Door::HLocked(8)),
+    EnvInter::Door(Door::HLocked(9)),
 ];
 
 pub fn in_range(pos1: (i16, i16), pos2: (i16, i16), rad: u16) -> bool {

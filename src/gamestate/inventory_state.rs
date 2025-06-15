@@ -31,6 +31,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -102,6 +103,7 @@ impl GameState {
                     self.gui.item_used_draw(&mut GuiArgs {
                         map: &self.map,
                         player: &self.player,
+                        stats: &self.stats.player_xp.get_xps(),
                         enemies: &self.enemies,
                         items: &self.items,
                         npcs: &self.npcs,
@@ -137,6 +139,7 @@ impl GameState {
                         &mut GuiArgs {
                             map: &self.map,
                             player: &self.player,
+                            stats: &self.stats.player_xp.get_xps(),
                             enemies: &self.enemies,
                             items: &self.items,
                             npcs: &self.npcs,
@@ -179,6 +182,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,

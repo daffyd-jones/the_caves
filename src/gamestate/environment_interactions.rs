@@ -18,6 +18,7 @@ impl GameState {
             self.gui.clinic_draw(&mut GuiArgs {
                 map: &self.map,
                 player: &self.player,
+                stats: &self.stats.player_xp.get_xps(),
                 enemies: &self.enemies,
                 items: &self.items,
                 npcs: &self.npcs,
@@ -68,6 +69,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -124,16 +126,50 @@ impl GameState {
                     _ => "dunno".to_string(),
                 }
             };
-            let f_str = format!("{}#{}", ptype_string, dir_string);
-            ppost_strings.push(f_str.clone());
+            ppost_strings.push(format!(
+                r#"
+---- ---- nl
+There's a {} that has been spotted {} of here. nl
+nl
+A couple guild members checked it out earlier, but didn't find anything. nl
+---- nl
+"#,
+                ptype_string, dir_string
+            ));
         }
+        let tasks = self.tasks.board_tasks[0..2].to_vec();
+
+        let mut task_posts = Vec::new();
+        for task in &tasks {
+            task_posts.push(format!(
+                r#"
+---- ---- nl
+Item Retrieval nl
+nl
+{} in {} needs {}. nl
+nl
+{} is looking for {} {}, and is looking to provide {} gold in payment. nl
+____ nl
+                "#,
+                task.start_entity_name,
+                task.start_loc_name,
+                task.task_items.clone().unwrap()[0].1.sname,
+                task.start_entity_name,
+                task.task_items.clone().unwrap().len(),
+                task.task_items.clone().unwrap()[0].1.sname,
+                task.clone().reward.get_properties()["value"]
+            ));
+        }
+
         self.gui.reset_cursor();
         loop {
             self.gui.guild_post_draw(
                 ppost_strings.clone(),
+                task_posts.clone(),
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -152,7 +188,22 @@ impl GameState {
                         self.last_event_time = now;
                         match event.code {
                             KeyCode::Enter => {
+                                if self.gui.get_menu_lvl() == 1 && self.gui.get_cursor_hold().1 == 0
+                                {
+                                    let cursor = self.gui.get_cursor().1;
+                                    self.pick_board_task(tasks[cursor].clone());
+                                }
                                 break;
+                            }
+                            KeyCode::Right => {
+                                if self.gui.get_menu_lvl() == 0 {
+                                    self.gui.menu_lvl("DN");
+                                }
+                            }
+                            KeyCode::Left => {
+                                if self.gui.get_menu_lvl() == 1 {
+                                    self.gui.menu_lvl("UP");
+                                }
                             }
                             _ => {
                                 let _ = self.key(event.code);
@@ -187,7 +238,15 @@ impl GameState {
                 // let settle_name = s.get_sname();
                 // let settle_str = format!("{}#{}", settle_name.clone(), dir_string.clone());
                 let stats = s.get_stats();
-                settles.push((dir_string, stats.0, stats.1, stats.2));
+                let mut string = stats.1;
+                string.push_str(&format!(
+                    r#"
+Direction:
+{}
+                    "#,
+                    dir_string
+                ));
+                settles.push((stats.0, string));
             }
         }
 
@@ -198,6 +257,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -264,6 +324,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -271,7 +332,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: None,
+                    ascii: Some(&self.npc_asciis[2].clone()),
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -343,6 +404,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -350,7 +412,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: None,
+                    ascii: Some(&self.npc_asciis[1].clone()),
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -392,6 +454,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -399,7 +462,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: None,
+                    ascii: Some(&self.npc_asciis[1].clone()),
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -441,6 +504,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -448,7 +512,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: None,
+                    ascii: Some(&self.npc_asciis[1].clone()),
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -487,6 +551,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -494,7 +559,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: None,
+                    ascii: Some(&self.npc_asciis[1].clone()),
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -525,6 +590,47 @@ impl GameState {
         true
     }
 
+    fn construction(&mut self) -> bool {
+        self.gui.reset_cursor();
+        loop {
+            self.gui.npc_comm_draw(
+                "Guild Worker#Hey sorry, you can't come through here. We're doing construction on the cave walls, you're going to have to go around.".to_string(),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                    ascii: Some(&self.npc_asciis[1].clone()),
+                },
+            );
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Enter => {
+                                break;
+                            }
+                            _ => {
+                                let _ = self.key(event.code);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        self.game_mode = GameMode::Play;
+        true
+    }
+
     fn unlock_door(&mut self, door: Door) {
         let adj = [
             (self.player.x - 1, self.player.y),
@@ -537,7 +643,14 @@ impl GameState {
 
         for (pos, env) in env_temp {
             if adj.contains(&pos) && env == EnvInter::Door(door) {
-                self.env_inters.insert(pos, EnvInter::Door(Door::Open));
+                self.env_inters.insert(
+                    pos,
+                    match door {
+                        Door::HLocked(_) => EnvInter::Door(Door::HOpen),
+                        Door::VLocked(_) => EnvInter::Door(Door::VOpen),
+                        _ => todo!(),
+                    },
+                );
                 self.interactee = Interactable::Null;
             }
         }
@@ -546,7 +659,8 @@ impl GameState {
     fn locked_door(&mut self, door: Door) -> bool {
         log::info!("intee3: {:?}", door);
         let pick_level = match door {
-            Door::Locked(lvl) => lvl,
+            Door::HLocked(lvl) => lvl,
+            Door::VLocked(lvl) => lvl,
             _ => 0,
         };
 
@@ -575,6 +689,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
+                    stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -617,6 +732,7 @@ impl GameState {
             EnvInter::Cauldron => self.cauldron(),
             EnvInter::Herbalist => self.herbalist(),
             EnvInter::Door(door) => self.locked_door(door),
+            EnvInter::Construction => self.construction(),
             _ => {
                 log::info!("Not entering locked_door");
                 self.game_mode = GameMode::Play;

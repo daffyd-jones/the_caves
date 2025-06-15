@@ -1,7 +1,8 @@
 //map_state
 use crate::enemy::Enemy;
+use crate::enums::EnvInter;
 use crate::gamestate::GameState;
-use crate::utils::COLLISION_CELLS;
+use crate::utils::{COLLISION_CELLS, COLLISION_INTERS};
 use std::collections::HashMap;
 
 impl GameState {
@@ -11,25 +12,49 @@ impl GameState {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[self.player.y - 1][self.player.x]);
                 let item_coll = self.items.contains_key(&(self.player.x, self.player.y - 1));
-                map_coll || item_coll
+                let npc_coll = self.npcs.contains_key(&(self.player.x, self.player.y - 1));
+                let env_inter_coll = COLLISION_INTERS.contains(
+                    self.env_inters
+                        .get(&(self.player.x, self.player.y - 1))
+                        .unwrap_or(&EnvInter::Null),
+                );
+                map_coll || item_coll || npc_coll || env_inter_coll
             }
             "DN" => {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[self.player.y + 1][self.player.x]);
                 let item_coll = self.items.contains_key(&(self.player.x, self.player.y + 1));
-                map_coll || item_coll
+                let npc_coll = self.npcs.contains_key(&(self.player.x, self.player.y + 1));
+                let env_inter_coll = COLLISION_INTERS.contains(
+                    self.env_inters
+                        .get(&(self.player.x, self.player.y + 1))
+                        .unwrap_or(&EnvInter::Null),
+                );
+                map_coll || item_coll || npc_coll || env_inter_coll
             }
             "LF" => {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[self.player.y][self.player.x - 1]);
                 let item_coll = self.items.contains_key(&(self.player.x - 1, self.player.y));
-                map_coll || item_coll
+                let npc_coll = self.npcs.contains_key(&(self.player.x - 1, self.player.y));
+                let env_inter_coll = COLLISION_INTERS.contains(
+                    self.env_inters
+                        .get(&(self.player.x - 1, self.player.y))
+                        .unwrap_or(&EnvInter::Null),
+                );
+                map_coll || item_coll || npc_coll || env_inter_coll
             }
             "RT" => {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[self.player.y][self.player.x + 1]);
                 let item_coll = self.items.contains_key(&(self.player.x + 1, self.player.y));
-                map_coll || item_coll
+                let npc_coll = self.npcs.contains_key(&(self.player.x + 1, self.player.y));
+                let env_inter_coll = COLLISION_INTERS.contains(
+                    self.env_inters
+                        .get(&(self.player.x + 1, self.player.y))
+                        .unwrap_or(&EnvInter::Null),
+                );
+                map_coll || item_coll || npc_coll || env_inter_coll
             }
             _ => false,
         }
@@ -41,25 +66,49 @@ impl GameState {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[entity.pos.1 - 1][entity.pos.0]);
                 let item_coll = self.items.contains_key(&(entity.pos.0, entity.pos.1 - 1));
-                map_coll || item_coll
+                let npc_coll = self.npcs.contains_key(&(self.player.x, self.player.y - 1));
+                let env_inter_coll = COLLISION_INTERS.contains(
+                    self.env_inters
+                        .get(&(self.player.x, self.player.y - 1))
+                        .unwrap_or(&EnvInter::Null),
+                );
+                map_coll || item_coll || npc_coll || env_inter_coll
             }
             "DN" => {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[entity.pos.1 + 1][entity.pos.0]);
                 let item_coll = self.items.contains_key(&(entity.pos.0, entity.pos.1 + 1));
-                map_coll || item_coll
+                let npc_coll = self.npcs.contains_key(&(self.player.x, self.player.y + 1));
+                let env_inter_coll = COLLISION_INTERS.contains(
+                    self.env_inters
+                        .get(&(self.player.x, self.player.y + 1))
+                        .unwrap_or(&EnvInter::Null),
+                );
+                map_coll || item_coll || npc_coll || env_inter_coll
             }
             "LF" => {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[entity.pos.1][entity.pos.0 - 1]);
                 let item_coll = self.items.contains_key(&(entity.pos.0 - 1, entity.pos.1));
-                map_coll || item_coll
+                let npc_coll = self.npcs.contains_key(&(self.player.x - 1, self.player.y));
+                let env_inter_coll = COLLISION_INTERS.contains(
+                    self.env_inters
+                        .get(&(self.player.x - 1, self.player.y))
+                        .unwrap_or(&EnvInter::Null),
+                );
+                map_coll || item_coll || npc_coll || env_inter_coll
             }
             "RT" => {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[entity.pos.1][entity.pos.0 + 1]);
                 let item_coll = self.items.contains_key(&(entity.pos.0 + 1, entity.pos.1));
-                map_coll || item_coll
+                let npc_coll = self.npcs.contains_key(&(self.player.x + 1, self.player.y));
+                let env_inter_coll = COLLISION_INTERS.contains(
+                    self.env_inters
+                        .get(&(self.player.x + 1, self.player.y))
+                        .unwrap_or(&EnvInter::Null),
+                );
+                map_coll || item_coll || npc_coll || env_inter_coll
             }
             _ => false,
         }
