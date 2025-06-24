@@ -331,6 +331,11 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::SwDL => ('┐', Color::Gray),
                         Cells::SwDR => ('┌', Color::Gray),
                         Cells::SwCR => ('┼', Color::Gray),
+                        Cells::BsVL => ('╢', Color::Gray),
+                        Cells::BsVR => ('╟', Color::Gray),
+                        Cells::BsHD => ('╤', Color::Gray),
+                        Cells::BsHU => ('╧', Color::Gray),
+                        Cells::Bed => ('🁢', Color::Gray),
                         Cells::Cong => ('≡', Color::Magenta),
                         Cells::Deg => ('°', Color::Cyan),
                         Cells::Mult => ('×', Color::Magenta),
@@ -354,6 +359,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Jar => ('ṑ', Color::DarkGray),
                         Cells::Chair => ('⑁', Color::DarkGray),
                         Cells::Firewood => ('ж', Color::Red),
+                        Cells::FireSmoke => ('ঌ', Color::Gray),
                         Cells::Tent => ('Ʌ', Color::Gray),
                         Cells::LBrce => {
                             if ani_cnt % 2 == 0 {
