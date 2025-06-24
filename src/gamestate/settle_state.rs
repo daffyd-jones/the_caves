@@ -173,7 +173,9 @@ impl GameState {
             NPCWrap::ShopNPC(mut snpc) => (snpc.get_sname(), snpc.get_sh_conv()),
             _ => todo!(),
         };
-        let iprice = sitem.get_properties()["value"].to_string();
+        let iprice = (sitem.get_properties()["value"] as i16
+            + self.stats.world_stats.economy as i16)
+            .to_string();
         let dialogue_temp = &sh_convo["item_desc"];
         let sh_dialogue = dialogue_temp
             .replace("{i}", &sitem.get_sname())

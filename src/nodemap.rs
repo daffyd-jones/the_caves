@@ -177,9 +177,16 @@ impl NodeMap {
             };
 
             // let ntype = NodeType::Settlement;
-            let ntype = *[NodeType::Settlement, NodeType::Puzzle, NodeType::Null]
-                .choose(&mut rng)
-                .unwrap_or(&NodeType::Settlement);
+            let ntype = *[
+                NodeType::Settlement,
+                NodeType::Settlement,
+                NodeType::Settlement,
+                NodeType::Puzzle,
+                NodeType::Puzzle,
+                NodeType::Null,
+            ]
+            .choose(&mut rng)
+            .unwrap_or(&NodeType::Settlement);
             let name = if ntype == NodeType::Settlement {
                 let mut rng = rand::thread_rng();
                 let name_oops = "Jadeitite".to_string();
@@ -212,9 +219,16 @@ impl NodeMap {
                 let pos = ((xpoint as i16 * dir.0), (ypoint as i16 * dir.1));
                 // (xpoint as i64, ypoint as i64)
 
-                let ntype = *[NodeType::Settlement, NodeType::Puzzle, NodeType::Null]
-                    .choose(&mut rng)
-                    .unwrap_or(&NodeType::Settlement);
+                let ntype = *[
+                    NodeType::Settlement,
+                    NodeType::Settlement,
+                    NodeType::Settlement,
+                    NodeType::Puzzle,
+                    NodeType::Puzzle,
+                    NodeType::Null,
+                ]
+                .choose(&mut rng)
+                .unwrap_or(&NodeType::Settlement);
                 // let name = "Quartz".to_string();
                 let name = if ntype == NodeType::Settlement {
                     let mut rng = rand::thread_rng();

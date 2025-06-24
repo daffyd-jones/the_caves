@@ -139,18 +139,23 @@ pub enum Items {
     EdibleRoot,
     Guts,
     Rock,
+    // weapons
     BronzeClaymore,
     IronClaymore,
     SteelClaymore,
+
     BronzeLongsword,
     IronLongsword,
     SteelLongsword,
+
     BronzeGreatsword,
     IronGreatsword,
     SteelGreatsword,
+
     BronzeShortsword,
     IronShortsword,
     SteelShortsword,
+
     BasicStaff,
     PineStaff,
     WoodStaff,
@@ -158,19 +163,25 @@ pub enum Items {
     OakStaff,
     BludgeonStaff,
     GemStaff,
+
     BronzeHeavyAxe,
     IronHeavyAxe,
     SteelHeavyAxe,
+
     BronzeLightAxe,
     IronLightAxe,
     SteelLightAxe,
+
     BronzePickAxe,
     IronPickAxe,
     SteelPickAxe,
+
     BronzePickHammer,
     IronPickHammer,
     SteelPickHammer,
+
     ShadowAxe,
+
     BronzeWarAxe,
     IronWarAxe,
     SteelWarAxe,
@@ -198,6 +209,7 @@ pub enum Month {
     Opal,
     Quartz,
     Jade,
+    Bizmuth,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
@@ -239,7 +251,8 @@ pub enum Plants {
     LuminousMushroom,
     LichenousGrowth,
     VineBulb,
-    LampenPetals,
+    VioletShadow,
+    LampenFlower,
     LuckyClover,
     Shroom,
     Null,

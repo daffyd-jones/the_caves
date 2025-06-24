@@ -73,8 +73,6 @@ req:
 - needs goal properties
  - npc pos, loctype, name, convo
 
-
-
 */
 
 #[derive(Clone, Debug, PartialEq)]
@@ -113,7 +111,7 @@ impl Task {
         stages.insert(
             "0".to_string(),
             Stage {
-                text: "This is npc dialogue.".to_string(),
+                text: "This is npc dialogue to start task.".to_string(),
                 opts: vec![
                     ConOpt {
                         text: "Thank's Ill look for it. Good luck!".to_string(),
@@ -127,7 +125,7 @@ impl Task {
             },
         );
         let start_convo = Convo {
-            id: "Retrieve Item".to_string(),
+            id: "Retrieve Item: Start".to_string(),
             stages,
         };
 
@@ -135,7 +133,7 @@ impl Task {
         stages.insert(
             "0".to_string(),
             Stage {
-                text: "This is npc dialogue.".to_string(),
+                text: "This is npc dialogue when completing goal.".to_string(),
                 opts: vec![
                     ConOpt {
                         text: "Thank's Ill look for it. Good luck!".to_string(),
@@ -149,7 +147,7 @@ impl Task {
             },
         );
         let goal_convo = Convo {
-            id: "Retrieve Item".to_string(),
+            id: "Retrieve Item: Goal".to_string(),
             stages,
         };
 
@@ -157,7 +155,7 @@ impl Task {
         stages.insert(
             "0".to_string(),
             Stage {
-                text: "This is npc dialogue.".to_string(),
+                text: "This is npc dialogue when reporting complete task.".to_string(),
                 opts: vec![
                     ConOpt {
                         text: "Thank's Ill look for it. Good luck!".to_string(),
@@ -171,7 +169,7 @@ impl Task {
             },
         );
         let final_convo = Some(Convo {
-            id: "Retrieve Item".to_string(),
+            id: "Retrieve Item: Final".to_string(),
             stages,
         });
 

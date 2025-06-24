@@ -19,7 +19,7 @@ impl Puzzles {
     }
 
     pub fn demo_self() -> Self {
-        // let pos = (100, 100);
+        // let pos = (100, 0);
         let pos = (-100, -500);
         let puzzle = Puzzle::new_ruin(pos);
         // let puzzle = Puzzle::new_teleport(pos);
@@ -67,11 +67,12 @@ impl Puzzles {
     }
 
     pub fn spawn_node_puzzle(&mut self, pos: (i16, i16)) {
-        let mut rng = rand::thread_rng();
-        let choice = *[PuzzleType::Maze, PuzzleType::Ruin]
-            .choose(&mut rng)
-            .unwrap_or(&PuzzleType::Maze);
+        // let mut rng = rand::thread_rng();
+        // let choice = *[PuzzleType::Maze, PuzzleType::Ruin]
+        //     .choose(&mut rng)
+        //     .unwrap_or(&PuzzleType::Maze);
 
+        let choice = PuzzleType::Ruin;
         let puzzle = match choice {
             PuzzleType::Maze => Puzzle::new_maze(pos),
             PuzzleType::Ruin => Puzzle::new_ruin(pos),

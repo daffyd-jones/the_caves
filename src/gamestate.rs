@@ -61,6 +61,7 @@ pub struct GameState {
     puzzles: Puzzles,
     player: Player,
     stats: Stats,
+    midnight: Instant,
     features: Features,
     dist_fo: (i16, i16),
     comp_head: (i16, i16),
@@ -107,7 +108,7 @@ impl GameState {
         player.inventory.push(Item::new_moss(0, 0));
         player.inventory.push(Item::new_lichenous_growth(0, 0));
         player.inventory.push(Item::new_vine_bulb(0, 0));
-        player.inventory.push(Item::new_lampen_flower_petals(0, 0));
+        player.inventory.push(Item::new_lampen_flower(0, 0));
         player.inventory.push(Item::new_lucky_clover(0, 0));
         player.inventory.push(Item::new_shroom(0, 0));
         // let enemies = place_enemies(map.cells.clone());
@@ -270,6 +271,7 @@ impl GameState {
             puzzles,
             player,
             stats,
+            midnight: Instant::now(),
             features,
             dist_fo: (0, 0),
             comp_head: (0, 0),
@@ -550,9 +552,13 @@ impl GameState {
             }
         }
 
-        // self.new_loc_check();
+        let now = Instant::now();
+        if now.duration_since(self.midnight) >= Duration::from_secs(3600) {
+            self.midnight = Instant::now();
+            self.stats.next_day();
+            self.stats.roll_world_stats();
+        }
 
-        // self.new_feature_check();
         self.compass_check();
 
         // let now = Instant::now();

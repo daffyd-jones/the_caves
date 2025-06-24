@@ -3,6 +3,11 @@
 
 ## gameplay
 
+- [ ] small map
+  - [ ] switch map - store current, swap to small
+  - [ ] put small in temp with wall
+  - [ ] return to big map
+
 - [ ] make experience handling/upgrading
   - [ ] implement enemy_stats in Stats
   - [ ] implement player_stats check
@@ -34,7 +39,7 @@
 
 - [ ] add notes for settlements, cave knowledge, discoveries (puzzles, intresting features)
   - [+] add get_info for settlement
-  - [ ] add settle info to settlements notes
+  - [+] add settle info to settlements notes
   - [ ] add info for lore env inters
   - [ ] add get_info for puzzles
 - [ ] implement ascii
@@ -50,8 +55,9 @@
     - [+] Field
     - [+] Stream
     - [ ] Hermit
-    - [ ] Construction
+    - [+] Construction
   - [ ] implement Hermit
+    - hermit overlay in features
 - [ ] renown good/evil
 
 ## entities
@@ -74,6 +80,42 @@
 - [ ] cursor limit
 - [+] fix wall corners
 - [+] fix collisions
+
+# Seasons
+
+- different plants, dialogue, enemies
+
+## Plants
+
+- colors for plant icons
+
+**Damp season**  - Opal
+- moss more likely
+
+**Drying season** - Quartz
+- flowers more likely
+
+**Dry season** - Jade
+- clovers more likely
+
+**Dampening season** - Bizmuth
+- lichenous growth more likely
+
+## Map
+
+- decorations
+- Seasonal features
+- changed grass, etc icons
+
+## Dialogue
+
+**Damp season**
+- talking about plants
+- talking about Obsidian rituals
+- guild event
+- likes dislikes
+- economy
+
 
 # Enemies
 

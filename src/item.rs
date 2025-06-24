@@ -1141,7 +1141,7 @@ impl Item {
         }
     }
 
-    pub fn new_lampen_flower_petals(x: usize, y: usize) -> Self {
+    pub fn new_violet_shadow(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("required"), 5);
         prop.insert(String::from("value"), 8);
@@ -1150,8 +1150,58 @@ impl Item {
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
 
         Self {
-            itype: Items::Plants(Plants::LampenPetals),
-            sname: "Lampen Flower Petals".to_string(),
+            itype: Items::Plants(Plants::VioletShadow),
+            sname: "Violet Shadow".to_string(),
+            icon: ('⚵', Color::LightMagenta),
+            desc: "A wispy purple flower that grows in dark corners.".to_string(),
+            iopts,
+            equip: false,
+            craft: true,
+            produces: Items::Null,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Null,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    // pub fn new_plant(x: usize, y: usize) -> Self {
+    //     let mut prop = HashMap::new();
+    //     prop.insert(String::from("required"), 5);
+    //     prop.insert(String::from("value"), 8);
+    //     let mut iopts = HashMap::new();
+    //     iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+    //     iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+
+    //     Self {
+    //         itype: Items::Plants(Plants::VioletShadow),
+    //         sname: "Violet Shadow".to_string(),
+    //         icon: ('ϙ', Color::LightBlue),
+    //         desc: "A wispy purple flower that grows in dark corners.".to_string(),
+    //         iopts,
+    //         equip: false,
+    //         craft: true,
+    //         produces: Items::Null,
+    //         equip_type: Equip::Null,
+    //         effect: ItemEffect::Null,
+    //         x,
+    //         y,
+    //         properties: prop,
+    //     }
+    // }
+
+    pub fn new_lampen_flower(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("required"), 5);
+        prop.insert(String::from("value"), 8);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+
+        Self {
+            itype: Items::Plants(Plants::LampenFlower),
+            sname: "Lampen Flower".to_string(),
             icon: ('⚵', Color::LightCyan),
             // icon: ('ϙ⚵', Color::LightBlue),
             desc: "A flower that grows in small groups.".to_string(),

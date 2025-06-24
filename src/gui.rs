@@ -43,7 +43,7 @@ pub struct GUI {
     inv_opt: (Vec<(usize, Item)>, Vec<(usize, Item)>, Vec<(usize, Item)>),
     comp_head: (i16, i16),
     comp_list: Vec<String>,
-    comp_opts: (Vec<String>, Vec<String>, Vec<String>, Vec<String>),
+    comp_opts: (Vec<String>, Vec<String>, Vec<String>, Vec<String>, Vec<String>, Vec<String>),
     notes_opt: (Vec<String>, Vec<String>),
     active_notes: (HashMap<String, String>, Vec<String>, HashMap<String, String>, HashMap<String, String>),
     enc_opt: (Vec<(EncOpt, String)>, Vec<(EncOpt, String)>),
@@ -134,6 +134,8 @@ impl GUI {
 
         let comp_list = Vec::new();
         let comp_opts = (
+            vec!["".to_string(); 4],
+            vec!["".to_string(); 4],
             vec!["".to_string(); 4],
             vec!["".to_string(); 4],
             vec!["".to_string(); 4],
@@ -256,6 +258,8 @@ impl GUI {
             1 => &self.comp_opts.1[self.cursor_pos.0],
             2 => &self.comp_opts.2[self.cursor_pos.0],
             3 => &self.comp_opts.3[self.cursor_pos.0],
+            4 => &self.comp_opts.4[self.cursor_pos.0],
+            5 => &self.comp_opts.5[self.cursor_pos.0],
             _ => todo!(),
         };
         comp_option.to_string()
@@ -829,10 +833,12 @@ impl GUI {
                     let mut vec2 = vec!["".to_string(); 4];
                     let mut vec3 = vec!["".to_string(); 4];
                     let mut vec4 = vec!["".to_string(); 4];
+                    let mut vec5 = vec!["".to_string(); 4];
+                    let mut vec6 = vec!["".to_string(); 4];
 
                     let cmp_list = self.comp_list.clone();
-                    let cmp_scroll = if cmp_list.len() > 15 {
-                        &cmp_list[0..15]   
+                    let cmp_scroll = if cmp_list.len() > 23 {
+                        &cmp_list[0..23]   
                     } else {
                         &cmp_list[0..]
                     }; 
@@ -841,16 +847,20 @@ impl GUI {
                     for (idx, names) in cmp_scroll.iter().enumerate() {
                         if idx < 3 {
                             vec1[idx+1] = names.clone();
-                        } else if idx >= 3 && idx < 7 {
+                        } else if (3..7).contains(&idx) {
                             vec2[idx-3] = names.clone();
-                        }else if idx >= 7 && idx < 11 {
+                        } else if (7..11).contains(&idx) {
                             vec3[idx-7] = names.clone();
-                        } else {
+                        } else if (11..15).contains(&idx) {
                             vec4[idx-11] = names.clone();
+                        } else if (15..19).contains(&idx) {
+                            vec5[idx-15] = names.clone();
+                        } else {
+                            vec6[idx-19] = names.clone();
                         }
                     }
-                    self.comp_opts = (vec1.clone(), vec2.clone(), vec3.clone(), vec4.clone()); 
-                    let inv_table = [vec1.clone(), vec2.clone(), vec3.clone(), vec4.clone()];
+                    self.comp_opts = (vec1.clone(), vec2.clone(), vec3.clone(), vec4.clone(), vec5.clone(), vec6.clone()); 
+                    let inv_table = [vec1.clone(), vec2.clone(), vec3.clone(), vec4.clone(), vec5.clone(), vec6.clone()];
                     //
                     let rows: Vec<Row> = inv_table.iter().enumerate().map(|(j, row)| {
                         let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {

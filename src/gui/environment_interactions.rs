@@ -2,7 +2,8 @@
 use crate::enums::Items;
 use crate::gui::GUI;
 use crate::gui_utils::{draw_map, wrap_text, GuiArgs};
-use ratatui::widgets::{Block, Borders, Paragraph};
+use ratatui::symbols::Marker;
+use ratatui::widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Paragraph};
 use ratatui::layout::{Layout, Constraint, Direction, Margin};
 use ratatui::style::{Color, Style, Stylize};
 use ratatui::text::{Span, Text};
@@ -851,7 +852,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn church_post_draw(&mut self, post_strings: Vec<(String, String)>, gui_args: &mut GuiArgs) {
+    pub fn church_post_draw(&mut self, post_strings: Vec<(String, String, (f64, f64))>, gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
             let entire_screen_block = Block::default()
                 .style(Style::default().bg(Color::Black))
@@ -898,26 +899,55 @@ impl GUI {
             f.render_widget(paragraph, inner_area);
 
 
-            let normal_info = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints(
-                [
-                    Constraint::Percentage(70),
-                    Constraint::Percentage(30)
-                ].as_ref()
-            )
-            .split(game_chunks[1]);
-
-
-            let paragraph_block = Block::default()
-                .title("Church Posting Board")
+            // let normal_info = Layout::default()
+            // .direction(Direction::Vertical)
+            // .constraints(
+            //     [
+            //         Constraint::Percentage(70),
+            //         Constraint::Percentage(30)
+            //     ].as_ref()
+            // )
+            // .split(game_chunks[1]);
+            
+            let info_block = Block::default()
+                .title("")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
-            let table_block = Block::default()
-                .title("Done")
+            f.render_widget(info_block, game_chunks[1]);
+
+            let a = f.area();
+            let b = Block::bordered()
+                .title("")
+                .style(Style::default().bg(Color::Black));
+            let (xper, yper) = (80, 20);
+            let harea = |a, xper, yper| {
+                let vertical =
+                    Layout::vertical([Constraint::Percentage(yper)]).flex(Flex::Center);
+                let horizontal =
+                    Layout::horizontal([Constraint::Percentage(xper)]).flex(Flex::Center);
+                let [area] = vertical.areas(a);
+                let [area] = horizontal.areas(a);
+                area
+            };
+            let h_area = harea(a, xper, yper);
+            f.render_widget(Clear, h_area);
+            f.render_widget(b, h_area);
+
+
+
+            
+            let opt_block = Block::default()
+                .title("")
                 .borders(Borders::ALL)
                 .style(Style::default().bg(Color::Black));
 
+            let opt_area = Rect {
+                x: h_area.x + 2,
+                y: h_area.y + (h_area.height/ 4)*3,
+                width: (h_area.width / 4),
+                height: h_area.height/ 4,
+            };
+            
             let mut snames = Vec::new();
             for i in (0..post_strings.len()).step_by(2) {
                 let st2 = if i + 1 == post_strings.len() {
@@ -928,15 +958,6 @@ impl GUI {
                 snames.push(vec![post_strings[i].0.clone(), st2]);
             }
             
-            let idx = self.cursor_pos.1*2 + self.cursor_pos.0;
-            let settle = post_strings[idx].1.clone();
-            
-            let s_info = Paragraph::new(Text::raw(settle))
-                .style(Style::new().white())
-                .block(paragraph_block)
-                .wrap(ratatui::widgets::Wrap { trim: true });
-            
-            // let opts = [snames];
             let rows: Vec<Row> = snames.iter().enumerate().map(|(j, row)| {
                 let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
@@ -948,9 +969,147 @@ impl GUI {
                 Row::new(cells)
             }).collect();
             let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
-                .block(table_block);
-            f.render_widget(s_info, normal_info[0]);
-            f.render_widget(table, normal_info[1]);
+                .block(opt_block);
+            f.render_widget(table, opt_area);
+
+            
+            let idx = self.cursor_pos.1*2 + self.cursor_pos.0;
+            let settle = post_strings[idx].1.clone();
+            
+            let paragraph_block = Block::default()
+                .title("Church Posting Board")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+            let para_area = Rect {
+                x: h_area.x + 2,
+                y: h_area.y + 2,
+                width: h_area.width / 4,
+                height: (h_area.height / 4)*3 - 2,
+            };
+            let s_info = Paragraph::new(Text::raw(settle))
+                .style(Style::new().white())
+                .block(paragraph_block)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+            f.render_widget(s_info, para_area);
+           
+            let mut points = Vec::new();
+            let point = {
+                let mut p = (0.0, 0.0);
+                for i in 0..post_strings.len() {
+                    if i == idx {
+                        p = post_strings[i].2;
+                    } else {
+                        points.push(post_strings[i].2);
+                    }
+                }
+                [p]
+            };
+            points.push((0.0, 0.0));
+
+            let map_block = Block::default()
+                .title("Map")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            
+            let map_area = Rect {
+                x: h_area.x + h_area.width / 4 + 4,
+                y: h_area.y + 2,
+                width: (h_area.width / 4)*3 - 6,
+                height: h_area.height - 4,
+            };
+            let datasets = vec![
+                Dataset::default()
+                    .name("settlements")
+                    .marker(Marker::HalfBlock)
+                    .graph_type(GraphType::Scatter)
+                    .style(Style::default().fg(Color::Gray))
+                    .data(&points),
+                Dataset::default()
+                    // .name("settlements")
+                    .marker(Marker::HalfBlock)
+                    .graph_type(GraphType::Scatter)
+                    .style(Style::default().fg(Color::Yellow))
+                    .data(&point),
+                Dataset::default()
+                    // .name("settlements")
+                    .marker(Marker::Dot)
+                    .graph_type(GraphType::Scatter)
+                    .style(Style::default().fg(Color::DarkGray))
+                    .data(&[
+                        (500.0, 500.0),
+                        (1000.0, 1000.0),
+                        (1500.0, 1500.0),
+                        (2000.0, 2000.0),
+                        (2500.0, 2500.0),
+                        (3000.0, 3000.0),
+                        (3500.0, 3500.0),
+                        (-500.0, 500.0),
+                        (-1000.0, 1000.0),
+                        (-1500.0, 1500.0),
+                        (-2000.0, 2000.0),
+                        (-2500.0, 2500.0),
+                        (-3000.0, 3000.0),
+                        (-3500.0, 3500.0),
+                        (500.0, -500.0),
+                        (1000.0, -1000.0),
+                        (1500.0, -1500.0),
+                        (2000.0, -2000.0),
+                        (2500.0, -2500.0),
+                        (3000.0, -3000.0),
+                        (3500.0, -3500.0),
+                        (-500.0, -500.0),
+                        (-1000.0, -1000.0),
+                        (-1500.0, -1500.0),
+                        (-2000.0, -2000.0),
+                        (-2500.0, -2500.0),
+                        (-3000.0, -3000.0),
+                        (-3500.0, -3500.0),
+                        (0.0, -500.0),
+                        (0.0, -1000.0),
+                        (0.0, -1500.0),
+                        (0.0, -2500.0),
+                        (0.0, -2000.0),
+                        (0.0, -3000.0),
+                        (0.0, -3500.0),
+                        (0.0, 500.0),
+                        (0.0, 1000.0),
+                        (0.0, 1500.0),
+                        (0.0, 2000.0),
+                        (0.0, 2500.0),
+                        (0.0, 3000.0),
+                        (0.0, 3500.0),
+                        (-500.0, 0.0),
+                        (-1000.0, 0.0),
+                        (-1500.0, 0.0),
+                        (-2000.0, 0.0),
+                        (-2500.0, 0.0),
+                        (-3000.0, 0.0),
+                        (-3500.0, 0.0),
+                        (500.0, 0.0),
+                        (1000.0, 0.0),
+                        (1500.0, 0.0),
+                        (2000.0, 0.0),
+                        (2500.0, 0.0),
+                        (3000.0, 0.0),
+                        (3500.0, 0.0),
+                    ]),
+            ];
+
+            let x_axis = Axis::default()
+                .style(Style::default().white())
+                .bounds([-4000.0, 4000.0]);
+
+            let y_axis = Axis::default()
+                .style(Style::default().white())
+                .bounds([-4000.0, 4000.0]);
+
+            let map = Chart::new(datasets)
+                .block(map_block)
+                .style(Style::default().bg(Color::Black))
+                .x_axis(x_axis)
+                .y_axis(y_axis);
+            f.render_widget(map, map_area);
         }).unwrap();
     }
 }

@@ -1,6 +1,6 @@
 //item_state
 
-use crate::enums::{Cells, Items, Plants};
+use crate::enums::{Cells, Items, Month, Plants};
 use crate::gamestate::GameState;
 use crate::item::Item;
 use crate::map::{MAP_H, MAP_W};
@@ -22,8 +22,8 @@ impl GameState {
     fn place_moss(&mut self, x: usize, y: usize) {
         // let rng = rand::thread_rng();
         let tmap = self.map.cells.clone();
-        for j in 0..6 {
-            for i in 0..10 {
+        for j in 0..12 {
+            for i in 0..20 {
                 let yy = j + y;
                 let xx = i + x;
                 if EMPTY_CELLS.contains(&tmap[yy][xx]) && !EMPTY_CELLS.contains(&tmap[yy - 1][xx])
@@ -43,8 +43,8 @@ impl GameState {
     fn place_vine(&mut self, x: usize, y: usize) {
         let mut rng = rand::thread_rng();
         let tmap = self.map.cells.clone();
-        for j in 0..6 {
-            for i in 0..10 {
+        for j in 0..12 {
+            for i in 0..20 {
                 let yy = j + y;
                 let xx = i + x;
                 if EMPTY_CELLS.contains(&tmap[yy][xx]) && !EMPTY_CELLS.contains(&tmap[yy - 1][xx])
@@ -239,17 +239,38 @@ impl GameState {
     }
     pub fn check_place_item(&mut self, x: usize, y: usize) -> bool {
         let mut rng = rand::thread_rng();
-        let types = [
+        let mut types = vec![
             Items::Rock,
             Items::EdibleRoot,
             Items::Apple,
             Items::MetalScrap,
-            Items::Plants(Plants::LuminousMushroom),
-            Items::Plants(Plants::LichenousGrowth),
-            Items::Plants(Plants::LampenPetals),
-            Items::Plants(Plants::LuckyClover),
-            Items::Plants(Plants::Shroom),
         ];
+        match self.stats.world_stats.date.month {
+            Month::Opal => types.append(&mut vec![
+                // damp
+                Items::Plants(Plants::Shroom),
+                Items::Plants(Plants::LuminousMushroom),
+                Items::Plants(Plants::LichenousGrowth),
+            ]),
+            Month::Quartz => types.append(&mut vec![
+                // drying
+                Items::Plants(Plants::LuminousMushroom),
+                Items::Plants(Plants::LampenFlower),
+                Items::Plants(Plants::LuckyClover),
+            ]),
+            Month::Jade => types.append(&mut vec![
+                // dry
+                Items::Plants(Plants::VioletShadow),
+                Items::Plants(Plants::LampenFlower),
+                Items::Plants(Plants::LuckyClover),
+            ]),
+            Month::Bizmuth => types.append(&mut vec![
+                // damping
+                Items::Plants(Plants::LichenousGrowth),
+                Items::Plants(Plants::VioletShadow),
+                Items::Plants(Plants::Shroom),
+            ]),
+        }
         if self.map.cells[y][x] == Cells::Empty
             && !self.in_loc_check((x, y))
             && !self.enemies.contains_key(&(x, y))
@@ -275,15 +296,17 @@ impl GameState {
                     Items::Plants(Plants::LichenousGrowth) => {
                         self.items.insert((x, y), Item::new_lichenous_growth(x, y));
                     }
-                    Items::Plants(Plants::LampenPetals) => {
-                        self.items
-                            .insert((x, y), Item::new_lampen_flower_petals(x, y));
+                    Items::Plants(Plants::LampenFlower) => {
+                        self.items.insert((x, y), Item::new_lampen_flower(x, y));
                     }
                     Items::Plants(Plants::LuckyClover) => {
                         self.items.insert((x, y), Item::new_lucky_clover(x, y));
                     }
                     Items::Plants(Plants::Shroom) => {
                         self.items.insert((x, y), Item::new_shroom(x, y));
+                    }
+                    Items::Plants(Plants::VioletShadow) => {
+                        self.items.insert((x, y), Item::new_violet_shadow(x, y));
                     }
                     _ => todo!(),
                 };

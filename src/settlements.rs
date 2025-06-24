@@ -96,7 +96,7 @@ impl Settlements {
             let xx = (spos.0 - -pos.0) as i32;
             let yy = (spos.1 - -pos.1) as i32;
             let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u16;
-            if hyp <= 5000 {
+            if hyp <= 4000 {
                 local_settles.insert(spos.clone(), s.clone());
             }
         }
@@ -112,10 +112,11 @@ impl Settlements {
         }
     }
 
-    fn set_retrieve_item_content(&self, task: Task) {
+    fn set_retrieve_item_content(&mut self, task: Task) {
         let settle_loc = task.start_loc;
         let mut settle = self.settlements.get(&settle_loc).unwrap().clone();
         settle.add_task_env(EnvInter::TaskEnv(TaskEnv::BoardStartEntity));
+        self.settlements.insert(settle_loc, settle);
     }
 
     fn set_pass_item_content(&self, task: Task) {

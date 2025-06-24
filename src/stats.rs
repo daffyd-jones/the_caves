@@ -5,9 +5,9 @@ use rand::Rng;
 use std::collections::HashMap;
 
 pub struct Season {
-    year: u16,
-    month: Month,
-    day: u8,
+    pub year: u16,
+    pub month: Month,
+    pub day: u8,
 }
 
 impl Season {
@@ -25,7 +25,8 @@ impl Season {
             match &self.month {
                 Month::Opal => self.month = Month::Quartz,
                 Month::Quartz => self.month = Month::Jade,
-                Month::Jade => {
+                Month::Jade => self.month = Month::Bizmuth,
+                Month::Bizmuth => {
                     self.month = Month::Opal;
                     self.year += 1;
                 }
@@ -164,7 +165,7 @@ fn build_state_toggle() -> HashMap<ToggleState, bool> {
         (ToggleState::Plants(Plants::LuminousMushroom), false),
         (ToggleState::Plants(Plants::LichenousGrowth), false),
         (ToggleState::Plants(Plants::VineBulb), false),
-        (ToggleState::Plants(Plants::LampenPetals), false),
+        (ToggleState::Plants(Plants::LampenFlower), false),
         (ToggleState::Plants(Plants::LuckyClover), false),
         (ToggleState::Plants(Plants::Shroom), false),
     ])
