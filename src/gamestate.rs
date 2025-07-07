@@ -7,7 +7,7 @@ use crate::enums::{
 };
 use crate::features::Features;
 use crate::gui::GUI;
-use crate::gui_utils::GuiArgs;
+use crate::gui_utils::{DisplayStats, GuiArgs};
 use crate::item::Item;
 use crate::map::Map;
 use crate::nodemap::NodeMap;
@@ -207,7 +207,7 @@ impl GameState {
         let mut puzzles = Puzzles::demo_self();
         let mut features = Features::new();
 
-        for _ in 0..2 {
+        for _ in 0..10 {
             let ulnodes = nodemap.increase_depth("ul");
             for n in ulnodes {
                 match n.ntype {
@@ -385,7 +385,7 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    stats: &self.stats.player_xp.get_xps(),
+                    // stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -595,10 +595,14 @@ impl GameState {
         };
         self.gui.draw(
             debug_strs.clone(),
+            DisplayStats {
+                player: self.stats.player_xp.get_xps(),
+                notes: self.stats.get_display_stats(),
+            },
             &mut GuiArgs {
                 map: &self.map,
                 player: &self.player,
-                stats: &self.stats.player_xp.get_xps(),
+                // stats: &self.stats.player_xp.get_xps(),
                 enemies: &self.enemies,
                 items: &self.items,
                 npcs: &self.npcs,

@@ -26,6 +26,9 @@ impl GameState {
             for i in 0..20 {
                 let yy = j + y;
                 let xx = i + x;
+                if xx > tmap[0].len() - 5 || yy > tmap.len() - 5 {
+                    return;
+                }
                 if EMPTY_CELLS.contains(&tmap[yy][xx]) && !EMPTY_CELLS.contains(&tmap[yy - 1][xx])
                     || EMPTY_CELLS.contains(&tmap[yy][xx])
                         && !EMPTY_CELLS.contains(&tmap[yy + 1][xx])

@@ -84,50 +84,36 @@ pub enum TaskType {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Task {
-    pub ttype: TaskType,
-    pub start_loc: (i16, i16),
-    pub start_loc_name: String,
-    pub start_entity_name: String,
-    pub goal_loc: (i16, i16),
-    pub goal_loc_name: String,
-    pub goal_entity_name: String,
-    pub reward: Item,
-    pub task_items: Option<Vec<(bool, Item)>>,
-    pub start_convo: Convo,
-    pub goal_convo: Convo,
-    pub final_convo: Option<Convo>,
-    pub note_entries: Vec<(bool, String)>,
-    pub stat_triggers: Vec<ToggleState>,
+pub enum Task {
+    BoardRetrieveItem {
+        goal_loc: (i16, i16),
+        goal_loc_name: String,
+        goal_entity_name: String,
+        goal_convo: Convo,
+        task_items: Option<Vec<(bool, Item)>>,
+        note_entries: Vec<(bool, String)>,
+        reward: Item,
+    },
+    RetrieveItem {
+        start_loc: (i16, i16),
+        start_loc_name: String,
+        start_entity_name: String,
+        start_convo: Convo,
+        goal_loc: (i16, i16),
+        goal_loc_name: String,
+        goal_entity_name: String,
+        goal_convo: Convo,
+        task_items: Option<Vec<(bool, Item)>>,
+        note_entries: Vec<(bool, String)>,
+        reward: Item,
+    },
 }
 
 impl Task {
-    pub fn new_retrieve_task(start_loc: (i16, i16), start_loc_name: String) -> Self {
-        let start_entity_name = "Daniel".to_string();
+    pub fn new_board_retrieve_task(goal_loc: (i16, i16), goal_loc_name: String) -> Self {
         let goal_entity_name = "Eric".to_string();
         let reward = Item::new_health_potion(0, 0);
         let task_items = Some(vec![(false, Item::new_apple(0, 0))]);
-        let mut stages = HashMap::new();
-        stages.insert(
-            "0".to_string(),
-            Stage {
-                text: "This is npc dialogue to start task.".to_string(),
-                opts: vec![
-                    ConOpt {
-                        text: "Thank's Ill look for it. Good luck!".to_string(),
-                        next: "e".to_string(),
-                    },
-                    ConOpt {
-                        text: "What did it look like?".to_string(),
-                        next: "desc".to_string(),
-                    },
-                ],
-            },
-        );
-        let start_convo = Convo {
-            id: "Retrieve Item: Start".to_string(),
-            stages,
-        };
 
         let mut stages = HashMap::new();
         stages.insert(
@@ -151,28 +137,6 @@ impl Task {
             stages,
         };
 
-        let mut stages = HashMap::new();
-        stages.insert(
-            "0".to_string(),
-            Stage {
-                text: "This is npc dialogue when reporting complete task.".to_string(),
-                opts: vec![
-                    ConOpt {
-                        text: "Thank's Ill look for it. Good luck!".to_string(),
-                        next: "e".to_string(),
-                    },
-                    ConOpt {
-                        text: "What did it look like?".to_string(),
-                        next: "desc".to_string(),
-                    },
-                ],
-            },
-        );
-        let final_convo = Some(Convo {
-            id: "Retrieve Item: Final".to_string(),
-            stages,
-        });
-
         // let convo_path = format!("src/npcs/{}/convos_city.json", "task");
         // let data1 = fs::read_to_string(convo_path);
         // print!("{:?}", data1);
@@ -194,31 +158,64 @@ They live in {}, and can be found there to deliver the item.
 
 They are willing to give {} as a reward.
             "#,
-                start_entity_name,
+                goal_entity_name,
                 task_items.clone().unwrap().len(),
                 task_items.clone().unwrap()[0].1.sname,
-                start_loc_name,
+                goal_loc_name,
                 reward.sname
             ),
         )];
-        let stat_triggers = Vec::new();
 
-        Self {
-            ttype: TaskType::RetrieveItem,
-            start_loc,
-            start_loc_name,
-            start_entity_name,
-            goal_loc: (0, 0),
-            goal_loc_name: "".to_string(),
+        Self::BoardRetrieveItem {
+            goal_loc,
+            goal_loc_name,
             goal_entity_name,
-            reward,
-            task_items,
-            start_convo,
             goal_convo,
-            final_convo,
+            task_items,
             note_entries,
-            stat_triggers,
+            reward,
         }
+    }
+
+    pub fn board_post(&mut self) -> String {
+        match self {
+            Task::BoardRetrieveItem {
+                goal_loc_name,
+                goal_entity_name,
+                task_items,
+                reward,
+                ..
+            } => {
+                format!(
+                    r#"
+---- ---- nl
+Item Retrieval nl
+nl
+{} in {} needs {}. nl
+nl
+{} is looking for {} {}, and is looking to provide {} gold in payment. nl
+____ nl
+                "#,
+                    goal_entity_name,
+                    goal_loc_name,
+                    task_items.clone().unwrap()[0].1.sname,
+                    goal_entity_name,
+                    task_items.clone().unwrap().len(),
+                    task_items.clone().unwrap()[0].1.sname,
+                    reward.get_properties()["value"]
+                )
+            }
+            _ => "oops".to_string(),
+        }
+    }
+
+    pub fn note_entry(&self) -> String {
+        let mut entries = match self {
+            Task::BoardRetrieveItem { note_entries, .. } => note_entries.clone(),
+            _ => vec![(false, "oops".to_string())],
+        };
+        entries.retain(|n| !n.0);
+        entries[0].1.clone()
     }
 }
 
@@ -282,7 +279,7 @@ impl Tasks {
             TaskType::RetrieveItem => {
                 let start_loc = self.locals.pop().unwrap();
                 self.board_tasks
-                    .push(Task::new_retrieve_task(start_loc.0, start_loc.1));
+                    .push(Task::new_board_retrieve_task(start_loc.0, start_loc.1));
             }
             TaskType::PassMessage => {
                 // self.board_task.push(Task::new_retrieve_task(

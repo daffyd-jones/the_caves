@@ -6,7 +6,7 @@ use crate::enums::{
     Interactable, Items,
 };
 use crate::gamestate::{loc_shop_items, GameState};
-use crate::gui_utils::{Animation, GuiArgs};
+use crate::gui_utils::{Animation, DisplayStats, GuiArgs};
 use crate::item::Item;
 use ratatui::crossterm::event::{poll, read, Event, KeyCode};
 use ratatui::style::Color;
@@ -77,7 +77,11 @@ impl GameState {
             self.gui.encounter_auto_content(&mut GuiArgs {
                 map: &self.map,
                 player: &self.player,
-                stats: &self.stats.player_xp.get_xps(),
+                // stats: &self.stats.player_xp.get_xps(),
+                // stats: &DisplayStats {
+                //     player: Vec::new(),
+                //     notes: (String::from(""), String::from("")),
+                // },
                 enemies: &self.enemies,
                 items: &self.items,
                 npcs: &self.npcs,
@@ -127,7 +131,10 @@ impl GameState {
             self.gui.encounter_auto_content(&mut GuiArgs {
                 map: &self.map,
                 player: &self.player,
-                stats: &self.stats.player_xp.get_xps(),
+                // stats: &DisplayStats {
+                //     player: Vec::new(),
+                //     notes: (String::from(""), String::from("")),
+                // },
                 enemies: &self.enemies,
                 items: &self.items,
                 npcs: &self.npcs,
@@ -217,7 +224,10 @@ impl GameState {
                     &mut GuiArgs {
                         map: &self.map,
                         player: &self.player,
-                        stats: &self.stats.player_xp.get_xps(),
+                        // stats: &DisplayStats {
+                        //     player: Vec::new(),
+                        //     notes: (String::from(""), String::from("")),
+                        // },
                         enemies: &self.enemies,
                         items: &self.items,
                         npcs: &self.npcs,
@@ -258,7 +268,10 @@ impl GameState {
                     &mut GuiArgs {
                         map: &self.map,
                         player: &self.player,
-                        stats: &self.stats.player_xp.get_xps(),
+                        // stats: &DisplayStats {
+                        //     player: Vec::new(),
+                        //     notes: (String::from(""), String::from("")),
+                        // },
                         enemies: &self.enemies,
                         items: &self.items,
                         npcs: &self.npcs,
@@ -299,7 +312,10 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    stats: &self.stats.player_xp.get_xps(),
+                    // stats: &DisplayStats {
+                    //     player: Vec::new(),
+                    //     notes: (String::from(""), String::from("")),
+                    // },
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -361,7 +377,10 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    stats: &self.stats.player_xp.get_xps(),
+                    // stats: &DisplayStats {
+                    //     player: Vec::new(),
+                    //     notes: (String::from(""), String::from("")),
+                    // },
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -434,7 +453,10 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    stats: &self.stats.player_xp.get_xps(),
+                    // stats: &DisplayStats {
+                    //     player: Vec::new(),
+                    //     notes: (String::from(""), String::from("")),
+                    // },
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -487,7 +509,10 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    stats: &self.stats.player_xp.get_xps(),
+                    // stats: &DisplayStats {
+                    //     player: Vec::new(),
+                    //     notes: (String::from(""), String::from("")),
+                    // },
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -548,7 +573,10 @@ impl GameState {
             self.gui.encounter_pick_item(&mut GuiArgs {
                 map: &self.map,
                 player: &self.player,
-                stats: &self.stats.player_xp.get_xps(),
+                // stats: &DisplayStats {
+                //     player: Vec::new(),
+                //     notes: (String::from(""), String::from("")),
+                // },
                 enemies: &self.enemies,
                 items: &self.items,
                 npcs: &self.npcs,

@@ -896,7 +896,7 @@ const POND_1: &str = r#"Null|Null|Null
 #_______________________________________________________________________###
 ##_________________________________________"__________┌─────┐____________##
 ______',_______________________________________________π____│______________
-_________________________________________________________⑁__│*_____________
+_______________________________________________________ঌ_⑁__│*_____________
 ______________,'~~~~~~~~~~~~~~~~~~_____________________ѧ__⑁_│___________###
 ##_________,~~~~~~~~~~~~~~~~~~~~~~~~~,______________________│___________###
 ###_____,~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~_______________⑁___│__________####
@@ -922,7 +922,7 @@ const POND_2: &str = r#"Null|Null|Null
 ###_,_______________.______",__________________~~~~~~~~~,___________.___###
 ___________┌───────────────────┐'____________~~~~~~~~~~~~~~~____________###
 __________"│__::.:.:.:.:.:.::__│___________.~~~~~~~~~~~~~~~~~'___________##
-___________│_______:___:_______│"__________~~~~~~~~~~~~~~~~~~______________
+___________│__ঌ____:___:_______│"__________~~~~~~~~~~~~~~~~~~______________
 ____.______│__ѧ_:_________:____│,__________~~~~~~~~~~~~~~~~~~~,________,___
 __________________________________________~~~~~~~~~~~~~~~~~~~~~____________
 #________________________________________,~~~~~~~~~~~~~~~~~~~~~____________
@@ -1120,6 +1120,10 @@ pub fn parse_map(
                 '╢' => Cells::BsVL,
                 '╤' => Cells::BsHD,
                 '╧' => Cells::BsHU,
+                '╭' => Cells::CurUL,
+                '╮' => Cells::CurUR,
+                '╰' => Cells::CurBL,
+                '╯' => Cells::CurBR,
                 '≡' => Cells::Cong,
                 '°' => Cells::Deg,
                 '×' => Cells::Mult,
@@ -1632,17 +1636,17 @@ impl Features {
 
     pub fn new_rand_feature(&mut self, pos: (i16, i16)) {
         let mut rng = rand::thread_rng();
-        let choice = *[
-            FeatureType::AbandonedShack,
-            FeatureType::Field,
-            FeatureType::Ruin,
-            FeatureType::Stream,
-            FeatureType::Construction,
-            FeatureType::Pond,
-        ]
-        .choose(&mut rng)
-        .unwrap_or(&FeatureType::AbandonedShack);
-        // let choice = FeatureType::Construction;
+        // let choice = *[
+        //     FeatureType::AbandonedShack,
+        //     FeatureType::Field,
+        //     FeatureType::Ruin,
+        //     FeatureType::Stream,
+        //     FeatureType::Construction,
+        //     FeatureType::Pond,
+        // ]
+        // .choose(&mut rng)
+        // .unwrap_or(&FeatureType::AbandonedShack);
+        let choice = FeatureType::Pond;
         match choice {
             FeatureType::AbandonedShack => self.new_abandoned_shack(pos),
             FeatureType::Field => self.new_field_feature(pos),

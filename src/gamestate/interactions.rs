@@ -114,7 +114,7 @@ impl GameState {
             self.gui.inter_opt_draw(&mut GuiArgs {
                 map: &self.map,
                 player: &self.player,
-                stats: &self.stats.player_xp.get_xps(),
+                // stats: &self.stats.player_xp.get_xps(),
                 enemies: &self.enemies,
                 items: &self.items,
                 npcs: &self.npcs,
@@ -143,7 +143,7 @@ impl GameState {
             self.gui.inter_res_draw(&mut GuiArgs {
                 map: &self.map,
                 player: &self.player,
-                stats: &self.stats.player_xp.get_xps(),
+                // stats: &self.stats.player_xp.get_xps(),
                 enemies: &self.enemies,
                 items: &self.items,
                 npcs: &self.npcs,
@@ -178,7 +178,7 @@ impl GameState {
             self.gui.inter_adj_draw(&mut GuiArgs {
                 map: &self.map,
                 player: &self.player,
-                stats: &self.stats.player_xp.get_xps(),
+                // stats: &self.stats.player_xp.get_xps(),
                 enemies: &self.enemies,
                 items: &self.items,
                 npcs: &self.npcs,

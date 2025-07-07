@@ -112,10 +112,12 @@ impl GUI {
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
 
-                let vec1 = opts;
+                let vec1 = opts.clone();
                 let vec2 = vec!["".to_string(); 1];
 
                 let inter_opts = [vec1.clone(), vec2.clone()];
+                let cur_bounds = vec![opts.len()];
+                self.cursor_bounds = cur_bounds;
                 let rows: Vec<Row> = inter_opts
                     .iter()
                     .enumerate()
@@ -290,6 +292,7 @@ impl GUI {
                 let vec2 = vec!["".to_string(); 1];
 
                 let inter_opts = [vec1.clone(), vec2.clone()];
+                self.cursor_bounds = vec![1];
                 let rows: Vec<Row> = inter_opts
                     .iter()
                     .enumerate()
@@ -483,8 +486,11 @@ impl GUI {
                     }
                 }
                 let enc_opts = [vec1.clone(), vec2.clone()];
-                self.enc_opt = (vec1, vec2);
-
+                self.enc_opt = (vec1.clone(), vec2.clone());
+                self.cursor_bounds = vec![
+                    vec1.iter().filter(|x| x.0 != EncOpt::Null).count(),
+                    vec2.iter().filter(|x| x.0 != EncOpt::Null).count(),
+                ];
                 let rows: Vec<Row> = enc_opts
                     .iter()
                     .enumerate()
@@ -690,6 +696,27 @@ impl GUI {
                 let inv_table: Vec<Vec<(usize, Item)>> =
                     vec![col1.clone(), col2.clone(), col3.clone()];
                 self.inv_opt = (col1, col2, col3);
+                let mut cur_bounds = Vec::new();
+                for i in 0..inv_table[0].len() {
+                    if inv_table[0][i].1.itype == Items::Null {
+                        break;
+                    }
+                    cur_bounds.push(1);
+                }
+                for i in 0..inv_table[1].len() {
+                    if inv_table[1][i].1.itype == Items::Null {
+                        break;
+                    }
+                    cur_bounds[i] += 1;
+                }
+                for i in 0..inv_table[2].len() {
+                    if inv_table[2][i].1.itype == Items::Null {
+                        break;
+                    }
+                    cur_bounds[i] += 1;
+                }
+                self.cursor_bounds = cur_bounds;
+
                 //xx
                 let rows: Vec<Row> = (0..12)
                     .map(|i| {

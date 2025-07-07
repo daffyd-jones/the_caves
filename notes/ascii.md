@@ -19,8 +19,8 @@ Basic Staff: ɭ
 Wood Staff: ſ
 Bludgeon Staff: ƪ
 Gem Staff: ẛ
-Heavy Axe: ͳ
-Light Axe: Ͳ
+Heavy Axe: Ͳ
+Light Axe: ͳ
 Pick Axe: ፐ
 Pick Hammer: Ƭ
 Shadow axe: ፕ
@@ -165,7 +165,26 @@ wooden hatch: ▥
 
 ├┄┤
 
+                  
+                  
+  ┆ ┄  ┊ ┈  ╎ ╌            
+                  
+                  
+  ─┄─ │  ─┈─ │  ─╌─ │          
+      ┆      ┊      ╎         
+      │      │      │         
+                  
 
+  ─╴─ │  ─── │  ─ ̸─ │          
+      ┆      ┊       ̅          
+      │      │      │         
+                  
+                  
+    ├ ┤ ╭ ╮             
+    ┴─┴ ┴─┴              
+                  
+                  
+┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │
 
 ```
 
@@ -703,8 +722,10 @@ features
 ❏	❐	❑	❒
   
 Containers?
-፩	፪	፫	፬	፭	፮	፯
-፰	፱	፲	፳	፴	፵	፶	፷	፸	፹	፺	፻	፼
+፩ ፪ ፫ ፬ ፭
+፮ ፯ ፰ ፱ ፲
+፳ ፴ ፵ ፶ ፷
+፸ ፹ ፺ ፻ ፼
 
 ×ǂǁǀƤ
 ȽȾƿǬǭ

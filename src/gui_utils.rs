@@ -86,10 +86,15 @@ pub fn wrap_text(text: &str, max_width: usize) -> Text {
     Text::from(lines)
 }
 
+pub struct DisplayStats {
+    pub player: Vec<u16>,
+    pub notes: (String, String),
+}
+
 pub struct GuiArgs<'a> {
     pub map: &'a Map,
     pub player: &'a Player,
-    pub stats: &'a Vec<u16>,
+    // pub stats: &'a DisplayStats,
     pub enemies: &'a HashMap<(usize, usize), Enemy>,
     pub items: &'a HashMap<(usize, usize), Item>,
     pub npcs: &'a HashMap<(usize, usize), NPCWrap>,
@@ -257,7 +262,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::Door(Door::VLocked(_)) => ('╎', Color::White),
                         EnvInter::Door(Door::VOpen) => ('🮀', Color::White),
                         EnvInter::Door(Door::HLocked(_)) => ('╌', Color::White),
-                        EnvInter::Door(Door::HOpen) => (' ', Color::White),
+                        EnvInter::Door(Door::HOpen) => ('̸', Color::White),
                         _ => todo!(),
                     }
                 } else {
@@ -335,6 +340,10 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::BsVR => ('╟', Color::Gray),
                         Cells::BsHD => ('╤', Color::Gray),
                         Cells::BsHU => ('╧', Color::Gray),
+                        Cells::CurUL => ('╭', Color::Gray),
+                        Cells::CurUR => ('╮', Color::Gray),
+                        Cells::CurBL => ('╰', Color::Gray),
+                        Cells::CurBR => ('╯', Color::Gray),
                         Cells::Bed => ('🁢', Color::Gray),
                         Cells::Cong => ('≡', Color::Magenta),
                         Cells::Deg => ('°', Color::Cyan),
@@ -354,6 +363,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Bricks => ('ʭ', Color::DarkGray),
                         Cells::Crops => ('ʬ', Color::Yellow),
                         Cells::SmallCampfire => ('ѧ', Color::LightRed),
+                        Cells::TallGrass => ('⚶', Color::Green),
                         Cells::Campfire => ('Ѧ', Color::LightRed),
                         Cells::Table => ('π', Color::DarkGray),
                         Cells::Jar => ('ṑ', Color::DarkGray),

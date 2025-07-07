@@ -1,3 +1,5 @@
+use std::env::current_dir;
+
 //environment_interactions.rs
 use crate::enums::Items;
 use crate::gui::GUI;
@@ -173,16 +175,6 @@ impl GUI {
             let paragraph = draw_map(gui_args, self.ani_cnt);
             f.render_widget(paragraph, inner_area);
 
-
-            // let normal_info = Layout::default()
-            // .direction(Direction::Vertical)
-            // .constraints(
-            //     [
-            //         Constraint::Percentage(70),
-            //         Constraint::Percentage(30)
-            //     ].as_ref()
-            // )
-            // .split(game_chunks[1]);
             let info_block = Block::default()
                 .title("")
                 .borders(Borders::ALL)
@@ -243,6 +235,7 @@ impl GUI {
                     }
                 );
             }
+            self.cursor_bounds = vec![product_str.len()];
             let opts = [product_str];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
                 let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
@@ -407,6 +400,12 @@ impl GUI {
                 height: (h_area.height / 3) - 4,
             };
 
+            let mut cur_bounds = Vec::new();
+            for _ in 0..opts.len() {
+                cur_bounds.push(1);
+            }
+            self.cursor_bounds = cur_bounds;
+
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, cell)| {
                     let row = if j == self.cursor_pos.1 {
                         vec![Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))]
@@ -517,6 +516,7 @@ impl GUI {
             
             let vec1 = vec!["Yes", "No"];
             let opts = [vec1.clone()];
+            self.cursor_bounds = vec![2];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
                 let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
@@ -607,6 +607,7 @@ impl GUI {
             
             let vec1 = vec![""];
             let opts = [vec1.clone()];
+            self.cursor_bounds = vec![1];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
                 let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
@@ -697,6 +698,7 @@ impl GUI {
             
             let vec1 = vec!["Ok"];
             let opts = [vec1.clone()];
+            self.cursor_bounds = vec![1];
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
                 let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                     if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
@@ -834,6 +836,11 @@ impl GUI {
                 (1, _, 1) => post_strings,
                 _ => vec!["".to_string()]
             };
+            self.cursor_bounds = if self.menu_lvl == 1 {
+                vec![1; opts.len()]
+            } else {
+                vec![1; 2]
+            };
             let rows: Vec<Row> = opts.iter().enumerate().map(|(j, cell)| {
                 let wrapped_text = wrap_text(cell, table_block.inner(table_area).width.into());
                 if self.menu_lvl == 1 && j == self.cursor_pos.1 {
@@ -947,6 +954,17 @@ impl GUI {
                 width: (h_area.width / 4),
                 height: h_area.height/ 4,
             };
+
+            self.cursor_bounds = if post_strings.len() % 2 == 0
+                && (post_strings.len() / 2) < (opt_area.height - 2).into() {
+                vec![2; post_strings.len()/2]
+            } else if ((post_strings.len() + 1) / 2) < (opt_area.height - 2).into() {
+                let mut temp = vec![2; post_strings.len() / 2];
+                temp.push(1);
+                temp
+            } else {
+                vec![2; (opt_area.height - 2) as usize]
+            }; 
             
             let mut snames = Vec::new();
             for i in (0..post_strings.len()).step_by(2) {
@@ -957,6 +975,8 @@ impl GUI {
                 };
                 snames.push(vec![post_strings[i].0.clone(), st2]);
             }
+            
+            
             
             let rows: Vec<Row> = snames.iter().enumerate().map(|(j, row)| {
                 let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
@@ -1026,13 +1046,11 @@ impl GUI {
                     .style(Style::default().fg(Color::Gray))
                     .data(&points),
                 Dataset::default()
-                    // .name("settlements")
                     .marker(Marker::HalfBlock)
                     .graph_type(GraphType::Scatter)
                     .style(Style::default().fg(Color::Yellow))
                     .data(&point),
                 Dataset::default()
-                    // .name("settlements")
                     .marker(Marker::Dot)
                     .graph_type(GraphType::Scatter)
                     .style(Style::default().fg(Color::DarkGray))
@@ -1041,68 +1059,70 @@ impl GUI {
                         (1000.0, 1000.0),
                         (1500.0, 1500.0),
                         (2000.0, 2000.0),
-                        (2500.0, 2500.0),
-                        (3000.0, 3000.0),
-                        (3500.0, 3500.0),
+                        // (2500.0, 2500.0),
+                        // (3000.0, 3000.0),
+                        // (3500.0, 3500.0),
                         (-500.0, 500.0),
                         (-1000.0, 1000.0),
                         (-1500.0, 1500.0),
                         (-2000.0, 2000.0),
-                        (-2500.0, 2500.0),
-                        (-3000.0, 3000.0),
-                        (-3500.0, 3500.0),
+                        // (-2500.0, 2500.0),
+                        // (-3000.0, 3000.0),
+                        // (-3500.0, 3500.0),
                         (500.0, -500.0),
                         (1000.0, -1000.0),
                         (1500.0, -1500.0),
                         (2000.0, -2000.0),
-                        (2500.0, -2500.0),
-                        (3000.0, -3000.0),
-                        (3500.0, -3500.0),
+                        // (2500.0, -2500.0),
+                        // (3000.0, -3000.0),
+                        // (3500.0, -3500.0),
                         (-500.0, -500.0),
                         (-1000.0, -1000.0),
                         (-1500.0, -1500.0),
                         (-2000.0, -2000.0),
-                        (-2500.0, -2500.0),
-                        (-3000.0, -3000.0),
-                        (-3500.0, -3500.0),
+                        // (-2500.0, -2500.0),
+                        // (-3000.0, -3000.0),
+                        // (-3500.0, -3500.0),
                         (0.0, -500.0),
                         (0.0, -1000.0),
                         (0.0, -1500.0),
                         (0.0, -2500.0),
                         (0.0, -2000.0),
-                        (0.0, -3000.0),
-                        (0.0, -3500.0),
+                        // (0.0, -3000.0),
+                        // (0.0, -3500.0),
                         (0.0, 500.0),
                         (0.0, 1000.0),
                         (0.0, 1500.0),
                         (0.0, 2000.0),
-                        (0.0, 2500.0),
-                        (0.0, 3000.0),
-                        (0.0, 3500.0),
+                        // (0.0, 2500.0),
+                        // (0.0, 3000.0),
+                        // (0.0, 3500.0),
                         (-500.0, 0.0),
                         (-1000.0, 0.0),
                         (-1500.0, 0.0),
                         (-2000.0, 0.0),
-                        (-2500.0, 0.0),
-                        (-3000.0, 0.0),
-                        (-3500.0, 0.0),
+                        // (-2500.0, 0.0),
+                        // (-3000.0, 0.0),
+                        // (-3500.0, 0.0),
                         (500.0, 0.0),
                         (1000.0, 0.0),
                         (1500.0, 0.0),
                         (2000.0, 0.0),
-                        (2500.0, 0.0),
-                        (3000.0, 0.0),
-                        (3500.0, 0.0),
+                        // (2500.0, 0.0),
+                        // (3000.0, 0.0),
+                        // (3500.0, 0.0),
                     ]),
             ];
 
             let x_axis = Axis::default()
                 .style(Style::default().white())
-                .bounds([-4000.0, 4000.0]);
+                .bounds([-2000.0, 2000.0]);
+                // .bounds([-3000.0, 3000.0]);
 
             let y_axis = Axis::default()
                 .style(Style::default().white())
-                .bounds([-4000.0, 4000.0]);
+                .bounds([-2000.0, 2000.0]);
+                // .bounds([-3000.0, 3000.0]);
 
             let map = Chart::new(datasets)
                 .block(map_block)

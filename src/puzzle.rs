@@ -926,7 +926,7 @@ fn build_ruin() -> String {
             }
         }
     }
-    println!("{:?}", temp);
+    // println!("{:?}", temp);
     for j in 0..temp.len() {
         for i in 0..temp[0].len() {
             let patch = match temp[j][i] {

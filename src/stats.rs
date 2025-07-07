@@ -8,6 +8,7 @@ pub struct Season {
     pub year: u16,
     pub month: Month,
     pub day: u8,
+    pub str: String,
 }
 
 impl Season {
@@ -16,6 +17,16 @@ impl Season {
             year: 0,
             month: Month::Opal,
             day: 0,
+            str: "0/Opal/0".to_string(),
+        }
+    }
+
+    fn month_str(&self) -> String {
+        match self.month {
+            Month::Opal => "Opal".to_string(),
+            Month::Quartz => "Quartz".to_string(),
+            Month::Jade => "Jade".to_string(),
+            Month::Bizmuth => "Bizmuth".to_string(),
         }
     }
 
@@ -33,6 +44,7 @@ impl Season {
             }
             self.day = 0;
         }
+        self.str = format!("{}/{}/{}", self.day, self.month_str(), self.year);
     }
 }
 
@@ -187,6 +199,12 @@ impl Stats {
         let economy_roll = rng.gen_range(-10..10);
         self.world_stats.political_conflict += politics_roll;
         self.world_stats.economy += economy_roll;
+    }
+
+    pub fn get_display_stats(&self) -> (String, String) {
+        let date = self.world_stats.date.str.clone();
+        let economy = self.world_stats.economy.to_string();
+        (date, economy)
     }
 
     pub fn next_day(&mut self) {

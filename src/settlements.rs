@@ -96,7 +96,7 @@ impl Settlements {
             let xx = (spos.0 - -pos.0) as i32;
             let yy = (spos.1 - -pos.1) as i32;
             let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u16;
-            if hyp <= 4000 {
+            if hyp <= 2000 {
                 local_settles.insert(spos.clone(), s.clone());
             }
         }
@@ -104,19 +104,20 @@ impl Settlements {
     }
 
     pub fn set_task_content(&mut self, task: Task) {
-        match task.ttype {
-            TaskType::RetrieveItem => self.set_retrieve_item_content(task),
-            TaskType::PassItem => self.set_pass_item_content(task),
-            TaskType::PassMessage => self.set_pass_msg_content(task),
+        match task {
+            Task::BoardRetrieveItem { goal_loc, .. } => {
+                self.set_board_retrieve_item_content(goal_loc)
+            }
+            // Task::BoardPassItem => self.set_pass_item_content(task),
+            // Task::BoardPassMessage => self.set_pass_msg_content(task),
             _ => {}
         }
     }
 
-    fn set_retrieve_item_content(&mut self, task: Task) {
-        let settle_loc = task.start_loc;
-        let mut settle = self.settlements.get(&settle_loc).unwrap().clone();
-        settle.add_task_env(EnvInter::TaskEnv(TaskEnv::BoardStartEntity));
-        self.settlements.insert(settle_loc, settle);
+    fn set_board_retrieve_item_content(&mut self, loc: (i16, i16)) {
+        let mut settle = self.settlements.get(&loc).unwrap().clone();
+        settle.add_task_env(EnvInter::TaskEnv(TaskEnv::BoardGoalEntity));
+        self.settlements.insert(loc, settle);
     }
 
     fn set_pass_item_content(&self, task: Task) {

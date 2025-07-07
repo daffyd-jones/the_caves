@@ -3,7 +3,7 @@
 use crate::enums::{GUIMode, GameMode, Interactable, Items, NPCWrap};
 use crate::gamestate::GameState;
 use crate::gamestate::Item;
-use crate::gui_utils::GuiArgs;
+use crate::gui_utils::{DisplayStats, GuiArgs};
 use crate::npc::{ConvNPC, Convo, ShopNPC, SpawnNPC, TradeNPC, NPC};
 use crate::npc_utils::box_npc;
 use std::time::Instant;
@@ -24,7 +24,10 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    stats: &self.stats.player_xp.get_xps(),
+                    // stats: &DisplayStats {
+                    //     player: Vec::new(),
+                    //     notes: (String::from(""), String::from("")),
+                    // },
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -81,7 +84,10 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    stats: &self.stats.player_xp.get_xps(),
+                    // stats: &DisplayStats {
+                    //     player: Vec::new(),
+                    //     notes: (String::from(""), String::from("")),
+                    // },
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -160,7 +166,10 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    stats: &self.stats.player_xp.get_xps(),
+                    // stats: &DisplayStats {
+                    //     player: Vec::new(),
+                    //     notes: (String::from(""), String::from("")),
+                    // },
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -220,7 +229,10 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    stats: &self.stats.player_xp.get_xps(),
+                    // stats: &DisplayStats {
+                    //     player: Vec::new(),
+                    //     notes: (String::from(""), String::from("")),
+                    // },
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -272,7 +284,10 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    stats: &self.stats.player_xp.get_xps(),
+                    // stats: &DisplayStats {
+                    //     player: Vec::new(),
+                    //     notes: (String::from(""), String::from("")),
+                    // },
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,

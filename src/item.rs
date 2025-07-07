@@ -687,7 +687,7 @@ impl Item {
         Self {
             itype: Items::BronzeHeavyAxe,
             sname: "Bronze Heavy Axe".to_string(),
-            icon: ('ͳ', Color::Yellow),
+            icon: ('Ͳ', Color::Yellow),
             desc: "A bronze heavy axe".to_string(),
             iopts,
             equip: true,
@@ -715,7 +715,7 @@ impl Item {
         Self {
             itype: Items::BronzeLightAxe,
             sname: "Bronze Light Axe".to_string(),
-            icon: ('Ͳ', Color::Yellow),
+            icon: ('ͳ', Color::Yellow),
             desc: "A bronze light axe".to_string(),
             iopts,
             equip: true,

@@ -3,62 +3,53 @@
 
 ## gameplay
 
+- [ ] implement Tasks (EnvInter) - for retrieving items (will require persistance, best for settles/features)
+  - [+] create EnvInter
+  - [+] implement convos
+  - [+] create Task
+  - [ ] implement task creation
+  - [ ] implement task completion
+  - [ ] implement completion convo/reward
+
 - [ ] small map
   - [ ] switch map - store current, swap to small
   - [ ] put small in temp with wall
   - [ ] return to big map
 
 - [ ] make experience handling/upgrading
-  - [ ] implement enemy_stats in Stats
-  - [ ] implement player_stats check
-  - [ ] check enemy rating when spawning
-  - [ ] update enemy_stats when player levels or hits radius threshold
+  - [+] implement xp_inc
+  - [ ] add xp_inc to interactions/encounters 
+  - [ ] add msg when lvl up
+
 - [ ] enchantments
   - [ ] implement enchanted equip items
   - [ ] finish player effects
     - [ ] add effect check/toggle
-    - [ ] add item>toggle effect 
-
-- [+] implement plants
-  - [+] implement constructors
-  - [+] implement placement
-  - [+] implement cauldron
-  - [+] implement herbalist
-    - [+] create EnvInter
-    - [+] implement convo
-    - [+] implement plant identification
-    - [+] implement EnvInter toggle
-
-- [ ] implement Tasks (EnvInter) - for retrieving items (will require persistance, best for settles/features)
-  - [ ] create EnvInter
-  - [ ] implement convos
-  - [ ] create Task
-  - [ ] implement task creation
-  - [ ] implement task completion
-  - [ ] implement completion convo/reward
+    - [ ] add item>toggle effect
+    - [ ] add timer for effects 
 
 - [ ] add notes for settlements, cave knowledge, discoveries (puzzles, intresting features)
   - [+] add get_info for settlement
   - [+] add settle info to settlements notes
   - [ ] add info for lore env inters
   - [ ] add get_info for puzzles
+
 - [ ] implement ascii
   - [ ] implement variations for npcs
   - [ ] implement variations for items
+
 - [ ] implement features - creation/nodemap placement
   - [+] nodemap creation
   - [+] feature creation
   - [ ] add feature types
     - [+] Abandoned Shack
     - [+] Ruins
-    - [ ] Pond
+    - [+] Pond
     - [+] Field
     - [+] Stream
-    - [ ] Hermit
     - [+] Construction
   - [ ] implement Hermit
     - hermit overlay in features
-- [ ] renown good/evil
 
 ## entities
 
@@ -80,6 +71,21 @@
 - [ ] cursor limit
 - [+] fix wall corners
 - [+] fix collisions
+
+
+## Done
+
+- [+] implement plants
+  - [+] implement constructors
+  - [+] implement placement
+  - [+] implement cauldron
+  - [+] implement herbalist
+    - [+] create EnvInter
+    - [+] implement convo
+    - [+] implement plant identification
+    - [+] implement EnvInter toggle
+
+
 
 # Seasons
 

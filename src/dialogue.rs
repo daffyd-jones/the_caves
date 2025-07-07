@@ -128,7 +128,7 @@ pub fn load_comms(ntype: &String) -> CommDialogue {
     let guild_path = format!("src/npcs/{}/comms_guild.json", ntype);
     let cult_path = format!("src/npcs/{}/comms_cult.json", ntype);
     let data1 = fs::read_to_string(city_path);
-    println!("{:?}", data1);
+    // println!("{:?}", data1);
     let city: Vec<String> = match data1 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => {
@@ -138,7 +138,7 @@ pub fn load_comms(ntype: &String) -> CommDialogue {
     };
 
     let data2 = fs::read_to_string(engine_path);
-    println!("{:?}", data2);
+    // println!("{:?}", data2);
     let engine: Vec<String> = match data2 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => {
@@ -148,7 +148,7 @@ pub fn load_comms(ntype: &String) -> CommDialogue {
     };
 
     let data3 = fs::read_to_string(guild_path);
-    println!("{:?}", data3);
+    // println!("{:?}", data3);
     let guild: Vec<String> = match data3 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => {
@@ -158,7 +158,7 @@ pub fn load_comms(ntype: &String) -> CommDialogue {
     };
 
     let data4 = fs::read_to_string(cult_path);
-    println!("{:?}", data4);
+    // println!("{:?}", data4);
     let cult: Vec<String> = match data4 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => {
@@ -180,7 +180,7 @@ pub fn load_convos(ntype: &String) -> ConvoDialogue {
     let guild_path = format!("src/npcs/{}/convos_guild.json", ntype);
     let cult_path = format!("src/npcs/{}/convos_cult.json", ntype);
     let data1 = fs::read_to_string(city_path);
-    print!("{:?}", data1);
+    // print!("{:?}", data1);
     let city: Vec<Convo> = match data1 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => {
@@ -190,7 +190,7 @@ pub fn load_convos(ntype: &String) -> ConvoDialogue {
     };
 
     let data2 = fs::read_to_string(engine_path);
-    print!("{:?}", data2);
+    // print!("{:?}", data2);
     let engine: Vec<Convo> = match data2 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => {
@@ -200,7 +200,7 @@ pub fn load_convos(ntype: &String) -> ConvoDialogue {
     };
 
     let data3 = fs::read_to_string(guild_path);
-    print!("{:?}", data3);
+    // print!("{:?}", data3);
     let guild: Vec<Convo> = match data3 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => {
@@ -210,7 +210,7 @@ pub fn load_convos(ntype: &String) -> ConvoDialogue {
     };
 
     let data4 = fs::read_to_string(cult_path);
-    print!("{:?}", data4);
+    // print!("{:?}", data4);
     let cult: Vec<Convo> = match data4 {
         Ok(content) => serde_json::from_str(&content).unwrap(),
         Err(e) => {

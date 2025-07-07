@@ -138,7 +138,11 @@ impl NodeMap {
                 Vec::new()
             }
         };
-        let depth = self.depth + 1;
+        let depth = if quad == "ul" {
+            self.depth + 1
+        } else {
+            self.depth
+        };
         self.depth = depth;
         let mut rng = rand::thread_rng();
         let mut d_nodes = Vec::new();
@@ -158,9 +162,11 @@ impl NodeMap {
         };
         let mut id_cnt = 0;
         for i in (base..(800 * depth) + 1).step_by(1600) {
+            // println!(":[ {}: {}", depth, i);
             let pos = if i == (800 * depth) {
                 let xpoint = rng.gen_range(i - 100..i + 100);
                 let ypoint = rng.gen_range(i - 100..i + 100);
+                // println!("({} - {}), ({} - {})", xpoint, dir.0, ypoint, dir.1);
                 ((xpoint as i16 * dir.0), (ypoint as i16 * dir.1))
                 // println!("{:?}", point);
                 // continue;
@@ -172,6 +178,7 @@ impl NodeMap {
                     0 => rng.gen_range(x.1..x.1 + 100),
                     _ => rng.gen_range(x.1 - 100..x.1 + 100),
                 };
+                // println!("({} - {}), ({} - {})", xpoint, dir.0, ypoint, dir.1);
                 ((xpoint as i16 * dir.0), (ypoint as i16 * dir.1))
                 // (xpoint as i64, ypoint as i64)
             };
@@ -180,10 +187,10 @@ impl NodeMap {
             let ntype = *[
                 NodeType::Settlement,
                 NodeType::Settlement,
-                NodeType::Settlement,
+                // NodeType::Settlement,
                 NodeType::Puzzle,
                 NodeType::Puzzle,
-                NodeType::Null,
+                // NodeType::Null,
             ]
             .choose(&mut rng)
             .unwrap_or(&NodeType::Settlement);
@@ -216,16 +223,17 @@ impl NodeMap {
                 let x = (i, depth * 800);
                 let xpoint = rng.gen_range(x.0 - 100..x.0 + 100);
                 let ypoint = rng.gen_range(x.1 - 100..x.1 + 100);
+                // println!("({} - {}), ({} - {})", xpoint, dir.0, ypoint, dir.1);
                 let pos = ((xpoint as i16 * dir.0), (ypoint as i16 * dir.1));
                 // (xpoint as i64, ypoint as i64)
 
                 let ntype = *[
                     NodeType::Settlement,
                     NodeType::Settlement,
-                    NodeType::Settlement,
+                    // NodeType::Settlement,
                     NodeType::Puzzle,
                     NodeType::Puzzle,
-                    NodeType::Null,
+                    // NodeType::Null,
                 ]
                 .choose(&mut rng)
                 .unwrap_or(&NodeType::Settlement);

@@ -1,6 +1,7 @@
 //gui
-use crate::enums::{GUIMode, Interactable, InterOpt, EncOpt, Equip, ItemEffect};
+use crate::enums::{EncOpt, Equip, GUIMode, InterOpt, Interactable, ItemEffect, Items};
 use crate::item::Item;
+use crate::stats::WorldStats;
 
 mod gui_man_draw;
 mod npc_interactions;
@@ -23,7 +24,7 @@ use ratatui::widgets::Row;
 use ratatui::widgets::Table;
 use ratatui::widgets::Cell;
 use std::collections::HashMap;
-use crate::gui_utils::{GuiArgs, draw_map};
+use crate::gui_utils::{draw_map, DisplayStats, GuiArgs};
 
 //#[derive(Serialize, Deserialize, Debug)]
 pub struct GUI {
@@ -33,6 +34,7 @@ pub struct GUI {
     ani_updt: u8,
     cursor_pos: (usize, usize),
     cursor_hold: (usize, usize),
+    cursor_bounds: Vec<usize>,
     menu_lvl: usize,
     viewport_dim: (usize, usize),
     interactable: HashMap<(usize, usize), Option<Interactable>>,
@@ -151,6 +153,7 @@ impl GUI {
             ani_updt: 0,
             cursor_pos: (0, 0),
             cursor_hold: (0, 0),
+            cursor_bounds: Vec::new(),
             menu_lvl: 0,
             viewport_dim: (0, 0),
             interactable,
@@ -282,6 +285,7 @@ impl GUI {
     }
 
     pub fn set_info_mode(&mut self, temp: GUIMode) {
+        self.reset_cursor();
         self.info_mode = temp;
     }
 
@@ -293,10 +297,21 @@ impl GUI {
         match dir {
             "UP" => if self.cursor_pos.1 > 0 {self.cursor_pos.1 -= 1},
             "LF" => if self.cursor_pos.0 > 0 {self.cursor_pos.0 -= 1},
-            "RT" => self.cursor_pos.0 += 1,
-            "DN" => self.cursor_pos.1 += 1,
+            "RT" => if self.cursor_pos.0 < self.cursor_bounds[self.cursor_pos.1] - 1 {
+                self.cursor_pos.0 += 1
+            },
+            "DN" => if self.cursor_pos.1 < self.cursor_bounds.len() - 1 {
+                self.cursor_pos.1 += 1
+            },
             _ => todo!(),
         }
+        // match dir {
+        //     "UP" => if self.cursor_pos.1 > 0 {self.cursor_pos.1 -= 1},
+        //     "LF" => if self.cursor_pos.0 > 0 {self.cursor_pos.0 -= 1},
+        //     "RT" => self.cursor_pos.0 += 1,
+        //     "DN" => self.cursor_pos.1 += 1,
+        //     _ => todo!(),
+        // }
     }
 
     pub fn get_menu_lvl(&mut self) -> usize {
@@ -323,6 +338,7 @@ impl GUI {
 
     pub fn draw(&mut self,
          debug: (String, String, String, String),
+         stats: DisplayStats,
          gui_args: &mut GuiArgs
     ) {
         if self.ani_updt < 120 {
@@ -440,8 +456,8 @@ impl GUI {
                             Span::styled(debug.2, Style::default().fg(Color::Yellow)),
                          ]),
                         // Row::new(vec![
-                        //     Span::styled("settle_pos: ", Style::default().fg(Color::White)),
-                        //     Span::styled(debug.1, Style::default().fg(Color::Yellow)),
+                        //     Span::styled("num settles: ", Style::default().fg(Color::White)),
+                        //     Span::styled(comp, Style::default().fg(Color::Yellow)),
                         //  ]),
                         Row::new(vec![
                             Span::styled("env_inters: ", Style::default().fg(Color::White)),
@@ -451,6 +467,13 @@ impl GUI {
 
                     let settle_pos = debug.1.split("#");
 
+                    let num_settles = settle_pos.clone().collect::<Vec<&str>>().len();
+                    rows.push(
+                        Row::new(vec![
+                            Span::styled("num settles", Style::default().fg(Color::White)),
+                            Span::styled(num_settles.to_string(), Style::default().fg(Color::Yellow)),
+                         ])
+                    );
                     for i in settle_pos {
                         rows.push(
                             Row::new(vec![
@@ -552,6 +575,8 @@ impl GUI {
                     )
                     .split(equip_layout[1]);
 
+                    self.cursor_bounds = vec![100; 100];
+
                     let h_gauge = Gauge::default()
                         .block(Block::bordered().title("Health"))
                         .gauge_style(Style::new().light_red().on_black().italic())
@@ -562,33 +587,33 @@ impl GUI {
                             Span::styled("Attack: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.attack.to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Attack xp: ", Style::default().fg(Color::White)),
-                            Span::styled(gui_args.stats[0].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(stats.player[0].to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Trading xp: ", Style::default().fg(Color::White)),
-                            Span::styled(gui_args.stats[4].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(stats.player[4].to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("Damage: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.damage.to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Damage xp: ", Style::default().fg(Color::White)),
-                            Span::styled(gui_args.stats[1].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(stats.player[1].to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Lockpicking xp: ", Style::default().fg(Color::White)),
-                            Span::styled(gui_args.stats[5].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(stats.player[5].to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("Defence: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.defence.to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Defence xp: ", Style::default().fg(Color::White)),
-                            Span::styled(gui_args.stats[2].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(stats.player[2].to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Navigation xp: ", Style::default().fg(Color::White)),
-                            Span::styled(gui_args.stats[6].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(stats.player[6].to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("Money: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.money.to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Luck xp: ", Style::default().fg(Color::White)),
-                            Span::styled(gui_args.stats[3].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(stats.player[3].to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Herbalism xp: ", Style::default().fg(Color::White)),
-                            Span::styled(gui_args.stats[7].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(stats.player[7].to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("", Style::default().fg(Color::White)),
@@ -836,12 +861,28 @@ impl GUI {
                     let mut vec5 = vec!["".to_string(); 4];
                     let mut vec6 = vec!["".to_string(); 4];
 
+                    let mut cur_bounds = Vec::new();
+                    
                     let cmp_list = self.comp_list.clone();
                     let cmp_scroll = if cmp_list.len() > 23 {
-                        &cmp_list[0..23]   
+                        cur_bounds.push(4);
+                        cur_bounds.push(4);
+                        cur_bounds.push(4);
+                        cur_bounds.push(4);
+                        cur_bounds.push(4);
+                        cur_bounds.push(4);
+                        &cmp_list[0..23]
                     } else {
+                        let rows = (cmp_list.len() + 1) / 4;
+                        let last = (cmp_list.len() + 1) % 4;
+                        for _ in 0..rows {
+                            cur_bounds.push(4);
+                        }
+                        cur_bounds.push(last);
                         &cmp_list[0..]
                     }; 
+
+                    self.cursor_bounds = cur_bounds;
                     
                     vec1[0] = "Search".to_string();
                     for (idx, names) in cmp_scroll.iter().enumerate() {
@@ -916,6 +957,26 @@ impl GUI {
                     //xx
                     let inv_table: Vec<Vec<(usize, Item)>> = vec![col1.clone(), col2.clone(), col3.clone()];
                     self.inv_opt = (col1, col2, col3);
+                    let mut cur_bounds = Vec::new();
+                    for i in 0..inv_table[0].len() {
+                        if inv_table[0][i].1.itype == Items::Null {
+                            break;
+                        } 
+                        cur_bounds.push(1);
+                    }
+                    for i in 0..inv_table[1].len() {
+                        if inv_table[1][i].1.itype == Items::Null {
+                            break;
+                        } 
+                        cur_bounds[i] += 1;
+                    }
+                    for i in 0..inv_table[2].len() {
+                        if inv_table[2][i].1.itype == Items::Null {
+                            break;
+                        } 
+                        cur_bounds[i] += 1;
+                    }
+                    self.cursor_bounds = cur_bounds;
                     //xx
                     let rows: Vec<Row> = (0..25).map(|i| {
                         let cells: Vec<Cell> = inv_table.iter().enumerate().map(|(j, col)| {
@@ -949,7 +1010,7 @@ impl GUI {
                     }
                     let fmt_prop = "┌───┐".to_string();
                     props.push(Line::from(Span::raw(fmt_prop)));
-                    let fmt_prop = format!("| {} |", itm.icon.0);
+                    let fmt_prop = format!("│ {} │", itm.icon.0);
                     props.push(Line::from(Span::raw(fmt_prop)));
                     let fmt_prop = "└───┘".to_string();
                     props.push(Line::from(Span::raw(fmt_prop)));
@@ -1009,6 +1070,8 @@ impl GUI {
                         .block(notes_block);
 
                     let c_hold = &self.cursor_hold.0;
+
+                    self.cursor_bounds = vec![4; 12];
 
                     let paragraph = if self.menu_lvl == 0 {
                         match self.cursor_pos.0 {
@@ -1152,7 +1215,26 @@ impl GUI {
                     };
 
                     f.render_widget(table, normal_info[0]);
-                    f.render_widget(paragraph, normal_info[1]);
+                    if self.menu_lvl == 0 && self.cursor_pos.0 == 2 {
+                        let know_layout = Layout::default()
+                            .direction(Direction::Vertical)
+                            .constraints(
+                                [
+                                    Constraint::Percentage(15),
+                                    Constraint::Percentage(85),
+                                ].as_ref()
+                            )
+                            .split(normal_info[1]);
+                        let stat_vec = vec![
+                            Row::new(["Date: ", &stats.notes.0]),
+                            Row::new(["Economy: ", &stats.notes.1]),
+                        ];
+                        let table = Table::new(stat_vec, &[Constraint::Percentage(50), Constraint::Percentage(50)]).block(Block::bordered().title("World Stats"));
+                        f.render_widget(table, know_layout[0]);
+                        f.render_widget(paragraph, know_layout[1]);
+                    } else {
+                        f.render_widget(paragraph, normal_info[1]);
+                    }
                 },
                 // GUIMode::NPC => {},
                 // GUIMode::Fight => {},
