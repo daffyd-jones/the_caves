@@ -1,6 +1,6 @@
 //gui_utils
 use crate::enemy::Enemy;
-use crate::enums::{AniType, Cells, Door, Enemies, EnvInter, NPCWrap};
+use crate::enums::{AniType, Cells, Door, Enemies, EnvInter, Month, NPCWrap};
 use crate::item::Item;
 use crate::map::Map;
 use crate::player::Player;
@@ -103,6 +103,7 @@ pub struct GuiArgs<'a> {
     pub portals: Option<&'a HashMap<(usize, usize), (usize, usize)>>,
     pub animate: Option<&'a Animation>,
     pub ascii: Option<&'a String>,
+    pub ani_stats: &'a crate::enums::Month,
 }
 
 type Frame = Vec<Vec<(char, Color)>>;
@@ -259,6 +260,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::Construction => ('ì', Color::Blue),
                         EnvInter::Cauldron => ('℧', Color::Green),
                         EnvInter::Herbalist => ('ì', Color::Yellow),
+                        EnvInter::WoodenHatch => ('▥', Color::Yellow),
                         EnvInter::Door(Door::VLocked(_)) => ('╎', Color::White),
                         EnvInter::Door(Door::VOpen) => ('🮀', Color::White),
                         EnvInter::Door(Door::HLocked(_)) => ('╌', Color::White),
@@ -271,9 +273,36 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Dirt1 => ('·', Color::DarkGray),
                         Cells::Dirt2 => ('.', Color::DarkGray),
                         Cells::Dirt3 => (':', Color::DarkGray),
-                        Cells::Grass1 => (',', Color::LightGreen),
-                        Cells::Grass2 => ('\'', Color::LightMagenta),
-                        Cells::Grass3 => ('\"', Color::Green),
+                        Cells::Grass1 => (
+                            ',',
+                            // Color::LightGreen,
+                            match gui_args.ani_stats {
+                                Month::Opal => Color::LightGreen,
+                                Month::Quartz => Color::LightGreen,
+                                Month::Jade => Color::Yellow,
+                                Month::Bizmuth => Color::LightGreen,
+                            },
+                        ),
+                        Cells::Grass2 => (
+                            '\'',
+                            // Color::LightMagenta
+                            match gui_args.ani_stats {
+                                Month::Opal => Color::LightMagenta,
+                                Month::Quartz => Color::LightCyan,
+                                Month::Jade => Color::LightCyan,
+                                Month::Bizmuth => Color::Magenta,
+                            },
+                        ),
+                        Cells::Grass3 => (
+                            '\"',
+                            // Color::Green
+                            match gui_args.ani_stats {
+                                Month::Opal => Color::Green,
+                                Month::Quartz => Color::Green,
+                                Month::Jade => Color::Yellow,
+                                Month::Bizmuth => Color::Yellow,
+                            },
+                        ),
                         Cells::Bramble1 => ('ᘉ', Color::Green),
                         Cells::Bramble2 => ('ᘈ', Color::Green),
                         Cells::Bramble3 => ('ᘍ', Color::Green),

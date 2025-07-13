@@ -57,6 +57,9 @@ pub enum Cells {
     DRCorner5,
     Floor,
     Floor2,
+    Tile1,
+    Tile2,
+    Tile3,
     Tunnel,
     Water,
     MwH,
@@ -89,6 +92,8 @@ pub enum Cells {
     CurUR,
     CurBL,
     CurBR,
+    BknWV,
+    BknWH,
     Bed,
     Cong,
     Deg,
@@ -412,6 +417,7 @@ pub enum EnvInter {
     Door(Door),
     Herbalist,
     TaskEnv(TaskEnv),
+    WoodenHatch,
     Null,
 }
 

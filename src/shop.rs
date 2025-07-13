@@ -4,7 +4,7 @@ use crate::item::Item;
 use crate::npc::ShopNPC;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-//#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Shop {
     pub sptype: Shops,

@@ -14,10 +14,10 @@ pub struct Season {
 impl Season {
     fn new() -> Self {
         Self {
-            year: 0,
+            year: 102,
             month: Month::Opal,
-            day: 0,
-            str: "0/Opal/0".to_string(),
+            day: 11,
+            str: "11/Opal/102".to_string(),
         }
     }
 
