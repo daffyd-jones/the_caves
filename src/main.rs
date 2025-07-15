@@ -85,11 +85,10 @@ fn main() {
 
     terminal::enable_raw_mode().unwrap();
 
-    // game_state.start_update_threads();
     GameState::start_update_threads(Arc::clone(&game_state));
 
     let mut previous = Instant::now();
-    let timestep = Duration::from_millis(1000 / 15);
+    let timestep = Duration::from_millis(1000 / 10);
 
     loop {
         let now = Instant::now();
@@ -107,15 +106,9 @@ fn main() {
                     break;
                 }
             }
-            // Update game state here
         } else {
-            // sleep(Duration::from_millis());
             sleep(timestep - elapsed);
         }
-        // game_state.draw();
-        // if game_state.update() == false {
-        //     break;
-        // }
     }
 
     terminal::disable_raw_mode().unwrap();

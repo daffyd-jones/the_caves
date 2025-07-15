@@ -3,6 +3,7 @@ use crate::enums::{NPCs, PuzzleType, Shops};
 use crate::item::Item;
 use rand::Rng;
 use std::collections::HashMap;
+use std::default;
 // use serde_json::Value;
 use rand::prelude::SliceRandom;
 use serde::{Deserialize, Serialize};
@@ -127,6 +128,15 @@ pub struct Convo {
     pub id: String,
     #[serde(flatten)]
     pub stages: HashMap<String, Stage>,
+}
+
+impl Default for Convo {
+    fn default() -> Self {
+        Self {
+            id: "0".to_string(),
+            stages: HashMap::new(),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

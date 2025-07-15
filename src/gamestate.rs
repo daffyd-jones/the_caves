@@ -296,7 +296,7 @@ impl GameState {
             npc_spconvos,
             npc_spcomms,
             npc_trade,
-            key_debounce_dur: Duration::from_millis(70),
+            key_debounce_dur: Duration::from_millis(60),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
             location: Location::Null,
@@ -462,30 +462,23 @@ impl GameState {
     }
 
     pub fn start_update_threads(game_state: Arc<Mutex<Self>>) {
-        // let game_state = Arc::new(Mutex::new(self));
-
         let game_clone = Arc::clone(&game_state);
-        thread::spawn(move || {
-            loop {
-                // log::info!("update npc pre");
-                {
-                    let mut game = game_clone.lock().unwrap();
-                    // game.update_npcs();
-                    // log::info!("update npc");
-                    let step = game.step_group;
-                    if game.game_mode == GameMode::Play {
-                        game.update_enemies(step);
-                        game.update_npcs(step);
-                        if step < 15 {
-                            game.step_group += 1;
-                        } else if step > 30 {
-                        } else {
-                            game.step_group = 0;
-                        }
+        thread::spawn(move || loop {
+            {
+                let mut game = game_clone.lock().unwrap();
+                let step = game.step_group;
+                if game.game_mode == GameMode::Play {
+                    game.update_enemies(step);
+                    game.update_npcs(step);
+                    if step < 15 {
+                        game.step_group += 1;
+                    } else if step > 30 {
+                    } else {
+                        game.step_group = 0;
                     }
                 }
-                thread::sleep(Duration::from_millis(60));
             }
+            thread::sleep(Duration::from_millis(30));
         });
     }
 

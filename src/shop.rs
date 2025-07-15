@@ -23,7 +23,7 @@ impl Default for Shop {
             sptype: Shops::Null,
             sname: "Spoof".to_string(),
             npc: swrap,
-            stock: stock,
+            stock,
             paid: true,
         }
     }
@@ -37,9 +37,9 @@ impl Shop {
     ) -> Self {
         Self {
             sptype: Shops::Item,
-            sname: sname,
-            npc: npc,
-            stock: stock,
+            sname,
+            npc,
+            stock,
             paid: true,
         }
     }
@@ -47,9 +47,9 @@ impl Shop {
     pub fn new_guild(sname: String, npc: NPCWrap, stock: HashMap<(usize, usize), Item>) -> Self {
         Self {
             sptype: Shops::Guild,
-            sname: sname,
-            npc: npc,
-            stock: stock,
+            sname,
+            npc,
+            stock,
             paid: true,
         }
     }
@@ -57,9 +57,33 @@ impl Shop {
     pub fn new_church(sname: String, npc: NPCWrap, stock: HashMap<(usize, usize), Item>) -> Self {
         Self {
             sptype: Shops::Church,
-            sname: sname,
-            npc: npc,
-            stock: stock,
+            sname,
+            npc,
+            stock,
+            paid: true,
+        }
+    }
+
+    pub fn new_clinic(sname: String, npc: NPCWrap, stock: HashMap<(usize, usize), Item>) -> Self {
+        Self {
+            sptype: Shops::Clinic,
+            sname,
+            npc,
+            stock,
+            paid: true,
+        }
+    }
+
+    pub fn new_herbalist(
+        sname: String,
+        npc: NPCWrap,
+        stock: HashMap<(usize, usize), Item>,
+    ) -> Self {
+        Self {
+            sptype: Shops::Herbalist,
+            sname,
+            npc,
+            stock,
             paid: true,
         }
     }

@@ -54,7 +54,7 @@ impl Puzzles {
 
     pub fn nearest_puzzle(&self, pos: (i16, i16)) -> (i16, Puzzle) {
         let keys: Vec<(i16, i16)> = self.puzzles.clone().into_keys().collect();
-        let mut mpos = (1000, (0, 0));
+        let mut mpos = (10000, (0, 0));
         for ppos in keys {
             let xx = (ppos.0 - -pos.0).abs() as u32;
             let yy = (ppos.1 - -pos.1).abs() as u32;

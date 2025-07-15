@@ -491,6 +491,9 @@ pub enum Shops {
     Item,
     Guild,
     Church,
+    Clinic,
+    Herbalist,
+    Consignment,
     Null,
 }
 

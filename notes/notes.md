@@ -1,6 +1,5 @@
 # todo
 
-
 ## gameplay
 
 - [ ] implement Tasks (EnvInter) - for retrieving items (will require persistance, best for settles/features)
@@ -16,9 +15,12 @@
   - [ ] put small in temp with wall
   - [ ] return to big map
 
+- [ ] consignment box
+  - [ ] need to talk to person at guild_settle to get access
+
 - [ ] make experience handling/upgrading
   - [+] implement xp_inc
-  - [ ] add xp_inc to interactions/encounters 
+  - [ ] add xp_inc to interactions/encounters
   - [ ] add msg when lvl up
 
 - [ ] enchantments
@@ -26,7 +28,7 @@
   - [ ] finish player effects
     - [ ] add effect check/toggle
     - [ ] add item>toggle effect
-    - [ ] add timer for effects 
+    - [ ] add timer for effects
 
 - [ ] add notes for settlements, cave knowledge, discoveries (puzzles, intresting features)
   - [+] add get_info for settlement
@@ -72,7 +74,6 @@
 - [+] fix wall corners
 - [+] fix collisions
 
-
 ## Done
 
 - [+] implement plants
@@ -85,8 +86,6 @@
     - [+] implement plant identification
     - [+] implement EnvInter toggle
 
-
-
 # Seasons
 
 - different plants, dialogue, enemies
@@ -95,16 +94,20 @@
 
 - colors for plant icons
 
-**Damp season**  - Opal
+**Damp season** - Opal
+
 - moss more likely
 
 **Drying season** - Quartz
+
 - flowers more likely
 
 **Dry season** - Jade
+
 - clovers more likely
 
 **Dampening season** - Bizmuth
+
 - lichenous growth more likely
 
 ## Map
@@ -116,12 +119,12 @@
 ## Dialogue
 
 **Damp season**
+
 - talking about plants
 - talking about Obsidian rituals
 - guild event
 - likes dislikes
 - economy
-
 
 # Enemies
 
