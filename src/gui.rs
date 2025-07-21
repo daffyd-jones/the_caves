@@ -8,8 +8,9 @@ mod npc_interactions;
 mod enemy_encounters;
 mod environment_interactions;
 
+use rand::seq::SliceRandom;
 use ratatui::crossterm::style::PrintStyledContent;
-use ratatui::widgets::Clear;
+use ratatui::widgets::{Clear, Padding};
 use ratatui::layout::Flex;
 use std::io::stdout;
 use ratatui::{Terminal, Frame};
@@ -18,7 +19,7 @@ use ratatui::prelude::Line;
 use ratatui::prelude::Rect;
 use ratatui::widgets::{Block, Borders, Paragraph, Gauge};
 use ratatui::layout::{Layout, Constraint, Direction, Margin};
-use ratatui::style::{Color, Style, Stylize};
+use ratatui::style::{Color, Modifier, Style, Stylize};
 use ratatui::text::{Text, Span};
 use ratatui::widgets::Row;
 use ratatui::widgets::Table;
@@ -334,8 +335,65 @@ impl GUI {
         }
     }
 
-    
+    pub fn load_screen(&mut self) {
+        self.terminal
+            .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .margin(1)
+                    .constraints(
+                        [
+                            Constraint::Percentage(10),
+                            Constraint::Percentage(80),
+                            Constraint::Percentage(10),
+                        ]
+                        .as_ref(),
+                    )
+                    .split(f.area());
+                let mut rng = rand::thread_rng();
+                let load_chars = vec!["═", "║", "╣", "╠", "╩", "╦", "╗", "╝", "╚", "╔", "╬", "┐", "└", "┴", "┬", "├", "─", "┼", "┘", "┌", "┤", "│", "▥", "℧", "ï", "ì", "í", "ή", "ớ", "ʑ", "ẅ", "Ѫ", "▩", "▨", "▧", "ṑ", "Ѧ", "Ħ", "±", "ϙ", "ዠ", "ዣ", "ቸ", "Ͳ", "ẛ", "Ṫ", "ṓ", "ϟ", ];
+                let a = f.area();
+                let inner = a.inner(Margin { horizontal: 1, vertical: 1 });
+                let mut char_vec = Vec::new();
+                for _ in 0..inner.height {
+                    let mut row = Vec::new();
+                    for _ in 0..inner.width {
+                        row.push(Span::raw(*{
+                            let this = &load_chars.choose(&mut rng).unwrap();
+                            *this
+                        }));
+                    }
+                    char_vec.push(Line::from(row));
+                }
 
+                let paragraph = Paragraph::new(Text::from(char_vec))
+                // .block(Block::new())
+                .style(Style::default().bg(Color::Black))
+                .alignment(ratatui::layout::Alignment::Center)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+                f.render_widget(paragraph, chunks[1]);
+
+                let para_area = Rect {
+                    x: inner.x + (inner.width/2 - 12),
+                    y: inner.y + (inner.height/2 - 4),
+                    width: 25,
+                    height: 8,
+                };
+                let paragraph = Paragraph::new(" Loading ")
+                    .block(Block::bordered().padding(Padding::new(0,0, para_area.height/3, 0)))
+                    .alignment(ratatui::layout::Alignment::Center)
+                    .style(Style::default().bg(Color::Black));
+                f.render_widget(Clear, para_area);
+                f.render_widget(paragraph, para_area);
+
+            })
+            .unwrap();
+    }
+        
     pub fn draw(&mut self,
          debug: (String, String, String, String),
          stats: DisplayStats,

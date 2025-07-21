@@ -42,6 +42,7 @@ use ratatui::crossterm::event::{poll, read, Event, KeyCode, KeyEventKind};
 use std::fs;
 use std::fs::File;
 use std::fs::OpenOptions;
+use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -97,11 +98,90 @@ pub struct GameState {
 }
 
 impl GameState {
-    pub fn new() -> Arc<Mutex<Self>> {
+    pub fn new_menu() -> Self {
         let gui = GUI::new();
         let map = Map::new();
-        // let x = map.px.clone();
-        // let y = map.py.clone();
+        let comp_list = HashMap::new();
+        let player = Player::new(308, 194);
+        let stats = Stats::new();
+        let enemies = HashMap::new();
+        let items = HashMap::new();
+        let npcs = HashMap::new();
+        let env_inters = HashMap::new();
+        let npc_names = Vec::new();
+        let npc_comms = Vec::new();
+        let npc_convos = Vec::new();
+        let portals = HashMap::new();
+        let npc_asciis = Vec::new();
+        let npc_spcomms = Vec::new();
+        let enemy_asciis = HashMap::new();
+        let npc_spconvos = HashMap::new();
+        let npc_trade = Vec::new();
+        let notebook = Notebook::new().unwrap();
+        let nodemap = NodeMap::new();
+        let settles = Settlements::demo_self();
+        let puzzles = Puzzles::demo_self();
+        let features = Features::new();
+        let tasks = Tasks::new();
+        GameState {
+            game_mode: GameMode::Play,
+            notebook,
+            gui,
+            map,
+            nodemap,
+            tasks,
+            settles,
+            puzzles,
+            player,
+            stats,
+            midnight: Instant::now(),
+            features,
+            dist_fo: (0, 0),
+            comp_head: (0, 0),
+            comp_list,
+            comp_mode: CompMode::Search,
+            loc_rad: 360,
+            depth: 1,
+            level: 0,
+            pressed_keys: HashMap::new(),
+            enemies,
+            step_group: 0,
+            items,
+            npcs,
+            env_inters,
+            enemy_asciis,
+            npc_names,
+            npc_asciis,
+            dialogue: Dialogue::new(),
+            npc_comms,
+            npc_convos,
+            npc_spconvos,
+            npc_spcomms,
+            npc_trade,
+            key_debounce_dur: Duration::from_millis(60),
+            last_event_time: Instant::now(),
+            interactee: Interactable::Null,
+            location: Location::Null,
+            portals,
+            portal_cool: Instant::now(),
+            loc_map: None,
+            enc: EncOpt::Null,
+            enc_mode: EncMode::Null,
+        }
+    }
+
+    pub fn new() -> Arc<Mutex<Self>> {
+        let mut load_gui = GUI::new();
+        let load_bool = Arc::new(AtomicBool::new(true));
+        let load_cln = Arc::clone(&load_bool);
+        let load_handle = thread::spawn(move || {
+            while load_cln.load(std::sync::atomic::Ordering::Relaxed) {
+                load_gui.load_screen();
+                thread::sleep(Duration::from_millis(100));
+            }
+        });
+        let gui = GUI::new();
+        let map = Map::new();
         let comp_list = HashMap::new();
         let mut player = Player::new(308, 194);
         player.inventory.push(Item::new_luminous_mushroom(0, 0));
@@ -111,17 +191,13 @@ impl GameState {
         player.inventory.push(Item::new_lampen_flower(0, 0));
         player.inventory.push(Item::new_lucky_clover(0, 0));
         player.inventory.push(Item::new_shroom(0, 0));
-        // let enemies = place_enemies(map.cells.clone());
-        // let items = init_items(map.cells.clone(), enemies.clone());
         let stats = Stats::new();
         let enemies = HashMap::new();
         let items = HashMap::new();
-
         let npcs = HashMap::new();
         let env_inters = HashMap::new();
 
         let data1 = fs::read_to_string("src/npcs/npc_names.json");
-        //log::info!("{:?}", &data1);
         let npc_names: Vec<String> = match data1 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
@@ -131,7 +207,6 @@ impl GameState {
         };
 
         let data7 = fs::read_to_string("src/ascii/npc_asciis.json");
-        //log::info!("{:?}", &data1);
         let npc_asciis: Vec<String> = match data7 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
@@ -141,7 +216,6 @@ impl GameState {
         };
 
         let data8 = fs::read_to_string("src/ascii/enemy_asciis.json");
-        //log::info!("{:?}", &data1);
         let enemy_asciis: HashMap<String, String> = match data8 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
@@ -151,7 +225,6 @@ impl GameState {
         };
 
         let data2 = fs::read_to_string("src/npcs/npc_comms.json");
-        //log::info!("{:?}", &data2);
         let npc_comms: Vec<String> = match data2 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
@@ -160,7 +233,6 @@ impl GameState {
             }
         };
         let data3 = fs::read_to_string("src/npcs/npc_convos.json");
-        //log::info!("{:?}", &data3);
         let npc_convos: Vec<Convo> = match data3 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
@@ -169,7 +241,6 @@ impl GameState {
             }
         };
         let data4 = fs::read_to_string("src/npcs/npc_spawn_convos.json");
-        //log::info!("{:?}", &data3);
         let npc_spconvos: HashMap<String, Vec<Convo>> = match data4 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
@@ -178,7 +249,6 @@ impl GameState {
             }
         };
         let data5 = fs::read_to_string("src/npcs/npc_spawn_comms.json");
-        //log::info!("{:?}", &data3);
         let npc_spcomms: Vec<String> = match data5 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
@@ -188,7 +258,6 @@ impl GameState {
         };
 
         let data6 = fs::read_to_string("src/npcs/npc_trade.json");
-        //log::info!("{:?}", &data3);
         let npc_trade: Vec<HashMap<String, String>> = match data6 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
@@ -257,9 +326,9 @@ impl GameState {
                 features.new_rand_feature(f.pos);
             }
         }
-
         let mut tasks = Tasks::new();
-
+        load_bool.store(false, std::sync::atomic::Ordering::Relaxed);
+        load_handle.join().unwrap();
         Arc::new(Mutex::new(GameState {
             game_mode: GameMode::Play,
             notebook,
@@ -280,7 +349,6 @@ impl GameState {
             loc_rad: 360,
             depth: 1,
             level: 0,
-            //l_systems,
             pressed_keys: HashMap::new(),
             enemies,
             step_group: 0,
@@ -306,6 +374,39 @@ impl GameState {
             enc: EncOpt::Null,
             enc_mode: EncMode::Null,
         }))
+    }
+
+    pub fn start_menu(&mut self) -> usize {
+        self.gui.reset_cursor();
+        loop {
+            self.gui.start_menu();
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let choice = match event.code {
+                            KeyCode::Enter => self.gui.get_cursor().1,
+                            KeyCode::Up => {
+                                self.gui.move_cursor("UP");
+                                10
+                            }
+                            KeyCode::Down => {
+                                self.gui.move_cursor("DN");
+                                10
+                            }
+                            _ => {
+                                let _ = self.comm_key(event.code);
+                                10
+                            }
+                        };
+                        if choice < 10 {
+                            return choice;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fn play_update(&mut self) -> bool {

@@ -2,15 +2,129 @@ use crate::enums::{Door, EnvInter, InterOpt, Interactable, NPCWrap};
 use crate::gui::GUI;
 use crate::gui_utils::{draw_map, GuiArgs};
 use crate::npc::NPC;
-use ratatui::layout::{Constraint, Direction, Layout, Margin};
-use ratatui::style::{Color, Style, Stylize};
-use ratatui::text::Span;
-use ratatui::widgets::Cell;
+use ratatui::layout::{Constraint, Direction, Flex, Layout, Margin, Rect};
+use ratatui::style::{Color, Modifier, Style, Stylize};
+use ratatui::symbols::border::Set;
+use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::Row;
 use ratatui::widgets::Table;
 use ratatui::widgets::{Block, Borders, Paragraph};
+use ratatui::widgets::{Cell, Clear};
 
 impl GUI {
+    pub fn start_menu(&mut self) {
+        self.terminal
+            .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .margin(1)
+                    .constraints(
+                        [
+                            Constraint::Percentage(10),
+                            Constraint::Percentage(80),
+                            Constraint::Percentage(10),
+                        ]
+                        .as_ref(),
+                    )
+                    .split(f.area());
+
+                let a = f.area();
+                let b = Block::bordered()
+                    .title("")
+                    .style(Style::default().bg(Color::Black));
+                let (xper, yper) = (80, 20);
+                let harea = |a, xper, yper| {
+                    let vertical =
+                        Layout::vertical([Constraint::Percentage(yper)]).flex(Flex::Center);
+                    let horizontal =
+                        Layout::horizontal([Constraint::Percentage(xper)]).flex(Flex::Center);
+                    let [area] = vertical.areas(a);
+                    let [area] = horizontal.areas(a);
+                    area
+                };
+                let h_area = harea(a, xper, yper);
+                f.render_widget(Clear, h_area);
+                f.render_widget(b, h_area);
+
+                const CUSTOM_BORDER: Set = Set {
+                    top_left: "Ͳ",
+                    top_right: "ፕ",
+                    bottom_left: "ዠ",
+                    bottom_right: "ቸ",
+                    vertical_left: "Ṫ",
+                    vertical_right: "ẛ",
+                    horizontal_top: "±",
+                    horizontal_bottom: "†",
+                };
+                let paragraph = Paragraph::new(Text::styled(
+                    "The Caves: Search for the Obsidian Engine",
+                    Style::default().add_modifier(Modifier::BOLD | Modifier::ITALIC),
+                ))
+                .block(Block::bordered().border_set(CUSTOM_BORDER))
+                // .block(Block::new())
+                .style(Style::default().bg(Color::Black))
+                .alignment(ratatui::layout::Alignment::Center)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+                let para_area = Rect {
+                    x: h_area.x + (h_area.width / 3),
+                    // x: h_area.x / 2 - (h_area.width / 6),
+                    y: h_area.y + 8,
+                    width: h_area.width / 3,
+                    height: (h_area.height / 8),
+                };
+                f.render_widget(paragraph, para_area);
+
+                let table_area = Rect {
+                    x: h_area.x + (h_area.width / 3),
+                    // x: h_area.x / 2 - (h_area.width / 6),
+                    y: h_area.y + (h_area.height / 5) + 5,
+                    width: h_area.width / 3,
+                    height: (h_area.height / 2),
+                };
+
+                let start_opts = vec!["Start Game", "Quit"];
+                self.cursor_bounds = vec![1; 2];
+                let mut tvec = Vec::new();
+                for (i, v) in start_opts.into_iter().enumerate() {
+                    if self.cursor_pos.1 == i {
+                        tvec.push(
+                            Line::from(Span::styled(
+                                v,
+                                Style::default()
+                                    .fg(Color::Yellow)
+                                    .add_modifier(Modifier::ITALIC),
+                            ))
+                            .alignment(ratatui::layout::Alignment::Center),
+                        );
+                    } else {
+                        tvec.push(
+                            Line::from(Span::styled(
+                                v,
+                                Style::default()
+                                    .fg(Color::White)
+                                    .add_modifier(Modifier::ITALIC),
+                            ))
+                            .alignment(ratatui::layout::Alignment::Center),
+                        );
+                    }
+                }
+                let text = Text::from(tvec);
+                let opts = Paragraph::new(text)
+                    .block(Block::bordered().border_set(CUSTOM_BORDER))
+                    // .block(Block::new())
+                    .style(Style::default().bg(Color::Black))
+                    .alignment(ratatui::layout::Alignment::Center)
+                    .wrap(ratatui::widgets::Wrap { trim: true });
+
+                f.render_widget(opts, table_area);
+            })
+            .unwrap();
+    }
+
     //ineractions
     pub fn inter_adj_draw(&mut self, gui_args: &mut GuiArgs) {
         self.terminal

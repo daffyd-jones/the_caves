@@ -81,9 +81,15 @@ pub fn init() -> Result<(), SetLoggerError> {
 fn main() {
     env::set_var("RUST_BACKTRACE", "1");
     init().unwrap();
-    let mut game_state = GameState::new();
-
     terminal::enable_raw_mode().unwrap();
+
+    let mut menu = GameState::new_menu();
+
+    if menu.start_menu() == 1 {
+        return;
+    }
+
+    let game_state = GameState::new();
 
     GameState::start_update_threads(Arc::clone(&game_state));
 

@@ -70,12 +70,12 @@
 - [+] refactor project
 - [ ] convert ShopNPCs to EnvInter?
 - [ ] test area animate
-- [ ] cursor limit
-- [+] fix wall corners
-- [+] fix collisions
 
 ## Done
 
+- [+] cursor limit
+- [+] fix wall corners
+- [+] fix collisions
 - [+] implement plants
   - [+] implement constructors
   - [+] implement placement
