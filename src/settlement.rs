@@ -1511,7 +1511,7 @@ fn build_med_settle() -> (
     )
 }
 
-const ITEM_STALL_1: &str = r#"ShopNPC|HealthPotion Salve IronLongsword WoodenStaff HealthPotion Salve IronLongsword WoodenStaff HealthPotion Salve IronLongsword WoodenStaff HealthPotion Salve IronLongsword WoodenStaff|Null
+const GUILD_ITEM_STALL_1: &str = r#"ShopNPC|HealthPotion Salve IronLongsword WoodenStaff HealthPotion Salve IronLongsword WoodenStaff HealthPotion Salve IronLongsword WoodenStaff HealthPotion Salve IronLongsword WoodenStaff|Null
 ________________________
 ________________________
 ___________─┬─___─┬─____
@@ -1526,7 +1526,7 @@ ________________________
 ________________________
 "#;
 
-const CLINIC_STALL_1: &str = r#"CommNPC|Null|Null
+const GUILD_CLINIC_STALL_1: &str = r#"CommNPC|Null|Null
 ________________________
 ________________________
 __┌───┐___________┌───__
@@ -1541,7 +1541,7 @@ _______└───┴───┴───┘____
 ________________________
 "#;
 
-const WEAPON_STALL_1: &str = r#"ShopNPC|IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff|Null
+const GUILD_WEAPON_STALL_1: &str = r#"ShopNPC|IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff|Null
 ________________________
 ________________________
 ___________─┬─___─┬─____
@@ -1556,7 +1556,7 @@ ________________________
 ________________________
 "#;
 
-const ARMOUR_STALL_1: &str = r#"ShopNPC|IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff|Null
+const GUILD_ARMOUR_STALL_1: &str = r#"ShopNPC|IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff IronLongsword WoodenStaff|Null
 ________________________
 ________________________
 ___________─┬─___─┬─____
@@ -1571,7 +1571,7 @@ ________________________
 ________________________
 "#;
 
-const CANTEEN_STALL_1: &str = r#"CommNPC|Null|Null
+const GUILD_CANTEEN_STALL_1: &str = r#"CommNPC|Null|Null
 ________________________
 ________________________
 _____π⑁___π⑁______──┐___
@@ -1586,7 +1586,7 @@ ________________________
 ________________________
 "#;
 
-const FILLER_1: &str = r#"Null|Null|Null
+const GUILD_FILLER_1: &str = r#"Null|Null|Null
 ________________________
 ________________________
 ___≡≡≡__________________
@@ -1601,7 +1601,7 @@ ________________________
 ________________________
 "#;
 
-const OFFICE_1: &str = r#"Null|Null|Null
+const GUILD_OFFICE_1: &str = r#"Null|Null|Null
 ________________________
 ________________________
 ________________________
@@ -1628,7 +1628,7 @@ ________________________
 ________________________
 "#;
 
-const DORM_1: &str = r#"Null|Null|Null
+const GUILD_DORM_1: &str = r#"Null|Null|Null
 ________________________
 ________________________
 ________┌───┬───┐_______
@@ -1740,14 +1740,14 @@ fn add_guild_walls(mut map: Vec<Vec<Cells>>, left: bool) -> Vec<Vec<Cells>> {
     map
 }
 
-const ITEM_STALLS: [&str; 1] = [ITEM_STALL_1];
-const CLINIC_STALLS: [&str; 1] = [CLINIC_STALL_1];
-const WEAPONS_STALLS: [&str; 1] = [WEAPON_STALL_1];
-const ARMOUR_STALLS: [&str; 1] = [ARMOUR_STALL_1];
-const CANTEEN_STALLS: [&str; 1] = [CANTEEN_STALL_1];
-const FILLERS: [&str; 1] = [FILLER_1];
-const OFFICES: [&str; 1] = [OFFICE_1];
-const DORMS: [&str; 1] = [DORM_1];
+const GUILD_ITEM_STALLS: [&str; 1] = [GUILD_ITEM_STALL_1];
+const GUILD_CLINIC_STALLS: [&str; 1] = [GUILD_CLINIC_STALL_1];
+const GUILD_WEAPONS_STALLS: [&str; 1] = [GUILD_WEAPON_STALL_1];
+const GUILD_ARMOUR_STALLS: [&str; 1] = [GUILD_ARMOUR_STALL_1];
+const GUILD_CANTEEN_STALLS: [&str; 1] = [GUILD_CANTEEN_STALL_1];
+const GUILD_FILLERS: [&str; 1] = [GUILD_FILLER_1];
+const GUILD_OFFICES: [&str; 1] = [GUILD_OFFICE_1];
+const GUILD_DORMS: [&str; 1] = [GUILD_DORM_1];
 
 fn build_guild_settle() -> (
     Vec<Vec<Cells>>,
@@ -1764,69 +1764,75 @@ fn build_guild_settle() -> (
     blocks.shuffle(&mut rng);
 
     let (item_map, item_npcs, item_sitems, item_items, item_env_inter) = parse_map(
-        ITEM_STALLS.choose(&mut rng).unwrap_or(&ITEM_STALLS[0]),
+        GUILD_ITEM_STALLS
+            .choose(&mut rng)
+            .unwrap_or(&GUILD_ITEM_STALLS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Item,
     );
 
     let (clinic_map, clinic_npcs, clinic_sitems, clinic_items, clinic_env_inter) = parse_map(
-        CLINIC_STALLS.choose(&mut rng).unwrap_or(&CLINIC_STALLS[0]),
+        GUILD_CLINIC_STALLS
+            .choose(&mut rng)
+            .unwrap_or(&GUILD_CLINIC_STALLS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Null,
     );
 
     let (weapons_map, weapons_npcs, weapons_sitems, weapons_items, weapons_env_inter) = parse_map(
-        WEAPONS_STALLS
+        GUILD_WEAPONS_STALLS
             .choose(&mut rng)
-            .unwrap_or(&WEAPONS_STALLS[0]),
+            .unwrap_or(&GUILD_WEAPONS_STALLS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Item,
     );
 
     let (armour_map, armour_npcs, armour_sitems, armour_items, armour_env_inter) = parse_map(
-        ARMOUR_STALLS.choose(&mut rng).unwrap_or(&ARMOUR_STALLS[0]),
+        GUILD_ARMOUR_STALLS
+            .choose(&mut rng)
+            .unwrap_or(&GUILD_ARMOUR_STALLS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Item,
     );
 
     let (canteen1_map, canteen1_npcs, canteen1_sitems, canteen1_items, canteen1_env_inter) =
         parse_map(
-            CANTEEN_STALLS
+            GUILD_CANTEEN_STALLS
                 .choose(&mut rng)
-                .unwrap_or(&CANTEEN_STALLS[0]),
+                .unwrap_or(&GUILD_CANTEEN_STALLS[0]),
             vec![vec![Cells::Null; 24]; 12],
             Shops::Null,
         );
 
     let (filler1_map, filler1_npcs, filler1_sitems, filler1_items, filler1_env_inter) = parse_map(
-        FILLERS.choose(&mut rng).unwrap_or(&FILLERS[0]),
+        GUILD_FILLERS.choose(&mut rng).unwrap_or(&GUILD_FILLERS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Null,
     );
 
     let (canteen2_map, canteen2_npcs, canteen2_sitems, canteen2_items, canteen2_env_inter) =
         parse_map(
-            CANTEEN_STALLS
+            GUILD_CANTEEN_STALLS
                 .choose(&mut rng)
-                .unwrap_or(&CANTEEN_STALLS[0]),
+                .unwrap_or(&GUILD_CANTEEN_STALLS[0]),
             vec![vec![Cells::Null; 24]; 12],
             Shops::Null,
         );
 
     let (filler2_map, filler2_npcs, filler2_sitems, filler2_items, filler2_env_inter) = parse_map(
-        FILLERS.choose(&mut rng).unwrap_or(&FILLERS[0]),
+        GUILD_FILLERS.choose(&mut rng).unwrap_or(&GUILD_FILLERS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Null,
     );
 
     let (office_map, office_npcs, office_sitems, office_items, office_env_inter) = parse_map(
-        OFFICES.choose(&mut rng).unwrap_or(&OFFICES[0]),
+        GUILD_OFFICES.choose(&mut rng).unwrap_or(&GUILD_OFFICES[0]),
         vec![vec![Cells::Null; 24]; 24],
         Shops::Null,
     );
 
     let (dorm_map, dorm_npcs, dorm_sitems, dorm_items, dorm_env_inter) = parse_map(
-        DORMS.choose(&mut rng).unwrap_or(&DORMS[0]),
+        GUILD_DORMS.choose(&mut rng).unwrap_or(&GUILD_DORMS[0]),
         vec![vec![Cells::Null; 24]; 24],
         Shops::Null,
     );
@@ -2087,6 +2093,502 @@ fn place_guild_parts(
     (map, new_npcs, new_sitems, new_items, new_env_inter)
 }
 
+const OBSIDIAN_ITEM_STALL_1: &str = r#"ShopNPC|HealthPotion Salve IronLongsword WoodenStaff HealthPotion Salve IronLongsword WoodenStaff HealthPotion Salve IronLongsword WoodenStaff HealthPotion Salve IronLongsword WoodenStaff|Null
+________________________
+________________________
+___________─┬─___─┬─____
+_────┐_____o│o___o│o____
+_____│_____o│o___o│o____
+_____│_____─┼─___─┼─____
+_____│_____o│o___o│o____
+___@_│_____o│o___o│o____
+_____│_____─┴─___─┴─____
+________________________
+________________________
+________________________
+"#;
+
+const OBSIDIAN_HERBALIST_STALL_1: &str = r#"ShopNPC|HealthPotion Salve HealthPotion Salve HealthPotion Salve HealthPotion Salve HealthPotion Salve HealthPotion Salve HealthPotion Salve HealthPotion Salve|Null
+________________________
+________________________
+___________─┬─___─┬─____
+_────┐_____o│o___o│o____
+_____│_____o│o___o│o____
+_____│_____─┼─___─┼─____
+_____│_____o│o___o│o____
+___@_│_____o│o___o│o____
+_____│_____─┴─___─┴─____
+________________________
+________________________
+________________________
+"#;
+
+const OBSIDIAN_CLINIC_STALL_1: &str = r#"CommNPC|Null|Null
+________________________
+________________________
+__┌───┐__________┌───┐__
+__│_🁢______________🁢_│__
+__├───┤__________├───┤__
+__│_🁢______________🁢_│__
+__├───┤__________├───┤__
+__│_🁢______________🁢_│__
+__└───┘__________└───┘__
+________┌──────┐________
+________│___@__│________
+________│______│________
+"#;
+
+const OBSIDIAN_CANTEEN_STALL_1: &str = r#"CommNPC|Null|Null
+________________________
+________________________
+_____π⑁___π⑁______──┐___
+____________________│___
+_____π⑁___π_________│___
+____________________│___
+_____π____π⑁________│___
+__________________@_│___
+_____π⑁___π_________│___
+________________________
+________________________
+________________________
+"#;
+
+const OBSIDIAN_FILLER_1: &str = r#"Null|Null|Null
+________________________
+________________________
+___≡≡≡__________________
+___≡≡≡≡≡________________
+____≡≡≡_________________
+________________________
+________π____π⑁_________
+________________________
+________π⑁___π__________
+________________________
+________________________
+________________________
+"#;
+
+const OBSIDIAN_OFFICE_1: &str = r#"Null|Null|Null
+________________________
+________________________
+___≡≡≡__________________
+___≡≡≡≡≡________________
+____≡≡≡_________________
+________________________
+________π____π⑁_________
+________________________
+________π⑁___π__________
+________________________
+________________________
+________________________
+"#;
+
+const OBSIDIAN_DORM: &str = r#"Null|Null|Null
+________________________
+________________________
+________┌───┬───┐_______
+________│_🁢_│_🁢_│_______
+____┌───┴─_─┴─_─┴───┐___
+____│_🁢___________🁢_│___
+____├───┤_______├───┤___
+____│_🁢___________🁢_│___
+____├───┤_______├───┤___
+____│_🁢___________🁢_│___
+____└───┘_______└───┘___
+________________________
+________________________
+___┌───┐_______┌───┐____
+___│_🁢___________🁢_│____
+___├───┤_______├───┤____
+___│_🁢___________🁢_│____
+___├───┤_______├───┤____
+___│_🁢___________🁢_│____
+___└───┬─_─┬─_─┬───┘____
+_______│_🁢_│_🁢_│________
+_______└───┴───┘________
+________________________
+________________________
+"#;
+
+const OBSIDIAN_WALLS_BOTTOM: &str = r#"
+######################################################################################____######################################
+######################################################################################____######################################
+####_______________________║_______________________║_______________________║________▨_▩__▩_▧________║_______________________####
+####_______________________║_______________________║_______________________║________▨___▨__▧________║_______________________####
+####_______________________║_______________________║_______________________║________▨_▩__▩_▧________║_______________________####
+####_______________________║_______________________║_______________________║________▨__▧___▧________║_______________________####
+####_______________________║_______________________║_______________________║________▨_▩__▩_▧________║_______________________####
+####_______________________║_______________________║_______________________║________▨___▨__▧________________________________####
+####_______________________║_______________________║_______________________║________▨_▩__▩_▧________║_______________________####
+####_______________________║_______________________║_______________________║________▨__▧___▧________║_______________________####
+####_______________________║_______________________║_______________________║________▨_▩__▩_▧________║_______________________####
+####_______________________║_______________________║_______________________║________▨___▨__▧________║_______________________####
+####_______________________║_______________________║_______________________║________▨_▩__▩_▧________║_______________________####
+####══════════__═══════════╩═══════════__══════════╩═══════════__══════════╝________▨______▧________╠═══════════════════════####
+####________________________________________________________________________________________________║_______________________####
+####________________________________________________________________________________________________║_______________________####
+####________________________________________________________________________________________________║_______________________####
+####▨_▨_▨_▨_▨_▨_▨_▨_▨_▨_▨_▨_________________________________________________________________________║_______________________####
+####▩___▩___▩___▩___▩___▩___________________________________________________________________________║_______________________####
+__________▧_______▧_________________________________________________________________________________________________________####
+______▨_______▨_______▨_____________________________________┌──────┐________________________________║_______________________####
+####▩___▩___▩___▩___▩___▩_________________________╔═════════╧══════╧═════════╗______________________║_______________________####
+####▧_▧_▧_▧_▧_▧_▧_▧_▧_▧_▧_▧_______________________║__________________________║______________________║_______________________####
+####______________________________________________║__________________________║______________________║_______________________####
+####______________________________________________║__________________________║______________________║_______________________####
+####______________________________________________╚══════════════════════════╝______________________╠═══════════════════════####
+####═══════════════════════╗________________________________________________________________________║_______________________####
+####_______________________║________________________________________________________________________║_______________________####
+####_______________________║________________________________________________________________________║_______________________####
+####_______________________║__________________└──────────────┘____└──────────────┘__________________║_______________________####
+####_______________________║________________________________________________________________________║_______________________####
+####_______________________║__________________└──────────────┘____└──────────────┘__________________________________________####
+####________________________________________________________________________________________________║_______________________####
+####_______________________║__________________└──────────────┘____└──────────────┘__________________║_______________________####
+####_______________________║________________________________________________________________________║_______________________####
+####_______________________║__________________└──────────────┘____└──────────────┘__________________║_______________________####
+####_______________________║________________________________________________________________________║_______________________####
+####_______________________║__________________└──────────────┘____└──────────────┘__________________║_______________________####
+####_______________________║________________________________________________________________________╠═══════════════════════####
+####_______________________║________________________________________________________________________║_______________________####
+####_______________________║________________________________________________________________________║_______________________####
+####_______________________║________________________________________________________________________║_______________________####
+####_______________________║________________________________________________________________________║_______________________####
+####_______________________║_________▩_▧_▨_▧_▨_▧_▨_▧_▨_▧_▨_▧_▨_▧▨_▧_▨_▧_▨_▧_▨_▧_▨_▧_▨_▧_▨_▩_________║_______________________####
+####_______________________║_________▨____________________________________________________▧_________________________________####
+####_______________________║_________▧____________________________________________________▨_________║_______________________####
+####_______________________║_________▨____________________________________________________▧_________║_______________________####
+####_______________________║_________▧____________________________________________________▨_________║_______________________####
+####_______________________║_________▨____________________________________________________▧_________║_______________________####
+####_______________________║_________▧____________________________________________________▨_________║_______________________####
+##############################################################____##############################################################
+##############################################################____##############################################################
+"#;
+
+fn add_obsidian_walls(mut map: Vec<Vec<Cells>>, left: bool) -> Vec<Vec<Cells>> {
+    let walls = match left {
+        true => OBSIDIAN_WALLS_BOTTOM,
+        false => OBSIDIAN_WALLS_BOTTOM,
+        // false => GUILD_WALLS_RIGHT,
+        _ => todo!(),
+    };
+
+    for (y, line) in walls.lines().skip(1).enumerate() {
+        for (x, ch) in line.chars().enumerate() {
+            if ch == '_' {
+                continue;
+            };
+            map[y][x] = match ch {
+                '═' => Cells::MwH,
+                '║' => Cells::MwV,
+                '╣' => Cells::MwVL,
+                '╠' => Cells::MwVR,
+                '╩' => Cells::MwHU,
+                '╦' => Cells::MwHD,
+                '╝' => Cells::MwUL,
+                '╚' => Cells::MwUR,
+                '╗' => Cells::MwDL,
+                '╔' => Cells::MwDR,
+                '╤' => Cells::BsHD,
+                '╧' => Cells::BsHU,
+                '┐' => Cells::SwDL,
+                '┌' => Cells::SwDR,
+                '┘' => Cells::SwUL,
+                '└' => Cells::SwUR,
+                '─' => Cells::SwH,
+                '▧' => Cells::Tile1,
+                '▨' => Cells::Tile2,
+                '▩' => Cells::Tile3,
+                '#' => Cells::Wall,
+                _ => todo!(),
+            };
+        }
+    }
+    map
+}
+
+const OBSIDIAN_ITEM_STALLS: [&str; 1] = [OBSIDIAN_ITEM_STALL_1];
+const OBSIDIAN_CLINIC_STALLS: [&str; 1] = [OBSIDIAN_CLINIC_STALL_1];
+const OBSIDIAN_HERBALIST_STALLS: [&str; 1] = [OBSIDIAN_HERBALIST_STALL_1];
+const OBSIDIAN_CANTEEN_STALLS: [&str; 1] = [OBSIDIAN_CANTEEN_STALL_1];
+const OBSIDIAN_FILLERS: [&str; 1] = [OBSIDIAN_FILLER_1];
+const OBSIDIAN_OFFICES: [&str; 1] = [OBSIDIAN_OFFICE_1];
+const OBSIDIAN_DORMS: [&str; 1] = [OBSIDIAN_DORM];
+
+fn build_obsidian_settle() -> (
+    Vec<Vec<Cells>>,
+    HashMap<(usize, usize), NPCWrap>,
+    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), EnvInter>,
+) {
+    let mut rng = rand::thread_rng();
+    let cells = vec![vec![Cells::Empty; 128]; 52];
+    let face_top = &false;
+    // let face_top = [true, false].choose(&mut rng).unwrap_or(&true);
+    let mut blocks: Vec<u8> = (1..8).collect();
+    blocks.shuffle(&mut rng);
+
+    let (item_map, item_npcs, item_sitems, item_items, item_env_inter) = parse_map(
+        OBSIDIAN_ITEM_STALLS
+            .choose(&mut rng)
+            .unwrap_or(&OBSIDIAN_ITEM_STALLS[0]),
+        vec![vec![Cells::Null; 24]; 12],
+        Shops::Item,
+    );
+    let (clinic_map, clinic_npcs, clinic_sitems, clinic_items, clinic_env_inter) = parse_map(
+        OBSIDIAN_CLINIC_STALLS
+            .choose(&mut rng)
+            .unwrap_or(&OBSIDIAN_CLINIC_STALLS[0]),
+        vec![vec![Cells::Null; 24]; 12],
+        Shops::Null,
+    );
+    let (herbalist_map, herbalist_npcs, herbalist_sitems, herbalist_items, herbalist_env_inter) =
+        parse_map(
+            OBSIDIAN_HERBALIST_STALLS
+                .choose(&mut rng)
+                .unwrap_or(&OBSIDIAN_HERBALIST_STALLS[0]),
+            vec![vec![Cells::Null; 24]; 12],
+            Shops::Item,
+        );
+    let (canteen_map, canteen_npcs, canteen_sitems, canteen_items, canteen_env_inter) = parse_map(
+        OBSIDIAN_CANTEEN_STALLS
+            .choose(&mut rng)
+            .unwrap_or(&OBSIDIAN_CANTEEN_STALLS[0]),
+        vec![vec![Cells::Null; 24]; 12],
+        Shops::Null,
+    );
+    let (filler1_map, filler1_npcs, filler1_sitems, filler1_items, filler1_env_inter) = parse_map(
+        OBSIDIAN_FILLERS
+            .choose(&mut rng)
+            .unwrap_or(&OBSIDIAN_FILLERS[0]),
+        vec![vec![Cells::Null; 24]; 12],
+        Shops::Null,
+    );
+    let (filler2_map, filler2_npcs, filler2_sitems, filler2_items, filler2_env_inter) = parse_map(
+        OBSIDIAN_FILLERS
+            .choose(&mut rng)
+            .unwrap_or(&OBSIDIAN_FILLERS[0]),
+        vec![vec![Cells::Null; 24]; 12],
+        Shops::Null,
+    );
+    let (office_map, office_npcs, office_sitems, office_items, office_env_inter) = parse_map(
+        OBSIDIAN_OFFICES
+            .choose(&mut rng)
+            .unwrap_or(&OBSIDIAN_OFFICES[0]),
+        vec![vec![Cells::Null; 24]; 12],
+        Shops::Null,
+    );
+    let (dorm_map, dorm_npcs, dorm_sitems, dorm_items, dorm_env_inter) = parse_map(
+        OBSIDIAN_DORMS
+            .choose(&mut rng)
+            .unwrap_or(&OBSIDIAN_DORMS[0]),
+        vec![vec![Cells::Null; 24]; 24],
+        Shops::Null,
+    );
+
+    let (b1_map, b1_npcs, b1_sitems, b1_items, b1_env_inter) = place_obsidion_parts(
+        vec![vec![Cells::Null; 128]; 52],
+        item_map,
+        item_npcs,
+        item_sitems,
+        item_items,
+        item_env_inter,
+        blocks[0],
+        *face_top,
+    );
+    let (b2_map, b2_npcs, b2_sitems, b2_items, b2_env_inter) = place_obsidion_parts(
+        b1_map.clone(),
+        clinic_map,
+        clinic_npcs,
+        clinic_sitems,
+        clinic_items,
+        clinic_env_inter,
+        blocks[1],
+        *face_top,
+    );
+    let (b3_map, b3_npcs, b3_sitems, b3_items, b3_env_inter) = place_obsidion_parts(
+        b2_map.clone(),
+        herbalist_map,
+        herbalist_npcs,
+        herbalist_sitems,
+        herbalist_items,
+        herbalist_env_inter,
+        blocks[2],
+        *face_top,
+    );
+    let (b4_map, b4_npcs, b4_sitems, b4_items, b4_env_inter) = place_obsidion_parts(
+        b3_map.clone(),
+        canteen_map,
+        canteen_npcs,
+        canteen_sitems,
+        canteen_items,
+        canteen_env_inter,
+        blocks[3],
+        *face_top,
+    );
+    let (b5_map, b5_npcs, b5_sitems, b5_items, b5_env_inter) = place_obsidion_parts(
+        b4_map.clone(),
+        filler1_map,
+        filler1_npcs,
+        filler1_sitems,
+        filler1_items,
+        filler1_env_inter,
+        blocks[4],
+        *face_top,
+    );
+    let (b6_map, b6_npcs, b6_sitems, b6_items, b6_env_inter) = place_obsidion_parts(
+        b5_map.clone(),
+        filler2_map,
+        filler2_npcs,
+        filler2_sitems,
+        filler2_items,
+        filler2_env_inter,
+        blocks[5],
+        *face_top,
+    );
+    let (b7_map, b7_npcs, b7_sitems, b7_items, b7_env_inter) = place_obsidion_parts(
+        b6_map.clone(),
+        office_map,
+        office_npcs,
+        office_sitems,
+        office_items,
+        office_env_inter,
+        blocks[6],
+        *face_top,
+    );
+    let (b8_map, b8_npcs, b8_sitems, b8_items, b8_env_inter) = place_obsidion_parts(
+        b7_map.clone(),
+        dorm_map,
+        dorm_npcs,
+        dorm_sitems,
+        dorm_items,
+        dorm_env_inter,
+        8,
+        *face_top,
+    );
+
+    let final_map = add_obsidian_walls(b8_map, *face_top);
+
+    let mut final_npcs = HashMap::new();
+    let mut final_sitems = HashMap::new();
+    let mut final_items = HashMap::new();
+    let mut final_env_inter = HashMap::new();
+    final_npcs.extend(b1_npcs);
+    final_npcs.extend(b2_npcs);
+    final_npcs.extend(b3_npcs);
+    final_npcs.extend(b4_npcs);
+    final_npcs.extend(b5_npcs);
+    final_npcs.extend(b6_npcs);
+    final_npcs.extend(b7_npcs);
+    final_npcs.extend(b8_npcs);
+    final_sitems.extend(b1_sitems);
+    final_sitems.extend(b2_sitems);
+    final_sitems.extend(b3_sitems);
+    final_sitems.extend(b4_sitems);
+    final_sitems.extend(b5_sitems);
+    final_sitems.extend(b6_sitems);
+    final_sitems.extend(b7_sitems);
+    final_sitems.extend(b8_sitems);
+    final_items.extend(b1_items);
+    final_items.extend(b2_items);
+    final_items.extend(b3_items);
+    final_items.extend(b4_items);
+    final_items.extend(b5_items);
+    final_items.extend(b6_items);
+    final_items.extend(b7_items);
+    final_items.extend(b8_items);
+    final_env_inter.extend(b1_env_inter);
+    final_env_inter.extend(b2_env_inter);
+    final_env_inter.extend(b3_env_inter);
+    final_env_inter.extend(b4_env_inter);
+    final_env_inter.extend(b5_env_inter);
+    final_env_inter.extend(b6_env_inter);
+    final_env_inter.extend(b7_env_inter);
+    final_env_inter.extend(b8_env_inter);
+    (
+        final_map,
+        final_npcs,
+        final_sitems,
+        final_items,
+        final_env_inter,
+    )
+}
+
+fn place_obsidion_parts(
+    mut map: Vec<Vec<Cells>>,
+    part: Vec<Vec<Cells>>,
+    npcs: HashMap<(usize, usize), NPCWrap>,
+    sitems: HashMap<(usize, usize), Item>,
+    items: HashMap<(usize, usize), Item>,
+    env_inter: HashMap<(usize, usize), EnvInter>,
+    block: u8,
+    top: bool,
+) -> (
+    Vec<Vec<Cells>>,
+    HashMap<(usize, usize), NPCWrap>,
+    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), EnvInter>,
+) {
+    let (sx, sy) = if top {
+        match block {
+            1 => (4, 2),
+            2 => (4, 14),
+            3 => (4, 26),
+            4 => (4, 38),
+            5 => (52, 38),
+            6 => (76, 38),
+            7 => (100, 38),
+            8 => (100, 2),
+            _ => {
+                log::info!("small parts error");
+                (0, 0)
+            }
+        }
+    } else {
+        match block {
+            1 => (4, 2),
+            2 => (28, 2),
+            3 => (52, 2),
+            4 => (100, 2),
+            5 => (100, 14),
+            6 => (100, 26),
+            7 => (100, 38),
+            8 => (4, 26),
+            _ => {
+                log::info!("guild parts error");
+                (0, 0)
+            }
+        }
+    };
+
+    for j in 0..part.len() {
+        for i in 0..part[0].len() {
+            map[j + &sy][i + &sx] = part[j][i];
+        }
+    }
+    let mut new_npcs = HashMap::new();
+    for (npos, npc) in npcs {
+        new_npcs.insert(((npos.0 + &sx), (npos.1 + &sy)), npc);
+    }
+    let mut new_sitems = HashMap::new();
+    for (ipos, item) in sitems {
+        new_sitems.insert(((ipos.0 + &sx), (ipos.1 + &sy)), item);
+    }
+    let mut new_items = HashMap::new();
+    for (ipos, mut item) in items {
+        item.set_pos(((ipos.0 + &sx), (ipos.1 + &sy)));
+        new_items.insert(((ipos.0 + &sx), (ipos.1 + &sy)), item);
+    }
+    let mut new_env_inter = HashMap::new();
+    for (epos, env) in env_inter.clone() {
+        new_env_inter.insert(((epos.0 + &sx), (epos.1 + &sy)), env);
+    }
+
+    (map, new_npcs, new_sitems, new_items, new_env_inter)
+}
+
 fn get_npc_shops(
     mut npcs: HashMap<(usize, usize), NPCWrap>,
     sitems: HashMap<(usize, usize), Item>,
@@ -2185,8 +2687,9 @@ impl Settlement {
     }
 
     pub fn demo_settle(pos: (i16, i16), npcs: HashMap<(usize, usize), NPCWrap>) -> Self {
+        let (map, mpcs, sitems, items, env_inters) = build_obsidian_settle();
         // let (map, mpcs, sitems, items, env_inters) = build_guild_settle();
-        let (map, mut mpcs, sitems, items, env_inters) = build_small_settle(true);
+        // let (map, mut mpcs, sitems, items, env_inters) = build_small_settle(true);
         let (shops, snpcs) = get_npc_shops(mpcs.clone(), sitems);
 
         Self {
