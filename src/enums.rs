@@ -217,6 +217,8 @@ pub enum Items {
     ShieldingPendant,
     AgilityPendant,
     StrengthPendant,
+    // documents
+    Scroll,
     Null,
 }
 
@@ -416,6 +418,7 @@ pub enum EnvInter {
     Task(TaskType),
     Door(Door),
     Herbalist,
+    Hermit,
     TaskEnv(TaskEnv),
     WoodenHatch,
     Null,

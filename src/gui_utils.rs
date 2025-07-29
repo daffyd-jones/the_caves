@@ -260,6 +260,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::Construction => ('ì', Color::Blue),
                         EnvInter::Cauldron => ('℧', Color::Green),
                         EnvInter::Herbalist => ('ì', Color::Yellow),
+                        EnvInter::Hermit => ('Ẏ', Color::Yellow),
                         EnvInter::WoodenHatch => ('▥', Color::Yellow),
                         EnvInter::Door(Door::VLocked(_)) => ('╎', Color::White),
                         EnvInter::Door(Door::VOpen) => ('🮀', Color::White),

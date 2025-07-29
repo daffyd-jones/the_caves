@@ -1,5 +1,6 @@
 //item
 use crate::enums::{Equip, InterOpt, ItemEffect, ItemOpt, Items, Plants};
+use rand::Rng;
 use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -46,6 +47,21 @@ impl Default for Item {
     }
 }
 
+pub fn rand_hermit_item(x: usize, y: usize) -> Item {
+    let mut rng = rand::thread_rng();
+    match rng.gen_range(0..8) {
+        0 => Item::new_health_potion(x, y),
+        1 => Item::new_luck_potion(x, y),
+        2 => Item::new_gem_staff(x, y),
+        3 => Item::new_shielding_pendant(x, y),
+        4 => Item::new_agility_pendant(x, y),
+        5 => Item::new_strength_pendant(x, y),
+        6 => Item::new_bludgeon_staff(x, y),
+        7 => Item::new_antidote(x, y),
+        _ => Item::default(),
+    }
+}
+
 impl Item {
     pub fn new(
         itype: Items,
@@ -76,6 +92,31 @@ impl Item {
             x,
             y,
             properties,
+        }
+    }
+
+    pub fn new_scroll(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("health"), 3);
+        prop.insert(String::from("value"), 2);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        Self {
+            itype: Items::Scroll,
+            sname: "Scroll".to_string(),
+            icon: ('S', Color::Yellow),
+            desc: "Looks to be an old scroll.".to_string(),
+            iopts,
+            equip: false,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Null,
+            x,
+            y,
+            properties: prop,
         }
     }
 

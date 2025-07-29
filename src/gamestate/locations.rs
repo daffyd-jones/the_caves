@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use crate::enums::{Cells, CompMode, Location};
 use crate::gamestate::in_range;
 use crate::gamestate::GameState;
@@ -7,19 +9,23 @@ impl GameState {
     pub fn map_location(&mut self) {
         if self.location != Location::Null {
             let (lpos, lmap) = match self.location.clone() {
-                Location::Settlement(mut settle) => {
-                    let p = settle.get_pos();
-                    let m = settle.get_map();
+                Location::Settlement(settle) => {
+                    let p = settle.pos;
+                    let m = settle.map;
                     (p, m)
                 }
-                Location::Puzzle(mut puzzle) => {
-                    let p = puzzle.get_pos();
-                    let m = puzzle.get_map();
+                Location::Puzzle(puzzle) => {
+                    let p = puzzle.pos;
+                    let m = puzzle.map;
                     (p, m)
                 }
                 Location::Feature(feature) => {
                     let p = feature.pos;
-                    let m = feature.map;
+                    let m = if feature.hermit {
+                        feature.hermit_map
+                    } else {
+                        feature.map
+                    };
                     (p, m)
                 }
                 _ => todo!(),
@@ -99,8 +105,15 @@ impl GameState {
     }
 
     pub fn location_check(&mut self) {
+        let mut rng = rand::thread_rng();
         if self.location == Location::Null {
-            if let Some(feature) = self.features.check_location(self.dist_fo, self.loc_rad / 2) {
+            if let Some(mut feature) = self.features.check_location(self.dist_fo, self.loc_rad / 2)
+            {
+                if rng.gen_range(0..1) == 0 {
+                    feature.place_hermit();
+                    feature.place_hermit_parts();
+                    feature.hermit = true;
+                }
                 self.location = Location::Feature(feature);
             }
             if let Some(mut settlement) = self.settles.check_location(self.dist_fo, self.loc_rad) {
@@ -136,6 +149,7 @@ impl GameState {
                         self.loc_rad,
                     ) {
                         feature.cont_sent = false;
+                        feature.hermit = false;
                         self.features.update_feature(feature.clone());
                     }
                 }

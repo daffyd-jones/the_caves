@@ -976,15 +976,15 @@ fn make_ruin() -> (
 #[derive(Clone, Debug, PartialEq)]
 //#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct Puzzle {
-    ptype: PuzzleType,
-    pos: (i16, i16),
-    map: Vec<Vec<Cells>>,
-    portals: HashMap<(usize, usize), (usize, usize)>,
-    items: HashMap<(usize, usize), Item>,
-    enemies: HashMap<(usize, usize), Enemy>,
-    npcs: HashMap<(usize, usize), NPCWrap>,
-    prize: Item,
-    prop_pass: bool,
+    pub ptype: PuzzleType,
+    pub pos: (i16, i16),
+    pub map: Vec<Vec<Cells>>,
+    pub portals: HashMap<(usize, usize), (usize, usize)>,
+    pub items: HashMap<(usize, usize), Item>,
+    pub enemies: HashMap<(usize, usize), Enemy>,
+    pub npcs: HashMap<(usize, usize), NPCWrap>,
+    pub prize: Item,
+    pub prop_pass: bool,
 }
 
 impl Puzzle {

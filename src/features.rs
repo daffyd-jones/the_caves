@@ -1,5 +1,5 @@
 use crate::enums::{Cells, Door, EnvInter, FeatureType, NPCWrap};
-use crate::item::Item;
+use crate::item::{rand_hermit_item, Item};
 use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, Convo, ShopConvos, ShopData};
 use rand::prelude::SliceRandom;
 use rand::Rng;
@@ -29,6 +29,24 @@ pipes:
 ж ѧ π
 ᘉ ᘈ ᘍ ᘊ
 ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©
+"#;
+
+const HERMIT_1: &str = r#"
+__________
+_____─┬─__
+_____o│o__
+_____o│o__
+__x__─┴─__
+__________
+"#;
+
+const HERMIT_2: &str = r#"
+__________
+____┌───┐_
+____│o_o│_
+____│o_o│_
+__x_└___┘_
+__________
 "#;
 
 const STREAM_SOURCE_L: &str = r#"
@@ -517,35 +535,35 @@ const SHRUB_PATCH: &str = r#"
 
 // Hermit
 
-const HERMIT_BLANK: &str = r#"Null|Null|Null
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-"#;
+// const HERMIT_BLANK: &str = r#"Null|Null|Null
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// "#;
 
-const HERMIT_1: &str = r#"Null|Null|Null
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-______________________┌────────┐________
-_______________________________│________
-_______________________________│________
-__________________________H____┘________
-________________________________________
-________________________________________
-________________________________________
-________________________________________
-"#;
+// const HERMIT_1: &str = r#"Null|Null|Null
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ______________________┌────────┐________
+// _______________________________│________
+// _______________________________│________
+// __________________________H____┘________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// ________________________________________
+// "#;
 
 // Construction
 
@@ -1111,6 +1129,108 @@ ________________________________________________________________________________
 "#;
 
 const SMALL_RUINS: [&str; 3] = [SMALL_RUIN_1, SMALL_RUIN_2, SMALL_RUIN_3];
+
+fn ch_to_enum(ch: char) -> Cells {
+    match ch {
+        '_' => Cells::Empty,
+        '#' => Cells::Transparent,
+        ',' => Cells::Grass1,
+        '⚶' => Cells::TallGrass,
+        '\'' => Cells::Grass2,
+        '\"' => Cells::Grass3,
+        '·' => Cells::Dirt1,
+        '.' => Cells::Dirt2,
+        ':' => Cells::Dirt3,
+        '*' => Cells::Rock,
+        '▒' => Cells::Wall,
+        '▓' => Cells::Wall2,
+        '█' => Cells::Wall3,
+        '░' => Cells::Wall4,
+        'ඉ' => Cells::Roots,
+        '🬤' => Cells::Broken1,
+        '🬗' => Cells::Broken2,
+        '🬐' => Cells::Broken3,
+        '🬑' => Cells::Broken4,
+        '🬮' => Cells::Broken5,
+        '🬡' => Cells::Broken6,
+        ' ' => Cells::Floor,
+        '▧' => Cells::Tile1,
+        '▨' => Cells::Tile2,
+        '▩' => Cells::Tile3,
+        '~' => Cells::Water,
+        '═' => Cells::MwH,
+        '║' => Cells::MwV,
+        '╣' => Cells::MwVL,
+        '╠' => Cells::MwVR,
+        '╩' => Cells::MwHU,
+        '╦' => Cells::MwHD,
+        '╝' => Cells::MwUL,
+        '╚' => Cells::MwUR,
+        '╗' => Cells::MwDL,
+        '╔' => Cells::MwDR,
+        '╬' => Cells::MwCR,
+        '─' => Cells::SwH,
+        '│' => Cells::SwV,
+        '┤' => Cells::SwVL,
+        '├' => Cells::SwVR,
+        '┴' => Cells::SwHU,
+        '┬' => Cells::SwHD,
+        '┘' => Cells::SwUL,
+        '└' => Cells::SwUR,
+        '┐' => Cells::SwDL,
+        '┌' => Cells::SwDR,
+        '┼' => Cells::SwCR,
+        '╟' => Cells::BsVR,
+        '╢' => Cells::BsVL,
+        '╤' => Cells::BsHD,
+        '╧' => Cells::BsHU,
+        '╭' => Cells::CurUL,
+        '╮' => Cells::CurUR,
+        '╰' => Cells::CurBL,
+        '╯' => Cells::CurBR,
+        '┆' => Cells::BknWV,
+        '┄' => Cells::BknWH,
+        '≡' => Cells::Cong,
+        '°' => Cells::Deg,
+        '×' => Cells::Mult,
+        '¸' => Cells::Ced,
+        '¨' => Cells::Diae,
+        '■' => Cells::Blsq,
+        '¦' => Cells::VBrk,
+        '±' => Cells::PlMin,
+        'ø' => Cells::SmZer,
+        'Ø' => Cells::BZer,
+        '©' => Cells::Cop,
+        'Ħ' => Cells::DblBracedGate, //-------
+        'ỻ' => Cells::BracedGate,
+        'Π' => Cells::Arch,
+        'ʭ' => Cells::Bricks,
+        'ʬ' => Cells::Crops,
+        'ѧ' => Cells::SmallCampfire,
+        'Ѧ' => Cells::Campfire,
+        'π' => Cells::Table,
+        'ж' => Cells::Firewood,
+        'ঌ' => Cells::FireSmoke,
+        'Ʌ' => Cells::Tent,
+        '🁢' => Cells::Bed,
+        '&' => Cells::Bush,
+        'ᘉ' => Cells::Bramble1,
+        'ᘈ' => Cells::Bramble2,
+        'ᘍ' => Cells::Bramble3,
+        'ᘊ' => Cells::Bramble4,
+        '{' => Cells::LBrce,
+        '}' => Cells::RBrce,
+        '(' => Cells::LParen,
+        ')' => Cells::RParen,
+        '¤' => Cells::GenCur,
+        'o' => Cells::Item,
+        'l' => Cells::Log,
+        'c' => Cells::Clinic,
+        'p' => Cells::GPost,
+        's' => Cells::CPost,
+        _ => Cells::Empty,
+    }
+}
 
 pub fn parse_map(
     s_map: &str,
@@ -1715,6 +1835,75 @@ pub struct Feature {
     pub npcs: HashMap<(usize, usize), NPCWrap>,
     pub env_inters: HashMap<(usize, usize), EnvInter>,
     pub cont_sent: bool,
+    pub hermit: bool,
+    pub hermit_pos: (usize, usize),
+    pub hermit_map: Vec<Vec<Cells>>,
+}
+
+impl Feature {
+    pub fn place_hermit(&mut self) {
+        for j in (0..self.map.len() - 6) {
+            for i in (0..self.map[0].len() - 10) {
+                let check = {
+                    let mut ch = true;
+                    for jj in j..(j + 6) {
+                        if !ch {
+                            break;
+                        }
+                        for ii in i..(i + 10) {
+                            if self.map[jj][ii] != Cells::Empty {
+                                ch = false;
+                                break;
+                            }
+                        }
+                    }
+                    ch
+                };
+                if check {
+                    self.hermit_pos = (i, j);
+                    break;
+                }
+            }
+        }
+    }
+
+    pub fn place_hermit_parts(&mut self) {
+        let mut map = self.map.clone();
+        let hermit = HERMIT_1;
+        let mut items = HashMap::new();
+        let mut env_inters = HashMap::new();
+        let mut scroll = false;
+        for (j, line) in hermit.lines().enumerate() {
+            for (i, ch) in line.chars().enumerate() {
+                match ch {
+                    'x' => {
+                        env_inters.insert(
+                            (self.hermit_pos.0 + i, self.hermit_pos.1 + j),
+                            EnvInter::Hermit,
+                        );
+                    }
+                    'o' if !scroll => {
+                        items.insert(
+                            (self.hermit_pos.0 + i, self.hermit_pos.1 + j),
+                            Item::new_scroll(self.hermit_pos.0 + i, self.hermit_pos.1 + j),
+                        );
+                        scroll = true;
+                    }
+                    'o' => {
+                        items.insert(
+                            (self.hermit_pos.0 + i, self.hermit_pos.1 + j),
+                            rand_hermit_item(self.hermit_pos.0 + i, self.hermit_pos.1 + j),
+                        );
+                    }
+                    _ => {}
+                }
+                map[self.hermit_pos.1 + j][self.hermit_pos.0 + i] = ch_to_enum(ch);
+            }
+        }
+        self.items = items;
+        self.env_inters = env_inters;
+        self.hermit_map = map;
+    }
 }
 
 pub struct Features {
@@ -1772,6 +1961,9 @@ impl Features {
                 npcs,
                 env_inters,
                 cont_sent: false,
+                hermit: false,
+                hermit_pos: (0, 0),
+                hermit_map: Vec::new(),
             },
         );
     }
@@ -1788,6 +1980,9 @@ impl Features {
                 npcs,
                 env_inters,
                 cont_sent: false,
+                hermit: false,
+                hermit_pos: (0, 0),
+                hermit_map: Vec::new(),
             },
         );
     }
@@ -1804,6 +1999,9 @@ impl Features {
                 npcs,
                 env_inters,
                 cont_sent: false,
+                hermit: false,
+                hermit_pos: (0, 0),
+                hermit_map: Vec::new(),
             },
         );
     }
@@ -1820,6 +2018,9 @@ impl Features {
                 npcs,
                 env_inters,
                 cont_sent: false,
+                hermit: false,
+                hermit_pos: (0, 0),
+                hermit_map: Vec::new(),
             },
         );
     }
@@ -1836,6 +2037,9 @@ impl Features {
                 npcs,
                 env_inters,
                 cont_sent: false,
+                hermit: false,
+                hermit_pos: (0, 0),
+                hermit_map: Vec::new(),
             },
         );
     }
@@ -1852,6 +2056,9 @@ impl Features {
                 npcs,
                 env_inters,
                 cont_sent: false,
+                hermit: false,
+                hermit_pos: (0, 0),
+                hermit_map: Vec::new(),
             },
         );
     }
