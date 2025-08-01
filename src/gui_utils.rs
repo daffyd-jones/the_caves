@@ -442,6 +442,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Tech16 => ('⛃', Color::Gray),
                         Cells::Tech17 => ('Ⴉ', Color::Gray),
                         Cells::Relic1 => ('ቖ', Color::Gray),
+                        Cells::Alembic => ('⚗', Color::Gray),
                         Cells::OldWall1 => ('ቷ', Color::Gray),
                         Cells::OldWall2 => ('ቿ', Color::Gray),
                         Cells::OldWall3 => ('ቨ', Color::Gray),

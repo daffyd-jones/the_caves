@@ -1407,6 +1407,7 @@ pub fn parse_map(
                 '⛃' => Cells::Tech16,
                 'Ⴉ' => Cells::Tech17,
                 'ቖ' => Cells::Relic1,
+                '⚗' => Cells::Alembic,
                 'ቷ' => Cells::OldWall1,
                 'ቿ' => Cells::OldWall2,
                 'ቨ' => Cells::OldWall3,

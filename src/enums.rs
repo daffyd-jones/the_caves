@@ -158,6 +158,7 @@ pub enum Cells {
     Tech16,
     Tech17,
     Relic1,
+    Alembic,
     OldWall1,
     OldWall2,
     OldWall3,
