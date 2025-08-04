@@ -184,6 +184,9 @@ pub enum Cells {
     GPost,
     CPost,
     Herbalist,
+    Seasonal1,
+    Seasonal2,
+    Seasonal3,
     Null,
 }
 

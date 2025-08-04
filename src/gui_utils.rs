@@ -4,6 +4,7 @@ use crate::enums::{AniType, Cells, Door, Enemies, EnvInter, Month, NPCWrap};
 use crate::item::Item;
 use crate::map::Map;
 use crate::player::Player;
+use crate::stats::Season;
 use rand::Rng;
 use ratatui::layout::{Constraint, Direction, Layout, Margin};
 use ratatui::prelude::Alignment;
@@ -91,6 +92,10 @@ pub struct DisplayStats {
     pub notes: (String, String),
 }
 
+pub struct AniStats {
+    pub season: Season,
+}
+
 pub struct GuiArgs<'a> {
     pub map: &'a Map,
     pub player: &'a Player,
@@ -103,7 +108,7 @@ pub struct GuiArgs<'a> {
     pub portals: Option<&'a HashMap<(usize, usize), (usize, usize)>>,
     pub animate: Option<&'a Animation>,
     pub ascii: Option<&'a String>,
-    pub ani_stats: &'a crate::enums::Month,
+    pub ani_stats: &'a AniStats,
 }
 
 type Frame = Vec<Vec<(char, Color)>>;
@@ -270,6 +275,51 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                     }
                 } else {
                     match cell {
+                        Cells::Seasonal1 => match gui_args.ani_stats.season.month {
+                            Month::Opal if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('♅', Color::LightGreen)
+                            }
+                            Month::Quartz if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('♆', Color::LightGreen)
+                            }
+                            Month::Jade if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('⚙', Color::LightGreen)
+                            }
+                            Month::Bizmuth if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('▲', Color::LightGreen)
+                            }
+                            _ => (' ', Color::Black),
+                        },
+                        Cells::Seasonal2 => match gui_args.ani_stats.season.month {
+                            Month::Opal if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('♅', Color::LightGreen)
+                            }
+                            Month::Quartz if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('♆', Color::LightGreen)
+                            }
+                            Month::Jade if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('⚙', Color::LightGreen)
+                            }
+                            Month::Bizmuth if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('▲', Color::LightGreen)
+                            }
+                            _ => (' ', Color::Black),
+                        },
+                        Cells::Seasonal3 => match gui_args.ani_stats.season.month {
+                            Month::Opal if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('♅', Color::LightGreen)
+                            }
+                            Month::Quartz if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('♆', Color::LightGreen)
+                            }
+                            Month::Jade if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('⚙', Color::LightGreen)
+                            }
+                            Month::Bizmuth if (20..31).contains(&gui_args.ani_stats.season.day) => {
+                                ('▲', Color::LightGreen)
+                            }
+                            _ => (' ', Color::Black),
+                        },
                         Cells::Empty => (' ', Color::White),
                         Cells::Dirt1 => ('·', Color::DarkGray),
                         Cells::Dirt2 => ('.', Color::DarkGray),
@@ -277,7 +327,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Grass1 => (
                             ',',
                             // Color::LightGreen,
-                            match gui_args.ani_stats {
+                            match gui_args.ani_stats.season.month {
                                 Month::Opal => Color::LightGreen,
                                 Month::Quartz => Color::LightGreen,
                                 Month::Jade => Color::Yellow,
@@ -287,7 +337,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Grass2 => (
                             '\'',
                             // Color::LightMagenta
-                            match gui_args.ani_stats {
+                            match gui_args.ani_stats.season.month {
                                 Month::Opal => Color::LightMagenta,
                                 Month::Quartz => Color::LightCyan,
                                 Month::Jade => Color::LightCyan,
@@ -297,7 +347,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Cells::Grass3 => (
                             '\"',
                             // Color::Green
-                            match gui_args.ani_stats {
+                            match gui_args.ani_stats.season.month {
                                 Month::Opal => Color::Green,
                                 Month::Quartz => Color::Green,
                                 Month::Jade => Color::Yellow,

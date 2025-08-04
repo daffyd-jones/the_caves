@@ -7,7 +7,7 @@ use crate::enums::{
 };
 use crate::features::Features;
 use crate::gui::GUI;
-use crate::gui_utils::{DisplayStats, GuiArgs};
+use crate::gui_utils::{AniStats, DisplayStats, GuiArgs};
 use crate::item::Item;
 use crate::map::Map;
 use crate::nodemap::NodeMap;
@@ -16,7 +16,7 @@ use crate::npc::Convo;
 use crate::player::Player;
 use crate::puzzles::Puzzles;
 use crate::settlements::Settlements;
-use crate::stats::Stats;
+use crate::stats::{Season, Stats};
 use crate::tasks::{Task, Tasks};
 use crate::utils::{gen_broken_range, in_range, loc_shop_items};
 
@@ -478,6 +478,9 @@ impl GameState {
             "Would you like to overwrite a previous log?".to_string()
         };
 
+        let day = self.stats.world_stats.date.day;
+        let month = self.stats.world_stats.date.month;
+        let year = self.stats.world_stats.date.year;
         self.gui.reset_cursor();
         loop {
             self.gui.guild_records_draw(
@@ -495,7 +498,14 @@ impl GameState {
                     portals: Some(&self.portals),
                     animate: None,
                     ascii: None,
-                    ani_stats: &self.stats.world_stats.date.month,
+                    ani_stats: &AniStats {
+                        season: Season {
+                            day,
+                            month,
+                            year,
+                            str: "".to_string(),
+                        },
+                    },
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -688,6 +698,10 @@ impl GameState {
             let fpos_s = self.features.get_feature_positions().join("#");
             (dist_fo, spos_s, comp, fpos_s)
         };
+        // let season = self.stats.world_stats.date;
+        let day = self.stats.world_stats.date.day;
+        let month = self.stats.world_stats.date.month;
+        let year = self.stats.world_stats.date.year;
         self.gui.draw(
             debug_strs.clone(),
             DisplayStats {
@@ -706,7 +720,14 @@ impl GameState {
                 portals: Some(&self.portals),
                 animate: None,
                 ascii: None,
-                ani_stats: &self.stats.world_stats.date.month,
+                ani_stats: &AniStats {
+                    season: Season {
+                        day,
+                        month,
+                        year,
+                        str: "".to_string(),
+                    },
+                },
             },
         );
     }
