@@ -286,37 +286,37 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                                 ('⚙', Color::LightGreen)
                             }
                             Month::Bizmuth if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('▲', Color::LightGreen)
+                                ('⍒', Color::LightGreen)
                             }
                             _ => (' ', Color::Black),
                         },
                         Cells::Seasonal2 => match gui_args.ani_stats.season.month {
                             Month::Opal if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('♅', Color::LightGreen)
+                                ('⏂', Color::LightCyan)
                             }
                             Month::Quartz if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('♆', Color::LightGreen)
+                                ('⍾', Color::LightCyan)
                             }
                             Month::Jade if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('⚙', Color::LightGreen)
+                                ('⍙', Color::LightCyan)
                             }
                             Month::Bizmuth if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('▲', Color::LightGreen)
+                                ('⍡', Color::LightCyan)
                             }
                             _ => (' ', Color::Black),
                         },
                         Cells::Seasonal3 => match gui_args.ani_stats.season.month {
                             Month::Opal if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('♅', Color::LightGreen)
+                                ('△', Color::LightMagenta)
                             }
                             Month::Quartz if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('♆', Color::LightGreen)
+                                ('◭', Color::LightMagenta)
                             }
                             Month::Jade if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('⚙', Color::LightGreen)
+                                ('▲', Color::LightMagenta)
                             }
                             Month::Bizmuth if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('▲', Color::LightGreen)
+                                ('◮', Color::LightMagenta)
                             }
                             _ => (' ', Color::Black),
                         },

@@ -40,7 +40,7 @@ impl GameState {
                     portals: Some(&self.portals),
                     animate: None,
                     ascii: None,
-                    ani_stats: &self.stats.world_stats.date.month,
+                    ani_stats: &self.get_ani_stats(),
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -113,7 +113,7 @@ impl GameState {
                         portals: Some(&self.portals),
                         animate: None,
                         ascii: None,
-                        ani_stats: &self.stats.world_stats.date.month,
+                        ani_stats: &self.get_ani_stats(),
                     });
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
                         if let Event::Key(event) = read().unwrap() {
@@ -150,7 +150,7 @@ impl GameState {
                             portals: Some(&self.portals),
                             animate: None,
                             ascii: None,
-                            ani_stats: &self.stats.world_stats.date.month,
+                            ani_stats: &self.get_ani_stats(),
                         },
                     );
                     if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -194,7 +194,7 @@ impl GameState {
                     portals: Some(&self.portals),
                     animate: None,
                     ascii: None,
-                    ani_stats: &self.stats.world_stats.date.month,
+                    ani_stats: &self.get_ani_stats(),
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {

@@ -2844,9 +2844,9 @@ impl Settlement {
     }
 
     pub fn demo_settle(pos: (i16, i16), npcs: HashMap<(usize, usize), NPCWrap>) -> Self {
-        let (map, mpcs, sitems, items, env_inters) = build_obsidian_settle();
+        // let (map, mpcs, sitems, items, env_inters) = build_obsidian_settle();
         // let (map, mpcs, sitems, items, env_inters) = build_guild_settle();
-        // let (map, mut mpcs, sitems, items, env_inters) = build_small_settle(true);
+        let (map, mut mpcs, sitems, items, env_inters) = build_small_settle(true);
         let (shops, snpcs) = get_npc_shops(mpcs.clone(), sitems);
 
         Self {

@@ -498,14 +498,7 @@ impl GameState {
                     portals: Some(&self.portals),
                     animate: None,
                     ascii: None,
-                    ani_stats: &AniStats {
-                        season: Season {
-                            day,
-                            month,
-                            year,
-                            str: "".to_string(),
-                        },
-                    },
+                    ani_stats: &self.get_ani_stats(),
                 },
             );
             if poll(std::time::Duration::from_millis(100)).unwrap() {
@@ -674,6 +667,20 @@ impl GameState {
         true
     }
 
+    pub fn get_ani_stats(&self) -> AniStats {
+        let day = self.stats.world_stats.date.day;
+        let month = self.stats.world_stats.date.month;
+        let year = self.stats.world_stats.date.year;
+        AniStats {
+            season: Season {
+                day,
+                month,
+                year,
+                str: "".to_string(),
+            },
+        }
+    }
+
     pub fn draw(&mut self) {
         self.location_check();
         let litems = if self.location != Location::Null {
@@ -698,10 +705,6 @@ impl GameState {
             let fpos_s = self.features.get_feature_positions().join("#");
             (dist_fo, spos_s, comp, fpos_s)
         };
-        // let season = self.stats.world_stats.date;
-        let day = self.stats.world_stats.date.day;
-        let month = self.stats.world_stats.date.month;
-        let year = self.stats.world_stats.date.year;
         self.gui.draw(
             debug_strs.clone(),
             DisplayStats {
@@ -720,14 +723,7 @@ impl GameState {
                 portals: Some(&self.portals),
                 animate: None,
                 ascii: None,
-                ani_stats: &AniStats {
-                    season: Season {
-                        day,
-                        month,
-                        year,
-                        str: "".to_string(),
-                    },
-                },
+                ani_stats: &self.get_ani_stats(),
             },
         );
     }
