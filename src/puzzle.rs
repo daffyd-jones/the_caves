@@ -2,8 +2,8 @@
 //
 use crate::enemy::Enemy;
 use crate::enums::{Cells, EnvInter, NPCWrap, PuzzleType};
-use crate::features::{parse_map, tile_to_chars};
 use crate::item::Item;
+use crate::parsing::{parse_map, tile_to_chars};
 use rand::prelude::SliceRandom;
 use rand::Rng;
 use serde::{Deserialize, Serialize};

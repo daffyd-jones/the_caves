@@ -12,6 +12,7 @@ mod nodemap;
 mod notebook;
 mod npc;
 mod npc_utils;
+mod parsing;
 mod player;
 mod puzzle;
 mod puzzles;
