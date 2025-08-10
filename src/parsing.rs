@@ -1,11 +1,9 @@
-use crate::enums::{Cells, Door, EnvInter, FeatureType, NPCWrap};
-use crate::item::{rand_hermit_item, Item};
-use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, Convo, ShopConvos, ShopData};
-use crate::parsing::parse_map;
+use crate::enums::{Cells, Door, EnvInter, NPCWrap};
+use crate::item::Item;
+use crate::npc::{new_comm_npc, new_conv_npc, Convo};
 use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::collections::HashMap;
-use std::f64::consts;
 use std::fs;
 
 pub fn parse_map(

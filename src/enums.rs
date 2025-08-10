@@ -529,6 +529,8 @@ pub enum Settle {
     Small,
     Med,
     Large,
+    Guild,
+    Obsidian,
     Null,
 }
 

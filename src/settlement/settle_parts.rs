@@ -112,7 +112,7 @@ ___________________________________________________________________________
 ___________________________________________________________________________
 "#;
 
-const pal: &str = "empty: ' . , ' * | wall: ▒ | other ▓ ░ ~ | pipes: ═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬   ┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │ ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©";
+// const pal: &str = "empty: ' . , ' * | wall: ▒ | other ▓ ░ ~ | pipes: ═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬   ┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │ ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©";
 
 const GUILD_1: &str = r#"ConvNPC CommNPC ConvNPC ShopNPC|Null|HealthPotion
 ____________________,________________________________________'____________
@@ -338,21 +338,21 @@ _·,··▒              ║                         │└─────┴─
 ___________________________________________________________________________
 "#;
 
-const ITEM_SHOPS: [&str; 2] = [ITEM_SHOP_1, ITEM_SHOP_2];
+pub(crate) const ITEM_SHOPS: [&str; 2] = [ITEM_SHOP_1, ITEM_SHOP_2];
 
-const GUILD_SHOPS: [&str; 1] = [GUILD_1];
+pub(crate) const GUILD_SHOPS: [&str; 1] = [GUILD_1];
 
-const CHURCHES: [&str; 2] = [CHURCH_1, CHURCH_2];
+pub(crate) const CHURCHES: [&str; 2] = [CHURCH_1, CHURCH_2];
 
-const ANCHORS: [&str; 1] = [ANCHOR_1];
+pub(crate) const ANCHORS: [&str; 1] = [ANCHOR_1];
 
-const HERBALISTS: [&str; 1] = [HERBALIST_1];
+pub(crate) const HERBALISTS: [&str; 1] = [HERBALIST_1];
 
-const CLINICS: [&str; 1] = [CLINIC_1];
+pub(crate) const CLINICS: [&str; 1] = [CLINIC_1];
 
-const RESIDENTIALS: [&str; 1] = [RESIDENTIAL_1];
+pub(crate) const RESIDENTIALS: [&str; 1] = [RESIDENTIAL_1];
 
-const OPENS: [&str; 1] = [OPEN_1];
+pub(crate) const OPENS: [&str; 1] = [OPEN_1];
 
 const PALETTE: &str = "empty: ' . , ' * | wall: ▒ | other ▓ ░ ~ | pipes: ═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬   ┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │ ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©";
 
@@ -409,7 +409,7 @@ ________________________________________________________________________________
 ______________________________________________________________________________________________________________________________________________________
 "#;
 
-const CAVE_O1: &str = r#"ShopNPC|HealthPotion BronzeLongsword ShieldingPendant Salve LightArmour Dowel SmallWoodShield BronzePickHammer BronzeShortsword Apple|Apple
+pub(crate) const CAVE_O1: &str = r#"ShopNPC|HealthPotion BronzeLongsword ShieldingPendant Salve LightArmour Dowel SmallWoodShield BronzePickHammer BronzeShortsword Apple|Apple
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_________########______________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_________########______________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_______
@@ -437,7 +437,7 @@ _____________________________________________________._____________________
 ___________________________________________________________________________
 "#;
 
-const CAVE_O2: &str = r#"CommNPC|Null|Null
+pub(crate) const CAVE_O2: &str = r#"CommNPC|Null|Null
 ________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒______##########▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
 ________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒______##########▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒____
 __________________________▒▒▒▒_____________________________________▒▒▒▒____
@@ -465,7 +465,7 @@ _____________________▒    │°   ≡ø≡  ±©±  ≡ø≡   °│    ▒___
 _____________________▒    └─────────────────────┘    ▒_____________▒▒▒▒____
 "#;
 
-const CAVE_O3: &str = r#"CommNPC CommNPC CommNPC CommNPC ShopNPC CommNPC|Null|Null
+pub(crate) const CAVE_O3: &str = r#"CommNPC CommNPC CommNPC CommNPC ShopNPC CommNPC|Null|Null
 ___________________________________________________________________________
 _________________________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒________________
 _________________________▒┌──┐ ┌──┐ ║⌹⌹⌹⌹  │!  └pppppp┘  !▒________________
@@ -493,7 +493,7 @@ ___________________________________________________________________________
 ___________________________###########_____________________________________
 "#;
 
-const CAVE_O4: &str = r#"CommNPC ShopNPC|Null|Null
+pub(crate) const CAVE_O4: &str = r#"CommNPC ShopNPC|Null|Null
 _____________________▒    :·:·:·:·:·:·:·:·:·:·:·:@   ▒_____________▒▒▒▒____
 _____________________▒$   :·:·:·:·:·:·:·:·:·:·:·:   $▒_____________▒▒▒▒____
 ┌_____┐______________▒    └───────┘·:·:·└───────┘    ▒_____________▒▒▒▒____

@@ -1,21 +1,19 @@
-use crate::dialogue::{load_comms, load_convos, CommDialogue, ConvoDialogue};
 use crate::enums::Shops;
 use crate::enums::{Cells, Door, EnvInter, NPCWrap, Settle};
 use crate::item::Item;
-use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, Convo, ShopConvos, ShopData};
-use crate::npc_utils::box_npc;
-use crate::shop::Shop;
+use crate::settlement::parse_map;
+use crate::settlement::settle_parts::*;
 use rand::prelude::SliceRandom;
 use rand::Rng;
 
 //use serde::{Deserialize, Serialize};
 //use serde_json::Result;
 //use serde_json::Value;
-use std::fs;
+// use std::fs;
 
 use std::collections::HashMap;
 
-fn place_small_parts(
+pub fn place_small_parts(
     mut map: Vec<Vec<Cells>>,
     part: Vec<Vec<Cells>>,
     npcs: HashMap<(usize, usize), NPCWrap>,
@@ -70,7 +68,7 @@ fn place_small_parts(
     (map, new_npcs, new_sitems, new_items, new_env_inter)
 }
 
-fn build_small_settle(
+pub fn build_small_settle(
     is_cave_o: bool,
 ) -> (
     Vec<Vec<Cells>>,
