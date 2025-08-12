@@ -1,6 +1,7 @@
-use crate::enums::Shops;
 use crate::enums::{Cells, Door, EnvInter, NPCWrap, Settle};
+use crate::enums::{ShopItem, Shops};
 use crate::item::Item;
+use crate::npc::ShopNPC;
 use crate::settlement::parse_map;
 use crate::settlement::settle_parts::*;
 use rand::prelude::SliceRandom;
@@ -17,14 +18,14 @@ pub fn place_small_parts(
     mut map: Vec<Vec<Cells>>,
     part: Vec<Vec<Cells>>,
     npcs: HashMap<(usize, usize), NPCWrap>,
-    sitems: HashMap<(usize, usize), Item>,
+    sitems: HashMap<(usize, usize), ShopItem>,
     items: HashMap<(usize, usize), Item>,
     env_inter: HashMap<(usize, usize), EnvInter>,
     quad: u8,
 ) -> (
     Vec<Vec<Cells>>,
     HashMap<(usize, usize), NPCWrap>,
-    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), ShopItem>,
     HashMap<(usize, usize), Item>,
     HashMap<(usize, usize), EnvInter>,
 ) {
@@ -73,9 +74,10 @@ pub fn build_small_settle(
 ) -> (
     Vec<Vec<Cells>>,
     HashMap<(usize, usize), NPCWrap>,
-    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), ShopItem>,
     HashMap<(usize, usize), Item>,
     HashMap<(usize, usize), EnvInter>,
+    HashMap<(usize, usize), ShopNPC>,
 ) {
     let cells = vec![vec![Cells::Null; 150]; 50];
     let item_cell = vec![vec![Cells::Null; 75]; 25];
@@ -108,13 +110,13 @@ pub fn build_small_settle(
     // let guild = guild_shops.choose(&mut rng).expect("guild parse failed");
     // let church = churches.choose(&mut rng).expect("church parse failed");
     // let anchor = anchors.choose(&mut rng).expect("anchor parse failed");
-    let (item_map, item_npcs, item_sitems, item_items, item_env_inter) =
+    let (item_map, item_npcs, item_sitems, item_items, item_env_inter, item_shop_npcs) =
         parse_map(item_shop, item_cell.clone(), Shops::Item);
-    let (guild_map, guild_npcs, guild_sitems, guild_items, guild_env_inter) =
+    let (guild_map, guild_npcs, guild_sitems, guild_items, guild_env_inter, guild_shop_npcs) =
         parse_map(guild, guild_cell.clone(), Shops::Guild);
-    let (church_map, church_npcs, church_sitems, church_items, church_env_inter) =
+    let (church_map, church_npcs, church_sitems, church_items, church_env_inter, church_shop_npcs) =
         parse_map(church, church_cell.clone(), Shops::Church);
-    let (anchor_map, anchor_npcs, anchor_sitems, anchor_items, anchor_env_inter) =
+    let (anchor_map, anchor_npcs, anchor_sitems, anchor_items, anchor_env_inter, anchor_shop_npcs) =
         parse_map(anchor, anchor_cell.clone(), Shops::Null);
     let mut quads: Vec<u8> = vec![1, 2, 3, 4];
     let q1 = if is_cave_o {
@@ -189,8 +191,7 @@ pub fn build_small_settle(
     let mut final_sitems = HashMap::new();
     let mut final_items = HashMap::new();
     let mut final_env_inter = HashMap::new();
-    //let mut s_npcs = HashMap::new();
-    //s_npcs.insert();
+    let mut final_shop_npcs = HashMap::new();
     final_npcs.extend(q1_npcs);
     final_npcs.extend(q2_npcs);
     final_npcs.extend(q3_npcs);
@@ -207,13 +208,16 @@ pub fn build_small_settle(
     final_env_inter.extend(q2_env_inter);
     final_env_inter.extend(q3_env_inter);
     final_env_inter.extend(q4_env_inter);
-    //log::info!("{:?}", &final_sitems);
-    // log::info!("{:?}", &final_items);
+    final_shop_npcs.extend(item_shop_npcs);
+    final_shop_npcs.extend(guild_shop_npcs);
+    final_shop_npcs.extend(church_shop_npcs);
+    final_shop_npcs.extend(anchor_shop_npcs);
     (
         final_map,
         final_npcs,
         final_sitems,
         final_items,
         final_env_inter,
+        final_shop_npcs,
     )
 }

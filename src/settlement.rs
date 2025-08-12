@@ -1,9 +1,9 @@
 //settlement rs
 use crate::dialogue::{load_comms, load_convos, CommDialogue, ConvoDialogue};
-use crate::enums::Shops;
 use crate::enums::{Cells, Door, EnvInter, NPCWrap, Settle};
+use crate::enums::{ShopItem, Shops};
 use crate::item::Item;
-use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, Convo, ShopConvos, ShopData};
+use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, Convo, ShopConvos, ShopData, ShopNPC};
 use crate::npc_utils::box_npc;
 use crate::settlement::guild_settle::build_guild_settle;
 use crate::settlement::med_settle::build_med_settle;
@@ -36,9 +36,10 @@ fn parse_map(
 ) -> (
     Vec<Vec<Cells>>,
     HashMap<(usize, usize), NPCWrap>,
-    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), ShopItem>,
     HashMap<(usize, usize), Item>,
     HashMap<(usize, usize), EnvInter>,
+    HashMap<(usize, usize), ShopNPC>,
 ) {
     // let mut cells: Vec<Vec<Cells>> = Vec::new();
     let mut rng = rand::thread_rng();
@@ -110,6 +111,7 @@ fn parse_map(
     let mut items = HashMap::new();
     let mut sitems = HashMap::new();
     let mut env_inters = HashMap::new();
+    let mut shop_npcs = HashMap::new();
     for (y, line) in s_map.lines().skip(1).enumerate() {
         for (x, ch) in line.chars().enumerate() {
             let cell = match ch {
@@ -374,95 +376,48 @@ fn parse_map(
                                 .clone(),
                             _ => todo!(),
                         };
-
-                        let t_shop = new_shop_npc(
-                            name.clone(),
-                            x,
-                            y,
-                            s_conv.clone(),
-                            convo.clone(),
-                            shop_type,
+                        shop_npcs.insert(
+                            (x, y),
+                            new_shop_npc(name.clone(), s_conv.clone(), convo.clone(), shop_type),
                         );
-                        npcs.insert((x, y), NPCWrap::ShopNPC(t_shop.clone()));
+                        env_inters.insert((x, y), EnvInter::ShopNPC(shop_type));
                     }
                     _ => todo!(),
                 }
                 ncount += 1;
             }
             if ch == 'o' {
-                match sitem_types[sicount] {
-                    "HealthPotion" => {
-                        let ti = Item::new_health_potion(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "Salve" => {
-                        let ti = Item::new_salve(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "Dowel" => {
-                        let ti = Item::new_dowel(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "SmallWoodShield" => {
-                        let ti = Item::new_small_wood_shield(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "Apple" => {
-                        let ti = Item::new_apple(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "BronzeClaymore" => {
-                        let ti = Item::new_bronze_claymore(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "BronzeShortsword" => {
-                        let ti = Item::new_bronze_shortsword(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "BronzeLongsword" => {
-                        let ti = Item::new_bronze_longsword(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "BronzeLightAxe" => {
-                        let ti = Item::new_bronze_light_axe(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "BronzeHeavyAxe" => {
-                        let ti = Item::new_bronze_heavy_axe(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "BronzeWarAxe" => {
-                        let ti = Item::new_bronze_war_axe(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "BronzePickHammer" => {
-                        let ti = Item::new_bronze_pick_hammer(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "WoodStaff" => {
-                        let ti = Item::new_wood_staff(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "LightArmour" => {
-                        let ti = Item::new_light_armour(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "ShieldingPendant" => {
-                        let ti = Item::new_shielding_pendant(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "StrengthPendant" => {
-                        let ti = Item::new_strength_pendant(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    "AgilityPendant" => {
-                        let ti = Item::new_agility_pendant(x, y);
-                        sitems.insert((x, y), ti.clone());
-                    }
-                    _ => {
-                        log::info!("itm {:?}", sitem_types[sicount]);
-                    }
-                }
+                let sitm = match sitem_types[sicount] {
+                    "HealthPotion" => Item::new_health_potion(x, y),
+                    "Salve" => Item::new_salve(x, y),
+                    "Dowel" => Item::new_dowel(x, y),
+                    "SmallWoodShield" => Item::new_small_wood_shield(x, y),
+                    "Apple" => Item::new_apple(x, y),
+                    "BronzeClaymore" => Item::new_bronze_claymore(x, y),
+                    "BronzeShortsword" => Item::new_bronze_shortsword(x, y),
+                    "BronzeLongsword" => Item::new_bronze_longsword(x, y),
+                    "BronzeLightAxe" => Item::new_bronze_light_axe(x, y),
+                    "BronzeHeavyAxe" => Item::new_bronze_heavy_axe(x, y),
+                    "BronzeWarAxe" => Item::new_bronze_war_axe(x, y),
+                    "BronzePickHammer" => Item::new_bronze_pick_hammer(x, y),
+                    "WoodStaff" => Item::new_wood_staff(x, y),
+                    "LightArmour" => Item::new_light_armour(x, y),
+                    "ShieldingPendant" => Item::new_shielding_pendant(x, y),
+                    "StrengthPendant" => Item::new_strength_pendant(x, y),
+                    "AgilityPendant" => Item::new_agility_pendant(x, y),
+                    _ => Item::new_agility_pendant(x, y),
+                };
+                sitems.insert(
+                    (x, y),
+                    match shop_type {
+                        Shops::Item => ShopItem::Item(sitm),
+                        Shops::Herbalist => ShopItem::Herbalist(sitm),
+                        Shops::Weapon => ShopItem::Weapon(sitm),
+                        Shops::Armor => ShopItem::Armor(sitm),
+                        Shops::Consignment => ShopItem::Consignment(sitm),
+                        _ => ShopItem::Null(Item::default()),
+                    },
+                );
                 sicount += 1;
             }
             if ch == 'O' {
@@ -564,62 +519,60 @@ fn parse_map(
             }
         }
     }
-    (cells, npcs, sitems, items, env_inters)
+    (cells, npcs, sitems, items, env_inters, shop_npcs)
 }
 
-fn get_npc_shops(
-    mut npcs: HashMap<(usize, usize), NPCWrap>,
-    sitems: HashMap<(usize, usize), Item>,
-) -> (HashMap<Shops, Shop>, HashMap<(usize, usize), NPCWrap>) {
-    let mut s_npcs = HashMap::new();
-    for (k, v) in npcs.clone() {
-        match v {
-            NPCWrap::ShopNPC(_) => {
-                s_npcs.insert(k, v);
-                //npcs.remove(&k);
-            }
-            _ => {}
-        }
-    }
+fn get_settle_shops(
+    npcs: HashMap<(usize, usize), ShopNPC>,
+    sitems: HashMap<(usize, usize), ShopItem>,
+) -> HashMap<Shops, Shop> {
     let mut shops = HashMap::new();
-
-    for (_, n) in s_npcs {
-        //let nb = box_npc(n);
-        let mut snpc = match n {
-            NPCWrap::ShopNPC(shop_npc) => shop_npc,
-            _ => todo!(),
-        };
+    for (_, n) in npcs {
         let shop_name = "shop_name".to_string();
-        match snpc.get_shop_type() {
+        match n.shop_type {
             Shops::Item => shops.insert(
                 Shops::Item,
                 Shop::new_item_shop(
-                    snpc.get_sh_conv()[&shop_name].clone(),
-                    NPCWrap::ShopNPC(snpc),
-                    sitems.clone(),
+                    n.sh_conv[&shop_name].clone(),
+                    sitems
+                        .clone()
+                        .into_iter()
+                        .filter(|(_k, v)| match *v {
+                            ShopItem::Item(_) => true,
+                            _ => false,
+                        })
+                        .collect(),
+                    n,
+                ),
+            ),
+            Shops::Herbalist => shops.insert(
+                Shops::Herbalist,
+                Shop::new_item_shop(
+                    n.sh_conv[&shop_name].clone(),
+                    sitems
+                        .clone()
+                        .into_iter()
+                        .filter(|(_k, v)| match *v {
+                            ShopItem::Herbalist(_) => true,
+                            _ => false,
+                        })
+                        .collect(),
+                    n,
                 ),
             ),
             Shops::Guild => shops.insert(
                 Shops::Guild,
-                Shop::new_guild(
-                    snpc.get_sh_conv()[&shop_name].clone(),
-                    NPCWrap::ShopNPC(snpc),
-                    HashMap::new(),
-                ),
+                Shop::new_guild(n.sh_conv[&shop_name].clone(), HashMap::new(), n),
             ),
             Shops::Church => shops.insert(
                 Shops::Church,
-                Shop::new_church(
-                    snpc.get_sh_conv()[&shop_name].clone(),
-                    NPCWrap::ShopNPC(snpc),
-                    HashMap::new(),
-                ),
+                Shop::new_church(n.sh_conv[&shop_name].clone(), HashMap::new(), n),
             ),
             //_ => Some(Shop::default()),
             _ => todo!(),
         };
     }
-    (shops, npcs.clone())
+    shops
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -667,14 +620,14 @@ impl Settlement {
     pub fn demo_settle(pos: (i16, i16), npcs: HashMap<(usize, usize), NPCWrap>) -> Self {
         // let (map, mpcs, sitems, items, env_inters) = build_obsidian_settle();
         // let (map, mpcs, sitems, items, env_inters) = build_guild_settle();
-        let (map, mut mpcs, sitems, items, env_inters) = build_small_settle(true);
-        let (shops, snpcs) = get_npc_shops(mpcs.clone(), sitems);
+        let (map, mpcs, sitems, items, env_inters, shop_npcs) = build_small_settle(true);
+        let shops = get_settle_shops(shop_npcs, sitems);
 
         Self {
             stype: Settle::Small,
             sname: "Cave Opening".to_string(),
             pos: pos,
-            npcs: snpcs,
+            npcs: mpcs,
             items: items,
             npcs_sent: false,
             items_sent: false,
@@ -698,8 +651,8 @@ impl Settlement {
         let mut rng = rand::thread_rng();
         let name_oops = "Jadeitite".to_string();
         let name = names.choose(&mut rng).unwrap_or(&name_oops.clone()).clone();
-        let (map, mut npcs, sitems, items, env_inters) = build_small_settle(false);
-        let (shops, snpcs) = get_npc_shops(npcs.clone(), sitems);
+        let (map, npcs, sitems, items, env_inters, shop_npcs) = build_small_settle(false);
+        let shops = get_settle_shops(shop_npcs, sitems);
         Self {
             stype: Settle::Small,
             sname: name,
@@ -717,13 +670,13 @@ impl Settlement {
 
     pub fn new_node_settle(pos: (i16, i16), sname: String) -> Self {
         // let (map, npcs, sitems, items, env_inters) = build_med_settle();
-        let (map, npcs, sitems, items, env_inters) = build_small_settle(false);
-        let (shops, snpcs) = get_npc_shops(npcs.clone(), sitems);
+        let (map, npcs, sitems, items, env_inters, shop_npc) = build_small_settle(false);
+        let shops = get_settle_shops(shop_npc, sitems);
         Self {
             stype: Settle::Small,
             sname,
             pos,
-            npcs: snpcs,
+            npcs: npcs,
             items,
             npcs_sent: false,
             items_sent: false,
@@ -735,13 +688,13 @@ impl Settlement {
     }
 
     pub fn new_node_med_settle(pos: (i16, i16), sname: String) -> Self {
-        let (map, npcs, sitems, items, env_inters) = build_med_settle();
-        let (shops, snpcs) = get_npc_shops(npcs.clone(), sitems);
+        let (map, npcs, sitems, items, env_inters, shop_npcs) = build_med_settle();
+        let shops = get_settle_shops(shop_npcs, sitems);
         Self {
             stype: Settle::Med,
             sname,
             pos,
-            npcs: snpcs,
+            npcs: npcs,
             items,
             npcs_sent: false,
             items_sent: false,

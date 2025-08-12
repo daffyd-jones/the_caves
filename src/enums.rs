@@ -468,6 +468,7 @@ pub enum EnvInter {
     Cauldron,
     Task(TaskType),
     Door(Door),
+    ShopNPC(Shops),
     Herbalist,
     Hermit,
     TaskEnv(TaskEnv),
@@ -549,8 +550,23 @@ pub enum Shops {
     Church,
     Clinic,
     Herbalist,
+    Weapon,
+    Armor,
     Consignment,
     Null,
+}
+
+#[derive(Clone, PartialEq, Debug)]
+pub enum ShopItem {
+    Item(Item),
+    Guild,
+    Church,
+    Clinic,
+    Herbalist(Item),
+    Weapon(Item),
+    Armor(Item),
+    Consignment(Item),
+    Null(Item),
 }
 
 #[derive(Clone, Debug, PartialEq)]

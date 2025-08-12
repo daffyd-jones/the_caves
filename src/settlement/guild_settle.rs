@@ -269,7 +269,7 @@ pub fn build_guild_settle() -> (
     let mut blocks: Vec<u8> = (1..9).collect();
     blocks.shuffle(&mut rng);
 
-    let (item_map, item_npcs, item_sitems, item_items, item_env_inter) = parse_map(
+    let (item_map, item_npcs, item_sitems, item_items, item_env_inter, item_shop_npcs) = parse_map(
         GUILD_ITEM_STALLS
             .choose(&mut rng)
             .unwrap_or(&GUILD_ITEM_STALLS[0]),
@@ -277,15 +277,23 @@ pub fn build_guild_settle() -> (
         Shops::Item,
     );
 
-    let (clinic_map, clinic_npcs, clinic_sitems, clinic_items, clinic_env_inter) = parse_map(
-        GUILD_CLINIC_STALLS
-            .choose(&mut rng)
-            .unwrap_or(&GUILD_CLINIC_STALLS[0]),
-        vec![vec![Cells::Null; 24]; 12],
-        Shops::Null,
-    );
+    let (clinic_map, clinic_npcs, clinic_sitems, clinic_items, clinic_env_inter, clinic_shop_npcs) =
+        parse_map(
+            GUILD_CLINIC_STALLS
+                .choose(&mut rng)
+                .unwrap_or(&GUILD_CLINIC_STALLS[0]),
+            vec![vec![Cells::Null; 24]; 12],
+            Shops::Null,
+        );
 
-    let (weapons_map, weapons_npcs, weapons_sitems, weapons_items, weapons_env_inter) = parse_map(
+    let (
+        weapons_map,
+        weapons_npcs,
+        weapons_sitems,
+        weapons_items,
+        weapons_env_inter,
+        weapons_shop_npcs,
+    ) = parse_map(
         GUILD_WEAPONS_STALLS
             .choose(&mut rng)
             .unwrap_or(&GUILD_WEAPONS_STALLS[0]),
@@ -293,51 +301,79 @@ pub fn build_guild_settle() -> (
         Shops::Item,
     );
 
-    let (armour_map, armour_npcs, armour_sitems, armour_items, armour_env_inter) = parse_map(
-        GUILD_ARMOUR_STALLS
+    let (armour_map, armour_npcs, armour_sitems, armour_items, armour_env_inter, armour_shop_npcs) =
+        parse_map(
+            GUILD_ARMOUR_STALLS
+                .choose(&mut rng)
+                .unwrap_or(&GUILD_ARMOUR_STALLS[0]),
+            vec![vec![Cells::Null; 24]; 12],
+            Shops::Item,
+        );
+
+    let (
+        canteen1_map,
+        canteen1_npcs,
+        canteen1_sitems,
+        canteen1_items,
+        canteen1_env_inter,
+        canteen_shop_npcs,
+    ) = parse_map(
+        GUILD_CANTEEN_STALLS
             .choose(&mut rng)
-            .unwrap_or(&GUILD_ARMOUR_STALLS[0]),
+            .unwrap_or(&GUILD_CANTEEN_STALLS[0]),
         vec![vec![Cells::Null; 24]; 12],
-        Shops::Item,
+        Shops::Null,
     );
 
-    let (canteen1_map, canteen1_npcs, canteen1_sitems, canteen1_items, canteen1_env_inter) =
-        parse_map(
-            GUILD_CANTEEN_STALLS
-                .choose(&mut rng)
-                .unwrap_or(&GUILD_CANTEEN_STALLS[0]),
-            vec![vec![Cells::Null; 24]; 12],
-            Shops::Null,
-        );
-
-    let (filler1_map, filler1_npcs, filler1_sitems, filler1_items, filler1_env_inter) = parse_map(
+    let (
+        filler1_map,
+        filler1_npcs,
+        filler1_sitems,
+        filler1_items,
+        filler1_env_inter,
+        filler1_shop_npcs,
+    ) = parse_map(
         GUILD_FILLERS.choose(&mut rng).unwrap_or(&GUILD_FILLERS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Null,
     );
 
-    let (canteen2_map, canteen2_npcs, canteen2_sitems, canteen2_items, canteen2_env_inter) =
-        parse_map(
-            GUILD_CANTEEN_STALLS
-                .choose(&mut rng)
-                .unwrap_or(&GUILD_CANTEEN_STALLS[0]),
-            vec![vec![Cells::Null; 24]; 12],
-            Shops::Null,
-        );
+    let (
+        canteen2_map,
+        canteen2_npcs,
+        canteen2_sitems,
+        canteen2_items,
+        canteen2_env_inter,
+        canteen2_shop_npcs,
+    ) = parse_map(
+        GUILD_CANTEEN_STALLS
+            .choose(&mut rng)
+            .unwrap_or(&GUILD_CANTEEN_STALLS[0]),
+        vec![vec![Cells::Null; 24]; 12],
+        Shops::Null,
+    );
 
-    let (filler2_map, filler2_npcs, filler2_sitems, filler2_items, filler2_env_inter) = parse_map(
+    let (
+        filler2_map,
+        filler2_npcs,
+        filler2_sitems,
+        filler2_items,
+        filler2_env_inter,
+        item_shop_npcs,
+    ) = parse_map(
         GUILD_FILLERS.choose(&mut rng).unwrap_or(&GUILD_FILLERS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Null,
     );
 
-    let (office_map, office_npcs, office_sitems, office_items, office_env_inter) = parse_map(
-        GUILD_OFFICES.choose(&mut rng).unwrap_or(&GUILD_OFFICES[0]),
-        vec![vec![Cells::Null; 24]; 24],
-        Shops::Null,
-    );
+    let (office_map, office_npcs, office_sitems, office_items, office_env_inter, item_shop_npcs) =
+        parse_map(
+            GUILD_OFFICES.choose(&mut rng).unwrap_or(&GUILD_OFFICES[0]),
+            vec![vec![Cells::Null; 24]; 24],
+            Shops::Null,
+        );
 
-    let (dorm_map, dorm_npcs, dorm_sitems, dorm_items, dorm_env_inter) = parse_map(
+    let (dorm_map, dorm_npcs, dorm_sitems, dorm_items, dorm_env_inter, item_shop_npcs) = parse_map(
         GUILD_DORMS.choose(&mut rng).unwrap_or(&GUILD_DORMS[0]),
         vec![vec![Cells::Null; 24]; 24],
         Shops::Null,

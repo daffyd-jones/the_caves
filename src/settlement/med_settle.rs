@@ -1,6 +1,7 @@
-use crate::enums::Shops;
 use crate::enums::{Cells, Door, EnvInter, NPCWrap, Settle};
+use crate::enums::{ShopItem, Shops};
 use crate::item::Item;
+use crate::npc::ShopNPC;
 use crate::settlement::parse_map;
 use crate::settlement::settle_parts::*;
 
@@ -18,14 +19,14 @@ pub fn place_med_parts(
     mut map: Vec<Vec<Cells>>,
     part: Vec<Vec<Cells>>,
     npcs: HashMap<(usize, usize), NPCWrap>,
-    sitems: HashMap<(usize, usize), Item>,
+    sitems: HashMap<(usize, usize), ShopItem>,
     items: HashMap<(usize, usize), Item>,
     env_inter: HashMap<(usize, usize), EnvInter>,
     block: u8,
 ) -> (
     Vec<Vec<Cells>>,
     HashMap<(usize, usize), NPCWrap>,
-    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), ShopItem>,
     HashMap<(usize, usize), Item>,
     HashMap<(usize, usize), EnvInter>,
 ) {
@@ -91,9 +92,10 @@ enum BlockType {
 pub fn build_med_settle() -> (
     Vec<Vec<Cells>>,
     HashMap<(usize, usize), NPCWrap>,
-    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), ShopItem>,
     HashMap<(usize, usize), Item>,
     HashMap<(usize, usize), EnvInter>,
+    HashMap<(usize, usize), ShopNPC>,
 ) {
     let mut rng = rand::thread_rng();
     let mut blocks: Vec<u8> = (1..10).collect();
@@ -110,58 +112,71 @@ pub fn build_med_settle() -> (
         BlockType::Open,
     ];
 
-    let (item_map, item_npcs, item_sitems, item_items, item_env_inter) = parse_map(
+    let (item_map, item_npcs, item_sitems, item_items, item_env_inter, item_shop_npcs) = parse_map(
         ITEM_SHOPS.choose(&mut rng).unwrap_or(&ITEM_SHOPS[0]),
         vec![vec![Cells::Null; 75]; 25],
         Shops::Item,
     );
-    let (guild_map, guild_npcs, guild_sitems, guild_items, guild_env_inter) = parse_map(
-        GUILD_SHOPS.choose(&mut rng).unwrap_or(&GUILD_SHOPS[0]),
-        vec![vec![Cells::Null; 75]; 25],
-        Shops::Guild,
-    );
-    let (church_map, church_npcs, church_sitems, church_items, church_env_inter) = parse_map(
-        CHURCHES.choose(&mut rng).unwrap_or(&CHURCHES[0]),
-        vec![vec![Cells::Null; 75]; 25],
-        Shops::Church,
-    );
-    let (anchor_map, anchor_npcs, anchor_sitems, anchor_items, anchor_env_inter) = parse_map(
-        ANCHORS.choose(&mut rng).unwrap_or(&ANCHORS[0]),
-        vec![vec![Cells::Null; 75]; 25],
-        Shops::Null,
-    );
+    let (guild_map, guild_npcs, guild_sitems, guild_items, guild_env_inter, guild_shop_npcs) =
+        parse_map(
+            GUILD_SHOPS.choose(&mut rng).unwrap_or(&GUILD_SHOPS[0]),
+            vec![vec![Cells::Null; 75]; 25],
+            Shops::Guild,
+        );
+    let (church_map, church_npcs, church_sitems, church_items, church_env_inter, church_shop_npcs) =
+        parse_map(
+            CHURCHES.choose(&mut rng).unwrap_or(&CHURCHES[0]),
+            vec![vec![Cells::Null; 75]; 25],
+            Shops::Church,
+        );
+    let (anchor_map, anchor_npcs, anchor_sitems, anchor_items, anchor_env_inter, anchor_shop_npcs) =
+        parse_map(
+            ANCHORS.choose(&mut rng).unwrap_or(&ANCHORS[0]),
+            vec![vec![Cells::Null; 75]; 25],
+            Shops::Null,
+        );
     let (
         residential_map,
         residential_npcs,
         residential_sitems,
         residential_items,
         residential_env_inter,
+        residential_shop_npcs,
     ) = parse_map(
         RESIDENTIALS.choose(&mut rng).unwrap_or(&RESIDENTIALS[0]),
         vec![vec![Cells::Null; 75]; 25],
         Shops::Null,
     );
-    let (clinic_map, clinic_npcs, clinic_sitems, clinic_items, clinic_env_inter) = parse_map(
-        CLINICS.choose(&mut rng).unwrap_or(&CLINICS[0]),
-        vec![vec![Cells::Null; 75]; 25],
-        Shops::Null,
-    );
-    let (herbalist_map, herbalist_npcs, herbalist_sitems, herbalist_items, herbalist_env_inter) =
+    let (clinic_map, clinic_npcs, clinic_sitems, clinic_items, clinic_env_inter, clinic_shop_npcs) =
         parse_map(
-            HERBALISTS.choose(&mut rng).unwrap_or(&HERBALISTS[0]),
+            CLINICS.choose(&mut rng).unwrap_or(&CLINICS[0]),
             vec![vec![Cells::Null; 75]; 25],
             Shops::Null,
         );
-    let (open1_map, open1_npcs, open1_sitems, open1_items, open1_env_inter) = parse_map(
-        OPENS.choose(&mut rng).unwrap_or(&OPENS[0]),
+    let (
+        herbalist_map,
+        herbalist_npcs,
+        herbalist_sitems,
+        herbalist_items,
+        herbalist_env_inter,
+        herbalist_shop_npcs,
+    ) = parse_map(
+        HERBALISTS.choose(&mut rng).unwrap_or(&HERBALISTS[0]),
         vec![vec![Cells::Null; 75]; 25],
         Shops::Null,
     );
-    let (open2_map, open2_npcs, open2_sitems, open2_items, open2_env_inter) = parse_map(
-        OPENS.choose(&mut rng).unwrap_or(&OPENS[0]),
-        vec![vec![Cells::Null; 75]; 25],
-        Shops::Null,
-    );
+    let (open1_map, open1_npcs, open1_sitems, open1_items, open1_env_inter, open1_shop_npcs) =
+        parse_map(
+            OPENS.choose(&mut rng).unwrap_or(&OPENS[0]),
+            vec![vec![Cells::Null; 75]; 25],
+            Shops::Null,
+        );
+    let (open2_map, open2_npcs, open2_sitems, open2_items, open2_env_inter, open2_shop_npcs) =
+        parse_map(
+            OPENS.choose(&mut rng).unwrap_or(&OPENS[0]),
+            vec![vec![Cells::Null; 75]; 25],
+            Shops::Null,
+        );
 
     let (b1_map, b1_npcs, b1_sitems, b1_items, b1_env_inter) = place_med_parts(
         vec![vec![Cells::Null; 225]; 75],
@@ -248,6 +263,7 @@ pub fn build_med_settle() -> (
     let mut final_sitems = HashMap::new();
     let mut final_items = HashMap::new();
     let mut final_env_inter = HashMap::new();
+    let mut final_shop_npcs = HashMap::new();
     final_npcs.extend(b1_npcs);
     final_npcs.extend(b2_npcs);
     final_npcs.extend(b3_npcs);
@@ -284,13 +300,21 @@ pub fn build_med_settle() -> (
     final_env_inter.extend(b7_env_inter);
     final_env_inter.extend(b8_env_inter);
     final_env_inter.extend(b9_env_inter);
-    //log::info!("{:?}", &final_sitems);
-    // log::info!("{:?}", &final_items);
+    final_shop_npcs.extend(item_shop_npcs);
+    final_shop_npcs.extend(guild_shop_npcs);
+    final_shop_npcs.extend(church_shop_npcs);
+    final_shop_npcs.extend(herbalist_shop_npcs);
+    final_shop_npcs.extend(clinic_shop_npcs);
+    final_shop_npcs.extend(open1_shop_npcs);
+    final_shop_npcs.extend(open2_shop_npcs);
+    final_shop_npcs.extend(residential_shop_npcs);
+    final_shop_npcs.extend(anchor_shop_npcs);
     (
         final_map,
         final_npcs,
         final_sitems,
         final_items,
         final_env_inter,
+        final_shop_npcs,
     )
 }

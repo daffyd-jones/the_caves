@@ -71,27 +71,12 @@ pub fn new_spawn_npc(
 
 pub fn new_shop_npc(
     sname: String,
-    x: usize,
-    y: usize,
     sh_conv: HashMap<String, String>,
     convo: Convo,
     shop_type: Shops,
 ) -> ShopNPC {
-    //let mut rng = rand::thread_rng();
-    //let step = rng.gen_range(0..19);
-    let step = 50;
-    //let step_grp = rng.gen_range(0..15);
-    let step_grp = 100;
-    // let sh_conv = HashMap::new();
     ShopNPC {
-        base: BaseNPC {
-            ntype: NPCs::ShopNPC,
-            sname,
-            steps: step,
-            step_grp,
-            x,
-            y,
-        },
+        sname,
         shop_type,
         sh_conv,
         convo,
@@ -413,74 +398,13 @@ impl ConvNPC {
     }
 }
 
-//#[derive(Clone, Debug, PartialEq)]
-//pub struct QuestNPC {
-//    base: BaseNPC,
-//    quest: NQuest,
-//}
-//
-//impl NPC for QuestNPC {
-//    fn as_any(&self) -> &dyn std::any::Any {
-//        self
-//    }
-//
-//    fn get_ntype(&mut self) -> NPCs {
-//        self.base.ntype.clone()
-//    }
-//
-//    fn get_sname(&mut self) -> String {
-//        self.base.sname.clone()
-//    }
-//
-//    fn get_pos(&mut self) -> (usize, usize) {
-//        (self.base.x, self.base.y)
-//    }
-//
-//    fn set_pos(&mut self, pos: (usize, usize)) {
-//        self.base.x = pos.0;
-//        self.base.y = pos.1;
-//    }
-//
-//    fn set_steps(&mut self, steps: u8) {
-//        self.base.steps = steps;
-//    }
-//
-//    fn get_steps(&mut self) -> u8 {
-//        self.base.steps.clone()
-//    }
-//
-//    fn inc_steps(&mut self) {
-//        self.base.steps += 1;
-//    }
-//
-//    fn get_step_grp(&mut self) -> u8 {
-//        self.base.step_grp.clone()
-//    }
-//
-//    fn mmove(&mut self, dir: &str) {
-//        match dir {
-//            "UP" => self.base.y -= 1,
-//            "DN" => self.base.y += 1,
-//            "LF" => self.base.x -= 1,
-//            "RT" => self.base.x += 1,
-//            _ => println!("")
-//        }
-//    }
-//}
-//
-//impl QuestNPC {
-//    pub fn get_quest(&mut self) -> NQuest {
-//        self.quest.clone()
-//    }
-//}
-
 //#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct ShopNPC {
-    base: BaseNPC,
-    shop_type: Shops,
-    sh_conv: HashMap<String, String>,
-    convo: Convo,
+    pub sname: String,
+    pub shop_type: Shops,
+    pub sh_conv: HashMap<String, String>,
+    pub convo: Convo,
 }
 
 impl Default for ShopNPC {
@@ -488,81 +412,11 @@ impl Default for ShopNPC {
         let sh_conv = HashMap::new();
         let convo = default_convo();
         Self {
-            base: BaseNPC {
-                ntype: NPCs::ShopNPC,
-                sname: "Jeric".to_string(),
-                steps: 100,
-                step_grp: 100,
-                x: 0,
-                y: 0,
-            },
+            sname: "Tracy".to_string(),
             shop_type: Shops::Null,
             sh_conv,
             convo,
         }
-    }
-}
-
-impl NPC for ShopNPC {
-    fn as_any(&self) -> &dyn std::any::Any {
-        self
-    }
-
-    fn get_ntype(&mut self) -> NPCs {
-        self.base.ntype
-    }
-
-    fn get_sname(&mut self) -> String {
-        self.base.sname.clone()
-    }
-
-    fn get_pos(&mut self) -> (usize, usize) {
-        (self.base.x, self.base.y)
-    }
-
-    fn set_pos(&mut self, pos: (usize, usize)) {
-        self.base.x = pos.0;
-        self.base.y = pos.1;
-    }
-
-    fn set_steps(&mut self, steps: u8) {
-        self.base.steps = steps;
-    }
-
-    fn get_steps(&mut self) -> u8 {
-        self.base.steps
-    }
-
-    fn inc_steps(&mut self) {
-        self.base.steps += 1;
-    }
-
-    fn get_step_grp(&mut self) -> u8 {
-        self.base.step_grp
-    }
-
-    fn mmove(&mut self, dir: &str) {
-        match dir {
-            "UP" => self.base.y -= 1,
-            "DN" => self.base.y += 1,
-            "LF" => self.base.x -= 1,
-            "RT" => self.base.x += 1,
-            _ => println!(""),
-        }
-    }
-}
-
-impl ShopNPC {
-    pub fn get_sh_conv(&mut self) -> HashMap<String, String> {
-        self.sh_conv.clone()
-    }
-
-    pub fn get_shop_type(&mut self) -> Shops {
-        self.shop_type
-    }
-
-    pub fn get_convo(&mut self) -> Convo {
-        self.convo.clone()
     }
 }
 
