@@ -1,10 +1,10 @@
 //settle_state
 
-use crate::enums::{GUIMode, GameMode, Interactable, Location, NPCWrap};
+use crate::enums::{GUIMode, GameMode, Interactable, Location, NPCWrap, ShopItem};
 use crate::gamestate::GameState;
 use crate::gui_utils::GuiArgs;
 use crate::map::{MAP_H, MAP_W};
-use crate::npc::NPC;
+use crate::npc::{ShopNPC, NPC};
 use crate::settlement::Settlement;
 use crate::shop::Shop;
 
@@ -25,20 +25,53 @@ impl GameState {
         }
     }
 
-    pub fn get_shop_from_item(&mut self, mut item: Item) -> Shop {
-        let ipos = item.get_pos();
+    pub fn get_shop_from_item(&mut self, mut item: ShopItem) -> Shop {
+        // let ipos = item.get_pos();
         // log::info!("shop item \n{:?}", item.clone());
         match self.location.clone() {
-            Location::Settlement(mut settle) => {
-                if let Some(shop) = settle.get_shop_from_item_pos((
-                    ipos.0 as i16 - self.dist_fo.0,
-                    ipos.1 as i16 - self.dist_fo.1,
-                )) {
-                    shop
-                } else {
-                    Shop::default()
-                }
-            }
+            Location::Settlement(mut settle) => match item {
+                ShopItem::Item(_) => settle
+                    .shops
+                    .get(&crate::enums::Shops::Item)
+                    .unwrap()
+                    .clone(),
+                ShopItem::Guild => settle
+                    .shops
+                    .get(&crate::enums::Shops::Guild)
+                    .unwrap()
+                    .clone(),
+                ShopItem::Church => settle
+                    .shops
+                    .get(&crate::enums::Shops::Church)
+                    .unwrap()
+                    .clone(),
+                ShopItem::Clinic => settle
+                    .shops
+                    .get(&crate::enums::Shops::Clinic)
+                    .unwrap()
+                    .clone(),
+                ShopItem::Herbalist(_) => settle
+                    .shops
+                    .get(&crate::enums::Shops::Herbalist)
+                    .unwrap()
+                    .clone(),
+                ShopItem::Weapon(_) => settle
+                    .shops
+                    .get(&crate::enums::Shops::Weapon)
+                    .unwrap()
+                    .clone(),
+                ShopItem::Armor(_) => settle
+                    .shops
+                    .get(&crate::enums::Shops::Armor)
+                    .unwrap()
+                    .clone(),
+                ShopItem::Consignment(_) => settle
+                    .shops
+                    .get(&crate::enums::Shops::Consignment)
+                    .unwrap()
+                    .clone(),
+                ShopItem::Null(_) => todo!(),
+            },
             _ => todo!(),
         }
     }
@@ -100,18 +133,18 @@ impl GameState {
             }
         };
         let mut shop = self.get_shop_from_item(item.clone());
-        let price = item.get_properties()["value"];
+        let price = item.properties["value"];
         let paid = self.player.dec_money(price);
         if paid {
             self.player.add_to_inv(item.clone());
-            let ipos = item.get_pos();
+            let ipos = item.pos;
             let mut loc = match self.location.clone() {
                 Location::Settlement(settle) => settle,
                 _ => todo!(),
             };
             let lpos = loc.get_pos();
             shop.set_paid(true);
-            shop.remove_item((
+            shop.stock.remove(&(
                 (ipos.0 as i16 - lpos.0 - self.dist_fo.0) as usize,
                 (ipos.1 as i16 - lpos.1 - self.dist_fo.1) as usize,
             ));
@@ -166,19 +199,24 @@ impl GameState {
         (true, false)
     }
 
-    pub fn shop_item_interaction(&mut self, mut sitem: Item) -> bool {
+    pub fn shop_item_interaction(&mut self, mut sitem: ShopItem) -> bool {
         let shop = self.get_shop_from_item(sitem.clone());
-        let npc = shop.get_npc();
-        let (sname, sh_convo) = match npc {
-            NPCWrap::ShopNPC(mut snpc) => (snpc.get_sname(), snpc.get_sh_conv()),
+        // let npc = shop.get_npc();
+        let (sname, sh_convo) = (shop.npc.sname, shop.npc.sh_conv);
+        let item = match sitem {
+            ShopItem::Item(itm) => itm,
+            ShopItem::Herbalist(itm) => itm,
+            ShopItem::Weapon(itm) => itm,
+            ShopItem::Armor(itm) => itm,
+            ShopItem::Consignment(itm) => itm,
+            ShopItem::Null(itm) => itm,
             _ => todo!(),
         };
-        let iprice = (sitem.get_properties()["value"] as i16
-            + self.stats.world_stats.economy as i16)
-            .to_string();
+        let iprice =
+            (item.properties["value"] as i16 + self.stats.world_stats.economy as i16).to_string();
         let dialogue_temp = &sh_convo["item_desc"];
         let sh_dialogue = dialogue_temp
-            .replace("{i}", &sitem.get_sname())
+            .replace("{i}", &item.sname)
             .replace("{v}", &iprice);
         let mut buy_item = false;
         self.gui.reset_cursor();

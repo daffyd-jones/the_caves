@@ -451,7 +451,7 @@ pub enum FightSteps {
 #[derive(Clone, Debug)]
 pub enum Interactable {
     Item(Item),
-    ShopItem(Item),
+    ShopItem(ShopItem),
     NPC(NPCWrap),
     Enemy(Enemy),
     EnvInter(EnvInter),

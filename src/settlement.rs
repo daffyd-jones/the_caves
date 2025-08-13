@@ -626,14 +626,14 @@ impl Settlement {
         Self {
             stype: Settle::Small,
             sname: "Cave Opening".to_string(),
-            pos: pos,
+            pos,
             npcs: mpcs,
-            items: items,
+            items,
             npcs_sent: false,
             items_sent: false,
-            shops: shops,
+            shops,
             env_inters,
-            map: map,
+            map,
             found: true,
         }
     }
@@ -656,14 +656,14 @@ impl Settlement {
         Self {
             stype: Settle::Small,
             sname: name,
-            pos: pos,
-            npcs: npcs,
-            items: items,
+            pos,
+            npcs,
+            items,
             npcs_sent: false,
             items_sent: false,
-            shops: shops,
+            shops,
             env_inters,
-            map: map,
+            map,
             found: false,
         }
     }
@@ -676,7 +676,7 @@ impl Settlement {
             stype: Settle::Small,
             sname,
             pos,
-            npcs: npcs,
+            npcs,
             items,
             npcs_sent: false,
             items_sent: false,
@@ -694,7 +694,7 @@ impl Settlement {
             stype: Settle::Med,
             sname,
             pos,
-            npcs: npcs,
+            npcs,
             items,
             npcs_sent: false,
             items_sent: false,
@@ -706,13 +706,13 @@ impl Settlement {
     }
 
     pub fn new_node_guild_settle(pos: (i16, i16), sname: String) -> Self {
-        let (map, npcs, sitems, items, env_inters) = build_guild_settle();
-        let (shops, snpcs) = get_npc_shops(npcs.clone(), sitems);
+        let (map, npcs, sitems, items, env_inters, shop_npcs) = build_guild_settle();
+        let shops = get_settle_shops(shop_npcs, sitems);
         Self {
             stype: Settle::Guild,
             sname,
             pos,
-            npcs: snpcs,
+            npcs,
             items,
             npcs_sent: false,
             items_sent: false,
@@ -724,13 +724,13 @@ impl Settlement {
     }
 
     pub fn new_node_obsidian_settle(pos: (i16, i16), sname: String) -> Self {
-        let (map, npcs, sitems, items, env_inters) = build_obsidian_settle();
-        let (shops, snpcs) = get_npc_shops(npcs.clone(), sitems);
+        let (map, npcs, sitems, items, env_inters, shop_npcs) = build_obsidian_settle();
+        let shops = get_settle_shops(shop_npcs, sitems);
         Self {
             stype: Settle::Obsidian,
             sname,
             pos,
-            npcs: snpcs,
+            npcs,
             items,
             npcs_sent: false,
             items_sent: false,
@@ -747,12 +747,12 @@ impl Settlement {
         }
     }
 
-    pub fn get_all_shop_items(&mut self) -> Option<HashMap<(usize, usize), Item>> {
+    pub fn get_all_shop_items(&mut self) -> Option<HashMap<(usize, usize), ShopItem>> {
         let mut asi = HashMap::new();
         for (_, shop) in &self.shops {
-            for ((x, y), i) in shop.get_stock() {
+            shop.stock.clone().into_iter().for_each(|((x, y), i)| {
                 asi.insert((x, y), i.clone());
-            }
+            });
         }
         if asi.len() == 0 {
             None
@@ -762,10 +762,9 @@ impl Settlement {
     }
 
     pub fn get_shop_from_item_pos(&mut self, pos: (i16, i16)) -> Option<Shop> {
-        for (sh, s) in &self.shops {
-            for ((x, y), i) in s.get_stock() {
-                // if x  && y == (pos.1 - self.pos.1) {
-                if (x as i16 + self.pos.0) == pos.0 && (y as i16 + self.pos.1) == pos.1 {
+        for (_, s) in &self.shops {
+            for ((x, y), _) in &s.stock {
+                if (*x as i16 + self.pos.0) == pos.0 && (*y as i16 + self.pos.1) == pos.1 {
                     return Some(s.clone());
                 }
             }

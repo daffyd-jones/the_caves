@@ -1,8 +1,8 @@
 use crate::dialogue::{load_comms, load_convos, CommDialogue, ConvoDialogue};
-use crate::enums::Shops;
 use crate::enums::{Cells, Door, EnvInter, NPCWrap, Settle};
+use crate::enums::{ShopItem, Shops};
 use crate::item::Item;
-use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, Convo, ShopConvos, ShopData};
+use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, Convo, ShopConvos, ShopData, ShopNPC};
 use crate::npc_utils::box_npc;
 use crate::settlement::parse_map;
 use crate::shop::Shop;
@@ -258,9 +258,10 @@ const GUILD_DORMS: [&str; 1] = [GUILD_DORM_1];
 pub fn build_guild_settle() -> (
     Vec<Vec<Cells>>,
     HashMap<(usize, usize), NPCWrap>,
-    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), ShopItem>,
     HashMap<(usize, usize), Item>,
     HashMap<(usize, usize), EnvInter>,
+    HashMap<(usize, usize), ShopNPC>,
 ) {
     let mut rng = rand::thread_rng();
     let cells = vec![vec![Cells::Empty; 128]; 52];
@@ -316,7 +317,7 @@ pub fn build_guild_settle() -> (
         canteen1_sitems,
         canteen1_items,
         canteen1_env_inter,
-        canteen_shop_npcs,
+        canteen1_shop_npcs,
     ) = parse_map(
         GUILD_CANTEEN_STALLS
             .choose(&mut rng)
@@ -359,21 +360,21 @@ pub fn build_guild_settle() -> (
         filler2_sitems,
         filler2_items,
         filler2_env_inter,
-        item_shop_npcs,
+        filler2_shop_npcs,
     ) = parse_map(
         GUILD_FILLERS.choose(&mut rng).unwrap_or(&GUILD_FILLERS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Null,
     );
 
-    let (office_map, office_npcs, office_sitems, office_items, office_env_inter, item_shop_npcs) =
+    let (office_map, office_npcs, office_sitems, office_items, office_env_inter, office_shop_npcs) =
         parse_map(
             GUILD_OFFICES.choose(&mut rng).unwrap_or(&GUILD_OFFICES[0]),
             vec![vec![Cells::Null; 24]; 24],
             Shops::Null,
         );
 
-    let (dorm_map, dorm_npcs, dorm_sitems, dorm_items, dorm_env_inter, item_shop_npcs) = parse_map(
+    let (dorm_map, dorm_npcs, dorm_sitems, dorm_items, dorm_env_inter, dorm_shop_npcs) = parse_map(
         GUILD_DORMS.choose(&mut rng).unwrap_or(&GUILD_DORMS[0]),
         vec![vec![Cells::Null; 24]; 24],
         Shops::Null,
@@ -507,6 +508,7 @@ pub fn build_guild_settle() -> (
     let mut final_sitems = HashMap::new();
     let mut final_items = HashMap::new();
     let mut final_env_inter = HashMap::new();
+    let mut final_shop_npcs = HashMap::new();
     final_npcs.extend(b1_npcs);
     final_npcs.extend(b2_npcs);
     final_npcs.extend(b3_npcs);
@@ -547,12 +549,23 @@ pub fn build_guild_settle() -> (
     final_env_inter.extend(b8_env_inter);
     final_env_inter.extend(b9_env_inter);
     final_env_inter.extend(b10_env_inter);
+    final_shop_npcs.extend(item_shop_npcs);
+    final_shop_npcs.extend(clinic_shop_npcs);
+    final_shop_npcs.extend(weapons_shop_npcs);
+    final_shop_npcs.extend(armour_shop_npcs);
+    final_shop_npcs.extend(canteen1_shop_npcs);
+    final_shop_npcs.extend(filler1_shop_npcs);
+    final_shop_npcs.extend(canteen2_shop_npcs);
+    final_shop_npcs.extend(filler2_shop_npcs);
+    final_shop_npcs.extend(office_shop_npcs);
+    final_shop_npcs.extend(dorm_shop_npcs);
     (
         final_map,
         final_npcs,
         final_sitems,
         final_items,
         final_env_inter,
+        final_shop_npcs,
     )
 }
 
@@ -560,7 +573,7 @@ pub fn place_guild_parts(
     mut map: Vec<Vec<Cells>>,
     part: Vec<Vec<Cells>>,
     npcs: HashMap<(usize, usize), NPCWrap>,
-    sitems: HashMap<(usize, usize), Item>,
+    sitems: HashMap<(usize, usize), ShopItem>,
     items: HashMap<(usize, usize), Item>,
     env_inter: HashMap<(usize, usize), EnvInter>,
     block: u8,
@@ -568,7 +581,7 @@ pub fn place_guild_parts(
 ) -> (
     Vec<Vec<Cells>>,
     HashMap<(usize, usize), NPCWrap>,
-    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), ShopItem>,
     HashMap<(usize, usize), Item>,
     HashMap<(usize, usize), EnvInter>,
 ) {

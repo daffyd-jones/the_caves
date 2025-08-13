@@ -77,7 +77,7 @@ pub fn box_npc(npc: NPCWrap) -> Box<dyn NPC> {
     match npc {
         NPCWrap::CommNPC(comm_npc) => Box::new(comm_npc),
         NPCWrap::ConvNPC(conv_npc) => Box::new(conv_npc),
-        NPCWrap::ShopNPC(shop_npc) => Box::new(shop_npc),
+        // NPCWrap::ShopNPC(shop_npc) => Box::new(shop_npc),
         NPCWrap::SpawnNPC(spawn_npc) => Box::new(spawn_npc),
         NPCWrap::TradeNPC(trade_npc) => Box::new(trade_npc),
         _ => todo!(),

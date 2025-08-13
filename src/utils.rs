@@ -1,5 +1,5 @@
 use crate::enemy::Enemy;
-use crate::enums::{Cells, Door, Enemies, EnvInter, Items, Location};
+use crate::enums::{Cells, Door, Enemies, EnvInter, Items, Location, ShopItem};
 use crate::item::Item;
 use rand::prelude::SliceRandom;
 use rand::Rng;
@@ -200,18 +200,18 @@ pub fn get_dir(vec: (i16, i16)) -> (i8, i8) {
     }
 }
 
-pub fn loc_shop_items(dist_fo: (i16, i16), loc: Location) -> HashMap<(usize, usize), Item> {
+pub fn loc_shop_items(dist_fo: (i16, i16), loc: Location) -> HashMap<(usize, usize), ShopItem> {
     match loc {
         Location::Null => HashMap::new(),
         Location::Settlement(mut settle) => {
             let mut itms = HashMap::new();
             if let Some(sitems) = settle.get_all_shop_items() {
                 let spos = settle.get_pos();
-                for ((x, y), mut i) in sitems {
+                for ((x, y), i) in sitems {
                     let nx = (dist_fo.0 + x as i16 + spos.0) as usize;
                     let ny = (dist_fo.1 + y as i16 + spos.1) as usize;
                     // let ipos = i.get_pos();
-                    i.set_pos((nx, ny));
+                    // i.set_pos((nx, ny));
                     itms.insert((nx, ny), i);
                 }
                 itms
@@ -221,6 +221,5 @@ pub fn loc_shop_items(dist_fo: (i16, i16), loc: Location) -> HashMap<(usize, usi
         }
         Location::Puzzle(_puzzle) => HashMap::new(),
         Location::Feature(_) => HashMap::new(),
-        _ => todo!(),
     }
 }

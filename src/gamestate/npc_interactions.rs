@@ -144,9 +144,9 @@ impl GameState {
         self.conv_step(spwn_conv, "0".to_string(), name, Vec::new())
     }
 
-    pub fn npc_shop_inter(&mut self, mut npc: ShopNPC) -> Vec<String> {
-        let convo = npc.get_convo();
-        let name = npc.get_sname();
+    pub fn npc_shop_inter(&mut self, npc: ShopNPC) -> Vec<String> {
+        let convo = npc.convo;
+        let name = npc.sname;
         self.conv_step(convo, "0".to_string(), name, Vec::new())
     }
 
@@ -376,8 +376,7 @@ impl GameState {
             }
             Interactable::NPC(NPCWrap::ShopNPC(mut shop_npc)) => {
                 let convo = self.npc_shop_inter(shop_npc.clone());
-                self.notebook
-                    .enter_convo(&comb_conv(shop_npc.get_sname(), convo));
+                self.notebook.enter_convo(&comb_conv(shop_npc.sname, convo));
                 // true
             }
             Interactable::NPC(NPCWrap::TradeNPC(trade_npc)) => {

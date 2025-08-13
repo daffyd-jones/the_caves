@@ -206,7 +206,7 @@ impl GUI {
                                     adj_list.push((*pos, conv_npc.clone().get_sname()))
                                 }
                                 NPCWrap::ShopNPC(shop_npc) => {
-                                    adj_list.push((*pos, shop_npc.clone().get_sname()))
+                                    adj_list.push((*pos, shop_npc.clone().sname))
                                 }
                                 NPCWrap::SpawnNPC(spawn_npc) => {
                                     adj_list.push((*pos, spawn_npc.clone().get_sname()))

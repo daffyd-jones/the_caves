@@ -1,6 +1,6 @@
 //gui_utils
 use crate::enemy::Enemy;
-use crate::enums::{AniType, Cells, Door, Enemies, EnvInter, Month, NPCWrap};
+use crate::enums::{AniType, Cells, Door, Enemies, EnvInter, Month, NPCWrap, ShopItem};
 use crate::item::Item;
 use crate::map::Map;
 use crate::player::Player;
@@ -104,7 +104,7 @@ pub struct GuiArgs<'a> {
     pub items: &'a HashMap<(usize, usize), Item>,
     pub npcs: &'a HashMap<(usize, usize), NPCWrap>,
     pub env_inter: Option<&'a HashMap<(usize, usize), EnvInter>>,
-    pub litems: Option<&'a HashMap<(usize, usize), Item>>,
+    pub litems: Option<&'a HashMap<(usize, usize), ShopItem>>,
     pub portals: Option<&'a HashMap<(usize, usize), (usize, usize)>>,
     pub animate: Option<&'a Animation>,
     pub ascii: Option<&'a String>,

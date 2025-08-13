@@ -1,6 +1,7 @@
-use crate::enums::Shops;
 use crate::enums::{Cells, Door, EnvInter, NPCWrap, Settle};
+use crate::enums::{ShopItem, Shops};
 use crate::item::Item;
+use crate::npc::ShopNPC;
 use crate::settlement::parse_map;
 
 use rand::prelude::SliceRandom;
@@ -342,68 +343,98 @@ const OBSIDIAN_DORMS: [&str; 1] = [OBSIDIAN_DORM];
 pub fn build_obsidian_settle() -> (
     Vec<Vec<Cells>>,
     HashMap<(usize, usize), NPCWrap>,
-    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), ShopItem>,
     HashMap<(usize, usize), Item>,
     HashMap<(usize, usize), EnvInter>,
+    HashMap<(usize, usize), ShopNPC>,
 ) {
     let mut rng = rand::thread_rng();
-    let cells = vec![vec![Cells::Empty; 128]; 52];
+    // let cells = vec![vec![Cells::Empty; 128]; 52];
     let face_top = &false;
     // let face_top = [true, false].choose(&mut rng).unwrap_or(&true);
     let mut blocks: Vec<u8> = (1..8).collect();
     blocks.shuffle(&mut rng);
 
-    let (item_map, item_npcs, item_sitems, item_items, item_env_inter) = parse_map(
+    let (item_map, item_npcs, item_sitems, item_items, item_env_inter, item_shop_npcs) = parse_map(
         OBSIDIAN_ITEM_STALLS
             .choose(&mut rng)
             .unwrap_or(&OBSIDIAN_ITEM_STALLS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Item,
     );
-    let (clinic_map, clinic_npcs, clinic_sitems, clinic_items, clinic_env_inter) = parse_map(
-        OBSIDIAN_CLINIC_STALLS
-            .choose(&mut rng)
-            .unwrap_or(&OBSIDIAN_CLINIC_STALLS[0]),
-        vec![vec![Cells::Null; 24]; 12],
-        Shops::Null,
-    );
-    let (herbalist_map, herbalist_npcs, herbalist_sitems, herbalist_items, herbalist_env_inter) =
+    let (clinic_map, clinic_npcs, clinic_sitems, clinic_items, clinic_env_inter, clinic_shop_npcs) =
         parse_map(
-            OBSIDIAN_HERBALIST_STALLS
+            OBSIDIAN_CLINIC_STALLS
                 .choose(&mut rng)
-                .unwrap_or(&OBSIDIAN_HERBALIST_STALLS[0]),
+                .unwrap_or(&OBSIDIAN_CLINIC_STALLS[0]),
             vec![vec![Cells::Null; 24]; 12],
-            Shops::Item,
+            Shops::Null,
         );
-    let (canteen_map, canteen_npcs, canteen_sitems, canteen_items, canteen_env_inter) = parse_map(
+    let (
+        herbalist_map,
+        herbalist_npcs,
+        herbalist_sitems,
+        herbalist_items,
+        herbalist_env_inter,
+        herbalist_shop_npcs,
+    ) = parse_map(
+        OBSIDIAN_HERBALIST_STALLS
+            .choose(&mut rng)
+            .unwrap_or(&OBSIDIAN_HERBALIST_STALLS[0]),
+        vec![vec![Cells::Null; 24]; 12],
+        Shops::Item,
+    );
+    let (
+        canteen_map,
+        canteen_npcs,
+        canteen_sitems,
+        canteen_items,
+        canteen_env_inter,
+        canteen_shop_npcs,
+    ) = parse_map(
         OBSIDIAN_CANTEEN_STALLS
             .choose(&mut rng)
             .unwrap_or(&OBSIDIAN_CANTEEN_STALLS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Null,
     );
-    let (filler1_map, filler1_npcs, filler1_sitems, filler1_items, filler1_env_inter) = parse_map(
+    let (
+        filler1_map,
+        filler1_npcs,
+        filler1_sitems,
+        filler1_items,
+        filler1_env_inter,
+        filler1_shop_npcs,
+    ) = parse_map(
         OBSIDIAN_FILLERS
             .choose(&mut rng)
             .unwrap_or(&OBSIDIAN_FILLERS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Null,
     );
-    let (filler2_map, filler2_npcs, filler2_sitems, filler2_items, filler2_env_inter) = parse_map(
+    let (
+        filler2_map,
+        filler2_npcs,
+        filler2_sitems,
+        filler2_items,
+        filler2_env_inter,
+        filler2_shop_npcs,
+    ) = parse_map(
         OBSIDIAN_FILLERS
             .choose(&mut rng)
             .unwrap_or(&OBSIDIAN_FILLERS[0]),
         vec![vec![Cells::Null; 24]; 12],
         Shops::Null,
     );
-    let (office_map, office_npcs, office_sitems, office_items, office_env_inter) = parse_map(
-        OBSIDIAN_OFFICES
-            .choose(&mut rng)
-            .unwrap_or(&OBSIDIAN_OFFICES[0]),
-        vec![vec![Cells::Null; 24]; 12],
-        Shops::Null,
-    );
-    let (dorm_map, dorm_npcs, dorm_sitems, dorm_items, dorm_env_inter) = parse_map(
+    let (office_map, office_npcs, office_sitems, office_items, office_env_inter, office_shop_npcs) =
+        parse_map(
+            OBSIDIAN_OFFICES
+                .choose(&mut rng)
+                .unwrap_or(&OBSIDIAN_OFFICES[0]),
+            vec![vec![Cells::Null; 24]; 12],
+            Shops::Null,
+        );
+    let (dorm_map, dorm_npcs, dorm_sitems, dorm_items, dorm_env_inter, dorm_shop_npcs) = parse_map(
         OBSIDIAN_DORMS
             .choose(&mut rng)
             .unwrap_or(&OBSIDIAN_DORMS[0]),
@@ -498,6 +529,7 @@ pub fn build_obsidian_settle() -> (
     let mut final_sitems = HashMap::new();
     let mut final_items = HashMap::new();
     let mut final_env_inter = HashMap::new();
+    let mut final_shop_npcs = HashMap::new();
     final_npcs.extend(b1_npcs);
     final_npcs.extend(b2_npcs);
     final_npcs.extend(b3_npcs);
@@ -530,12 +562,21 @@ pub fn build_obsidian_settle() -> (
     final_env_inter.extend(b6_env_inter);
     final_env_inter.extend(b7_env_inter);
     final_env_inter.extend(b8_env_inter);
+    final_shop_npcs.extend(item_shop_npcs);
+    final_shop_npcs.extend(clinic_shop_npcs);
+    final_shop_npcs.extend(herbalist_shop_npcs);
+    final_shop_npcs.extend(canteen_shop_npcs);
+    final_shop_npcs.extend(filler1_shop_npcs);
+    final_shop_npcs.extend(filler2_shop_npcs);
+    final_shop_npcs.extend(office_shop_npcs);
+    final_shop_npcs.extend(dorm_shop_npcs);
     (
         final_map,
         final_npcs,
         final_sitems,
         final_items,
         final_env_inter,
+        final_shop_npcs,
     )
 }
 
@@ -543,7 +584,7 @@ fn place_obsidion_parts(
     mut map: Vec<Vec<Cells>>,
     part: Vec<Vec<Cells>>,
     npcs: HashMap<(usize, usize), NPCWrap>,
-    sitems: HashMap<(usize, usize), Item>,
+    sitems: HashMap<(usize, usize), ShopItem>,
     items: HashMap<(usize, usize), Item>,
     env_inter: HashMap<(usize, usize), EnvInter>,
     block: u8,
@@ -551,7 +592,7 @@ fn place_obsidion_parts(
 ) -> (
     Vec<Vec<Cells>>,
     HashMap<(usize, usize), NPCWrap>,
-    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), ShopItem>,
     HashMap<(usize, usize), Item>,
     HashMap<(usize, usize), EnvInter>,
 ) {
