@@ -566,7 +566,7 @@ pub enum ShopItem {
     Weapon(Item),
     Armor(Item),
     Consignment(Item),
-    Null(Item),
+    Null,
 }
 
 #[derive(Clone, Debug, PartialEq)]

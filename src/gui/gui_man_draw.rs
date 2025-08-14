@@ -1,4 +1,4 @@
-use crate::enums::{Door, EnvInter, InterOpt, Interactable, NPCWrap};
+use crate::enums::{Door, EnvInter, InterOpt, Interactable, NPCWrap, ShopItem, Shops};
 use crate::gui::GUI;
 use crate::gui_utils::{draw_map, GuiArgs};
 use crate::npc::NPC;
@@ -191,9 +191,20 @@ impl GUI {
                     let Some(inter) = interable else { todo!() };
                     match inter {
                         Interactable::Item(item) => adj_list.push((*pos, item.clone().get_sname())),
-                        Interactable::ShopItem(item) => {
-                            adj_list.push((*pos, item.clone().get_sname()))
-                        }
+                        Interactable::ShopItem(item) => adj_list.push((
+                            *pos,
+                            match item {
+                                ShopItem::Item(item) => item.clone().sname,
+                                ShopItem::Herbalist(item) => item.clone().sname,
+                                ShopItem::Weapon(item) => item.clone().sname,
+                                ShopItem::Armor(item) => item.clone().sname,
+                                ShopItem::Consignment(item) => item.clone().sname,
+                                ShopItem::Guild => todo!(),
+                                ShopItem::Church => todo!(),
+                                ShopItem::Clinic => todo!(),
+                                ShopItem::Null => todo!(),
+                            },
+                        )),
                         Interactable::Enemy(enemy) => {
                             adj_list.push((*pos, enemy.clone().get_sname()))
                         }
@@ -237,6 +248,21 @@ impl GUI {
                             }
                             EnvInter::Door(Door::VLocked(_)) => {
                                 adj_list.push((*pos, "Locked Door".to_string()))
+                            }
+                            EnvInter::ShopNPC(Shops::Item) => {
+                                adj_list.push((*pos, "Shop Keeper".to_string()))
+                            }
+                            EnvInter::ShopNPC(Shops::Guild) => {
+                                adj_list.push((*pos, "Guild Head".to_string()))
+                            }
+                            EnvInter::ShopNPC(Shops::Church) => {
+                                adj_list.push((*pos, "Obsidian Steward".to_string()))
+                            }
+                            EnvInter::ShopNPC(Shops::Weapon) => {
+                                adj_list.push((*pos, "Weapons Dealer".to_string()))
+                            }
+                            EnvInter::ShopNPC(Shops::Armor) => {
+                                adj_list.push((*pos, "Armourer".to_string()))
                             }
                             _ => todo!(),
                         },

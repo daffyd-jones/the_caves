@@ -299,7 +299,7 @@ pub fn build_guild_settle() -> (
             .choose(&mut rng)
             .unwrap_or(&GUILD_WEAPONS_STALLS[0]),
         vec![vec![Cells::Null; 24]; 12],
-        Shops::Item,
+        Shops::Weapon,
     );
 
     let (armour_map, armour_npcs, armour_sitems, armour_items, armour_env_inter, armour_shop_npcs) =
@@ -308,7 +308,7 @@ pub fn build_guild_settle() -> (
                 .choose(&mut rng)
                 .unwrap_or(&GUILD_ARMOUR_STALLS[0]),
             vec![vec![Cells::Null; 24]; 12],
-            Shops::Item,
+            Shops::Armor,
         );
 
     let (

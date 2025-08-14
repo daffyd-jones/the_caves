@@ -2,10 +2,14 @@
 
 use crate::gamestate::GameState;
 
-use crate::enums::{Door, EnvInter, GameMode, Interactable, Items, Plants, PuzzleType, TaskEnv};
+use crate::enums::{
+    Door, EnvInter, GameMode, Interactable, Items, Location, Plants, PuzzleType, Shops, TaskEnv,
+};
 use crate::gui_utils::{DisplayStats, GuiArgs};
 use crate::item::Item;
+use crate::shop::Shop;
 use crate::tasks::{self, Task, TaskType};
+use crate::utils::comb_conv;
 use crate::utils::loc_shop_items;
 use ratatui::crossterm::event::{poll, read, Event, KeyCode};
 use std::collections::HashMap;
@@ -642,6 +646,33 @@ Direction:
         true
     }
 
+    fn shop_npc(&mut self, shop_type: Shops) -> bool {
+        // check here for plot/task convos
+        let snpc = match &self.location {
+            Location::Settlement(settle) => &settle.shops.get(&shop_type).unwrap().npc,
+            _ => todo!(),
+        };
+        let name = match shop_type {
+            Shops::Item => "Shop Keeper".to_string(),
+            Shops::Guild => "Guild Head".to_string(),
+            Shops::Church => "Obsidian Steward".to_string(),
+            Shops::Clinic => "Clinic".to_string(),
+            Shops::Herbalist => "Herbalist".to_string(),
+            Shops::Weapon => "Weapon Smith".to_string(),
+            Shops::Armor => "Armourer".to_string(),
+            Shops::Consignment => "Shop Keeper".to_string(),
+            Shops::Null => todo!(),
+        };
+        let conv = self.conv_step(
+            snpc.convo.clone(),
+            "0".to_string(),
+            name.clone(),
+            Vec::new(),
+        );
+        self.notebook.enter_convo(&comb_conv(name, conv));
+        true
+    }
+
     fn unlock_door(&mut self, door: Door) {
         let adj = [
             (self.player.x - 1, self.player.y),
@@ -837,6 +868,7 @@ Direction:
             EnvInter::Herbalist => self.herbalist(),
             EnvInter::Door(door) => self.locked_door(door),
             EnvInter::Construction => self.construction(),
+            EnvInter::ShopNPC(shop_type) => self.shop_npc(shop_type),
             EnvInter::TaskEnv(TaskEnv::BoardGoalEntity) => self.task_board_goal(),
             _ => {
                 // log::info!("Not entering locked_door");

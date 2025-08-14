@@ -223,3 +223,17 @@ pub fn loc_shop_items(dist_fo: (i16, i16), loc: Location) -> HashMap<(usize, usi
         Location::Feature(_) => HashMap::new(),
     }
 }
+
+pub fn comb_conv(name: String, convo: Vec<String>) -> String {
+    let mut conv = "".to_string();
+    for (i, c) in convo.into_iter().enumerate() {
+        let t = if i % 2 == 0 {
+            format!("{}: {}", name, c)
+        } else {
+            format!("You: {}", c)
+        };
+        conv.push_str(&t);
+        conv.push('#');
+    }
+    conv
+}

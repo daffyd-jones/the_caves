@@ -248,7 +248,18 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                 } else if let Some(item) = gui_args.items.get(&(ix, jy)) {
                     item.icon
                 } else if let Some(item) = gui_args.litems.unwrap().get(&(ix, jy)) {
-                    item.icon
+                    match item {
+                        ShopItem::Item(item) => item.icon,
+                        ShopItem::Herbalist(item) => item.icon,
+                        ShopItem::Weapon(item) => item.icon,
+                        ShopItem::Armor(item) => item.icon,
+                        ShopItem::Consignment(item) => item.icon,
+                        ShopItem::Guild => todo!(),
+                        ShopItem::Church => todo!(),
+                        ShopItem::Clinic => todo!(),
+                        ShopItem::Null => todo!(),
+                    }
+                    // item.icon
                 } else if let Some(env) = gui_args.env_inter.unwrap().get(&(ix, jy)) {
                     let env_col = {
                         if ani_cnt % 3 == 0 {
@@ -271,6 +282,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::Door(Door::VOpen) => ('🮀', Color::White),
                         EnvInter::Door(Door::HLocked(_)) => ('╌', Color::White),
                         EnvInter::Door(Door::HOpen) => ('̸', Color::White),
+                        EnvInter::ShopNPC(_) => ('ì', Color::White),
                         _ => todo!(),
                     }
                 } else {

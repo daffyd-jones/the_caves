@@ -163,7 +163,7 @@ pub fn build_med_settle() -> (
     ) = parse_map(
         HERBALISTS.choose(&mut rng).unwrap_or(&HERBALISTS[0]),
         vec![vec![Cells::Null; 75]; 25],
-        Shops::Null,
+        Shops::Herbalist,
     );
     let (open1_map, open1_npcs, open1_sitems, open1_items, open1_env_inter, open1_shop_npcs) =
         parse_map(

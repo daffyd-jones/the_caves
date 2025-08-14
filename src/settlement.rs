@@ -415,7 +415,7 @@ fn parse_map(
                         Shops::Weapon => ShopItem::Weapon(sitm),
                         Shops::Armor => ShopItem::Armor(sitm),
                         Shops::Consignment => ShopItem::Consignment(sitm),
-                        _ => ShopItem::Null(Item::default()),
+                        _ => ShopItem::Null,
                     },
                 );
                 sicount += 1;

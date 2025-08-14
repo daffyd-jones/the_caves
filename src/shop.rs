@@ -106,13 +106,6 @@ impl Shop {
         self.npc.clone()
     }
 
-    // pub fn remove_item(&mut self, pos: (usize, usize)) {
-    //     log::info!("rem item pos\n{:?}", pos.clone());
-    //     log::info!("pre rem stock\n{:?}", self.stock.clone());
-    //     let rem = self.stock.remove(&pos);
-    //     log::info!("shop item rem\n{:?}", rem.clone());
-    // }
-
     pub fn set_paid(&mut self, paid: bool) {
         self.paid = paid;
     }

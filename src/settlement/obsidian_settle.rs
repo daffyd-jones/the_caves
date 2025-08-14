@@ -382,7 +382,7 @@ pub fn build_obsidian_settle() -> (
             .choose(&mut rng)
             .unwrap_or(&OBSIDIAN_HERBALIST_STALLS[0]),
         vec![vec![Cells::Null; 24]; 12],
-        Shops::Item,
+        Shops::Herbalist,
     );
     let (
         canteen_map,
