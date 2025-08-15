@@ -66,9 +66,10 @@
 
 - [ ] CLEAN UP GUI
 - [ ] menus - main/ingame/death
+  - [+] main menu
+  - [ ] ingame menu
+  - [ ] death menu
 - [ ] save/load
-- [+] refactor project
-- [ ] convert ShopNPCs to EnvInter?
 - [ ] test area animate
 
 ## Done
@@ -85,6 +86,11 @@
     - [+] implement convo
     - [+] implement plant identification
     - [+] implement EnvInter toggle
+
+- [+] ShopNPC -> EnvInter
+- [+] fix enemy ascii
+- [+] re-arrange notes
+  
 
 # Seasons
 

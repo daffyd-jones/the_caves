@@ -98,20 +98,28 @@ impl Default for Lore {
 
 //#[derive(Serialize, Deserialize)]
 pub struct Notebook {
-    settles: HashMap<String, String>,
-    convos: Vec<String>,
     knowledge: HashMap<String, String>,
     tasks: HashMap<String, String>,
+    settles: HashMap<String, String>,
+    convos: Vec<String>,
 }
 
 impl Notebook {
     pub fn new() -> Result<Self> {
         Ok(Self {
-            settles: HashMap::new(),
-            convos: Vec::new(),
             knowledge: HashMap::new(),
             tasks: HashMap::new(),
+            settles: HashMap::new(),
+            convos: Vec::new(),
         })
+    }
+
+    pub fn enter_knowledge(&mut self, sname: String, snote: String) {
+        self.knowledge.insert(sname, snote);
+    }
+
+    pub fn enter_tasks(&mut self, sname: String, snote: String) {
+        self.tasks.insert(sname, snote);
     }
 
     pub fn enter_settles(&mut self, sname: String, snote: String) {
@@ -123,27 +131,19 @@ impl Notebook {
         self.convos.push(snote.to_string().clone());
     }
 
-    pub fn enter_knowledge(&mut self, sname: String, snote: String) {
-        self.knowledge.insert(sname, snote);
-    }
-
-    pub fn enter_tasks(&mut self, sname: String, snote: String) {
-        self.tasks.insert(sname, snote);
-    }
-
     pub fn get_notes(
         &self,
     ) -> (
         HashMap<String, String>,
+        HashMap<String, String>,
+        HashMap<String, String>,
         Vec<String>,
-        HashMap<String, String>,
-        HashMap<String, String>,
     ) {
         (
-            self.settles.clone(),
-            self.convos.clone(),
             self.knowledge.clone(),
             self.tasks.clone(),
+            self.settles.clone(),
+            self.convos.clone(),
         )
     }
 }

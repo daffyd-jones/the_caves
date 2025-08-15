@@ -48,7 +48,7 @@ pub struct GUI {
     comp_list: Vec<String>,
     comp_opts: (Vec<String>, Vec<String>, Vec<String>, Vec<String>, Vec<String>, Vec<String>),
     notes_opt: (Vec<String>, Vec<String>),
-    active_notes: (HashMap<String, String>, Vec<String>, HashMap<String, String>, HashMap<String, String>),
+    active_notes: (HashMap<String, String>, HashMap<String, String>, HashMap<String, String>, Vec<String>),
     enc_opt: (Vec<(EncOpt, String)>, Vec<(EncOpt, String)>),
     help: bool,
 }
@@ -167,7 +167,7 @@ impl GUI {
             comp_list,
             comp_opts,
             notes_opt,
-            active_notes: (HashMap::new(), Vec::new(), HashMap::new(), HashMap::new()),
+            active_notes: (HashMap::new(), HashMap::new(), HashMap::new(), Vec::new()),
             enc_opt,
             help,
         }
@@ -184,7 +184,7 @@ impl GUI {
         );
     }
 
-    pub fn set_notes(&mut self, notes: (HashMap<String, String>, Vec<String>, HashMap<String, String>, HashMap<String, String>)) {
+    pub fn set_notes(&mut self, notes: (HashMap<String, String>, HashMap<String, String>, HashMap<String, String>, Vec<String>)) {
         self.active_notes = notes;
     }
 
@@ -683,8 +683,8 @@ impl GUI {
                         ]),
                     ];
                     let stats = Table::new(rows, &[
-                        Constraint::Percentage(25),
-                        Constraint::Percentage(5),
+                        Constraint::Percentage(15),
+                        Constraint::Percentage(7),
                         Constraint::Percentage(25),
                         Constraint::Percentage(5),
                         Constraint::Percentage(27),
@@ -1101,7 +1101,7 @@ impl GUI {
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
-                    let vec1 = vec!["Settlements".to_string(), "Conversations".to_string(), "Knowledge".to_string(), "Tasks".to_string()];
+                    let vec1 = vec!["Knowledge".to_string(), "Tasks".to_string(), "Settlements".to_string(), "Conversations".to_string()];
                     let vec2 = vec!["".to_string(), "".to_string(), "".to_string(), "".to_string()];
 
                     let inv_table: Vec<Vec<String>, > = vec![vec1.clone(), vec2.clone()];
@@ -1124,7 +1124,7 @@ impl GUI {
                         }).collect();
                         Row::new(cells)
                     }).collect();
-                    let table = Table::new(rows, &[Constraint::Percentage(27), Constraint::Percentage(30), Constraint::Percentage(20), Constraint::Percentage(10)])
+                    let table = Table::new(rows, &[Constraint::Percentage(20), Constraint::Percentage(15), Constraint::Percentage(25), Constraint::Percentage(30)])
                         .block(notes_block);
 
                     let c_hold = &self.cursor_hold.0;
@@ -1145,13 +1145,43 @@ impl GUI {
                                 let text = Text::from(tvec);
                                 let paragraph = Paragraph::new(text)
                                     .block(note_block)
-                                    .alignment(ratatui::layout::Alignment::Center)
                                     .wrap(ratatui::widgets::Wrap { trim: true });
                                 paragraph
                             },
                             1 => {
                                 let mut tvec = Vec::new();
-                                for v in &self.active_notes.1 {
+                                for (i, v) in self.active_notes.1.keys().enumerate() {
+                                    if self.cursor_pos.1 == i {
+                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::Yellow))));
+                                    } else {
+                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::White))));
+                                    }
+                                }
+                                let text = Text::from(tvec);
+                                let paragraph = Paragraph::new(text)
+                                    .block(note_block)
+                                    .wrap(ratatui::widgets::Wrap { trim: true });
+                                paragraph
+                            },
+                            2 => {
+                                let mut tvec = Vec::new();
+                                for (i, v) in self.active_notes.2.keys().enumerate() {
+                                    if self.cursor_pos.1 == i {
+                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::Yellow))));
+                                    } else {
+                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::White))));
+                                    }
+                                }
+                                let text = Text::from(tvec);
+                                let paragraph = Paragraph::new(text)
+                                    .block(note_block)
+                                    .alignment(ratatui::layout::Alignment::Center)
+                                    .wrap(ratatui::widgets::Wrap { trim: true });
+                                paragraph
+                            },
+                            3 => {
+                                let mut tvec = Vec::new();
+                                for v in &self.active_notes.3 {
                                     let sp = v.split("#");
                                     for l in sp {
                                         tvec.push(Line::from(Span::styled(l, Style::default().fg(Color::White))));
@@ -1170,36 +1200,6 @@ impl GUI {
                                     .scroll((self.cursor_pos.1.try_into().expect("oope"), 0));
                                 paragraph
                             },
-                            2 => {
-                                let mut tvec = Vec::new();
-                                for (i, v) in self.active_notes.2.keys().enumerate() {
-                                    if self.cursor_pos.1 == i {
-                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::Yellow))));
-                                    } else {
-                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::White))));
-                                    }
-                                }
-                                let text = Text::from(tvec);
-                                let paragraph = Paragraph::new(text)
-                                    .block(note_block)
-                                    .wrap(ratatui::widgets::Wrap { trim: true });
-                                paragraph
-                            },
-                            3 => {
-                                let mut tvec = Vec::new();
-                                for (i, v) in self.active_notes.3.keys().enumerate() {
-                                    if self.cursor_pos.1 == i {
-                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::Yellow))));
-                                    } else {
-                                        tvec.push(Line::from(Span::styled(v, Style::default().fg(Color::White))));
-                                    }
-                                }
-                                let text = Text::from(tvec);
-                                let paragraph = Paragraph::new(text)
-                                    .block(note_block)
-                                    .wrap(ratatui::widgets::Wrap { trim: true });
-                                paragraph
-                            },
                             _ => {
                                 let paragraph = Paragraph::new(Span::raw("Notes for the user."))
                                     .block(note_block);
@@ -1209,56 +1209,47 @@ impl GUI {
                     } else {
                         match c_hold {
                             0 => {
-                                // let mut tvec = Vec::new();
-                                // for (k, v) in &self.active_notes.0 {
-                                //     tvec.push(
-                                //         Line::from(Span::raw(k))
-                                //     );
-                                //     tvec.push(
-                                //         Line::from(Span::raw(v))
-                                //     );
-                                // }
-                                let settle = self.active_notes.0.clone().into_values().collect::<Vec<String>>()[self.cursor_pos.1].clone();
-                                let paragraph = Paragraph::new(Text::raw(settle))
+                                let mut tvec = Vec::new();
+                                for (k, v) in &self.active_notes.0 {
+                                    tvec.push(
+                                        Line::from(Span::raw(k))
+                                    );
+                                    tvec.push(
+                                        Line::from(Span::raw(v))
+                                    );
+                                }
+                                let text = Text::from(tvec);
+                                let paragraph = Paragraph::new(text)
                                     .block(note_block)
-                                    .alignment(ratatui::layout::Alignment::Center)
                                     .wrap(ratatui::widgets::Wrap { trim: true });
                                 paragraph
                             },
                             1 => {
-                                let text = Text::from(Line::from(Span::raw(" ")));
+                                let mut tvec = Vec::new();
+                                for (k, v) in &self.active_notes.1 {
+                                    tvec.push(
+                                        Line::from(Span::raw(k))
+                                    );
+                                    tvec.push(
+                                        Line::from(Span::raw(v))
+                                    );
+                                }
+                                let text = Text::from(tvec);
                                 let paragraph = Paragraph::new(text)
                                     .block(note_block)
                                     .wrap(ratatui::widgets::Wrap { trim: true });
                                 paragraph
                             },
                             2 => {
-                                let mut tvec = Vec::new();
-                                for (k, v) in &self.active_notes.2 {
-                                    tvec.push(
-                                        Line::from(Span::raw(k))
-                                    );
-                                    tvec.push(
-                                        Line::from(Span::raw(v))
-                                    );
-                                }
-                                let text = Text::from(tvec);
-                                let paragraph = Paragraph::new(text)
+                                let settle = self.active_notes.2.clone().into_values().collect::<Vec<String>>()[self.cursor_pos.1].clone();
+                                let paragraph = Paragraph::new(Text::raw(settle))
                                     .block(note_block)
+                                    .alignment(ratatui::layout::Alignment::Center)
                                     .wrap(ratatui::widgets::Wrap { trim: true });
                                 paragraph
                             },
                             3 => {
-                                let mut tvec = Vec::new();
-                                for (k, v) in &self.active_notes.3 {
-                                    tvec.push(
-                                        Line::from(Span::raw(k))
-                                    );
-                                    tvec.push(
-                                        Line::from(Span::raw(v))
-                                    );
-                                }
-                                let text = Text::from(tvec);
+                                let text = Text::from(Line::from(Span::raw(" ")));
                                 let paragraph = Paragraph::new(text)
                                     .block(note_block)
                                     .wrap(ratatui::widgets::Wrap { trim: true });
@@ -1273,7 +1264,7 @@ impl GUI {
                     };
 
                     f.render_widget(table, normal_info[0]);
-                    if self.menu_lvl == 0 && self.cursor_pos.0 == 2 {
+                    if self.menu_lvl == 0 && self.cursor_pos.0 == 0 {
                         let know_layout = Layout::default()
                             .direction(Direction::Vertical)
                             .constraints(

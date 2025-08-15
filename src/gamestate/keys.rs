@@ -95,7 +95,6 @@ impl GameState {
             }
             KeyCode::Char('h') => self.gui.toggle_help(),
             KeyCode::Char('p') => self.gui.set_info_mode(GUIMode::Bug),
-            KeyCode::Char('o') => self.gui.set_info_mode(GUIMode::Normal),
             KeyCode::Char('q') => self.gui.set_info_mode(GUIMode::Normal),
             KeyCode::Char('w') => {
                 self.gui.set_info_mode(GUIMode::Map);
@@ -117,8 +116,8 @@ impl GameState {
                 self.gui.set_notes(self.notebook.get_notes());
             }
             KeyCode::Char('a') => self.gui.move_cursor("LF"),
-            KeyCode::Char('s') => self.gui.move_cursor("UP"),
-            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+            KeyCode::Char('s') => self.gui.move_cursor("DN"),
+            KeyCode::Char('d') => self.gui.move_cursor("UP"),
             KeyCode::Char('f') => self.gui.move_cursor("RT"),
             KeyCode::Char(' ') => self.start_interact(),
             KeyCode::Enter => {
@@ -183,8 +182,8 @@ impl GameState {
                 self.game_mode = GameMode::Play;
             }
             KeyCode::Char('a') => self.gui.move_cursor("LF"),
-            KeyCode::Char('s') => self.gui.move_cursor("UP"),
-            KeyCode::Char('d') => self.gui.move_cursor("DN"),
+            KeyCode::Char('s') => self.gui.move_cursor("DN"),
+            KeyCode::Char('d') => self.gui.move_cursor("UP"),
             KeyCode::Char('f') => self.gui.move_cursor("RT"),
             _ => {}
         }
