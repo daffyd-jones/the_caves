@@ -79,19 +79,21 @@ impl GUI {
 
                 //------
 
+                let chunk_w = chunks[0].inner(Margin::new(0, 0)).width;
+                let fit = chunk_w as i8 - 60;
+                let ascii = gui_args.ascii.unwrap();
                 let mut ascii_str = Vec::new();
                 ascii_str.push(Span::styled(cntnt, Style::default().white()));
-                // let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
-                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
-
-                let ascii = gui_args.ascii.unwrap();
-
                 for i in 0..(ascii.len() / 60) {
                     let line = &ascii[i * 60..(i * 60 + 60)];
-                    let padded_line = format!("{}{}", padding, line);
-                    ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                    let crop_line = if fit < 0 {
+                        // line[-fit as usize..-fit as usize].to_string()
+                        line[(-fit * 2) as usize..].to_string()
+                    } else {
+                        line.to_string()
+                    };
+                    ascii_str.push(Span::styled(crop_line, Style::default().white()));
                 }
-
                 let texts: Text = ascii_str.into_iter().collect();
 
                 let paragraph_block = Block::default()
@@ -257,18 +259,20 @@ impl GUI {
                     .split(game_chunks[1]);
 
                 //------
-                let mut ascii_str = Vec::new();
-                // let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
-                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
-
+                let chunk_w = chunks[0].inner(Margin::new(0, 0)).width;
+                let fit = chunk_w as i8 - 60;
                 let ascii = gui_args.ascii.unwrap();
-
+                let mut ascii_str = Vec::new();
+                ascii_str.push(Span::styled("", Style::default().white()));
                 for i in 0..(ascii.len() / 60) {
                     let line = &ascii[i * 60..(i * 60 + 60)];
-                    let padded_line = format!("{}{}", padding, line);
-                    ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                    let crop_line = if fit < 0 {
+                        line[(-fit * 2) as usize..].to_string()
+                    } else {
+                        line.to_string()
+                    };
+                    ascii_str.push(Span::styled(crop_line, Style::default().white()));
                 }
-
                 let texts: Text = ascii_str.into_iter().collect();
 
                 let paragraph_block = Block::default()
@@ -440,22 +444,20 @@ impl GUI {
 
                 //------
 
-                let mut ascii_str = Vec::new();
-                ascii_str.push(Span::styled(
-                    "What would you like to do?",
-                    Style::default().white(),
-                ));
-                // let padding = " ".repeat(((&chunks[0].width - 60) / 2) as usize);
-                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
-
+                let chunk_w = chunks[0].inner(Margin::new(0, 0)).width;
+                let fit = chunk_w as i8 - 60;
                 let ascii = gui_args.ascii.unwrap();
-
+                let mut ascii_str = Vec::new();
+                ascii_str.push(Span::styled("", Style::default().white()));
                 for i in 0..(ascii.len() / 60) {
                     let line = &ascii[i * 60..(i * 60 + 60)];
-                    let padded_line = format!("{}{}", padding, line);
-                    ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                    let crop_line = if fit < 0 {
+                        line[(-fit * 2) as usize..].to_string()
+                    } else {
+                        line.to_string()
+                    };
+                    ascii_str.push(Span::styled(crop_line, Style::default().white()));
                 }
-
                 let texts: Text = ascii_str.into_iter().collect();
 
                 let paragraph_block = Block::default()
@@ -644,40 +646,6 @@ impl GUI {
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
 
-                // let mut vec1 = vec![(EncOpt::Null, "".to_string()); 3];
-                // let mut vec2 = vec![(EncOpt::Null, "".to_string()); 3];
-                //
-                // for (idx, (a, b)) in enc_opt.iter().enumerate() {
-                //     if idx < 3 {
-                //         vec1[idx] = (a.clone(), b.clone());
-                //     } else {
-                //         vec2[idx - 3] = (a.clone(), b.clone());
-                //     }
-                // }
-                // let enc_opts = vec![vec1.clone(), vec2.clone()];
-                // self.enc_opt = (vec1, vec2);
-                //
-                // // let mut vec1 = vec!["Ok".to_string(); 1];
-                // // let mut vec2 = vec!["".to_string(); 1];
-                //
-                // // let enc_opts = vec![vec1.clone(), vec2.clone()];
-                // let rows: Vec<Row> = enc_opts.iter().enumerate().map(|(j, row)| {
-                //     let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &ref cell)| {
-                //         if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                //             Cell::from(Span::styled(cell.1.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
-                //         } else {
-                //             Cell::from(cell.1.clone())
-                //         }
-                //     }).collect();
-                //     Row::new(cells)
-                // }).collect();
-                // let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
-                //     .block(options_block);
-
-                // let prop = HashMap::new();
-                // let itype = String::new();
-                // let desc = String::new();
-                // let iopts = HashMap::new();
                 let i_temp = Item::default();
                 let mut col1 = vec![(0, i_temp.clone()); 25];
                 let mut col2 = vec![(0, i_temp.clone()); 25];
