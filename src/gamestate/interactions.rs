@@ -139,38 +139,6 @@ impl GameState {
                 }
             }
         }
-        self.gui.reset_cursor();
-        loop {
-            self.gui.inter_res_draw(&mut GuiArgs {
-                map: &self.map,
-                player: &self.player,
-                // stats: &self.stats.player_xp.get_xps(),
-                enemies: &self.enemies,
-                items: &self.items,
-                npcs: &self.npcs,
-                env_inter: Some(&self.env_inters),
-                litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                portals: Some(&self.portals),
-                animate: None,
-                ascii: None,
-                ani_stats: &self.get_ani_stats(),
-            });
-            if poll(std::time::Duration::from_millis(100)).unwrap() {
-                if let Event::Key(event) = read().unwrap() {
-                    // log::info!("keykind {:?}", event.kind.clone());
-                    let now = Instant::now();
-                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
-                        self.last_event_time = now;
-                        let res = self.inter_key(event.code);
-                        if !res {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        self.gui.reset_cursor();
-        // self.gui.set_info_mode(GUIMode::Normal);
         true
     }
 

@@ -239,11 +239,12 @@ impl GameState {
                     }
                     GameMode::Interact(InterSteps::IntOpt) => {
                         self.select_opt();
-                        self.game_mode = GameMode::Interact(InterSteps::Feedback);
-                    }
-                    GameMode::Interact(InterSteps::Feedback) => {
                         self.game_mode = GameMode::Play;
+                        // self.game_mode = GameMode::Interact(InterSteps::Feedback);
                     }
+                    // GameMode::Interact(InterSteps::Feedback) => {
+                    //     self.game_mode = GameMode::Play;
+                    // }
                     _ => self.game_mode = GameMode::Play,
                 }
 

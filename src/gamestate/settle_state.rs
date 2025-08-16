@@ -300,7 +300,7 @@ impl GameState {
                             KeyCode::Enter => {
                                 break;
                             }
-                            _ => todo!(),
+                            _ => {}
                         }
                     }
                 }

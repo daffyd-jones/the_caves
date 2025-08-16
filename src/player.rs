@@ -157,10 +157,9 @@ impl Player {
         true
     }
 
-    pub fn add_equip(&mut self, mut item: Item) {
+    pub fn add_equip(&mut self, mut item: Item) -> Option<Item> {
         let etype = item.get_equip_type();
-        //let item.get_properties();
-        self.equipped.insert(etype, item);
+        self.equipped.insert(etype, item)
     }
 
     pub fn apply_item_effect(&mut self, mut item: Item) {

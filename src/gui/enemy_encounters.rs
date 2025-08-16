@@ -80,6 +80,7 @@ impl GUI {
                 //------
 
                 let chunk_w = chunks[0].inner(Margin::new(0, 0)).width;
+                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
                 let fit = chunk_w as i8 - 60;
                 let ascii = gui_args.ascii.unwrap();
                 let mut ascii_str = Vec::new();
@@ -87,8 +88,9 @@ impl GUI {
                 for i in 0..(ascii.len() / 60) {
                     let line = &ascii[i * 60..(i * 60 + 60)];
                     let crop_line = if fit < 0 {
-                        // line[-fit as usize..-fit as usize].to_string()
-                        line[(-fit * 2) as usize..].to_string()
+                        line[(-fit + (-fit / 2)) as usize..].to_string()
+                    } else if fit > 0 {
+                        format!("{padding}{line}")
                     } else {
                         line.to_string()
                     };
@@ -260,6 +262,7 @@ impl GUI {
 
                 //------
                 let chunk_w = chunks[0].inner(Margin::new(0, 0)).width;
+                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
                 let fit = chunk_w as i8 - 60;
                 let ascii = gui_args.ascii.unwrap();
                 let mut ascii_str = Vec::new();
@@ -267,7 +270,10 @@ impl GUI {
                 for i in 0..(ascii.len() / 60) {
                     let line = &ascii[i * 60..(i * 60 + 60)];
                     let crop_line = if fit < 0 {
-                        line[(-fit * 2) as usize..].to_string()
+                        line[(-fit + (-fit / 2)) as usize..].to_string()
+                        // line[-fit as usize..].to_string()
+                    } else if fit > 0 {
+                        format!("{padding}{line}")
                     } else {
                         line.to_string()
                     };
@@ -445,6 +451,7 @@ impl GUI {
                 //------
 
                 let chunk_w = chunks[0].inner(Margin::new(0, 0)).width;
+                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
                 let fit = chunk_w as i8 - 60;
                 let ascii = gui_args.ascii.unwrap();
                 let mut ascii_str = Vec::new();
@@ -452,7 +459,10 @@ impl GUI {
                 for i in 0..(ascii.len() / 60) {
                     let line = &ascii[i * 60..(i * 60 + 60)];
                     let crop_line = if fit < 0 {
-                        line[(-fit * 2) as usize..].to_string()
+                        line[(-fit + (-fit / 2)) as usize..].to_string()
+                        // line[-fit as usize..].to_string()
+                    } else if fit > 0 {
+                        format!("{padding}{line}")
                     } else {
                         line.to_string()
                     };

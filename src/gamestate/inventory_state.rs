@@ -77,7 +77,12 @@ impl GameState {
 
         if item.is_equip() {
             if self.confirm_equip(item.clone()) {
-                self.player.add_equip(item.clone());
+                let prev = self.player.add_equip(item.clone());
+                self.player.rem_inv_item(idx);
+                if let Some(pitem) = prev {
+                    self.player.add_to_inv(pitem);
+                }
+                self.gui.set_inventory(self.player.get_inventory());
             }
             return;
         } else {
