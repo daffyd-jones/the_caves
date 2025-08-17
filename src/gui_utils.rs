@@ -282,53 +282,53 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::Door(Door::VOpen) => ('🮀', Color::White),
                         EnvInter::Door(Door::HLocked(_)) => ('╌', Color::White),
                         EnvInter::Door(Door::HOpen) => ('̸', Color::White),
-                        EnvInter::ShopNPC(_) => ('ì', Color::White),
+                        EnvInter::ShopNPC(_) => ('ì', Color::Yellow),
                         _ => todo!(),
                     }
                 } else {
                     match cell {
                         Cells::Seasonal1 => match gui_args.ani_stats.season.month {
                             Month::Opal if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('♅', Color::LightGreen)
+                                ('♅', Color::Red)
                             }
                             Month::Quartz if (20..31).contains(&gui_args.ani_stats.season.day) => {
                                 ('♆', Color::LightGreen)
                             }
                             Month::Jade if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('⚙', Color::LightGreen)
+                                ('⚙', Color::LightYellow)
                             }
                             Month::Bizmuth if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('⍒', Color::LightGreen)
+                                ('⍒', Color::LightMagenta)
                             }
                             _ => (' ', Color::Black),
                         },
                         Cells::Seasonal2 => match gui_args.ani_stats.season.month {
                             Month::Opal if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('⏂', Color::LightCyan)
+                                ('⏂', Color::Blue)
                             }
                             Month::Quartz if (20..31).contains(&gui_args.ani_stats.season.day) => {
                                 ('⍾', Color::LightCyan)
                             }
                             Month::Jade if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('⍙', Color::LightCyan)
+                                ('⍙', Color::LightMagenta)
                             }
                             Month::Bizmuth if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('⍡', Color::LightCyan)
+                                ('⍡', Color::LightRed)
                             }
                             _ => (' ', Color::Black),
                         },
                         Cells::Seasonal3 => match gui_args.ani_stats.season.month {
                             Month::Opal if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('△', Color::LightMagenta)
+                                ('△', Color::Magenta)
                             }
                             Month::Quartz if (20..31).contains(&gui_args.ani_stats.season.day) => {
                                 ('◭', Color::LightMagenta)
                             }
                             Month::Jade if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('▲', Color::LightMagenta)
+                                ('▲', Color::LightCyan)
                             }
                             Month::Bizmuth if (20..31).contains(&gui_args.ani_stats.season.day) => {
-                                ('◮', Color::LightMagenta)
+                                ('◮', Color::Cyan)
                             }
                             _ => (' ', Color::Black),
                         },

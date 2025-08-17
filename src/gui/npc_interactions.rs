@@ -409,6 +409,26 @@ impl GUI {
                 let inv_table: Vec<Vec<(usize, Item)>> =
                     vec![col1.clone(), col2.clone(), col3.clone()];
                 self.inv_opt = (col1, col2, col3);
+                let mut cur_bounds = Vec::new();
+                for i in 0..inv_table[0].len() {
+                    if inv_table[0][i].1.itype == Items::Null {
+                        break;
+                    }
+                    cur_bounds.push(1);
+                }
+                for i in 0..inv_table[1].len() {
+                    if inv_table[1][i].1.itype == Items::Null {
+                        break;
+                    }
+                    cur_bounds[i] += 1;
+                }
+                for i in 0..inv_table[2].len() {
+                    if inv_table[2][i].1.itype == Items::Null {
+                        break;
+                    }
+                    cur_bounds[i] += 1;
+                }
+                self.cursor_bounds = cur_bounds;
                 //xx
                 let rows: Vec<Row> = (0..25)
                     .map(|i| {
@@ -649,7 +669,13 @@ impl GUI {
             .unwrap();
     }
 
-    pub fn shop_convo_draw(&mut self, sname: String, dialogue: String, gui_args: &mut GuiArgs) {
+    pub fn shop_convo_draw(
+        &mut self,
+        sname: String,
+        dialogue: String,
+        buy: bool,
+        gui_args: &mut GuiArgs,
+    ) {
         self.terminal
             .draw(|f| {
                 let entire_screen_block = Block::default()
@@ -707,8 +733,13 @@ impl GUI {
                     .block(paragraph_block)
                     .wrap(ratatui::widgets::Wrap { trim: true });
                 // let mut adj_list = vec![];
-                let vec1 = vec!["Yes", "No"];
+                let (vec1, cursor_bounds) = if buy {
+                    (vec!["Yes", "No"], vec![2])
+                } else {
+                    (vec!["Thanks"], vec![1])
+                };
                 let opts = [vec1.clone()];
+                self.cursor_bounds = cursor_bounds;
                 let rows: Vec<Row> = opts
                     .iter()
                     .enumerate()

@@ -231,6 +231,7 @@ impl GameState {
             self.gui.shop_convo_draw(
                 sname.clone(),
                 sh_dialogue.clone(),
+                true,
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
@@ -276,6 +277,7 @@ impl GameState {
             self.gui.shop_convo_draw(
                 sname.clone(),
                 resp_dialogue.clone(),
+                false,
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,

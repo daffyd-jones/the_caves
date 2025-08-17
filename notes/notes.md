@@ -90,7 +90,9 @@
 - [+] ShopNPC -> EnvInter
 - [+] fix enemy ascii
 - [+] re-arrange notes
-  
+- [+] ingame menu  
+- [+] fixed inventory bug
+- [+] 
 
 # Seasons
 
