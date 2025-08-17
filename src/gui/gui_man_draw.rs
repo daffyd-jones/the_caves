@@ -125,6 +125,141 @@ impl GUI {
             .unwrap();
     }
 
+    pub fn ingame_menu(&mut self, gui_args: &mut GuiArgs) {
+        self.terminal
+            .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .margin(1)
+                    .constraints(
+                        [
+                            Constraint::Percentage(10),
+                            Constraint::Percentage(80),
+                            Constraint::Percentage(10),
+                        ]
+                        .as_ref(),
+                    )
+                    .split(f.area());
+
+                let game_chunks = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
+                    .split(chunks[1]);
+
+                let block = Block::default().title("Game").borders(Borders::ALL);
+                f.render_widget(block.clone(), game_chunks[0]);
+                let block_area = game_chunks[0];
+                f.render_widget(block.clone(), block_area);
+                let inner_area = block_area.inner(Margin::default());
+                let in_h = inner_area.height as usize;
+                let in_w = inner_area.width as usize;
+                if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                    // map.set_viewport(in_h, in_w);
+                    self.viewport_dim = (in_w, in_h);
+                }
+
+                let paragraph = draw_map(gui_args, self.ani_cnt);
+                f.render_widget(paragraph, inner_area);
+
+                let info_block = Block::default()
+                    .title("")
+                    .borders(Borders::ALL)
+                    .style(Style::default().bg(Color::Black));
+                f.render_widget(info_block, game_chunks[1]);
+
+                let a = f.area();
+                let b = Block::bordered()
+                    .title("")
+                    .style(Style::default().bg(Color::Black));
+                let (xper, yper) = (80, 20);
+                let harea = |a, xper, yper| {
+                    let vertical =
+                        Layout::vertical([Constraint::Percentage(yper)]).flex(Flex::Center);
+                    let horizontal =
+                        Layout::horizontal([Constraint::Percentage(xper)]).flex(Flex::Center);
+                    let [area] = vertical.areas(a);
+                    let [area] = horizontal.areas(a);
+                    area
+                };
+                let h_area = harea(a, xper, yper);
+                f.render_widget(Clear, h_area);
+                f.render_widget(b, h_area);
+
+                const CUSTOM_BORDER: Set = Set {
+                    top_left: "Ͳ",
+                    top_right: "ፕ",
+                    bottom_left: "ዠ",
+                    bottom_right: "ቸ",
+                    vertical_left: "Ṫ",
+                    vertical_right: "ẛ",
+                    horizontal_top: "±",
+                    horizontal_bottom: "†",
+                };
+                let paragraph = Paragraph::new(Text::styled(
+                    "Menu",
+                    Style::default().add_modifier(Modifier::BOLD),
+                ))
+                .block(Block::bordered().border_set(CUSTOM_BORDER))
+                .style(Style::default().bg(Color::Black))
+                .alignment(ratatui::layout::Alignment::Center)
+                .wrap(ratatui::widgets::Wrap { trim: true });
+                let para_area = Rect {
+                    x: h_area.x + (h_area.width / 3),
+                    y: h_area.y + 8,
+                    width: h_area.width / 3,
+                    height: (h_area.height / 8),
+                };
+                f.render_widget(paragraph, para_area);
+
+                let table_area = Rect {
+                    x: h_area.x + (h_area.width / 3),
+                    y: h_area.y + (h_area.height / 5) + 5,
+                    width: h_area.width / 3,
+                    height: (h_area.height / 2),
+                };
+
+                let start_opts = vec!["Continue", "Quit"];
+                self.cursor_bounds = vec![1; 2];
+                let mut tvec = Vec::new();
+                for (i, v) in start_opts.into_iter().enumerate() {
+                    if self.cursor_pos.1 == i {
+                        tvec.push(
+                            Line::from(Span::styled(
+                                v,
+                                Style::default()
+                                    .fg(Color::Yellow)
+                                    .add_modifier(Modifier::ITALIC),
+                            ))
+                            .alignment(ratatui::layout::Alignment::Center),
+                        );
+                    } else {
+                        tvec.push(
+                            Line::from(Span::styled(
+                                v,
+                                Style::default()
+                                    .fg(Color::White)
+                                    .add_modifier(Modifier::ITALIC),
+                            ))
+                            .alignment(ratatui::layout::Alignment::Center),
+                        );
+                    }
+                }
+                let text = Text::from(tvec);
+                let opts = Paragraph::new(text)
+                    .block(Block::bordered().border_set(CUSTOM_BORDER))
+                    .style(Style::default().bg(Color::Black))
+                    .alignment(ratatui::layout::Alignment::Center)
+                    .wrap(ratatui::widgets::Wrap { trim: true });
+
+                f.render_widget(opts, table_area);
+            })
+            .unwrap();
+    }
+
     //ineractions
     pub fn inter_adj_draw(&mut self, gui_args: &mut GuiArgs) {
         self.terminal
@@ -171,11 +306,11 @@ impl GUI {
                     .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
                     .split(game_chunks[1]);
                 let paragraph_block = Block::default()
-                    .title("Paragraph Block")
+                    .title("")
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
                 let table_block = Block::default()
-                    .title("Table Block")
+                    .title("")
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
                 let paragraph = Paragraph::new(Span::styled(
@@ -356,11 +491,11 @@ impl GUI {
                     .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
                     .split(game_chunks[1]);
                 let paragraph_block = Block::default()
-                    .title("Item")
+                    // .title("Item")
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
                 let table_block = Block::default()
-                    .title("Options")
+                    // .title("Options")
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
                 let paragraph = Paragraph::new(Span::styled(

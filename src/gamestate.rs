@@ -409,6 +409,51 @@ impl GameState {
         }
     }
 
+    pub fn ingame_menu(&mut self) -> usize {
+        self.gui.reset_cursor();
+        loop {
+            self.gui.ingame_menu(&mut GuiArgs {
+                map: &self.map,
+                player: &self.player,
+                enemies: &self.enemies,
+                items: &self.items,
+                npcs: &self.npcs,
+                env_inter: Some(&self.env_inters),
+                litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                portals: Some(&self.portals),
+                animate: None,
+                ascii: None,
+                ani_stats: &self.get_ani_stats(),
+            });
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        let choice = match event.code {
+                            KeyCode::Enter => self.gui.get_cursor().1,
+                            KeyCode::Up => {
+                                self.gui.move_cursor("UP");
+                                10
+                            }
+                            KeyCode::Down => {
+                                self.gui.move_cursor("DN");
+                                10
+                            }
+                            _ => {
+                                let _ = self.comm_key(event.code);
+                                10
+                            }
+                        };
+                        if choice < 10 {
+                            return choice;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fn play_update(&mut self) -> bool {
         if poll(std::time::Duration::from_millis(5)).unwrap() {
             if let Event::Key(event) = read().unwrap() {
@@ -603,7 +648,7 @@ impl GameState {
             _ => todo!(),
         };
 
-        if !res {
+        if !res && self.ingame_menu() == 1 {
             return false;
         }
 

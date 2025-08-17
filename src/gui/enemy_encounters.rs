@@ -88,7 +88,8 @@ impl GUI {
                 for i in 0..(ascii.len() / 60) {
                     let line = &ascii[i * 60..(i * 60 + 60)];
                     let crop_line = if fit < 0 {
-                        line[(-fit + (-fit / 2)) as usize..].to_string()
+                        line[(-fit / 2 + 1) as usize..(line.len() - (-fit / 2 + 1) as usize)]
+                            .to_string()
                     } else if fit > 0 {
                         format!("{padding}{line}")
                     } else {
@@ -270,8 +271,8 @@ impl GUI {
                 for i in 0..(ascii.len() / 60) {
                     let line = &ascii[i * 60..(i * 60 + 60)];
                     let crop_line = if fit < 0 {
-                        line[(-fit + (-fit / 2)) as usize..].to_string()
-                        // line[-fit as usize..].to_string()
+                        line[(-fit / 2 + 1) as usize..(line.len() - (-fit / 2 + 1) as usize)]
+                            .to_string()
                     } else if fit > 0 {
                         format!("{padding}{line}")
                     } else {
@@ -332,17 +333,6 @@ impl GUI {
                 .block(options_block);
 
                 f.render_widget(table, chunks[1]);
-
-                //-----
-
-                // let entity_block = Block::default()
-                //     .title("")
-                //     .borders(Borders::ALL)
-                //     .style(Style::default().bg(Color::Black));
-                // let paragraph = Paragraph::new(Span::raw("entity design")).block(entity_block);
-                // f.render_widget(paragraph, right_chunk[0]);
-
-                //-----
 
                 let stats_block = Block::default()
                     .title("")
@@ -459,8 +449,8 @@ impl GUI {
                 for i in 0..(ascii.len() / 60) {
                     let line = &ascii[i * 60..(i * 60 + 60)];
                     let crop_line = if fit < 0 {
-                        line[(-fit + (-fit / 2)) as usize..].to_string()
-                        // line[-fit as usize..].to_string()
+                        line[(-fit / 2 + 1) as usize..(line.len() - (-fit / 2 + 1) as usize)]
+                            .to_string()
                     } else if fit > 0 {
                         format!("{padding}{line}")
                     } else {

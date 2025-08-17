@@ -278,6 +278,7 @@ impl GUI {
 
                 let vec1 = vec!["Buy", "Sell", "Leave"];
                 let opts = [vec1.clone()];
+                self.cursor_bounds = vec![3];
                 let rows: Vec<Row> = opts
                     .iter()
                     .enumerate()

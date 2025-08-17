@@ -523,36 +523,43 @@ impl GUI {
                          ]),
                     ];
 
-                    let settle_pos = debug.1.split("#");
+                    let settle_pos = debug.1.split("#").collect::<Vec<&str>>();
 
-                    let num_settles = settle_pos.clone().collect::<Vec<&str>>().len();
+                    let num_settles = settle_pos.clone().len();
                     rows.push(
                         Row::new(vec![
                             Span::styled("num settles", Style::default().fg(Color::White)),
                             Span::styled(num_settles.to_string(), Style::default().fg(Color::Yellow)),
                          ])
                     );
-                    for i in settle_pos {
+                    settle_pos[self.cursor_pos.1..self.cursor_pos.1 + 5].into_iter().for_each(|i| {
                         rows.push(
                             Row::new(vec![
-                                Span::styled("-", Style::default().fg(Color::White)),
-                                Span::styled(i, Style::default().fg(Color::Yellow)),
+                                Span::styled("settlements", Style::default().fg(Color::White)),
+                                Span::styled(*i, Style::default().fg(Color::Yellow)),
                              ])
                         );
-                    }
+                    });
 
-                    let feat_pos = debug.3.split("#");
+                    rows.push(
+                        Row::new(vec![
+                            Span::styled("- - - - - - - - - ", Style::default().fg(Color::White)),
+                            Span::styled("- - - - - - - - - ", Style::default().fg(Color::Yellow)),
+                         ])
+                    );
+                    
+                    let feat_pos = debug.3.split("#").collect::<Vec<&str>>();
 
-                    for i in feat_pos {
+                    feat_pos[self.cursor_pos.1..self.cursor_pos.1 + 5].into_iter().for_each(|i| {
                         rows.push(
                             Row::new(vec![
-                                Span::styled(":", Style::default().fg(Color::White)),
-                                Span::styled(i, Style::default().fg(Color::Yellow)),
+                                Span::styled("features", Style::default().fg(Color::White)),
+                                Span::styled(*i, Style::default().fg(Color::Yellow)),
                              ])
                         );
-                    }
+                    });
 
-                    let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
+                    let table = Table::new(rows, &[Constraint::Percentage(30), Constraint::Percentage(70)])
                                     .block(info_block);
 
                     f.render_widget(table, game_chunks[1]);
