@@ -30,16 +30,6 @@ impl Puzzles {
     }
 
     pub fn spawn_new_puzzle(&mut self, pos: (i16, i16), ptype: PuzzleType) -> PuzzleType {
-        // let new_settle_pos = {
-        //     let mut rng = rand::thread_rng();
-        //     let cxabs = pos.0.abs();
-        //     let cyabs = pos.1.abs();
-        //     let nx = rng.gen_range((cxabs + 300)..(cxabs + 800));
-        //     let ny = rng.gen_range((cyabs + 200)..(cyabs + 600));
-        //     let xdir = pos.0 / cxabs;
-        //     let ydir = pos.1 / cyabs;
-        //     (nx * xdir * -1, ny * ydir * -1)
-        // };
         let puzzle = {
             match &ptype {
                 PuzzleType::Maze => Puzzle::new_maze(pos),
@@ -67,11 +57,6 @@ impl Puzzles {
     }
 
     pub fn spawn_node_puzzle(&mut self, pos: (i16, i16)) {
-        // let mut rng = rand::thread_rng();
-        // let choice = *[PuzzleType::Maze, PuzzleType::Ruin]
-        //     .choose(&mut rng)
-        //     .unwrap_or(&PuzzleType::Maze);
-
         let choice = PuzzleType::Ruin;
         let puzzle = match choice {
             PuzzleType::Maze => Puzzle::new_maze(pos),
@@ -80,7 +65,6 @@ impl Puzzles {
             PuzzleType::Inverted => Puzzle::new_maze(pos),
         };
         self.puzzles.insert(pos, puzzle.clone());
-        // self.puzzles.insert(pos, Puzzle::new_ruin(pos));
     }
 
     pub fn check_location(&self, bpos: (i16, i16), rad: u16) -> Option<Puzzle> {

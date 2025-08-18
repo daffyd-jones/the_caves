@@ -2,6 +2,8 @@
 
 ## gameplay
 
+### Hi
+
 - [ ] implement Tasks (EnvInter) - for retrieving items (will require persistance, best for settles/features)
   - [+] create EnvInter
   - [+] implement convos
@@ -10,6 +12,25 @@
   - [ ] implement task completion
   - [ ] implement completion convo/reward
 
+- [ ] make experience handling/upgrading
+  - [+] implement xp_inc
+  - [ ] add xp_inc to interactions/encounters
+  - [ ] add msg when lvl up
+
+### Lo
+
+- [ ] capsite
+ - [ ] add item
+ - [ ] tent envinter - take down, sleep
+ - [ ] health
+ - [ ] 1 a day
+
+- [ ] lockpicking activity
+
+- [ ] treasure chest/crates
+  - [ ] icon
+  - [ ] enum
+
 - [ ] small map
   - [ ] switch map - store current, swap to small
   - [ ] put small in temp with wall
@@ -17,11 +38,6 @@
 
 - [ ] consignment box
   - [ ] need to talk to person at guild_settle to get access
-
-- [ ] make experience handling/upgrading
-  - [+] implement xp_inc
-  - [ ] add xp_inc to interactions/encounters
-  - [ ] add msg when lvl up
 
 - [ ] enchantments
   - [ ] implement enchanted equip items
@@ -43,7 +59,7 @@
 - [ ] implement features - creation/nodemap placement
   - [+] nodemap creation
   - [+] feature creation
-  - [ ] add feature types
+  - [+] add feature types
     - [+] Abandoned Shack
     - [+] Ruins
     - [+] Pond
@@ -67,7 +83,7 @@
 - [ ] CLEAN UP GUI
 - [ ] menus - main/ingame/death
   - [+] main menu
-  - [ ] ingame menu
+  - [+] ingame menu
   - [ ] death menu
 - [ ] save/load
 - [ ] test area animate
@@ -86,13 +102,16 @@
     - [+] implement convo
     - [+] implement plant identification
     - [+] implement EnvInter toggle
-
 - [+] ShopNPC -> EnvInter
 - [+] fix enemy ascii
 - [+] re-arrange notes
 - [+] ingame menu  
 - [+] fixed inventory bug
 - [+] 
+
+  Ʌ  ঌ             
+   i ѧ            
+    ≡            
 
 # Seasons
 

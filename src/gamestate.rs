@@ -703,12 +703,6 @@ impl GameState {
         }
 
         self.compass_check();
-
-        // let now = Instant::now();
-        // if now.duration_since(self.portal_cool) > Duration::from_secs(10) && self.portal_check() {
-        //     self.portal_cool = Instant::now();
-        // }
-
         true
     }
 
