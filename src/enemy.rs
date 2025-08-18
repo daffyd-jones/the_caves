@@ -64,7 +64,7 @@ impl Enemy {
         let attack = 10 * lvl;
         let defence = 10 * lvl;
         let damage = 5 * lvl;
-        let drop = vec![Items::Guts];
+        let drop = vec![Items::Guts, Items::Gold];
         Self {
             etype: Enemies::Bug,
             sname: "Bug".to_string(),
@@ -87,7 +87,7 @@ impl Enemy {
         let attack = 12 * lvl;
         let defence = 12 * lvl;
         let damage = 7 * lvl;
-        let drop = vec![Items::Guts];
+        let drop = vec![Items::Guts, Items::Gold, Items::EdibleRoot, Items::Salve];
         Self {
             etype: Enemies::Slime,
             sname: "Slime".to_string(),
@@ -110,7 +110,7 @@ impl Enemy {
         let attack = 15 * lvl;
         let defence = 15 * lvl;
         let damage = 10 * lvl;
-        let drop = vec![Items::Guts];
+        let drop = vec![Items::Guts, Items::Gold, Items::EdibleRoot, Items::Salve];
         Self {
             etype: Enemies::Snake,
             sname: "Snake".to_string(),
@@ -133,7 +133,7 @@ impl Enemy {
         let attack = 17 * lvl;
         let defence = 17 * lvl;
         let damage = 12 * lvl;
-        let drop = vec![Items::Guts];
+        let drop = vec![Items::Guts, Items::Gold, Items::Salve, Items::MetalScrap];
         Self {
             etype: Enemies::Spider,
             sname: "Spider".to_string(),
@@ -156,7 +156,12 @@ impl Enemy {
         let attack = 20 * lvl;
         let defence = 20 * lvl;
         let damage = 15 * lvl;
-        let drop = vec![Items::Guts];
+        let drop = vec![
+            Items::Guts,
+            Items::Gold,
+            Items::HealthPotion,
+            Items::MetalScrap,
+        ];
         Self {
             etype: Enemies::Goblin,
             sname: "Goblin".to_string(),
@@ -179,7 +184,13 @@ impl Enemy {
         let attack = 20 * lvl;
         let defence = 20 * lvl;
         let damage = 17 * lvl;
-        let drop = vec![Items::Guts];
+        let drop = vec![
+            Items::Guts,
+            Items::Gold,
+            Items::HealthPotion,
+            Items::AgilityPendant,
+            Items::Salve,
+        ];
         Self {
             etype: Enemies::Bandit,
             sname: "Bandit".to_string(),
@@ -202,7 +213,14 @@ impl Enemy {
         let attack = 30 * lvl;
         let defence = 30 * lvl;
         let damage = 20 * lvl;
-        let drop = vec![Items::Guts];
+        let drop = vec![
+            Items::Guts,
+            Items::Gold,
+            Items::HealthPotion,
+            Items::Salve,
+            Items::StrengthPendant,
+            Items::VitalityPotion,
+        ];
         Self {
             etype: Enemies::Ghoul,
             sname: "Ghoul".to_string(),
@@ -225,7 +243,15 @@ impl Enemy {
         let attack = 17 * lvl;
         let defence = 17 * lvl;
         let damage = 12 * lvl;
-        let drop = vec![Items::Guts];
+        let drop = vec![
+            Items::Guts,
+            Items::Gold,
+            Items::MetalScrap,
+            Items::HealthPotion,
+            Items::Salve,
+            Items::IronLongsword,
+            Items::Salve,
+        ];
         Self {
             etype: Enemies::CrazedExplorer,
             sname: "Crazed Explorer".to_string(),
@@ -248,7 +274,15 @@ impl Enemy {
         let attack = 35 * lvl;
         let defence = 35 * lvl;
         let damage = 25 * lvl;
-        let drop = vec![Items::Guts];
+        let drop = vec![
+            Items::Guts,
+            Items::Gold,
+            Items::HealthPotion,
+            Items::Salve,
+            Items::SteelWarAxe,
+            Items::LuckPotion,
+            Items::GemStaff,
+        ];
         Self {
             etype: Enemies::Golem,
             sname: "Golem".to_string(),

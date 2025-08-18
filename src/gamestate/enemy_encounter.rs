@@ -40,6 +40,14 @@ impl GameState {
             Some(Items::MetalScrap) => Item::new_metal_scrap(x, y),
             Some(Items::Salve) => Item::new_salve(x, y),
             Some(Items::HealthPotion) => Item::new_health_potion(x, y),
+            Some(Items::Gold) => Item::new_gold(x, y, e.health),
+            Some(Items::EdibleRoot) => Item::new_edible_root(x, y),
+            Some(Items::AgilityPendant) => Item::new_agility_pendant(x, y),
+            Some(Items::StrengthPendant) => Item::new_strength_pendant(x, y),
+            Some(Items::VitalityPotion) => Item::new_iron_longsword(x, y),
+            Some(Items::SteelWarAxe) => Item::new_steel_claymore(x, y),
+            Some(Items::LuckPotion) => Item::new_luck_potion(x, y),
+            Some(Items::GemStaff) => Item::new_gem_staff(x, y),
             _ => todo!(),
         };
         self.items.insert((x, y), itm.clone());
@@ -206,6 +214,7 @@ impl GameState {
         };
         let mut e = enemy.clone();
         let asciis = self.enemy_asciis.clone();
+
         let ascii = match enemy.etype {
             Enemies::Spider => asciis.get("spider"),
             Enemies::Snake => asciis.get("snake"),
@@ -213,8 +222,12 @@ impl GameState {
             Enemies::Bandit => asciis.get("bandit"),
             Enemies::Goblin => asciis.get("goblin"),
             Enemies::Ghoul => asciis.get("ghoul"),
+            Enemies::Bug => asciis.get("bug"),
+            Enemies::CrazedExplorer => asciis.get("explorer"),
+            Enemies::Golem => asciis.get("golem"),
             _ => None,
         };
+
         let pstart = false;
         if !pstart {
             let enatk = "Enemy is attacking.".to_string();

@@ -120,6 +120,30 @@ impl Item {
         }
     }
 
+    pub fn new_gold(x: usize, y: usize, amt: u16) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("value"), amt);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        Self {
+            itype: Items::Gold,
+            sname: "Gold".to_string(),
+            icon: ('⛂', Color::Yellow),
+            desc: "An amount of gold coins.".to_string(),
+            iopts,
+            equip: false,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Gold,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
     pub fn new_edible_root(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("health"), 3);

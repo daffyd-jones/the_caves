@@ -228,10 +228,10 @@ fn parse_map(
                 '𜰓' => Cells::Tech10,
                 '𜰉' => Cells::Tech11,
                 '𜰊' => Cells::Tech12,
-                '⛀' => Cells::Tech13,
-                '⛁' => Cells::Tech14,
-                '⛂' => Cells::Tech15,
-                '⛃' => Cells::Tech16,
+                // '⛀' => Cells::Tech13,
+                // '⛁' => Cells::Tech14,
+                // '⛂' => Cells::Tech15,
+                // '⛃' => Cells::Tech16,
                 'Ⴉ' => Cells::Tech17,
                 'ቖ' => Cells::Relic1,
                 '⚗' => Cells::Alembic,
@@ -477,6 +477,10 @@ fn parse_map(
                     "LightArmour" => {
                         let ti = Item::new_light_armour(x, y);
                         items.insert((x, y), ti.clone());
+                    }
+                    item if item.contains("Gold") => {
+                        let gsplit: Vec<&str> = item.split(":").collect();
+                        items.insert((x, y), Item::new_gold(x, y, gsplit[1].parse().unwrap()));
                     }
                     _ => {
                         log::info!("itm {:?}", item_types[icount]);

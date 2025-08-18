@@ -270,6 +270,7 @@ pub enum Items {
     StrengthPendant,
     // documents
     Scroll,
+    Gold,
     Null,
 }
 
@@ -347,6 +348,7 @@ pub enum ItemEffect {
     Damage,
     Defence,
     Luck,
+    Gold,
     Null,
 }
 

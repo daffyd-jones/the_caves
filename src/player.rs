@@ -131,6 +131,9 @@ impl Player {
     }
 
     pub fn add_to_inv(&mut self, item: Item) -> bool {
+        if item.effect == ItemEffect::Gold {
+            return self.inc_money(item.properties["value"]);
+        }
         if self.inventory.len() < 75 {
             self.inventory.push(item);
             return true;
