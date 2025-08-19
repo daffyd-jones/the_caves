@@ -355,7 +355,36 @@ fn parse_map(
                                 .choose(&mut rng)
                                 .unwrap_or(&shops.churches[0].clone())
                                 .clone(),
-                            _ => todo!(),
+                            Shops::Clinic => shops
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shops.shops[0].clone())
+                                .clone(),
+                            Shops::Herbalist => shops
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shops.shops[0].clone())
+                                .clone(),
+                            Shops::Weapon => shops
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shops.shops[0].clone())
+                                .clone(),
+                            Shops::Armor => shops
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shops.shops[0].clone())
+                                .clone(),
+                            Shops::Consignment => shops
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shops.shops[0].clone())
+                                .clone(),
+                            _ => shops
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shops.shops[0].clone())
+                                .clone(),
                         };
 
                         let convo = match shop_type {
@@ -374,7 +403,36 @@ fn parse_map(
                                 .choose(&mut rng)
                                 .unwrap_or(&shop_convos.churches[0].clone())
                                 .clone(),
-                            _ => todo!(),
+                            Shops::Clinic => shop_convos
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shop_convos.shops[0].clone())
+                                .clone(),
+                            Shops::Herbalist => shop_convos
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shop_convos.shops[0].clone())
+                                .clone(),
+                            Shops::Weapon => shop_convos
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shop_convos.shops[0].clone())
+                                .clone(),
+                            Shops::Armor => shop_convos
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shop_convos.shops[0].clone())
+                                .clone(),
+                            Shops::Consignment => shop_convos
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shop_convos.shops[0].clone())
+                                .clone(),
+                            _ => shop_convos
+                                .shops
+                                .choose(&mut rng)
+                                .unwrap_or(&shop_convos.shops[0].clone())
+                                .clone(),
                         };
                         shop_npcs.insert(
                             (x, y),
@@ -572,6 +630,36 @@ fn get_settle_shops(
                 Shops::Church,
                 Shop::new_church(n.sh_conv[&shop_name].clone(), HashMap::new(), n),
             ),
+            Shops::Weapon => shops.insert(
+                Shops::Weapon,
+                Shop::new_item_shop(
+                    n.sh_conv[&shop_name].clone(),
+                    sitems
+                        .clone()
+                        .into_iter()
+                        .filter(|(_k, v)| match *v {
+                            ShopItem::Item(_) => true,
+                            _ => false,
+                        })
+                        .collect(),
+                    n,
+                ),
+            ),
+            Shops::Armor => shops.insert(
+                Shops::Item,
+                Shop::new_item_shop(
+                    n.sh_conv[&shop_name].clone(),
+                    sitems
+                        .clone()
+                        .into_iter()
+                        .filter(|(_k, v)| match *v {
+                            ShopItem::Item(_) => true,
+                            _ => false,
+                        })
+                        .collect(),
+                    n,
+                ),
+            ),
             //_ => Some(Shop::default()),
             _ => todo!(),
         };
@@ -672,7 +760,7 @@ impl Settlement {
         }
     }
 
-    pub fn new_node_settle(pos: (i16, i16), sname: String) -> Self {
+    pub fn new_node_small_settle(pos: (i16, i16), sname: String) -> Self {
         // let (map, npcs, sitems, items, env_inters) = build_med_settle();
         let (map, npcs, sitems, items, env_inters, shop_npc) = build_small_settle(false);
         let shops = get_settle_shops(shop_npc, sitems);

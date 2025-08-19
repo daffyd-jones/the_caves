@@ -1,8 +1,9 @@
-use crate::enums::{EnvInter, TaskEnv};
+use crate::enums::{EnvInter, Settle, TaskEnv};
 //settlements
 //use crate::enums::{Settle};
 use crate::settlement::Settlement;
 use crate::tasks::{Task, TaskType};
+use rand::seq::SliceRandom;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -70,8 +71,21 @@ impl Settlements {
     }
 
     pub fn spawn_node_settlement(&mut self, pos: (i16, i16), name: String) {
-        self.settlements
-            .insert(pos, Settlement::new_node_settle(pos, name));
+        let mut rng = rand::thread_rng();
+        self.settlements.insert(
+            pos,
+            match [Settle::Small]
+                // match [Settle::Small, Settle::Med, Settle::Guild, Settle::Obsidian]
+                .choose(&mut rng)
+                .unwrap()
+            {
+                Settle::Small => Settlement::new_node_small_settle(pos, name),
+                Settle::Med => Settlement::new_node_med_settle(pos, name),
+                Settle::Guild => Settlement::new_node_guild_settle(pos, name),
+                Settle::Obsidian => Settlement::new_node_obsidian_settle(pos, name),
+                _ => Settlement::new_node_small_settle(pos, name),
+            },
+        );
     }
 
     pub fn get_settle_pos(&mut self) -> Vec<(i16, i16)> {

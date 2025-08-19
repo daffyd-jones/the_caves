@@ -150,17 +150,17 @@ impl Features {
 
     pub fn new_rand_feature(&mut self, pos: (i16, i16)) {
         let mut rng = rand::thread_rng();
-        // let choice = *[
-        //     FeatureType::AbandonedShack,
-        //     FeatureType::Field,
-        //     FeatureType::Ruin,
-        //     FeatureType::Stream,
-        //     FeatureType::Construction,
-        //     FeatureType::Pond,
-        // ]
-        // .choose(&mut rng)
-        // .unwrap_or(&FeatureType::AbandonedShack);
-        let choice = FeatureType::Pond;
+        let choice = *[
+            FeatureType::AbandonedShack,
+            FeatureType::Field,
+            FeatureType::Ruin,
+            FeatureType::Stream,
+            FeatureType::Construction,
+            FeatureType::Pond,
+        ]
+        .choose(&mut rng)
+        .unwrap_or(&FeatureType::AbandonedShack);
+        // let choice = FeatureType::Pond;
         match choice {
             FeatureType::AbandonedShack => self.new_abandoned_shack(pos),
             FeatureType::Field => self.new_field_feature(pos),

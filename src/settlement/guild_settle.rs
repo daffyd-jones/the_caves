@@ -239,6 +239,8 @@ pub fn add_guild_walls(mut map: Vec<Vec<Cells>>, left: bool) -> Vec<Vec<Cells>> 
                 '▨' => Cells::Tile2,
                 '▩' => Cells::Tile3,
                 '#' => Cells::Wall,
+                'ঌ' => Cells::FireSmoke,
+                'Ť' => Cells::Stand1,
                 _ => todo!(),
             };
         }
