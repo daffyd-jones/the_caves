@@ -191,6 +191,21 @@ impl GameState {
     }
 
     pub fn check_place_enemies(&mut self, x: usize, y: usize) -> bool {
+        let (x1, y1, x2, y2) = match &self.location {
+            crate::enums::Location::Settlement(settle) => (
+                settle.pos.0,
+                settle.pos.1,
+                settle.map[0].len(),
+                settle.map.len(),
+            ),
+            _ => (0, 0, 0, 0),
+        };
+        let dfo = self.dist_fo;
+        if ((dfo.0 + x1 as i16) as usize..(dfo.0 + x2 as i16) as usize).contains(&x)
+            && ((dfo.1 + y1 as i16) as usize..(dfo.1 + y2 as i16) as usize).contains(&y)
+        {
+            return false;
+        }
         let mut rng = rand::thread_rng();
         let l_types = vec![
             Enemies::Bug,

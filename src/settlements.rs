@@ -74,8 +74,8 @@ impl Settlements {
         let mut rng = rand::thread_rng();
         self.settlements.insert(
             pos,
-            match [Settle::Small]
-                // match [Settle::Small, Settle::Med, Settle::Guild, Settle::Obsidian]
+            // match [Settle::Small]
+            match [Settle::Small, Settle::Med, Settle::Guild, Settle::Obsidian]
                 .choose(&mut rng)
                 .unwrap()
             {
