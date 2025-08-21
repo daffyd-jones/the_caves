@@ -1,6 +1,6 @@
 //gui_utils
 use crate::enemy::Enemy;
-use crate::enums::{AniType, Cells, Door, Enemies, EnvInter, Month, NPCWrap, ShopItem};
+use crate::enums::{AniType, Cells, Door, Enemies, EnvInter, Month, NPCWrap, ShopItem, TaskEnv};
 use crate::item::Item;
 use crate::map::Map;
 use crate::player::Player;
@@ -283,6 +283,8 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::Door(Door::HLocked(_)) => ('╌', Color::White),
                         EnvInter::Door(Door::HOpen) => ('̸', Color::White),
                         EnvInter::ShopNPC(_) => ('ì', Color::Yellow),
+                        EnvInter::TaskEnv(TaskEnv::Null) => ('ì', Color::Blue),
+                        EnvInter::TaskEnv(TaskEnv::BoardGoalEntity) => ('ì', Color::Yellow),
                         _ => todo!(),
                     }
                 } else {

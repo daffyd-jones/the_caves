@@ -119,8 +119,8 @@ impl Settlements {
 
     pub fn set_task_content(&mut self, task: Task) {
         match task {
-            Task::BoardRetrieveItem { goal_loc, .. } => {
-                self.set_board_retrieve_item_content(goal_loc)
+            Task::BoardItemWanted { receiver_loc, .. } => {
+                self.set_board_item_wanted_content(receiver_loc)
             }
             // Task::BoardPassItem => self.set_pass_item_content(task),
             // Task::BoardPassMessage => self.set_pass_msg_content(task),
@@ -128,7 +128,7 @@ impl Settlements {
         }
     }
 
-    fn set_board_retrieve_item_content(&mut self, loc: (i16, i16)) {
+    fn set_board_item_wanted_content(&mut self, loc: (i16, i16)) {
         let mut settle = self.settlements.get(&loc).unwrap().clone();
         settle.add_task_env(EnvInter::TaskEnv(TaskEnv::BoardGoalEntity));
         self.settlements.insert(loc, settle);

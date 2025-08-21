@@ -5,7 +5,7 @@ use std::fs;
 
 use rand::seq::SliceRandom;
 
-use crate::enums::{Location, ToggleState};
+use crate::enums::{Items, Location, ToggleState};
 use crate::item::Item;
 use crate::npc::{ConOpt, Convo, Stage};
 
@@ -85,12 +85,13 @@ pub enum TaskType {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Task {
-    BoardRetrieveItem {
-        goal_loc: (i16, i16),
-        goal_loc_name: String,
-        goal_entity_name: String,
-        goal_convo: Convo,
-        task_items: Option<Vec<(bool, Item)>>,
+    BoardItemWanted {
+        receiver_loc: (i16, i16),
+        receiver_loc_name: String,
+        receiver_entity_name: String,
+        receiver_convo: Convo,
+        task_items: (Items, u8),
+        // task_items: HashMap<Items, u8>,
         note_entries: Vec<(bool, String)>,
         reward: Item,
     },
@@ -110,10 +111,11 @@ pub enum Task {
 }
 
 impl Task {
-    pub fn new_board_retrieve_task(goal_loc: (i16, i16), goal_loc_name: String) -> Self {
-        let goal_entity_name = "Eric".to_string();
+    pub fn new_board_item_wanted_task(receiver_loc: (i16, i16), receiver_loc_name: String) -> Self {
+        let receiver_entity_name = "Eric".to_string();
         let reward = Item::new_health_potion(0, 0);
-        let task_items = Some(vec![(false, Item::new_apple(0, 0))]);
+        let task_items = (Items::Apple, 1);
+        let null_comms = vec!["Hey there."];
 
         let mut stages = HashMap::new();
         stages.insert(
@@ -132,8 +134,8 @@ impl Task {
                 ],
             },
         );
-        let goal_convo = Convo {
-            id: "Retrieve Item: Goal".to_string(),
+        let receiver_convo = Convo {
+            id: "Item Wanted: Goal".to_string(),
             stages,
         };
 
@@ -158,19 +160,15 @@ They live in {}, and can be found there to deliver the item.
 
 They are willing to give {} as a reward.
             "#,
-                goal_entity_name,
-                task_items.clone().unwrap().len(),
-                task_items.clone().unwrap()[0].1.sname,
-                goal_loc_name,
-                reward.sname
+                receiver_entity_name, task_items.1, task_items.0, receiver_loc_name, reward.sname
             ),
         )];
 
-        Self::BoardRetrieveItem {
-            goal_loc,
-            goal_loc_name,
-            goal_entity_name,
-            goal_convo,
+        Self::BoardItemWanted {
+            receiver_loc,
+            receiver_loc_name,
+            receiver_entity_name,
+            receiver_convo,
             task_items,
             note_entries,
             reward,
@@ -179,9 +177,9 @@ They are willing to give {} as a reward.
 
     pub fn board_post(&mut self) -> String {
         match self {
-            Task::BoardRetrieveItem {
-                goal_loc_name,
-                goal_entity_name,
+            Task::BoardItemWanted {
+                receiver_loc_name,
+                receiver_entity_name,
                 task_items,
                 reward,
                 ..
@@ -196,12 +194,12 @@ nl
 {} is looking for {} {}, and is looking to provide {} gold in payment. nl
 ____ nl
                 "#,
-                    goal_entity_name,
-                    goal_loc_name,
-                    task_items.clone().unwrap()[0].1.sname,
-                    goal_entity_name,
-                    task_items.clone().unwrap().len(),
-                    task_items.clone().unwrap()[0].1.sname,
+                    receiver_entity_name,
+                    receiver_loc_name,
+                    task_items.0,
+                    receiver_entity_name,
+                    task_items.1,
+                    task_items.0,
                     reward.get_properties()["value"]
                 )
             }
@@ -211,7 +209,7 @@ ____ nl
 
     pub fn note_entry(&self) -> String {
         let mut entries = match self {
-            Task::BoardRetrieveItem { note_entries, .. } => note_entries.clone(),
+            Task::BoardItemWanted { note_entries, .. } => note_entries.clone(),
             _ => vec![(false, "oops".to_string())],
         };
         entries.retain(|n| !n.0);
@@ -279,7 +277,7 @@ impl Tasks {
             TaskType::RetrieveItem => {
                 let start_loc = self.locals.pop().unwrap();
                 self.board_tasks
-                    .push(Task::new_board_retrieve_task(start_loc.0, start_loc.1));
+                    .push(Task::new_board_item_wanted_task(start_loc.0, start_loc.1));
             }
             TaskType::PassMessage => {
                 // self.board_task.push(Task::new_retrieve_task(

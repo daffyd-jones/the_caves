@@ -1,4 +1,4 @@
-use crate::enums::{Door, EnvInter, InterOpt, Interactable, NPCWrap, ShopItem, Shops};
+use crate::enums::{Door, EnvInter, InterOpt, Interactable, NPCWrap, ShopItem, Shops, TaskEnv};
 use crate::gui::GUI;
 use crate::gui_utils::{draw_map, GuiArgs};
 use crate::npc::NPC;
@@ -398,6 +398,12 @@ impl GUI {
                             }
                             EnvInter::ShopNPC(Shops::Armor) => {
                                 adj_list.push((*pos, "Armourer".to_string()))
+                            }
+                            EnvInter::TaskEnv(TaskEnv::Null) => {
+                                adj_list.push((*pos, "Tim".to_string()))
+                            }
+                            EnvInter::TaskEnv(TaskEnv::BoardGoalEntity) => {
+                                adj_list.push((*pos, "Tim".to_string()))
                             }
                             _ => todo!(),
                         },

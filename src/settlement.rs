@@ -253,10 +253,10 @@ fn parse_map(
                 ')' => Cells::RParen,
                 '¤' => Cells::GenCur,
                 'o' => Cells::Item,
-                'l' => Cells::Log,
-                'c' => Cells::Clinic,
-                'p' => Cells::GPost,
-                's' => Cells::CPost,
+                // 'l' => Cells::Log,
+                // 'c' => Cells::Clinic,
+                // 'p' => Cells::GPost,
+                // 's' => Cells::CPost,
                 '#' => Cells::Transparent,
                 _ => Cells::Empty,
             };
@@ -566,6 +566,9 @@ fn parse_map(
             }
             if ch == 'h' {
                 env_inters.insert((x, y), EnvInter::Herbalist);
+            }
+            if ch == 'X' {
+                env_inters.insert((x, y), EnvInter::TaskEnv(crate::enums::TaskEnv::Null));
             }
             if ch == 'd' {
                 env_inters.insert(

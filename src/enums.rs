@@ -2,9 +2,10 @@
 use crate::enemy::Enemy;
 use crate::features::Feature;
 use crate::item::Item;
-use crate::npc::{BaseNPC, CommNPC, ConvNPC, ShopNPC, SpawnNPC, TradeNPC};
+use crate::npc::{BaseNPC, CommNPC, ConvNPC, ShopNPC, SpawnNPC, TaskNPC, TradeNPC};
 use crate::puzzle::Puzzle;
 use crate::settlement::Settlement;
+use std::fmt;
 // Define the Cell enum
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Cells {
@@ -274,6 +275,76 @@ pub enum Items {
     Null,
 }
 
+impl fmt::Display for Items {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Items::Apple => write!(f, "Apple"),
+            Items::HealthPotion => write!(f, "Apple"),
+            Items::VitalityPotion => write!(f, "Apple"),
+            Items::Antidote => write!(f, "Apple"),
+            Items::LuckPotion => write!(f, "Apple"),
+            Items::AgilityPotion => write!(f, "Apple"),
+            Items::Salve => write!(f, "Apple"),
+            Items::Dowel => write!(f, "Apple"),
+            Items::WoodenBoard => write!(f, "Apple"),
+            Items::IronSword => write!(f, "Apple"),
+            Items::MetalScrap => write!(f, "Apple"),
+            Items::EdibleRoot => write!(f, "Apple"),
+            Items::Guts => write!(f, "Apple"),
+            Items::Rock => write!(f, "Apple"),
+            Items::BronzeClaymore => write!(f, "Apple"),
+            Items::IronClaymore => write!(f, "Apple"),
+            Items::SteelClaymore => write!(f, "Apple"),
+            Items::BronzeLongsword => write!(f, "Apple"),
+            Items::IronLongsword => write!(f, "Apple"),
+            Items::SteelLongsword => write!(f, "Apple"),
+            Items::BronzeGreatsword => write!(f, "Apple"),
+            Items::IronGreatsword => write!(f, "Apple"),
+            Items::SteelGreatsword => write!(f, "Apple"),
+            Items::BronzeShortsword => write!(f, "Apple"),
+            Items::IronShortsword => write!(f, "Apple"),
+            Items::SteelShortsword => write!(f, "Apple"),
+            Items::BasicStaff => write!(f, "Apple"),
+            Items::PineStaff => write!(f, "Apple"),
+            Items::WoodStaff => write!(f, "Apple"),
+            Items::MapleStaff => write!(f, "Apple"),
+            Items::OakStaff => write!(f, "Apple"),
+            Items::BludgeonStaff => write!(f, "Apple"),
+            Items::GemStaff => write!(f, "Apple"),
+            Items::BronzeHeavyAxe => write!(f, "Apple"),
+            Items::IronHeavyAxe => write!(f, "Apple"),
+            Items::SteelHeavyAxe => write!(f, "Apple"),
+            Items::BronzeLightAxe => write!(f, "Apple"),
+            Items::IronLightAxe => write!(f, "Apple"),
+            Items::SteelLightAxe => write!(f, "Apple"),
+            Items::BronzePickAxe => write!(f, "Apple"),
+            Items::IronPickAxe => write!(f, "Apple"),
+            Items::SteelPickAxe => write!(f, "Apple"),
+            Items::BronzePickHammer => write!(f, "Apple"),
+            Items::IronPickHammer => write!(f, "Apple"),
+            Items::SteelPickHammer => write!(f, "Apple"),
+            Items::ShadowAxe => write!(f, "Apple"),
+            Items::BronzeWarAxe => write!(f, "Apple"),
+            Items::IronWarAxe => write!(f, "Apple"),
+            Items::SteelWarAxe => write!(f, "Apple"),
+            Items::LightArmour => write!(f, "Apple"),
+            Items::MediumArmour => write!(f, "Apple"),
+            Items::HeavyArmour => write!(f, "Apple"),
+            Items::SmallWoodShield => write!(f, "Apple"),
+            Items::LargeWoodShield => write!(f, "Apple"),
+            Items::IronShield => write!(f, "Apple"),
+            Items::SteelShield => write!(f, "Apple"),
+            Items::ShieldingPendant => write!(f, "Apple"),
+            Items::AgilityPendant => write!(f, "Apple"),
+            Items::StrengthPendant => write!(f, "Apple"),
+            Items::Scroll => write!(f, "Apple"),
+            Items::Gold => write!(f, "Apple"),
+            Items::Plants(_plants) => todo!(),
+            Items::Null => todo!(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Ord, PartialOrd)]
 pub enum Month {
     Opal,
@@ -370,8 +441,6 @@ pub enum Enemies {
 pub enum NPCs {
     CommNPC,
     ConvNPC,
-    QuestNPC,
-    ShopNPC,
     SpawnNPC,
     TradeNPC,
     Null,
@@ -482,6 +551,15 @@ pub enum EnvInter {
 pub enum TaskEnv {
     BoardStartEntity,
     BoardGoalEntity,
+    Null(TaskNPC),
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum TaskType {
+    Plot,
+    RetrieveItem,
+    PassMessage,
+    PassItem,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -492,14 +570,6 @@ pub enum Door {
     VOpen,
     VUnlocked,
     VLocked(u8),
-}
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-enum TaskType {
-    Plot,
-    RetrieveItem,
-    PassMessage,
-    PassItem,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Ord, PartialOrd)]

@@ -807,37 +807,48 @@ Direction:
     }
 
     fn retrieve_item_final(&mut self, task: Task) {
-        if let Task::BoardRetrieveItem {
-            goal_entity_name,
-            goal_convo,
+        if let Task::BoardItemWanted {
+            receiver_entity_name,
+            receiver_convo,
             task_items,
             ..
         } = task
         {
-            let task_items = task_items.unwrap();
+            let task_items = task_items;
             if self
                 .player
                 .inventory
                 .iter()
-                .filter(|x| x.itype == task_items[0].1.itype)
+                .filter(|x| x.itype == task_items.0)
                 .count()
-                < task_items.len()
+                < task_items.1.into()
             {
                 self.task_incomplete()
             } else {
                 let mut cnt = 0;
-                let amt = task_items.len();
+                let amt = task_items.1;
                 self.player.inventory.retain(|itm| {
-                    if itm.itype == task_items[0].1.itype && cnt < amt {
+                    if itm.itype == task_items.0 && cnt < amt {
                         cnt += 1;
                         false
                     } else {
                         true
                     }
                 });
-                self.conv_step(goal_convo, "0".to_string(), goal_entity_name, Vec::new());
+                self.conv_step(
+                    receiver_convo,
+                    "0".to_string(),
+                    receiver_entity_name,
+                    Vec::new(),
+                );
             }
         }
+    }
+
+    fn task_null_comms(&mut self) -> bool {
+        let comm = self.npc_comm_inter("Stu".to_string(), "Hey.".to_string());
+        self.notebook.enter_convo(&comm[0]);
+        true
     }
 
     fn task_board_goal(&mut self) -> bool {
@@ -847,7 +858,7 @@ Direction:
         }
         let task = self.tasks.active_board_task.clone().unwrap();
         match task {
-            Task::BoardRetrieveItem { .. } => self.retrieve_item_final(task),
+            Task::BoardItemWanted { .. } => self.retrieve_item_final(task),
             // Task::BoardPassMessage {..} => {}
             // Task::BoardPassItem {..} => {}
             // TaskType::Plot => {},
@@ -870,6 +881,7 @@ Direction:
             EnvInter::Construction => self.construction(),
             EnvInter::ShopNPC(shop_type) => self.shop_npc(shop_type),
             EnvInter::TaskEnv(TaskEnv::BoardGoalEntity) => self.task_board_goal(),
+            EnvInter::TaskEnv(TaskEnv::Null) => self.task_null_comms(),
             _ => {
                 // log::info!("Not entering locked_door");
                 self.game_mode = GameMode::Play;
