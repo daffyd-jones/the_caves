@@ -100,13 +100,13 @@ pub fn wrap_nbox(mut nbox: Box<dyn NPC>) -> NPCWrap {
                 NPCWrap::BaseNPC(BaseNPC::new())
             }
         }
-        NPCs::ShopNPC => {
-            if let Some(shop_npc) = nbox.as_shop_npc() {
-                NPCWrap::ShopNPC(shop_npc.clone())
-            } else {
-                NPCWrap::BaseNPC(BaseNPC::new())
-            }
-        }
+        // NPCs::ShopNPC => {
+        //     if let Some(shop_npc) = nbox.as_shop_npc() {
+        //         NPCWrap::ShopNPC(shop_npc.clone())
+        //     } else {
+        //         NPCWrap::BaseNPC(BaseNPC::new())
+        //     }
+        // }
         NPCs::SpawnNPC => {
             if let Some(spawn_npc) = nbox.as_spawn_npc() {
                 NPCWrap::SpawnNPC(spawn_npc.clone())

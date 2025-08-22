@@ -551,7 +551,7 @@ pub enum EnvInter {
 pub enum TaskEnv {
     BoardStartEntity,
     BoardGoalEntity,
-    Null(TaskNPC),
+    Null,
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]

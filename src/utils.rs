@@ -180,6 +180,10 @@ pub const COLLISION_INTERS: [EnvInter; 20] = [
     EnvInter::Door(Door::HLocked(7)),
     EnvInter::Door(Door::HLocked(8)),
     EnvInter::Door(Door::HLocked(9)),
+    EnvInter::Log,
+    EnvInter::Clinic,
+    EnvInter::GuildPost,
+    EnvInter::ChurchPost,
 ];
 
 pub fn in_range(pos1: (i16, i16), pos2: (i16, i16), rad: u16) -> bool {
