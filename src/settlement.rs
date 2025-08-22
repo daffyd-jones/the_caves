@@ -908,31 +908,14 @@ Residents:
         self.shops.insert(stype, shop);
     }
 
-    pub fn add_task_env(&mut self, env: EnvInter) {
-        let mut rng = rand::thread_rng();
-        // let map = self.map.clone();
-        // loop {
-        //     let x = rng.gen_range(0..map[0].len() - 1);
-        //     let y = rng.gen_range(0..map.len() - 1);
-        //     if map[y][x] == Cells::Empty && !self.env_inters.contains_key(&(x, y)) {
-        //         self.env_inters.insert((x, y), env);
-        //         break;
-        //     }
-        // }
-        let task_envs: HashMap<(usize, usize), EnvInter> = self
-            .env_inters
-            .clone()
-            .into_iter()
-            .filter(|(p, e)| *e == EnvInter::TaskEnv(TaskEnv::Null))
-            .collect();
-        // let task_envs = self
-        //     .env_inters
-        //     .retain(|p, e| *e == EnvInter::TaskEnv(TaskEnv::Null));
-        let keys = task_envs.into_keys().collect::<Vec<(usize, usize)>>();
-        self.env_inters.insert(
-            *keys.choose(&mut rng).unwrap(),
-            EnvInter::TaskEnv(TaskEnv::BoardGoalEntity),
-        );
+    pub fn add_task_env(&mut self, env: EnvInter) -> (usize, usize) {
+        let envs = self.env_inters.clone();
+        envs.iter().for_each(|(p, e)| {
+            if *e == EnvInter::TaskEnv(TaskEnv::Null) {
+                self.env_inters.insert(*p, env);
+                return p;
+            }
+        })
     }
 
     pub fn get_pos(&mut self) -> (i16, i16) {

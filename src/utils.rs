@@ -159,7 +159,7 @@ pub const COLLISION_CELLS: [Cells; 38] = [
     Cells::CPost,
 ];
 
-pub const COLLISION_INTERS: [EnvInter; 20] = [
+pub const COLLISION_INTERS: [EnvInter; 24] = [
     EnvInter::Door(Door::VLocked(0)),
     EnvInter::Door(Door::VLocked(1)),
     EnvInter::Door(Door::VLocked(2)),
@@ -180,7 +180,7 @@ pub const COLLISION_INTERS: [EnvInter; 20] = [
     EnvInter::Door(Door::HLocked(7)),
     EnvInter::Door(Door::HLocked(8)),
     EnvInter::Door(Door::HLocked(9)),
-    EnvInter::Log,
+    EnvInter::Records,
     EnvInter::Clinic,
     EnvInter::GuildPost,
     EnvInter::ChurchPost,

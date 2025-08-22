@@ -21,8 +21,10 @@ impl GameState {
         if let Location::Settlement(ref mut settle) = self.location.clone() {
             match task {
                 Task::BoardItemWanted { receiver_loc, .. } if receiver_loc == settle.pos => {
-                    settle.add_task_env(EnvInter::TaskEnv(TaskEnv::BoardGoalEntity));
+                    let pos = settle.add_task_env(EnvInter::TaskEnv(TaskEnv::BoardGoalEntity));
                     self.location = Location::Settlement(settle.clone());
+                    self.env_inters
+                        .insert(pos, EnvInter::TaskEnv(TaskEnv::BoardGoalEntity));
                     return true;
                 }
                 _ => return false,
