@@ -93,6 +93,7 @@ pub enum Task {
         task_items: (Items, u8),
         // task_items: HashMap<Items, u8>,
         note_entries: Vec<(bool, String)>,
+        complete: bool,
         reward: Item,
     },
     RetrieveItem {
@@ -121,15 +122,16 @@ impl Task {
         stages.insert(
             "0".to_string(),
             Stage {
-                text: "This is npc dialogue when completing goal.".to_string(),
+                text: "Thanks for that! Ill let the guild know you grabbed this for me."
+                    .to_string(),
                 opts: vec![
                     ConOpt {
-                        text: "Thank's Ill look for it. Good luck!".to_string(),
+                        text: "No problem.".to_string(),
                         next: "e".to_string(),
                     },
                     ConOpt {
-                        text: "What did it look like?".to_string(),
-                        next: "desc".to_string(),
+                        text: "Sure thing.".to_string(),
+                        next: "e".to_string(),
                     },
                 ],
             },
@@ -182,6 +184,7 @@ You can now report to Guild Head for payment.
             receiver_convo,
             task_items,
             note_entries,
+            complete: false,
             reward,
         }
     }
@@ -225,6 +228,27 @@ ____ nl
         };
         entries.retain(|n| !n.0);
         entries[0].1.clone()
+    }
+
+    pub fn complete_task(&mut self) {
+        match self {
+            Task::BoardItemWanted { complete, .. } => *complete = true,
+            _ => {}
+        }
+    }
+
+    pub fn is_complete(&mut self) -> bool {
+        match self {
+            Task::BoardItemWanted { complete, .. } => *complete,
+            _ => false,
+        }
+    }
+
+    pub fn reward(&self) -> Item {
+        match self {
+            Task::BoardItemWanted { reward, .. } => reward.clone(),
+            _ => Item::default(),
+        }
     }
 }
 

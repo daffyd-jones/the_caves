@@ -620,7 +620,7 @@ Direction:
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[1].clone()),
+                    ascii: Some(&self.npc_asciis[0].clone()),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -646,10 +646,60 @@ Direction:
         true
     }
 
+    pub fn report_board_task(&mut self) {
+        let task = self.tasks.active_board_task.clone().unwrap();
+        self.gui.reset_cursor();
+        loop {
+            self.gui.npc_comm_draw(
+                format!(
+                    "Guild Head#It looks like you finished a task. Heres your reward! {} gold ",
+                    task.reward().properties["value"]
+                ),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    // stats: &DisplayStats {
+                    //     player: Vec::new(),
+                    //     notes: (String::from(""), String::from("")),
+                    // },
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    portals: Some(&self.portals),
+                    animate: None,
+                    ascii: Some(&self.npc_asciis[0].clone()),
+                    ani_stats: &self.get_ani_stats(),
+                },
+            );
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Enter => {
+                                break;
+                            }
+                            _ => {
+                                let _ = self.key(event.code);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        self.player.inc_money(task.reward().properties["value"]);
+        self.tasks.active_board_task = None;
+    }
+
     fn shop_npc(&mut self, shop_type: Shops) -> bool {
         // check here for plot/task convos
-        let snpc = match &self.location {
-            Location::Settlement(settle) => &settle.shops.get(&shop_type).unwrap().npc,
+        let loc = self.location.clone();
+        let snpc = match loc {
+            Location::Settlement(settle) => &settle.shops.get(&shop_type).unwrap().npc.clone(),
             _ => todo!(),
         };
         let name = match shop_type {
@@ -664,7 +714,14 @@ Direction:
             Shops::Null => todo!(),
         };
         match shop_type {
-            Shops::Guild => if let Some(task) = self.tasks.active_board_task {},
+            Shops::Guild => {
+                if let Some(mut task) = self.tasks.active_board_task.clone() {
+                    if task.is_complete() {
+                        self.report_board_task();
+                    }
+                }
+            }
+            _ => {}
         }
         let conv = self.conv_step(
             snpc.convo.clone(),
@@ -771,11 +828,11 @@ Direction:
         true
     }
 
-    fn task_incomplete(&mut self) {
+    fn task_incomplete(&mut self, name: String) {
         self.gui.reset_cursor();
         loop {
             self.gui.npc_comm_draw(
-                "Hey, it looks like you're not done yet".to_string(),
+                format!("{name}#Hey, it looks like you're not done yet"),
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
@@ -809,15 +866,14 @@ Direction:
         }
     }
 
-    fn retrieve_item_final(&mut self, task: Task) {
+    fn retrieve_item_final(&mut self, mut task: Task) {
         if let Task::BoardItemWanted {
             receiver_entity_name,
             receiver_convo,
             task_items,
             ..
-        } = task
+        } = task.clone()
         {
-            let task_items = task_items;
             if self
                 .player
                 .inventory
@@ -826,7 +882,7 @@ Direction:
                 .count()
                 < task_items.1.into()
             {
-                self.task_incomplete()
+                self.task_incomplete(receiver_entity_name)
             } else {
                 let mut cnt = 0;
                 let amt = task_items.1;
@@ -844,6 +900,10 @@ Direction:
                     receiver_entity_name,
                     Vec::new(),
                 );
+                self.tasks.active_board_task = Some(task);
+                if let Some(ref mut active_task) = self.tasks.active_board_task {
+                    active_task.complete_task();
+                }
             }
         }
     }
