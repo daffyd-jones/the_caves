@@ -150,19 +150,30 @@ impl Task {
         //     }
         // };
 
-        let note_entries = vec![(
-            false,
-            format!(
-                r#"
+        let note_entries = vec![
+            (
+                false,
+                format!(
+                    r#"
 {} is looking for {} {}.
 
 They live in {}, and can be found there to deliver the item.
-
-They are willing to give {} as a reward.
             "#,
-                receiver_entity_name, task_items.1, task_items.0, receiver_loc_name, reward.sname
+                    receiver_entity_name, task_items.1, task_items.0, receiver_loc_name
+                ),
             ),
-        )];
+            (
+                false,
+                format!(
+                    r#"
+You have delivered the {} to {}.
+
+You can now report to Guild Head for payment.
+            "#,
+                    task_items.1, receiver_entity_name,
+                ),
+            ),
+        ];
 
         Self::BoardItemWanted {
             receiver_loc,
@@ -257,62 +268,14 @@ impl Tasks {
         .unwrap_or(&TaskType::RetrieveItem);
 
         match ttype {
-            TaskType::Plot => {
-                // self.board_task.push(Task::new_retrieve_task(
-                //     start_loc,
-                //     start_loc_name,
-                //     start_entity_name,
-                //     goal_loc,
-                //     goal_loc_name,
-                //     goal_entity_name,
-                //     reward,
-                //     task_item,
-                //     start_convo,
-                //     goal_convo,
-                //     final_convo,
-                //     note_entries,
-                //     stat_triggers,
-                // ));
-            }
+            TaskType::Plot => {}
             TaskType::RetrieveItem => {
                 let start_loc = self.locals.pop().unwrap();
                 self.board_tasks
                     .push(Task::new_board_item_wanted_task(start_loc.0, start_loc.1));
             }
-            TaskType::PassMessage => {
-                // self.board_task.push(Task::new_retrieve_task(
-                //     start_loc,
-                //     start_loc_name,
-                //     start_entity_name,
-                //     goal_loc,
-                //     goal_loc_name,
-                //     goal_entity_name,
-                //     reward,
-                //     task_item,
-                //     start_convo,
-                //     goal_convo,
-                //     final_convo,
-                //     note_entries,
-                //     stat_triggers,
-                // ));
-            }
-            TaskType::PassItem => {
-                // self.board_task.push(Task::new_retrieve_task(
-                //     start_loc,
-                //     start_loc_name,
-                //     start_entity_name,
-                //     goal_loc,
-                //     goal_loc_name,
-                //     goal_entity_name,
-                //     reward,
-                //     task_item,
-                //     start_convo,
-                //     goal_convo,
-                //     final_convo,
-                //     note_entries,
-                //     stat_triggers,
-                // ));
-            }
+            TaskType::PassMessage => {}
+            TaskType::PassItem => {}
         }
     }
 }

@@ -909,13 +909,18 @@ Residents:
     }
 
     pub fn add_task_env(&mut self, env: EnvInter) -> (usize, usize) {
-        let envs = self.env_inters.clone();
-        envs.iter().for_each(|(p, e)| {
-            if *e == EnvInter::TaskEnv(TaskEnv::Null) {
-                self.env_inters.insert(*p, env);
-                return p;
-            }
-        })
+        // let envs = self.env_inters.clone();
+        let pos = {
+            let tenvs: HashMap<(usize, usize), EnvInter> = self
+                .env_inters
+                .clone()
+                .into_iter()
+                .filter(|&(p, e)| e == EnvInter::TaskEnv(TaskEnv::Null))
+                .collect();
+            tenvs.into_keys().collect::<Vec<(usize, usize)>>()[0]
+        };
+        self.env_inters.insert(pos, env);
+        pos
     }
 
     pub fn get_pos(&mut self) -> (i16, i16) {

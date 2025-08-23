@@ -663,6 +663,9 @@ Direction:
             Shops::Consignment => "Shop Keeper".to_string(),
             Shops::Null => todo!(),
         };
+        match shop_type {
+            Shops::Guild => if let Some(task) = self.tasks.active_board_task {},
+        }
         let conv = self.conv_step(
             snpc.convo.clone(),
             "0".to_string(),
