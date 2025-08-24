@@ -5,7 +5,7 @@ use crate::enums::Items;
 use crate::gui::GUI;
 use crate::gui_utils::{draw_map, wrap_text, GuiArgs};
 use ratatui::symbols::Marker;
-use ratatui::widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Paragraph};
+use ratatui::widgets::{Axis, Block, Borders, Chart, Dataset, GraphType, Padding, Paragraph};
 use ratatui::layout::{Layout, Constraint, Direction, Margin};
 use ratatui::style::{Color, Style, Stylize};
 use ratatui::text::{Span, Text};
@@ -716,7 +716,7 @@ impl GUI {
         }).unwrap();
     }
 
-    pub fn guild_post_draw(&mut self, post_strings: Vec<String>, task_posts: Vec<String>,  gui_args: &mut GuiArgs) {
+    pub fn guild_post_draw(&mut self, post_strings: Vec<String>, task_posts: Vec<String>, already_tasked: bool,  gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
             let entire_screen_block = Block::default()
                 .style(Style::default().bg(Color::Black))
@@ -856,6 +856,27 @@ impl GUI {
             let table = Table::new(rows, &[Constraint::Percentage(100)])
                 .block(table_block);
             f.render_widget(table, table_area);
+
+            if already_tasked {
+                let popup_area = Rect {
+                    x: h_area.x + h_area.width / 3,
+                    y: h_area.y + h_area.height / 3,
+                    width: h_area.width / 3 ,
+                    height: h_area.height / 4,
+                };
+                let popup_block = Block::default()
+                    .title("")
+                    .borders(Borders::ALL)
+                    .padding(Padding::new(0, 0, 2, 0))
+                    .style(Style::default().bg(Color::Black));
+                let popup_msg = Paragraph::new(Text::raw("It looks like you already have an active board task. You can only take on one board task at a time."))
+                    .style(Style::new().white())
+                    .block(popup_block)
+                    .alignment(ratatui::layout::Alignment::Center)
+                    .wrap(ratatui::widgets::Wrap { trim: true });
+                f.render_widget(Clear, popup_area);
+                f.render_widget(popup_msg, popup_area);
+            }
         }).unwrap();
     }
 

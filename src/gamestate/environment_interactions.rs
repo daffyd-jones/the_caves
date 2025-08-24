@@ -156,12 +156,13 @@ A couple guild members checked it out earlier, but didn't find anything. nl
         for task in &mut tasks {
             task_posts.push(task.board_post());
         }
-
+        let mut already_tasked = false;
         self.gui.reset_cursor();
         loop {
             self.gui.guild_post_draw(
                 ppost_strings.clone(),
                 task_posts.clone(),
+                already_tasked,
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
@@ -184,12 +185,22 @@ A couple guild members checked it out earlier, but didn't find anything. nl
                         self.last_event_time = now;
                         match event.code {
                             KeyCode::Enter => {
+                                if already_tasked {
+                                    already_tasked = false;
+                                    continue;
+                                }
                                 if self.gui.get_menu_lvl() == 1 && self.gui.get_cursor_hold().1 == 0
                                 {
                                     let cursor = self.gui.get_cursor().1;
-                                    self.pick_board_task(tasks[cursor].clone());
+                                    if self.tasks.active_board_task == None {
+                                        self.pick_board_task(tasks[cursor].clone());
+                                        break;
+                                    } else {
+                                        already_tasked = true;
+                                    }
+                                } else {
+                                    break;
                                 }
-                                break;
                             }
                             KeyCode::Right => {
                                 if self.gui.get_menu_lvl() == 0 {
