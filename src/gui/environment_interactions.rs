@@ -1028,8 +1028,7 @@ impl GUI {
                 width: h_area.width / 4,
                 height: (h_area.height / 4)*3 - 2,
             };
-            let s_info = Paragraph::new(Text::raw(settle))
-                .style(Style::new().white())
+            let s_info = Paragraph::new(Text::raw(settle).style(Style::new().white()))
                 .block(paragraph_block)
                 .wrap(ratatui::widgets::Wrap { trim: true });
             f.render_widget(s_info, para_area);

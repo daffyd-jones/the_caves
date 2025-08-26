@@ -66,3 +66,73 @@
 ................................................................
 
 ```
+
+
+
+# init
+
+```
+
+xx..xx..xx..xx..xx..xx..xx..xx..xx..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..xx..xx..xx..xx..xx..xx..xx..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..xx..xx..xx..xx..xx..xx..xx..xx..xx
+..xx..xx..@@..xx..xx::xx..xx..@@..xx..xx..
+xx..xx..xx..xx..xx..xx..xx..xx..xx..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..xx..xx..&&..xx..&&..xx..xx..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..xx..xx..xx..##..xx..xx..xx..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..xx..xx..&&..xx..&&..xx..xx..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..xx..xx..xx..xx..xx..xx..xx..xx..xx
+..xx..xx..@@..xx..xx::xx..xx..@@..xx..xx..
+xx..xx..xx..xx..xx..xx..xx..xx..xx..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..xx..xx..xx..xx..xx..xx..xx..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..xx..xx..xx..xx..xx..xx..xx..xx..xx
+
+----
+
+xx..xx..xx..xx..xx..xx..xx..xx..xx..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..&&..xx..&&..xx..&&..xx..&&..xx..&&..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..$$..$$..&&..xx..&&..$$..$$..xx..xx
+..xx..xx..@@..xx..xx::xx..xx..@@..xx..xx..
+xx..&&..$$..$$..xx..&&..xx..$$..$$..&&..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..&&..xx..&&..xx..&&..xx..&&..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..&&..xx..&&..xx..##..xx..&&..xx..&&..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..&&..xx..&&..xx..&&..xx..&&..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..&&..$$..$$..xx..&&..xx..$$..$$..&&..xx
+..xx..xx..@@..xx..xx::xx..xx..@@..xx..xx..
+xx..xx..$$..$$..&&..xx..&&..$$..$$..xx..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..&&..xx..&&..xx..&&..xx..&&..xx..&&..xx
+..xx..xx..xx..xx..xx::xx..xx..xx..xx..xx..
+xx..xx..xx..xx..xx..xx..xx..xx..xx..xx..xx
+
+&:
+32 puzzles
+188 settlements
+
+&,$:
+48 puzzles
+172 settlements
+  
+```
+
+
+
+
+
+
+
+
