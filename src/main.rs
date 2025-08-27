@@ -1,3 +1,4 @@
+mod assets;
 mod dialogue;
 mod dialogue_utils;
 mod enemy;
