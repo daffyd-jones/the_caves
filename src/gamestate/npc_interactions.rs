@@ -1,4 +1,8 @@
 //npc_interactions
+use crate::assets::{
+    get_ascii, get_comms, get_convos, get_npc_name, get_shop_convos, get_shops, Ascii, Comms,
+    Convos, Npcs,
+};
 
 use crate::enums::{GUIMode, GameMode, Interactable, Items, NPCWrap};
 use crate::gamestate::GameState;
@@ -35,7 +39,8 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[0].clone()),
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
+                    // ascii: Some(&self.npc_asciis[0].clone()),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -96,7 +101,8 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[0].clone()),
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
+                    // ascii: Some(&self.npc_asciis[0].clone()),
                     ani_stats: &self.get_ani_stats(),
                 },
             );

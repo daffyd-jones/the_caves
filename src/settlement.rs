@@ -1,4 +1,7 @@
 //settlement rs
+use crate::assets::{
+    get_ascii, get_comms, get_convos, get_npc_name, get_shop_convos, get_shops, Comms, Convos,
+};
 use crate::dialogue::{load_comms, load_convos, CommDialogue, ConvoDialogue};
 use crate::enums::{Cells, Door, EnvInter, NPCWrap, Settle, TaskEnv};
 use crate::enums::{ShopItem, Shops};
@@ -49,59 +52,115 @@ fn parse_map(
     let sitem_types: Vec<&str> = map_code.clone()[1].split(" ").collect();
     let item_types: Vec<&str> = map_code.clone()[2].split(" ").collect();
 
-    let data1 = fs::read_to_string("src/npcs/npc_names.json");
-    //log::info!("{:?}", &data1);
-    let names: Vec<String> = match data1 {
-        Ok(content) => serde_json::from_str(&content).unwrap(),
-        Err(e) => {
-            log::info!("{:?}", e);
-            Vec::new()
-        }
-    };
+    // let data1 = fs::read_to_string("src/npcs/npc_names.json");
+    // //log::info!("{:?}", &data1);
+    // let names: Vec<String> = match data1 {
+    //     Ok(content) => serde_json::from_str(&content).unwrap(),
+    //     Err(e) => {
+    //         log::info!("{:?}", e);
+    //         Vec::new()
+    //     }
+    // };
+
+    // let names = get_npc_name();
 
     let comms = match shop_type {
-        Shops::Item => load_comms(&"cave".to_string()),
-        Shops::Guild => load_comms(&"guild".to_string()),
-        Shops::Church => load_comms(&"cult".to_string()),
-        _ => load_comms(&"cave".to_string()),
+        Shops::Item => [
+            Comms::CaveCity,
+            Comms::CaveEngine,
+            Comms::CaveGuild,
+            Comms::CaveObsidians,
+        ],
+        Shops::Guild => [
+            Comms::GuildCity,
+            Comms::GuildEngine,
+            Comms::GuildGuild,
+            Comms::GuildObsidians,
+        ],
+        Shops::Church => [
+            Comms::ObsidianCity,
+            Comms::ObsidianEngine,
+            Comms::ObsidianGuild,
+            Comms::ObsidianObsidians,
+        ],
+        _ => [
+            Comms::CaveCity,
+            Comms::CaveEngine,
+            Comms::CaveGuild,
+            Comms::CaveObsidians,
+        ],
     };
 
     let convos = match shop_type {
-        Shops::Item => load_convos(&"cave".to_string()),
-        Shops::Guild => load_convos(&"guild".to_string()),
-        Shops::Church => load_convos(&"cult".to_string()),
-        _ => load_convos(&"cave".to_string()),
+        Shops::Item => [
+            Convos::CaveCity,
+            Convos::CaveEngine,
+            Convos::CaveGuild,
+            Convos::CaveObsidians,
+        ],
+        Shops::Guild => [
+            Convos::GuildCity,
+            Convos::GuildEngine,
+            Convos::GuildGuild,
+            Convos::GuildObsidians,
+        ],
+        Shops::Church => [
+            Convos::ObsidianCity,
+            Convos::ObsidianEngine,
+            Convos::ObsidianGuild,
+            Convos::ObsidianObsidians,
+        ],
+        _ => [
+            Convos::CaveCity,
+            Convos::CaveEngine,
+            Convos::CaveGuild,
+            Convos::CaveObsidians,
+        ],
     };
 
-    let data4 = fs::read_to_string("src/npcs/npc_shops.json");
-    //log::info!("{:?}", &data4);
-    let shops: ShopData = match data4 {
-        Ok(content) => serde_json::from_str(&content).unwrap(),
-        Err(e) => {
-            log::info!("{:?}", e);
-            ShopData {
-                shops: Vec::new(),
-                guilds: Vec::new(),
-                churches: Vec::new(),
-            }
-        }
-    };
+    // let comms = match shop_type {
+    //     Shops::Item => load_comms(&"cave".to_string()),
+    //     Shops::Guild => load_comms(&"guild".to_string()),
+    //     Shops::Church => load_comms(&"cult".to_string()),
+    //     _ => load_comms(&"cave".to_string()),
+    // };
 
-    log::info!("shops: {:?}", &shops);
+    // let convos = match shop_type {
+    //     Shops::Item => load_convos(&"cave".to_string()),
+    //     Shops::Guild => load_convos(&"guild".to_string()),
+    //     Shops::Church => load_convos(&"cult".to_string()),
+    //     _ => load_convos(&"cave".to_string()),
+    // };
 
-    let data5 = fs::read_to_string("src/npcs/npc_shop_convos.json");
-    //log::info!("{:?}", &data5);
-    let shop_convos: ShopConvos = match data5 {
-        Ok(content) => serde_json::from_str(&content).unwrap(),
-        Err(e) => {
-            log::info!("{:?}", e);
-            ShopConvos {
-                shops: Vec::new(),
-                guilds: Vec::new(),
-                churches: Vec::new(),
-            }
-        }
-    };
+    // let data4 = fs::read_to_string("src/npcs/npc_shops.json");
+    // let shops: ShopData = match data4 {
+    //     Ok(content) => serde_json::from_str(&content).unwrap(),
+    //     Err(e) => {
+    //         log::info!("{:?}", e);
+    //         ShopData {
+    //             shops: Vec::new(),
+    //             guilds: Vec::new(),
+    //             churches: Vec::new(),
+    //         }
+    //     }
+    // };
+
+    let shops = get_shops();
+    let shop_convos = get_shop_convos();
+
+    // let data5 = fs::read_to_string("src/npcs/npc_shop_convos.json");
+    // //log::info!("{:?}", &data5);
+    // let shop_convos: ShopConvos = match data5 {
+    //     Ok(content) => serde_json::from_str(&content).unwrap(),
+    //     Err(e) => {
+    //         log::info!("{:?}", e);
+    //         ShopConvos {
+    //             shops: Vec::new(),
+    //             guilds: Vec::new(),
+    //             churches: Vec::new(),
+    //         }
+    //     }
+    // };
 
     let mut ncount = 0;
     let mut icount = 0;
@@ -265,74 +324,84 @@ fn parse_map(
                 let def_name = "Kevthony".to_string();
                 match npc_types[ncount] {
                     "CommNPC" => {
-                        //let com_def = vec!["Welcome to the caves!!".to_string(), "Theres a tonne of folk down here, lerger cities as you go into the cave.".to_string()];
+                        // let rnd_comms = {
+                        //     let mut tvec = Vec::new();
+                        //     for _ in 0..4 {
+                        //         tvec.push(match rng.gen_range(0..3) {
+                        //             0 => comms
+                        //                 .city
+                        //                 .choose(&mut rng)
+                        //                 .unwrap_or(&comms.city[0])
+                        //                 .clone(),
+                        //             1 => comms
+                        //                 .engine
+                        //                 .choose(&mut rng)
+                        //                 .unwrap_or(&comms.engine[0])
+                        //                 .clone(),
+                        //             2 => comms
+                        //                 .guild
+                        //                 .choose(&mut rng)
+                        //                 .unwrap_or(&comms.guild[0])
+                        //                 .clone(),
+                        //             3 => comms
+                        //                 .cult
+                        //                 .choose(&mut rng)
+                        //                 .unwrap_or(&comms.cult[0])
+                        //                 .clone(),
+                        //             _ => todo!(),
+                        //         });
+                        //         // let tidx = rng.gen_range(0..comms.len());
+                        //         // tvec.push(comms[tidx].clone());
+                        //     }
+                        //     tvec
+                        // };
                         let rnd_comms = {
                             let mut tvec = Vec::new();
-                            for _ in 0..4 {
-                                tvec.push(match rng.gen_range(0..3) {
-                                    0 => comms
-                                        .city
-                                        .choose(&mut rng)
-                                        .unwrap_or(&comms.city[0])
-                                        .clone(),
-                                    1 => comms
-                                        .engine
-                                        .choose(&mut rng)
-                                        .unwrap_or(&comms.engine[0])
-                                        .clone(),
-                                    2 => comms
-                                        .guild
-                                        .choose(&mut rng)
-                                        .unwrap_or(&comms.guild[0])
-                                        .clone(),
-                                    3 => comms
-                                        .cult
-                                        .choose(&mut rng)
-                                        .unwrap_or(&comms.cult[0])
-                                        .clone(),
-                                    _ => todo!(),
-                                });
-                                // let tidx = rng.gen_range(0..comms.len());
-                                // tvec.push(comms[tidx].clone());
+                            for comm in &comms {
+                                tvec.push(get_comms(*comm).choose(&mut rng).unwrap().clone());
                             }
                             tvec
                         };
-                        let name = names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
+                        // let name = names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
+                        let name = get_npc_name();
                         let t_comm = new_comm_npc(name.clone(), x, y, rnd_comms.clone());
                         npcs.insert((x, y), NPCWrap::CommNPC(t_comm.clone()));
                     }
                     "ConvNPC" => {
-                        let name = names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
+                        let name = get_npc_name();
+                        // let name = names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
                         //let comms = vec!["Welcome to the caves!!".to_string(), "Theres a tonne of folk down here, lerger cities as you go into the cave.".to_string()];
-                        let conv: Convo = match rng.gen_range(0..3) {
-                            0 => convos
-                                .city
-                                .choose(&mut rng)
-                                .unwrap_or(&convos.city[0])
-                                .clone(),
-                            1 => convos
-                                .engine
-                                .choose(&mut rng)
-                                .unwrap_or(&convos.engine[0])
-                                .clone(),
-                            2 => convos
-                                .guild
-                                .choose(&mut rng)
-                                .unwrap_or(&convos.guild[0])
-                                .clone(),
-                            3 => convos
-                                .cult
-                                .choose(&mut rng)
-                                .unwrap_or(&convos.cult[0])
-                                .clone(),
-                            _ => todo!(),
-                        };
+                        // let conv: Convo = match rng.gen_range(0..3) {
+                        //     0 => convos
+                        //         .city
+                        //         .choose(&mut rng)
+                        //         .unwrap_or(&convos.city[0])
+                        //         .clone(),
+                        //     1 => convos
+                        //         .engine
+                        //         .choose(&mut rng)
+                        //         .unwrap_or(&convos.engine[0])
+                        //         .clone(),
+                        //     2 => convos
+                        //         .guild
+                        //         .choose(&mut rng)
+                        //         .unwrap_or(&convos.guild[0])
+                        //         .clone(),
+                        //     3 => convos
+                        //         .cult
+                        //         .choose(&mut rng)
+                        //         .unwrap_or(&convos.cult[0])
+                        //         .clone(),
+                        //     _ => todo!(),
+                        // };
+                        let conv = get_convos(*convos.choose(&mut rng).unwrap());
 
                         let t_comm = new_conv_npc(name.clone(), x, y, conv.clone());
                         npcs.insert((x, y), NPCWrap::ConvNPC(t_comm.clone()));
                     }
                     "ShopNPC" => {
-                        let name = names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
+                        let name = get_npc_name();
+                        // let name = names.choose(&mut rng).unwrap_or(&def_name.clone()).clone();
                         // let s_conv: HashMap<String, String> = shops
                         //     .shops
                         //     .choose(&mut rng)

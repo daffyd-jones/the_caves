@@ -1,4 +1,8 @@
 //enemy encounter
+use crate::assets::{
+    self, get_ascii, get_comms, get_convos, get_npc_name, get_shop_convos, get_shops, Ascii, Comms,
+    Convos, Npcs,
+};
 
 use crate::enemy::Enemy;
 use crate::enums::{
@@ -8,6 +12,7 @@ use crate::enums::{
 use crate::gamestate::{loc_shop_items, GameState};
 use crate::gui_utils::{Animation, DisplayStats, GuiArgs};
 use crate::item::Item;
+use core::ascii;
 use ratatui::crossterm::event::{poll, read, Event, KeyCode};
 use ratatui::style::Color;
 use std::time::Instant;
@@ -67,19 +72,19 @@ impl GameState {
             ani_frames.push((i, Color::Red));
         }
 
-        let asciis = self.enemy_asciis.clone();
-        let ascii = match enemy.etype {
-            Enemies::Spider => asciis.get("spider"),
-            Enemies::Snake => asciis.get("snake"),
-            Enemies::Slime => asciis.get("slime"),
-            Enemies::Bandit => asciis.get("bandit"),
-            Enemies::Goblin => asciis.get("goblin"),
-            Enemies::Ghoul => asciis.get("ghoul"),
-            Enemies::Bug => asciis.get("bug"),
-            Enemies::CrazedExplorer => asciis.get("explorer"),
-            Enemies::Golem => asciis.get("golem"),
-            _ => None,
+        let asset_convert = match enemy.etype {
+            Enemies::Spider => assets::Enemies::Spider,
+            Enemies::Snake => assets::Enemies::Snake,
+            Enemies::Slime => assets::Enemies::Slime,
+            Enemies::Bandit => assets::Enemies::Bandit,
+            Enemies::Goblin => assets::Enemies::Goblin,
+            Enemies::Ghoul => assets::Enemies::Ghoul,
+            Enemies::Bug => assets::Enemies::Bug,
+            Enemies::CrazedExplorer => assets::Enemies::CrazedExplorer,
+            Enemies::Golem => assets::Enemies::Golem,
+            Enemies::Null => todo!(),
         };
+        let ascii = get_ascii(Ascii::Enemies(asset_convert));
 
         for i in ani_frames {
             self.gui.encounter_auto_content(&mut GuiArgs {
@@ -102,7 +107,7 @@ impl GameState {
                     char: Some(i),
                     frame: None,
                 }),
-                ascii,
+                ascii: Some(&ascii),
                 ani_stats: &self.get_ani_stats(),
             });
             if poll(std::time::Duration::from_millis(500)).unwrap() {
@@ -156,7 +161,7 @@ impl GameState {
                     char: Some(i),
                     frame: None,
                 }),
-                ascii,
+                ascii: Some(&ascii),
                 ani_stats: &self.get_ani_stats(),
             });
             if poll(std::time::Duration::from_millis(500)).unwrap() {
@@ -213,20 +218,19 @@ impl GameState {
             todo!()
         };
         let mut e = enemy.clone();
-        let asciis = self.enemy_asciis.clone();
-
-        let ascii = match enemy.etype {
-            Enemies::Spider => asciis.get("spider"),
-            Enemies::Snake => asciis.get("snake"),
-            Enemies::Slime => asciis.get("slime"),
-            Enemies::Bandit => asciis.get("bandit"),
-            Enemies::Goblin => asciis.get("goblin"),
-            Enemies::Ghoul => asciis.get("ghoul"),
-            Enemies::Bug => asciis.get("bug"),
-            Enemies::CrazedExplorer => asciis.get("explorer"),
-            Enemies::Golem => asciis.get("golem"),
-            _ => None,
+        let asset_convert = match enemy.etype {
+            Enemies::Spider => assets::Enemies::Spider,
+            Enemies::Snake => assets::Enemies::Snake,
+            Enemies::Slime => assets::Enemies::Slime,
+            Enemies::Bandit => assets::Enemies::Bandit,
+            Enemies::Goblin => assets::Enemies::Goblin,
+            Enemies::Ghoul => assets::Enemies::Ghoul,
+            Enemies::Bug => assets::Enemies::Bug,
+            Enemies::CrazedExplorer => assets::Enemies::CrazedExplorer,
+            Enemies::Golem => assets::Enemies::Golem,
+            Enemies::Null => todo!(),
         };
+        let ascii = get_ascii(Ascii::Enemies(asset_convert));
 
         let pstart = false;
         if !pstart {
@@ -250,7 +254,7 @@ impl GameState {
                         litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                         portals: Some(&self.portals),
                         animate: None,
-                        ascii,
+                        ascii: Some(&ascii),
                         ani_stats: &self.get_ani_stats(),
                     },
                 );
@@ -295,7 +299,7 @@ impl GameState {
                         litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                         portals: Some(&self.portals),
                         animate: None,
-                        ascii,
+                        ascii: Some(&ascii),
                         ani_stats: &self.get_ani_stats(),
                     },
                 );
@@ -340,7 +344,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii,
+                    ascii: Some(&ascii),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -406,7 +410,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii,
+                    ascii: Some(&ascii),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -445,22 +449,19 @@ impl GameState {
             e.get_sname()
         );
         self.gui.reset_cursor();
-        let asciis = self.enemy_asciis.clone();
-        let ascii = match e.etype {
-            Enemies::Spider => asciis.get("spider"),
-            Enemies::Bug => asciis.get("bug"),
-            Enemies::Snake => asciis.get("snake"),
-            Enemies::Slime => asciis.get("slime"),
-            Enemies::Bandit => asciis.get("bandit"),
-            Enemies::CrazedExplorer => asciis.get("explorer"),
-            Enemies::Goblin => asciis.get("goblin"),
-            Enemies::Ghoul => asciis.get("ghoul"),
-            Enemies::Golem => asciis.get("golem"),
-            _ => {
-                println!("{:#?}", e.etype);
-                None
-            }
+        let asset_convert = match enemy.etype {
+            Enemies::Spider => assets::Enemies::Spider,
+            Enemies::Snake => assets::Enemies::Snake,
+            Enemies::Slime => assets::Enemies::Slime,
+            Enemies::Bandit => assets::Enemies::Bandit,
+            Enemies::Goblin => assets::Enemies::Goblin,
+            Enemies::Ghoul => assets::Enemies::Ghoul,
+            Enemies::Bug => assets::Enemies::Bug,
+            Enemies::CrazedExplorer => assets::Enemies::CrazedExplorer,
+            Enemies::Golem => assets::Enemies::Golem,
+            Enemies::Null => todo!(),
         };
+        let ascii = get_ascii(Ascii::Enemies(asset_convert));
         loop {
             self.gui.encounter_show_content(
                 fst.clone(),
@@ -483,7 +484,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii,
+                    ascii: Some(&ascii),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -540,7 +541,7 @@ impl GameState {
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii,
+                    ascii: Some(&ascii),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -605,7 +606,7 @@ impl GameState {
                 litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                 portals: Some(&self.portals),
                 animate: None,
-                ascii: None,
+                ascii: Some(&ascii),
                 ani_stats: &self.get_ani_stats(),
             });
             if poll(std::time::Duration::from_millis(100)).unwrap() {

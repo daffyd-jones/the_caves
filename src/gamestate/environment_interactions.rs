@@ -1,4 +1,8 @@
 //environment_interactions
+use crate::assets::{
+    get_ascii, get_comms, get_convos, get_npc_name, get_shop_convos, get_shops, Ascii, Comms,
+    Convos, Npcs,
+};
 
 use crate::gamestate::GameState;
 
@@ -34,7 +38,7 @@ impl GameState {
                 litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                 portals: Some(&self.portals),
                 animate: None,
-                ascii: None,
+                ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
                 ani_stats: &self.get_ani_stats(),
             });
             if poll(std::time::Duration::from_millis(100)).unwrap() {

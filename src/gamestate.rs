@@ -1,4 +1,5 @@
 //gamestate
+use crate::assets::{get_ascii, get_comms, get_convos, get_npc_name};
 use crate::dialogue::Dialogue;
 use crate::enemy::Enemy;
 use crate::enums::{
@@ -206,7 +207,7 @@ impl GameState {
             }
         };
 
-        let data7 = fs::read_to_string("src/ascii/npc_asciis.json");
+        let data7 = fs::read_to_string("assets/ascii/npc_asciis.json");
         let npc_asciis: Vec<String> = match data7 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
@@ -215,7 +216,7 @@ impl GameState {
             }
         };
 
-        let data8 = fs::read_to_string("src/ascii/enemy_asciis.json");
+        let data8 = fs::read_to_string("assets/ascii/enemy_asciis.json");
         let enemy_asciis: HashMap<String, String> = match data8 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
