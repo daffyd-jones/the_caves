@@ -72,19 +72,7 @@ impl GameState {
             ani_frames.push((i, Color::Red));
         }
 
-        let asset_convert = match enemy.etype {
-            Enemies::Spider => assets::Enemies::Spider,
-            Enemies::Snake => assets::Enemies::Snake,
-            Enemies::Slime => assets::Enemies::Slime,
-            Enemies::Bandit => assets::Enemies::Bandit,
-            Enemies::Goblin => assets::Enemies::Goblin,
-            Enemies::Ghoul => assets::Enemies::Ghoul,
-            Enemies::Bug => assets::Enemies::Bug,
-            Enemies::CrazedExplorer => assets::Enemies::CrazedExplorer,
-            Enemies::Golem => assets::Enemies::Golem,
-            Enemies::Null => todo!(),
-        };
-        let ascii = get_ascii(Ascii::Enemies(asset_convert));
+        let ascii = get_ascii(Ascii::Enemies(enemy.etype));
 
         for i in ani_frames {
             self.gui.encounter_auto_content(&mut GuiArgs {
@@ -218,19 +206,7 @@ impl GameState {
             todo!()
         };
         let mut e = enemy.clone();
-        let asset_convert = match enemy.etype {
-            Enemies::Spider => assets::Enemies::Spider,
-            Enemies::Snake => assets::Enemies::Snake,
-            Enemies::Slime => assets::Enemies::Slime,
-            Enemies::Bandit => assets::Enemies::Bandit,
-            Enemies::Goblin => assets::Enemies::Goblin,
-            Enemies::Ghoul => assets::Enemies::Ghoul,
-            Enemies::Bug => assets::Enemies::Bug,
-            Enemies::CrazedExplorer => assets::Enemies::CrazedExplorer,
-            Enemies::Golem => assets::Enemies::Golem,
-            Enemies::Null => todo!(),
-        };
-        let ascii = get_ascii(Ascii::Enemies(asset_convert));
+        let ascii = get_ascii(Ascii::Enemies(enemy.etype));
 
         let pstart = false;
         if !pstart {
@@ -449,19 +425,7 @@ impl GameState {
             e.get_sname()
         );
         self.gui.reset_cursor();
-        let asset_convert = match enemy.etype {
-            Enemies::Spider => assets::Enemies::Spider,
-            Enemies::Snake => assets::Enemies::Snake,
-            Enemies::Slime => assets::Enemies::Slime,
-            Enemies::Bandit => assets::Enemies::Bandit,
-            Enemies::Goblin => assets::Enemies::Goblin,
-            Enemies::Ghoul => assets::Enemies::Ghoul,
-            Enemies::Bug => assets::Enemies::Bug,
-            Enemies::CrazedExplorer => assets::Enemies::CrazedExplorer,
-            Enemies::Golem => assets::Enemies::Golem,
-            Enemies::Null => todo!(),
-        };
-        let ascii = get_ascii(Ascii::Enemies(asset_convert));
+        let ascii = get_ascii(Ascii::Enemies(e.etype));
         loop {
             self.gui.encounter_show_content(
                 fst.clone(),
@@ -606,7 +570,7 @@ impl GameState {
                 litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                 portals: Some(&self.portals),
                 animate: None,
-                ascii: Some(&ascii),
+                ascii: None,
                 ani_stats: &self.get_ani_stats(),
             });
             if poll(std::time::Duration::from_millis(100)).unwrap() {

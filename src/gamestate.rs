@@ -78,14 +78,14 @@ pub struct GameState {
     items: HashMap<(usize, usize), Item>,
     npcs: HashMap<(usize, usize), NPCWrap>,
     env_inters: HashMap<(usize, usize), EnvInter>,
-    enemy_asciis: HashMap<String, String>,
-    npc_names: Vec<String>,
-    npc_asciis: Vec<String>,
-    dialogue: Dialogue,
-    npc_comms: Vec<String>,
-    npc_convos: Vec<Convo>,
-    npc_spconvos: HashMap<String, Vec<Convo>>,
-    npc_spcomms: Vec<String>,
+    // enemy_asciis: HashMap<String, String>,
+    // npc_names: Vec<String>,
+    // npc_asciis: Vec<String>,
+    // dialogue: Dialogue,
+    // npc_comms: Vec<String>,
+    // npc_convos: Vec<Convo>,
+    // npc_spconvos: HashMap<String, Vec<Convo>>,
+    // npc_spcomms: Vec<String>,
     npc_trade: Vec<HashMap<String, String>>,
     key_debounce_dur: Duration,
     last_event_time: Instant,
@@ -208,11 +208,11 @@ impl GameState {
         };
 
         let data7 = fs::read_to_string("assets/ascii/npc_asciis.json");
-        let npc_asciis: Vec<String> = match data7 {
+        let npc_asciis: HashMap<String, String> = match data7 {
             Ok(content) => serde_json::from_str(&content).unwrap(),
             Err(e) => {
                 log::info!("{:?}", e);
-                Vec::new()
+                HashMap::new()
             }
         };
 

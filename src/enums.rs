@@ -555,7 +555,7 @@ pub enum TaskEnv {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-enum TaskType {
+pub enum TaskType {
     Plot,
     RetrieveItem,
     PassMessage,

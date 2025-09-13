@@ -1,3 +1,4 @@
+use crate::assets::{get_ascii, Ascii, Npcs};
 use crate::enums::{Door, EnvInter, InterOpt, Interactable, NPCWrap, ShopItem, Shops, TaskEnv};
 use crate::gui::GUI;
 use crate::gui_utils::{draw_map, GuiArgs};
@@ -313,19 +314,23 @@ impl GUI {
                     .title("")
                     .borders(Borders::ALL)
                     .style(Style::default().bg(Color::Black));
-                let paragraph = Paragraph::new(Span::styled(
-                    "What would you like to interct with?",
-                    Style::default().white(),
-                ))
-                .block(paragraph_block)
-                .wrap(ratatui::widgets::Wrap { trim: true });
+                // let paragraph = Paragraph::new(Span::styled(
+                //     "What would you like to interct with?",
+                //     Style::default().white(),
+                // ))
+                // .block(paragraph_block)
+                // .wrap(ratatui::widgets::Wrap { trim: true });
                 let mut adj_list = vec![];
                 let mut vec1 = vec![((0_usize, 0_usize), "".to_string()); 3];
                 let mut vec2 = vec![((0_usize, 0_usize), "".to_string()); 3];
                 for (pos, interable) in &self.interactable {
                     let Some(inter) = interable else { todo!() };
                     match inter {
-                        Interactable::Item(item) => adj_list.push((*pos, item.clone().get_sname())),
+                        Interactable::Item(item) => adj_list.push((
+                            *pos,
+                            item.clone().get_sname(),
+                            Ascii::Items(item.itype),
+                        )),
                         Interactable::ShopItem(item) => adj_list.push((
                             *pos,
                             match item {
@@ -339,86 +344,181 @@ impl GUI {
                                 ShopItem::Clinic => todo!(),
                                 ShopItem::Null => todo!(),
                             },
+                            Ascii::Items(match item {
+                                ShopItem::Item(item) => item.clone().itype,
+                                ShopItem::Herbalist(item) => item.clone().itype,
+                                ShopItem::Weapon(item) => item.clone().itype,
+                                ShopItem::Armor(item) => item.clone().itype,
+                                ShopItem::Consignment(item) => item.clone().itype,
+                                ShopItem::Guild => todo!(),
+                                ShopItem::Church => todo!(),
+                                ShopItem::Clinic => todo!(),
+                                ShopItem::Null => todo!(),
+                            }),
                         )),
-                        Interactable::Enemy(enemy) => {
-                            adj_list.push((*pos, enemy.clone().get_sname()))
-                        }
+                        Interactable::Enemy(enemy) => adj_list.push((
+                            *pos,
+                            enemy.clone().get_sname(),
+                            Ascii::Enemies(enemy.etype),
+                        )),
                         Interactable::NPC(npc) => {
                             match npc {
-                                NPCWrap::CommNPC(comm_npc) => {
-                                    adj_list.push((*pos, comm_npc.clone().get_sname()))
-                                }
-                                NPCWrap::ConvNPC(conv_npc) => {
-                                    adj_list.push((*pos, conv_npc.clone().get_sname()))
-                                }
-                                NPCWrap::ShopNPC(shop_npc) => {
-                                    adj_list.push((*pos, shop_npc.clone().sname))
-                                }
-                                NPCWrap::SpawnNPC(spawn_npc) => {
-                                    adj_list.push((*pos, spawn_npc.clone().get_sname()))
-                                }
-                                NPCWrap::TradeNPC(trade_npc) => {
-                                    adj_list.push((*pos, trade_npc.clone().get_sname()))
-                                }
+                                NPCWrap::CommNPC(comm_npc) => adj_list.push((
+                                    *pos,
+                                    comm_npc.clone().get_sname(),
+                                    Ascii::Npcs(Npcs::Settler),
+                                )),
+                                NPCWrap::ConvNPC(conv_npc) => adj_list.push((
+                                    *pos,
+                                    conv_npc.clone().get_sname(),
+                                    Ascii::Npcs(Npcs::Settler),
+                                )),
+                                NPCWrap::ShopNPC(shop_npc) => adj_list.push((
+                                    *pos,
+                                    shop_npc.clone().sname,
+                                    Ascii::Npcs(Npcs::Settler),
+                                )),
+                                NPCWrap::SpawnNPC(spawn_npc) => adj_list.push((
+                                    *pos,
+                                    spawn_npc.clone().get_sname(),
+                                    Ascii::Npcs(Npcs::Settler),
+                                )),
+                                NPCWrap::TradeNPC(trade_npc) => adj_list.push((
+                                    *pos,
+                                    trade_npc.clone().get_sname(),
+                                    Ascii::Npcs(Npcs::Settler),
+                                )),
                                 _ => todo!(),
                             }
                             // adj_list.push((*pos, npc.clone().get_sname()));
                         }
                         Interactable::EnvInter(env_inter) => match env_inter {
-                            EnvInter::Records => adj_list.push((*pos, "Local Records".to_string())),
-                            EnvInter::Clinic => adj_list.push((*pos, "Clinic".to_string())),
-                            EnvInter::Construction => {
-                                adj_list.push((*pos, "Guild Worker".to_string()))
-                            }
-                            EnvInter::GuildPost => {
-                                adj_list.push((*pos, "Guild Posting".to_string()))
-                            }
-                            EnvInter::ChurchPost => {
-                                adj_list.push((*pos, "Church Posting".to_string()))
-                            }
-                            EnvInter::Cauldron => adj_list.push((*pos, "Cauldron".to_string())),
-                            EnvInter::Herbalist => adj_list.push((*pos, "Herbalist".to_string())),
-                            EnvInter::Door(Door::HLocked(_)) => {
-                                adj_list.push((*pos, "Locked Door".to_string()))
-                            }
-                            EnvInter::Door(Door::VLocked(_)) => {
-                                adj_list.push((*pos, "Locked Door".to_string()))
-                            }
-                            EnvInter::ShopNPC(Shops::Item) => {
-                                adj_list.push((*pos, "Shop Keeper".to_string()))
-                            }
-                            EnvInter::ShopNPC(Shops::Guild) => {
-                                adj_list.push((*pos, "Guild Head".to_string()))
-                            }
-                            EnvInter::ShopNPC(Shops::Church) => {
-                                adj_list.push((*pos, "Obsidian Steward".to_string()))
-                            }
-                            EnvInter::ShopNPC(Shops::Weapon) => {
-                                adj_list.push((*pos, "Weapons Dealer".to_string()))
-                            }
-                            EnvInter::ShopNPC(Shops::Armor) => {
-                                adj_list.push((*pos, "Armourer".to_string()))
-                            }
-                            EnvInter::TaskEnv(TaskEnv::Null) => {
-                                adj_list.push((*pos, "Tim".to_string()))
-                            }
-                            EnvInter::TaskEnv(TaskEnv::BoardGoalEntity) => {
-                                adj_list.push((*pos, "Tim".to_string()))
-                            }
+                            EnvInter::Records => adj_list.push((
+                                *pos,
+                                "Local Records".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::Clinic => adj_list.push((
+                                *pos,
+                                "Clinic".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::Construction => adj_list.push((
+                                *pos,
+                                "Guild Worker".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::GuildPost => adj_list.push((
+                                *pos,
+                                "Guild Posting".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::ChurchPost => adj_list.push((
+                                *pos,
+                                "Church Posting".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::Cauldron => adj_list.push((
+                                *pos,
+                                "Cauldron".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::Herbalist => adj_list.push((
+                                *pos,
+                                "Herbalist".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::Door(Door::HLocked(_)) => adj_list.push((
+                                *pos,
+                                "Locked Door".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::Door(Door::VLocked(_)) => adj_list.push((
+                                *pos,
+                                "Locked Door".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::ShopNPC(Shops::Item) => adj_list.push((
+                                *pos,
+                                "Shop Keeper".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::ShopNPC(Shops::Guild) => adj_list.push((
+                                *pos,
+                                "Guild Head".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::ShopNPC(Shops::Church) => adj_list.push((
+                                *pos,
+                                "Obsidian Steward".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::ShopNPC(Shops::Weapon) => adj_list.push((
+                                *pos,
+                                "Weapons Dealer".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::ShopNPC(Shops::Armor) => adj_list.push((
+                                *pos,
+                                "Armourer".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::TaskEnv(TaskEnv::Null) => adj_list.push((
+                                *pos,
+                                "Tim".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::TaskEnv(TaskEnv::BoardGoalEntity) => adj_list.push((
+                                *pos,
+                                "Tim".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
                             _ => todo!(),
                         },
                         _ => todo!(),
                     }
                 }
+                let mut ascii1 = vec![];
+                let mut ascii2 = vec![];
                 for (idx, entity) in adj_list.iter().enumerate() {
                     if idx < 3 {
-                        vec1[idx] = entity.clone();
+                        vec1[idx] = (entity.0, entity.1.clone());
+                        ascii1[idx] = get_ascii(entity.2);
                     } else {
-                        vec2[idx - 3] = entity.clone();
+                        vec2[idx - 3] = (entity.0, entity.1.clone());
+                        ascii2[idx] = get_ascii(entity.2);
                     }
                 }
                 let inter_entities = [vec1.clone(), vec2.clone()];
                 self.adj_options = (vec1, vec2);
+                let asciis = [ascii1, ascii2];
+
+                let chunk_w = chunks[0].inner(Margin::new(0, 0)).width;
+                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
+                let fit = chunk_w as i8 - 60;
+                let ascii = &asciis[self.cursor_pos.1][self.cursor_pos.0];
+                let mut ascii_str = Vec::new();
+                ascii_str.push(Span::styled(
+                    "What would you like to interct with?",
+                    Style::default().white(),
+                ));
+                for i in 0..(ascii.len() / 60) {
+                    let line = &ascii[i * 60..(i * 60 + 60)];
+                    let crop_line = if fit < 0 {
+                        line[(-fit / 2 + 1) as usize..(line.len() - (-fit / 2 + 1) as usize)]
+                            .to_string()
+                    } else if fit > 0 {
+                        format!("{padding}{line}")
+                    } else {
+                        line.to_string()
+                    };
+                    ascii_str.push(Span::styled(crop_line, Style::default().white()));
+                }
+                let texts: Text = ascii_str.into_iter().collect();
+
+                let paragraph = Paragraph::new(texts)
+                    .block(paragraph_block)
+                    .wrap(ratatui::widgets::Wrap { trim: true });
                 let rows: Vec<Row> = inter_entities
                     .iter()
                     .enumerate()

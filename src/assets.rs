@@ -1,3 +1,4 @@
+use ratatui::text::ToLine;
 use rust_embed::Embed;
 
 #[derive(Embed)]
@@ -10,7 +11,7 @@ struct Asset;
 use rand::seq::SliceRandom;
 use rand::Rng;
 
-use crate::enums::Plants;
+use crate::enums::{Enemies, EnvInter, Items, Plants};
 use crate::npc::{Convo, ShopConvos, ShopData};
 use std::collections::HashMap;
 use std::fs;
@@ -75,6 +76,7 @@ pub enum Ascii {
     Npcs(Npcs),
     Enemies(Enemies),
     Items(Items),
+    EnvInter(EnvInter),
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -91,114 +93,6 @@ pub enum Npcs {
     Armorer,
     Terminal,
 }
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum Enemies {
-    Golem,
-    CrazedExplorer,
-    Goblin,
-    Slime,
-    Snake,
-    Spider,
-    Bandit,
-    Ghoul,
-    Bug,
-    Null,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-pub enum Items {
-    HealthPotion, // +10 health
-    VitalityPotion,
-    Antidote,
-    LuckPotion,
-    AgilityPotion,
-    Salve,
-    Dowel,
-    WoodenBoard,
-    IronSword,
-    MetalScrap,
-    Apple,
-    EdibleRoot,
-    Guts,
-    Rock,
-    // weapons
-    BronzeClaymore,
-    IronClaymore,
-    SteelClaymore,
-
-    BronzeLongsword,
-    IronLongsword,
-    SteelLongsword,
-
-    BronzeGreatsword,
-    IronGreatsword,
-    SteelGreatsword,
-
-    BronzeShortsword,
-    IronShortsword,
-    SteelShortsword,
-
-    BasicStaff,
-    PineStaff,
-    WoodStaff,
-    MapleStaff,
-    OakStaff,
-    BludgeonStaff,
-    GemStaff,
-
-    BronzeHeavyAxe,
-    IronHeavyAxe,
-    SteelHeavyAxe,
-
-    BronzeLightAxe,
-    IronLightAxe,
-    SteelLightAxe,
-
-    BronzePickAxe,
-    IronPickAxe,
-    SteelPickAxe,
-
-    BronzePickHammer,
-    IronPickHammer,
-    SteelPickHammer,
-
-    ShadowAxe,
-
-    BronzeWarAxe,
-    IronWarAxe,
-    SteelWarAxe,
-
-    LightArmour,
-    MediumArmour,
-    HeavyArmour,
-
-    SmallWoodShield,
-    LargeWoodShield,
-    IronShield, // +10 defence
-    SteelShield,
-
-    //
-    Plants(Plants),
-    // wearable
-    ShieldingPendant,
-    AgilityPendant,
-    StrengthPendant,
-    // documents
-    Scroll,
-    Gold,
-    Null,
-}
-
-// pub struct Dialogue {
-//     pub cave_comms: CommDialogue,
-//     pub cave_convos: ConvoDialogue,
-//     pub guild_comms: CommDialogue,
-//     pub guild_convos: ConvoDialogue,
-//     pub cult_comms: CommDialogue,
-//     pub cult_convos: ConvoDialogue,
-//     pub file_paths: HashMap<String, String>,
-// }
 
 pub fn get_npc_name() -> String {
     let mut rng = rand::thread_rng();
@@ -410,11 +304,41 @@ fn item_ascii(item: Items) -> String {
     }
 }
 
+pub fn env_inter_ascii(env: EnvInter) -> String {
+    match env {
+        EnvInter::Records => "records".to_string(),
+        EnvInter::Clinic => "clinic".to_string(),
+        EnvInter::GuildPost => "guild-post".to_string(),
+        EnvInter::ChurchPost => "church-post".to_string(),
+        EnvInter::Construction => "construction".to_string(),
+        EnvInter::Cauldron => "cauldron".to_string(),
+        EnvInter::Task(_task_type) => "task".to_string(),
+        EnvInter::Door(door) => "door".to_string(),
+        EnvInter::ShopNPC(shops) => match shops {
+            crate::enums::Shops::Item => "shop-keeper".to_string(),
+            crate::enums::Shops::Guild => "guild-head".to_string(),
+            crate::enums::Shops::Church => "obsidian-stweard".to_string(),
+            crate::enums::Shops::Clinic => "clinic".to_string(),
+            crate::enums::Shops::Herbalist => "herbalist".to_string(),
+            crate::enums::Shops::Weapon => "weaponsmith".to_string(),
+            crate::enums::Shops::Armor => "armourer".to_string(),
+            crate::enums::Shops::Consignment => "shop-keeper".to_string(),
+            crate::enums::Shops::Null => "".to_string(),
+        },
+        EnvInter::Herbalist => "herbalist".to_string(),
+        EnvInter::Hermit => "hermit".to_string(),
+        EnvInter::TaskEnv(task_env) => "settler".to_string(),
+        EnvInter::WoodenHatch => "wooden-hatch".to_string(),
+        EnvInter::Null => "".to_string(),
+    }
+}
+
 pub fn get_ascii(ascii: Ascii) -> String {
     let ascii_asset = match ascii {
         Ascii::Npcs(_) => Asset::get("prefix/ascii/npc_asciis.json").unwrap(),
         Ascii::Enemies(_) => Asset::get("prefix/ascii/enemy_asciis.json").unwrap(),
         Ascii::Items(_) => Asset::get("prefix/ascii/item_asciis.json").unwrap(),
+        Ascii::EnvInter(_) => Asset::get("prefix/ascii/env_inter_asciis.json").unwrap(),
     };
     let ascii_str = std::str::from_utf8(ascii_asset.data.as_ref());
     let asciis: HashMap<String, String> = match ascii_str {
@@ -425,9 +349,22 @@ pub fn get_ascii(ascii: Ascii) -> String {
         }
     };
     match ascii {
-        Ascii::Npcs(npc) => asciis.get(&npc_ascii(npc)).unwrap().clone(),
-        Ascii::Enemies(enemy) => asciis.get(&enemy_ascii(enemy)).unwrap().clone(),
-        Ascii::Items(item) => asciis.get(&item_ascii(item)).unwrap().clone(),
+        Ascii::Npcs(npc) => asciis
+            .get(&npc_ascii(npc))
+            .unwrap_or_else(|| asciis.get(&npc_ascii(Npcs::Settler)).unwrap())
+            .clone(),
+        Ascii::Enemies(enemy) => asciis
+            .get(&enemy_ascii(enemy))
+            .unwrap_or_else(|| asciis.get(&enemy_ascii(Enemies::Spider)).unwrap())
+            .clone(),
+        Ascii::Items(item) => asciis
+            .get(&item_ascii(item))
+            .unwrap_or_else(|| asciis.get(&item_ascii(Items::Apple)).unwrap())
+            .clone(),
+        Ascii::EnvInter(env_inter) => asciis
+            .get(&env_inter_ascii(env_inter))
+            .unwrap_or_else(|| asciis.get(&env_inter_ascii(EnvInter::Records)).unwrap())
+            .clone(),
     }
 }
 
