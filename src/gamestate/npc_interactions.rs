@@ -1,8 +1,5 @@
 //npc_interactions
-use crate::assets::{
-    get_ascii, get_comms, get_convos, get_npc_name, get_shop_convos, get_shops, Ascii, Comms,
-    Convos, Npcs,
-};
+use crate::assets::{get_ascii, Ascii, Npcs};
 
 use crate::enums::{GUIMode, GameMode, Interactable, Items, NPCWrap};
 use crate::gamestate::GameState;

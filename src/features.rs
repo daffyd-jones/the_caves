@@ -1,4 +1,4 @@
-use crate::enums::{Cells, Door, EnvInter, FeatureType, NPCWrap};
+use crate::enums::{Cells, Door, EnvInter, FeatureType, NPCWrap, ShopItem};
 use crate::features::abandoned_shacks::make_abandoned_shack;
 use crate::features::construction::make_construction_feature;
 use crate::features::field::make_field;
@@ -55,6 +55,7 @@ pub struct Feature {
     pub pos: (i16, i16),
     pub map: Vec<Vec<Cells>>,
     pub items: HashMap<(usize, usize), Item>,
+    pub sitems: HashMap<(usize, usize), ShopItem>,
     pub npcs: HashMap<(usize, usize), NPCWrap>,
     pub env_inters: HashMap<(usize, usize), EnvInter>,
     pub cont_sent: bool,
@@ -149,18 +150,18 @@ impl Features {
     }
 
     pub fn new_rand_feature(&mut self, pos: (i16, i16)) {
-        let mut rng = rand::thread_rng();
-        let choice = *[
-            FeatureType::AbandonedShack,
-            FeatureType::Field,
-            FeatureType::Ruin,
-            FeatureType::Stream,
-            FeatureType::Construction,
-            FeatureType::Pond,
-        ]
-        .choose(&mut rng)
-        .unwrap_or(&FeatureType::AbandonedShack);
-        // let choice = FeatureType::Pond;
+        // let mut rng = rand::thread_rng();
+        // let choice = *[
+        //     FeatureType::AbandonedShack,
+        //     FeatureType::Field,
+        //     FeatureType::Ruin,
+        //     FeatureType::Stream,
+        //     FeatureType::Construction,
+        //     FeatureType::Pond,
+        // ]
+        // .choose(&mut rng)
+        // .unwrap_or(&FeatureType::AbandonedShack);
+        let choice = FeatureType::Construction;
         match choice {
             FeatureType::AbandonedShack => self.new_abandoned_shack(pos),
             FeatureType::Field => self.new_field_feature(pos),
@@ -181,6 +182,7 @@ impl Features {
                 pos,
                 map,
                 items,
+                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
@@ -200,6 +202,7 @@ impl Features {
                 pos,
                 map,
                 items,
+                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
@@ -219,6 +222,7 @@ impl Features {
                 pos,
                 map,
                 items,
+                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
@@ -238,6 +242,7 @@ impl Features {
                 pos,
                 map,
                 items,
+                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
@@ -257,6 +262,7 @@ impl Features {
                 pos,
                 map,
                 items,
+                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
@@ -276,6 +282,7 @@ impl Features {
                 pos,
                 map,
                 items,
+                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,

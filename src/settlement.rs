@@ -1,6 +1,6 @@
 //settlement rs
 use crate::assets::{
-    get_ascii, get_comms, get_convos, get_npc_name, get_shop_convos, get_shops, Comms, Convos,
+    get_ascii, get_comm, get_convo, get_npc_name, get_shop_convos, get_shops, Comms, Convos,
 };
 use crate::dialogue::{load_comms, load_convos, CommDialogue, ConvoDialogue};
 use crate::enums::{Cells, Door, EnvInter, NPCWrap, Settle, TaskEnv};
@@ -358,7 +358,7 @@ fn parse_map(
                         let rnd_comms = {
                             let mut tvec = Vec::new();
                             for comm in &comms {
-                                tvec.push(get_comms(*comm).choose(&mut rng).unwrap().clone());
+                                tvec.push(get_comm(*comm));
                             }
                             tvec
                         };
@@ -394,7 +394,7 @@ fn parse_map(
                         //         .clone(),
                         //     _ => todo!(),
                         // };
-                        let conv = get_convos(*convos.choose(&mut rng).unwrap());
+                        let conv = get_convo(*convos.choose(&mut rng).unwrap());
 
                         let t_comm = new_conv_npc(name.clone(), x, y, conv.clone());
                         npcs.insert((x, y), NPCWrap::ConvNPC(t_comm.clone()));

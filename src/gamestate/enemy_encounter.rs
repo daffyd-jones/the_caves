@@ -1,6 +1,6 @@
 //enemy encounter
 use crate::assets::{
-    self, get_ascii, get_comms, get_convos, get_npc_name, get_shop_convos, get_shops, Ascii, Comms,
+    self, get_ascii, get_comm, get_convo, get_npc_name, get_shop_convos, get_shops, Ascii, Comms,
     Convos, Npcs,
 };
 

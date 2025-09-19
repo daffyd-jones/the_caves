@@ -1,71 +1,65 @@
-{
-  "maze": [
-    {
-      "id": "maze",
-      "0": {
-        "text": "Hows it goin? Im looking for a structure that my cousin said was around here.",
-        "opts": [
-          { "text": "What kind of structure?", "next": "desc" },
-          { "text": "Where did they say it was?", "next": "where" }
-        ]
-      },
-      "desc": {
-        "text": "They said it was a huge maze, I wonder if there is treasure in there. They said it was mostly intact.",
-        "opts": [
-          { "text": "Oh thats cool! Where did they say it was?", "next": "where" },
-          { "text": "Oh really? Thats kinda interesting. I might try and find it!", "next": "e" }
-        ]
-      }
+[
+  {
+    "id": "maze",
+    "0": {
+      "text": "Hows it goin? Im looking for a structure that my cousin said was around here.",
+      "opts": [
+        { "text": "What kind of structure?", "next": "desc" },
+        { "text": "Where did they say it was?", "next": "where" }
+      ]
+    },
+    "desc": {
+      "text": "They said it was a huge maze, I wonder if there is treasure in there. They said it was mostly intact.",
+      "opts": [
+        { "text": "Oh thats cool! Where did they say it was?", "next": "where" },
+        { "text": "Oh really? Thats kinda interesting. I might try and find it!", "next": "e" }
+      ]
     }
-  ],
-  "inverted": [
-    {
-      "id": "inverted",
-      "0": {
-        "text": "Hows it goin? Im looking for a structure that my cousin said was around here.",
-        "opts": [
-          { "text": "What kind of structure?", "next": "1" },
-          { "text": "Where did they say it was?", "next": "2" }
-        ]
-      },
-      "1": {
-        "text": "They said it was a huge maze, I wonder if there is treasure in there. They said it was mostly intact.",
-        "opts": [
-          { "text": "Oh thats cool! Where did they say it was?", "next": "2" },
-          { "text": "Oh really? Thats kinda interesting. I might try and find it!", "next": "e" }
-        ]
-      },
-      "2": {
-        "text": "I thought it was around here, but it might be a bit further in.",
-        "opts": [
-          { "text": "Ok Ill keep an eye out!", "next": "e" }
-        ]
-      }
+  },
+  {
+    "id": "inverted",
+    "0": {
+      "text": "Hows it goin? Im looking for a structure that my cousin said was around here.",
+      "opts": [
+        { "text": "What kind of structure?", "next": "1" },
+        { "text": "Where did they say it was?", "next": "2" }
+      ]
+    },
+    "1": {
+      "text": "They said it was a huge maze, I wonder if there is treasure in there. They said it was mostly intact.",
+      "opts": [
+        { "text": "Oh thats cool! Where did they say it was?", "next": "2" },
+        { "text": "Oh really? Thats kinda interesting. I might try and find it!", "next": "e" }
+      ]
+    },
+    "2": {
+      "text": "I thought it was around here, but it might be a bit further in.",
+      "opts": [
+        { "text": "Ok Ill keep an eye out!", "next": "e" }
+      ]
     }
-  ],
-  "keys": [
-    {
-      "id": "keys",
-      "0": {
-        "text": "Hows it goin? Im looking for a structure that my cousin said was around here.",
-        "opts": [
-          { "text": "What kind of structure?", "next": "1" },
-          { "text": "Where did they say it was?", "next": "2" }
-        ]
-      },
-      "1": {
-        "text": "They said it was a huge maze, I wonder if there is treasure in there. They said it was mostly intact.",
-        "opts": [
-          { "text": "Oh thats cool! Where did they say it was?", "next": "2" },
-          { "text": "Oh really? Thats kinda interesting. I might try and find it!", "next": "e" }
-        ]
-      },
-      "2": {
-        "text": "I thought it was around here, but it might be a bit further in.",
-        "opts": [
-          { "text": "Ok Ill keep an eye out!", "next": "e" }
-        ]
-      }
+  },
+  {
+    "id": "keys",
+    "0": {
+      "text": "Hows it goin? Im looking for a structure that my cousin said was around here.",
+      "opts": [
+        { "text": "What kind of structure?", "next": "1" },
+        { "text": "Where did they say it was?", "next": "2" }
+      ]
+    },
+    "1": {
+      "text": "They said it was a huge maze, I wonder if there is treasure in there. They said it was mostly intact.",
+      "opts": [
+        { "text": "Oh thats cool! Where did they say it was?", "next": "2" },
+        { "text": "Oh really? Thats kinda interesting. I might try and find it!", "next": "e" }
+      ]
+    },
+    "2": {
+      "text": "I thought it was around here, but it might be a bit further in.",
+      "opts": [
+        { "text": "Ok Ill keep an eye out!", "next": "e" }
+      ]
     }
-  ]
-}
+  }
+]

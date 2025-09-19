@@ -1,7 +1,7 @@
 //environment_interactions
 use crate::assets::{
-    get_ascii, get_comms, get_convos, get_npc_name, get_shop_convos, get_shops, Ascii, Comms,
-    Convos, Npcs,
+    get_ascii, get_comm, get_convo, get_hermit_convo, get_npc_name, get_shop_convos, get_shops,
+    Ascii, Comms, Convos, Npcs,
 };
 
 use crate::gamestate::GameState;
@@ -346,7 +346,7 @@ Direction:
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[2].clone()),
+                    ascii: Some(&get_ascii(Ascii::EnvInter(EnvInter::Cauldron))),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -430,7 +430,7 @@ Direction:
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[1].clone()),
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Herbalist))),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -484,7 +484,7 @@ Direction:
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[1].clone()),
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Herbalist))),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -538,7 +538,7 @@ Direction:
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[1].clone()),
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Herbalist))),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -584,7 +584,7 @@ Direction:
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[1].clone()),
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Herbalist))),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -616,6 +616,18 @@ Direction:
         true
     }
 
+    fn hermit(&mut self) -> bool {
+        let conv = self.conv_step(
+            get_hermit_convo(),
+            "0".to_string(),
+            "Hermit".to_string(),
+            Vec::new(),
+        );
+        self.notebook
+            .enter_convo(&comb_conv("Hermit".to_string(), conv));
+        true
+    }
+
     fn construction(&mut self) -> bool {
         self.gui.reset_cursor();
         loop {
@@ -635,7 +647,7 @@ Direction:
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[0].clone()),
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -684,7 +696,7 @@ Direction:
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[0].clone()),
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -858,7 +870,7 @@ Direction:
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
                     portals: Some(&self.portals),
                     animate: None,
-                    ascii: Some(&self.npc_asciis[0].clone()),
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
                     ani_stats: &self.get_ani_stats(),
                 },
             );
@@ -955,6 +967,7 @@ Direction:
             EnvInter::ChurchPost => self.church_post(),
             EnvInter::Cauldron => self.cauldron(),
             EnvInter::Herbalist => self.herbalist(),
+            EnvInter::Hermit => self.hermit(),
             EnvInter::Door(door) => self.locked_door(door),
             EnvInter::Construction => self.construction(),
             EnvInter::ShopNPC(shop_type) => self.shop_npc(shop_type),

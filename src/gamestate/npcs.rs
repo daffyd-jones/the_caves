@@ -1,3 +1,8 @@
+use crate::assets::{
+    get_comm, get_convo, get_npc_name, get_shops, get_spawn_comm, get_spawn_convo, get_trade_convo,
+    Comms, Convos,
+};
+
 use crate::enums::{Cells, NPCWrap, NPCs, PuzzleType};
 use crate::gamestate::GameState;
 use crate::map::{MAP_H, MAP_W};
@@ -74,24 +79,16 @@ impl GameState {
 
     fn build_maze_npc(&self, mut puzzle: (i16, Puzzle)) -> (String, Convo, Vec<String>) {
         let mut rng = rand::thread_rng();
-        let name = self
-            .npc_names
-            .choose(&mut rng)
-            .unwrap_or(&"Kevthony".to_string())
-            .clone();
+        let name = get_npc_name();
         let rnd_comms = {
             let mut tvec = Vec::new();
-            for _ in 0..4 {
-                let tidx = rng.gen_range(0..self.npc_spcomms.len());
-                tvec.push(self.npc_spcomms[tidx].clone());
+            for _ in 0..2 {
+                // let tidx = rng.gen_range(0..self.npc_spcomms.len());
+                tvec.push(get_spawn_comm());
             }
             tvec
         };
-        let convos = self.npc_spconvos.get("maze").unwrap();
-        let mut conv: Convo = convos
-            .choose(&mut rng)
-            .unwrap_or(&convos[0].clone())
-            .clone();
+        let mut conv = get_spawn_convo();
         let ppos = puzzle.1.get_pos();
         let dx = ppos.0 - -self.dist_fo.0;
         let dy = ppos.1 - -self.dist_fo.1;
@@ -149,26 +146,30 @@ impl GameState {
                     NPCs::CommNPC => {
                         let rnd_comms = {
                             let mut tvec = Vec::new();
-                            for _ in 0..4 {
-                                tvec.push(self.dialogue.get_cave_comm().clone());
+                            for comm in [
+                                Comms::CaveCity,
+                                Comms::CaveEngine,
+                                Comms::CaveGuild,
+                                Comms::CaveObsidians,
+                            ] {
+                                tvec.push(get_comm(comm));
                             }
                             tvec
                         };
-                        let name = self
-                            .npc_names
-                            .choose(&mut rng)
-                            .unwrap_or(&def_name.clone())
-                            .clone();
-                        NPCWrap::CommNPC(new_comm_npc(name.to_string(), x, y, rnd_comms))
+                        NPCWrap::CommNPC(new_comm_npc(get_npc_name(), x, y, rnd_comms))
                     }
                     NPCs::ConvNPC => {
-                        let conv: Convo = self.dialogue.get_cave_convo().clone();
-                        let name = self
-                            .npc_names
+                        let conv: Convo = get_convo(
+                            *[
+                                Convos::CaveCity,
+                                Convos::CaveEngine,
+                                Convos::CaveGuild,
+                                Convos::CaveObsidians,
+                            ]
                             .choose(&mut rng)
-                            .unwrap_or(&def_name.clone())
-                            .clone();
-                        NPCWrap::ConvNPC(new_conv_npc(name.to_string(), x, y, conv))
+                            .unwrap_or(&Convos::CaveCity),
+                        );
+                        NPCWrap::ConvNPC(new_conv_npc(get_npc_name(), x, y, conv))
                     }
                     NPCs::SpawnNPC => {
                         let mut puzzle = self.puzzles.nearest_puzzle(self.dist_fo);
@@ -182,16 +183,8 @@ impl GameState {
                         NPCWrap::SpawnNPC(new_spawn_npc(parts.0, x, y, parts.1, parts.2, ptype))
                     }
                     NPCs::TradeNPC => {
-                        let name = self
-                            .npc_names
-                            .choose(&mut rng)
-                            .unwrap_or(&def_name.clone())
-                            .clone();
-                        let conv = self
-                            .npc_trade
-                            .choose(&mut rng)
-                            .unwrap_or(&self.npc_trade[0].clone())
-                            .clone();
+                        let name = get_npc_name();
+                        let conv = get_trade_convo();
                         let items = self.pop_trade_items();
                         NPCWrap::TradeNPC(new_trade_npc(name.to_string(), x, y, items, conv))
                     }

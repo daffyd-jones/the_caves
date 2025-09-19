@@ -71,6 +71,7 @@ impl GameState {
                     .unwrap()
                     .clone(),
                 ShopItem::Null => todo!(),
+                _ => todo!(),
             },
             _ => todo!(),
         }
@@ -143,6 +144,7 @@ impl GameState {
             ShopItem::Guild => todo!(),
             ShopItem::Church => todo!(),
             ShopItem::Clinic => todo!(),
+            _ => todo!(),
         };
         let price = item.properties["value"];
         let paid = self.player.dec_money(price);

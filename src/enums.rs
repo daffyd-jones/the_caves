@@ -638,6 +638,7 @@ pub enum ShopItem {
     Weapon(Item),
     Armor(Item),
     Consignment(Item),
+    Hermit(Item),
     Null,
 }
 

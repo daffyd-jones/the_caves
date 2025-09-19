@@ -1,5 +1,5 @@
 //gamestate
-use crate::assets::{get_ascii, get_comms, get_convos, get_npc_name};
+use crate::assets::{get_ascii, get_comm, get_convo, get_npc_name};
 use crate::dialogue::Dialogue;
 use crate::enemy::Enemy;
 use crate::enums::{
@@ -78,15 +78,6 @@ pub struct GameState {
     items: HashMap<(usize, usize), Item>,
     npcs: HashMap<(usize, usize), NPCWrap>,
     env_inters: HashMap<(usize, usize), EnvInter>,
-    // enemy_asciis: HashMap<String, String>,
-    // npc_names: Vec<String>,
-    // npc_asciis: Vec<String>,
-    // dialogue: Dialogue,
-    // npc_comms: Vec<String>,
-    // npc_convos: Vec<Convo>,
-    // npc_spconvos: HashMap<String, Vec<Convo>>,
-    // npc_spcomms: Vec<String>,
-    npc_trade: Vec<HashMap<String, String>>,
     key_debounce_dur: Duration,
     last_event_time: Instant,
     interactee: Interactable,
@@ -109,15 +100,7 @@ impl GameState {
         let items = HashMap::new();
         let npcs = HashMap::new();
         let env_inters = HashMap::new();
-        let npc_names = Vec::new();
-        let npc_comms = Vec::new();
-        let npc_convos = Vec::new();
         let portals = HashMap::new();
-        let npc_asciis = Vec::new();
-        let npc_spcomms = Vec::new();
-        let enemy_asciis = HashMap::new();
-        let npc_spconvos = HashMap::new();
-        let npc_trade = Vec::new();
         let notebook = Notebook::new().unwrap();
         let nodemap = NodeMap::new();
         let settles = Settlements::demo_self();
@@ -150,15 +133,6 @@ impl GameState {
             items,
             npcs,
             env_inters,
-            enemy_asciis,
-            npc_names,
-            npc_asciis,
-            dialogue: Dialogue::new(),
-            npc_comms,
-            npc_convos,
-            npc_spconvos,
-            npc_spcomms,
-            npc_trade,
             key_debounce_dur: Duration::from_millis(60),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
@@ -197,78 +171,7 @@ impl GameState {
         let items = HashMap::new();
         let npcs = HashMap::new();
         let env_inters = HashMap::new();
-
-        let data1 = fs::read_to_string("src/npcs/npc_names.json");
-        let npc_names: Vec<String> = match data1 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                Vec::new()
-            }
-        };
-
-        let data7 = fs::read_to_string("assets/ascii/npc_asciis.json");
-        let npc_asciis: HashMap<String, String> = match data7 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                HashMap::new()
-            }
-        };
-
-        let data8 = fs::read_to_string("assets/ascii/enemy_asciis.json");
-        let enemy_asciis: HashMap<String, String> = match data8 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                HashMap::new()
-            }
-        };
-
-        let data2 = fs::read_to_string("src/npcs/npc_comms.json");
-        let npc_comms: Vec<String> = match data2 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                Vec::new()
-            }
-        };
-        let data3 = fs::read_to_string("src/npcs/npc_convos.json");
-        let npc_convos: Vec<Convo> = match data3 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                Vec::new()
-            }
-        };
-        let data4 = fs::read_to_string("src/npcs/npc_spawn_convos.json");
-        let npc_spconvos: HashMap<String, Vec<Convo>> = match data4 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                HashMap::new()
-            }
-        };
-        let data5 = fs::read_to_string("src/npcs/npc_spawn_comms.json");
-        let npc_spcomms: Vec<String> = match data5 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                Vec::new()
-            }
-        };
-
-        let data6 = fs::read_to_string("src/npcs/npc_trade.json");
-        let npc_trade: Vec<HashMap<String, String>> = match data6 {
-            Ok(content) => serde_json::from_str(&content).unwrap(),
-            Err(e) => {
-                log::info!("{:?}", e);
-                Vec::new()
-            }
-        };
-
         let portals = HashMap::new();
-
         let notebook = Notebook::new().unwrap();
         let l_rate = 100 as u64;
 
@@ -356,15 +259,6 @@ impl GameState {
             items,
             npcs,
             env_inters,
-            enemy_asciis,
-            npc_names,
-            npc_asciis,
-            dialogue: Dialogue::new(),
-            npc_comms,
-            npc_convos,
-            npc_spconvos,
-            npc_spcomms,
-            npc_trade,
             key_debounce_dur: Duration::from_millis(60),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,

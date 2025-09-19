@@ -10,6 +10,7 @@ struct Asset;
 
 use rand::seq::SliceRandom;
 use rand::Rng;
+use serde_json::StreamDeserializer;
 
 use crate::enums::{Enemies, EnvInter, Items, Plants};
 use crate::npc::{Convo, ShopConvos, ShopData};
@@ -108,7 +109,7 @@ pub fn get_npc_name() -> String {
     npc_names.choose(&mut rng).unwrap().clone()
 }
 
-pub fn get_comms(comm_type: Comms) -> Vec<String> {
+pub fn get_comm(comm_type: Comms) -> String {
     let comm_asset = match comm_type {
         Comms::CaveCity => Asset::get("prefix/npcs/cave/comms_city.json").unwrap(),
         Comms::CaveEngine => Asset::get("prefix/npcs/cave/comms_engine.json").unwrap(),
@@ -131,10 +132,11 @@ pub fn get_comms(comm_type: Comms) -> Vec<String> {
             Vec::new()
         }
     };
-    comms
+    let mut rng = rand::thread_rng();
+    comms.choose(&mut rng).unwrap().clone()
 }
 
-pub fn get_convos(convo_type: Convos) -> Convo {
+pub fn get_convo(convo_type: Convos) -> Convo {
     let convo_asset = match convo_type {
         Convos::CaveCity => Asset::get("prefix/npcs/cave/convos_city.json").unwrap(),
         Convos::CaveEngine => Asset::get("prefix/npcs/cave/convos_engine.json").unwrap(),
@@ -161,6 +163,62 @@ pub fn get_convos(convo_type: Convos) -> Convo {
     convos.choose(&mut rng).unwrap().clone()
 }
 
+pub fn get_spawn_comm() -> String {
+    let comm_asset = Asset::get("prefix/npcs/npc_spawn_comms.json").unwrap();
+    let comm_str = std::str::from_utf8(comm_asset.data.as_ref());
+    let comm: Vec<String> = match comm_str {
+        Ok(content) => serde_json::from_str(content).unwrap(),
+        Err(e) => {
+            log::info!("{:?}", e);
+            Vec::new()
+        }
+    };
+    let mut rng = rand::thread_rng();
+    comm.choose(&mut rng).unwrap().clone()
+}
+
+pub fn get_spawn_convo() -> Convo {
+    let convo_asset = Asset::get("prefix/npcs/npc_spawn_convos.json").unwrap();
+    let convo_str = std::str::from_utf8(convo_asset.data.as_ref());
+    let convos: Vec<Convo> = match convo_str {
+        Ok(content) => serde_json::from_str(content).unwrap(),
+        Err(e) => {
+            log::info!("{:?}", e);
+            Vec::new()
+        }
+    };
+    let mut rng = rand::thread_rng();
+    convos.choose(&mut rng).unwrap().clone()
+}
+
+pub fn get_hermit_convo() -> Convo {
+    let convo_asset = Asset::get("prefix/npcs/npc_hermit.json").unwrap();
+    let convo_str = std::str::from_utf8(convo_asset.data.as_ref());
+    let convos: HashMap<String, Convo> = match convo_str {
+        Ok(content) => serde_json::from_str(content).unwrap(),
+        Err(e) => {
+            log::info!("{:?}", e);
+            HashMap::new()
+        }
+    };
+    // let mut rng = rand::thread_rng();
+    convos.get("first-intro").unwrap().clone()
+}
+
+pub fn get_trade_convo() -> HashMap<String, String> {
+    let trade_asset = Asset::get("prefix/npcs/npc_trade.json").unwrap();
+    let trade_str = std::str::from_utf8(trade_asset.data.as_ref());
+    let trade: Vec<HashMap<String, String>> = match trade_str {
+        Ok(content) => serde_json::from_str(content).unwrap(),
+        Err(e) => {
+            log::info!("{:?}", e);
+            Vec::new()
+        }
+    };
+    let mut rng = rand::thread_rng();
+    trade.choose(&mut rng).unwrap().clone()
+}
+
 pub fn get_shops() -> ShopData {
     let shop_asset = Asset::get("prefix/npcs/npc_shops.json").unwrap();
     let shop_str = std::str::from_utf8(shop_asset.data.as_ref());
@@ -176,6 +234,19 @@ pub fn get_shops() -> ShopData {
         }
     };
     shops
+}
+
+pub fn get_trade() -> Vec<HashMap<String, String>> {
+    let trade_asset = Asset::get("prefix/npcs/npc_trade.json").unwrap();
+    let trade_str = std::str::from_utf8(trade_asset.data.as_ref());
+    let trades: Vec<HashMap<String, String>> = match trade_str {
+        Ok(content) => serde_json::from_str(content).unwrap(),
+        Err(e) => {
+            log::info!("{:?}", e);
+            Vec::new()
+        }
+    };
+    trades
 }
 
 pub fn get_shop_convos() -> ShopConvos {

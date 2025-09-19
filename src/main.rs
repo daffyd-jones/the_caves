@@ -7,7 +7,6 @@ mod features;
 mod gui;
 mod gui_utils;
 mod item;
-mod lsystems;
 mod map;
 mod nodemap;
 mod notebook;

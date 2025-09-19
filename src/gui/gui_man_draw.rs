@@ -428,6 +428,11 @@ impl GUI {
                                 "Herbalist".to_string(),
                                 Ascii::EnvInter(*env_inter),
                             )),
+                            EnvInter::Hermit => adj_list.push((
+                                *pos,
+                                "Hermit".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
                             EnvInter::Door(Door::HLocked(_)) => adj_list.push((
                                 *pos,
                                 "Locked Door".to_string(),
@@ -478,8 +483,8 @@ impl GUI {
                         _ => todo!(),
                     }
                 }
-                let mut ascii1 = vec![];
-                let mut ascii2 = vec![];
+                let mut ascii1 = vec!["".to_string(); 3];
+                let mut ascii2 = vec!["".to_string(); 3];
                 for (idx, entity) in adj_list.iter().enumerate() {
                     if idx < 3 {
                         vec1[idx] = (entity.0, entity.1.clone());
@@ -493,11 +498,19 @@ impl GUI {
                 self.adj_options = (vec1, vec2);
                 let asciis = [ascii1, ascii2];
 
-                let chunk_w = chunks[0].inner(Margin::new(0, 0)).width;
-                let padding = " ".repeat((chunks[0].width.saturating_sub(60) / 2) as usize);
+                let chunk_w = normal_info[0].inner(Margin::new(0, 0)).width;
+                let padding = " ".repeat((normal_info[0].width.saturating_sub(60) / 2) as usize);
                 let fit = chunk_w as i8 - 60;
                 let ascii = &asciis[self.cursor_pos.1][self.cursor_pos.0];
                 let mut ascii_str = Vec::new();
+                // log::info!("p: {}", padding.len());
+                log::info!(
+                    "c: {}, f: {}, b: {}, p: {}",
+                    chunk_w,
+                    fit,
+                    (fit / 2 + 1) as usize,
+                    padding.len()
+                );
                 ascii_str.push(Span::styled(
                     "What would you like to interct with?",
                     Style::default().white(),
