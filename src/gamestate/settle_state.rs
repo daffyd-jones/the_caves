@@ -1,5 +1,6 @@
 //settle_state
 
+use crate::assets::get_shops;
 use crate::enums::{GUIMode, GameMode, Interactable, Location, NPCWrap, ShopItem};
 use crate::gamestate::GameState;
 use crate::gui_utils::GuiArgs;
@@ -73,6 +74,10 @@ impl GameState {
                 ShopItem::Null => todo!(),
                 _ => todo!(),
             },
+            Location::Feature(mut feat) => match item {
+                ShopItem::Hermit(_) => feat.hermit_shop,
+                _ => todo!(),
+            },
             _ => todo!(),
         }
     }
@@ -140,6 +145,7 @@ impl GameState {
             ShopItem::Weapon(item) => item,
             ShopItem::Armor(item) => item,
             ShopItem::Consignment(item) => item,
+            ShopItem::Hermit(item) => item,
             ShopItem::Null => todo!(),
             ShopItem::Guild => todo!(),
             ShopItem::Church => todo!(),
@@ -149,25 +155,35 @@ impl GameState {
         let price = item.properties["value"];
         let paid = self.player.dec_money(price);
         if paid {
+            shop.set_paid(true);
             self.player.add_to_inv(item.clone());
             let ipos = (item.x, item.y);
-            let mut loc = match self.location.clone() {
-                Location::Settlement(settle) => settle,
+            self.location = match self.location.clone() {
+                Location::Settlement(mut settle) => {
+                    let rem = shop.stock.remove(&((ipos.0) as usize, (ipos.1) as usize));
+                    settle.update_shop(shop);
+                    Location::Settlement(settle)
+                }
+                Location::Feature(mut feat) => {
+                    let rem = shop.stock.remove(&((ipos.0) as usize, (ipos.1) as usize));
+                    feat.hermit_shop = shop;
+                    Location::Feature(feat)
+                }
                 _ => todo!(),
             };
-            let lpos = loc.get_pos();
-            shop.set_paid(true);
-            let rem = shop.stock.remove(&((ipos.0) as usize, (ipos.1) as usize));
-            loc.update_shop(shop);
-            self.location = Location::Settlement(loc);
         } else {
             shop.set_paid(false);
-            let mut loc = match self.location.clone() {
-                Location::Settlement(settle) => settle,
+            self.location = match self.location.clone() {
+                Location::Settlement(mut settle) => {
+                    settle.update_shop(shop);
+                    Location::Settlement(settle)
+                }
+                Location::Feature(mut feat) => {
+                    feat.hermit_shop = shop;
+                    Location::Feature(feat)
+                }
                 _ => todo!(),
             };
-            loc.update_shop(shop);
-            self.location = Location::Settlement(loc);
         }
     }
 
@@ -210,14 +226,21 @@ impl GameState {
     }
 
     pub fn shop_item_interaction(&mut self, mut sitem: ShopItem) -> bool {
-        let shop = self.get_shop_from_item(sitem.clone());
-        let (sname, sh_convo) = (shop.npc.sname, shop.npc.sh_conv);
-        let item = match sitem {
+        let (sname, sh_convo) = match self.location {
+            Location::Settlement(_) => {
+                let shop = self.get_shop_from_item(sitem.clone());
+                (shop.npc.sname, shop.npc.sh_conv)
+            }
+            Location::Feature(_) => ("Hermit".to_string(), get_shops().shops[0].clone()),
+            _ => todo!(),
+        };
+        let item = match sitem.clone() {
             ShopItem::Item(itm) => itm,
             ShopItem::Herbalist(itm) => itm,
             ShopItem::Weapon(itm) => itm,
             ShopItem::Armor(itm) => itm,
             ShopItem::Consignment(itm) => itm,
+            ShopItem::Hermit(itm) => itm,
             ShopItem::Null => todo!(),
             _ => todo!(),
         };
@@ -237,7 +260,6 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    // stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,
@@ -263,6 +285,7 @@ impl GameState {
                 }
             }
         }
+        let shop = self.get_shop_from_item(sitem);
         let resp_dialogue = {
             if buy_item {
                 if shop.paid {
@@ -283,7 +306,6 @@ impl GameState {
                 &mut GuiArgs {
                     map: &self.map,
                     player: &self.player,
-                    // stats: &self.stats.player_xp.get_xps(),
                     enemies: &self.enemies,
                     items: &self.items,
                     npcs: &self.npcs,

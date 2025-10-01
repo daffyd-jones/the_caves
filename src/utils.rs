@@ -224,7 +224,17 @@ pub fn loc_shop_items(dist_fo: (i16, i16), loc: Location) -> HashMap<(usize, usi
             }
         }
         Location::Puzzle(_puzzle) => HashMap::new(),
-        Location::Feature(_) => HashMap::new(),
+        Location::Feature(feat) => {
+            let mut itms = HashMap::new();
+            let sitems = feat.hermit_shop.stock;
+            let fpos = feat.pos;
+            for ((x, y), i) in sitems {
+                let nx = (dist_fo.0 + x as i16 + fpos.0) as usize;
+                let ny = (dist_fo.1 + y as i16 + fpos.1) as usize;
+                itms.insert((nx, ny), i);
+            }
+            itms
+        } // Location::Feature(_) => HashMap::new(),
     }
 }
 

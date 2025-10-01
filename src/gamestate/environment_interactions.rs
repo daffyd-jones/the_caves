@@ -738,6 +738,7 @@ Direction:
             Shops::Weapon => "Weapon Smith".to_string(),
             Shops::Armor => "Armourer".to_string(),
             Shops::Consignment => "Shop Keeper".to_string(),
+            Shops::Hermit => "Shop Keeper".to_string(),
             Shops::Null => todo!(),
         };
         match shop_type {

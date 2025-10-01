@@ -394,6 +394,7 @@ pub fn env_inter_ascii(env: EnvInter) -> String {
             crate::enums::Shops::Weapon => "weaponsmith".to_string(),
             crate::enums::Shops::Armor => "armourer".to_string(),
             crate::enums::Shops::Consignment => "shop-keeper".to_string(),
+            crate::enums::Shops::Hermit => "hermit".to_string(),
             crate::enums::Shops::Null => "".to_string(),
         },
         EnvInter::Herbalist => "herbalist".to_string(),

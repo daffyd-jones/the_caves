@@ -98,6 +98,17 @@ impl Shop {
         }
     }
 
+    pub fn new_hermit(stock: HashMap<(usize, usize), ShopItem>) -> Self {
+        let npc = ShopNPC::default();
+        Self {
+            sptype: Shops::Hermit,
+            sname: "Hermit".to_string(),
+            npc,
+            stock,
+            paid: true,
+        }
+    }
+
     pub fn get_sptype(&mut self) -> Shops {
         self.sptype.clone()
     }

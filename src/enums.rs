@@ -625,6 +625,7 @@ pub enum Shops {
     Weapon,
     Armor,
     Consignment,
+    Hermit,
     Null,
 }
 

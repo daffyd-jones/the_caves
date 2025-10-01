@@ -119,43 +119,6 @@ pub struct Animation {
     pub char: Option<(char, Color)>,
 }
 
-// pub fn gui_setup(f: Frame) -> () {
-//     let entire_screen_block = Block::default()
-//         .style(Style::default().bg(Color::Black))
-//         .borders(Borders::NONE);
-//     f.render_widget(entire_screen_block, f.area());
-//     let chunks = Layout::default()
-//         .direction(Direction::Vertical)
-//         .margin(1)
-//         .constraints(
-//             [
-//                 Constraint::Percentage(10),
-//                 Constraint::Percentage(80),
-//                 Constraint::Percentage(10),
-//             ]
-//             .as_ref(),
-//         )
-//         .split(f.area());
-
-//     let game_chunks = Layout::default()
-//         .direction(Direction::Horizontal)
-//         .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
-//         .split(chunks[1]);
-
-//     let block = Block::default().title("Game").borders(Borders::ALL);
-//     f.render_widget(block.clone(), game_chunks[0]);
-//     let block_area = game_chunks[0];
-//     f.render_widget(block.clone(), block_area);
-//     let inner_area = block_area.inner(Margin::default());
-//     let in_h = inner_area.height as usize;
-//     let in_w = inner_area.width as usize;
-//     if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
-//         // map.set_viewport(in_h, in_w);
-//         self.viewport_dim = (in_w, in_h);
-//     }
-//     (inner_area, game_chunks)
-// }
-
 pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
     let map = gui_args.map.clone();
     let start_row = map.viewport_y;
@@ -254,6 +217,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         ShopItem::Weapon(item) => item.icon,
                         ShopItem::Armor(item) => item.icon,
                         ShopItem::Consignment(item) => item.icon,
+                        ShopItem::Hermit(item) => item.icon,
                         ShopItem::Guild => todo!(),
                         ShopItem::Church => todo!(),
                         ShopItem::Clinic => todo!(),
@@ -276,7 +240,7 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::Construction => ('ì', Color::Blue),
                         EnvInter::Cauldron => ('℧', Color::Green),
                         EnvInter::Herbalist => ('ì', Color::Yellow),
-                        EnvInter::Hermit => ('Ẏ', Color::Yellow),
+                        EnvInter::Hermit => ('Ý', Color::Yellow),
                         EnvInter::WoodenHatch => ('▥', Color::Yellow),
                         EnvInter::Door(Door::VLocked(_)) => ('╎', Color::White),
                         EnvInter::Door(Door::VOpen) => ('🮀', Color::White),

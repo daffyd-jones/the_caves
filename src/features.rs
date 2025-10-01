@@ -1,4 +1,4 @@
-use crate::enums::{Cells, Door, EnvInter, FeatureType, NPCWrap, ShopItem};
+use crate::enums::{Cells, Door, EnvInter, FeatureType, Items, NPCWrap, ShopItem};
 use crate::features::abandoned_shacks::make_abandoned_shack;
 use crate::features::construction::make_construction_feature;
 use crate::features::field::make_field;
@@ -7,6 +7,7 @@ use crate::features::ruin::make_small_ruin_feature;
 use crate::features::streams::make_stream;
 use crate::item::{rand_hermit_item, Item};
 use crate::parsing::{ch_to_enum, parse_map};
+use crate::shop::Shop;
 use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::collections::HashMap;
@@ -55,11 +56,12 @@ pub struct Feature {
     pub pos: (i16, i16),
     pub map: Vec<Vec<Cells>>,
     pub items: HashMap<(usize, usize), Item>,
-    pub sitems: HashMap<(usize, usize), ShopItem>,
+    // pub sitems: HashMap<(usize, usize), ShopItem>,
     pub npcs: HashMap<(usize, usize), NPCWrap>,
     pub env_inters: HashMap<(usize, usize), EnvInter>,
     pub cont_sent: bool,
     pub hermit: bool,
+    pub hermit_shop: Shop,
     pub hermit_pos: (usize, usize),
     pub hermit_map: Vec<Vec<Cells>>,
 }
@@ -109,14 +111,20 @@ impl Feature {
                     'o' if !scroll => {
                         items.insert(
                             (self.hermit_pos.0 + i, self.hermit_pos.1 + j),
-                            Item::new_scroll(self.hermit_pos.0 + i, self.hermit_pos.1 + j),
+                            ShopItem::Hermit(Item::new_scroll(
+                                self.hermit_pos.0 + i,
+                                self.hermit_pos.1 + j,
+                            )),
                         );
                         scroll = true;
                     }
                     'o' => {
                         items.insert(
                             (self.hermit_pos.0 + i, self.hermit_pos.1 + j),
-                            rand_hermit_item(self.hermit_pos.0 + i, self.hermit_pos.1 + j),
+                            ShopItem::Hermit(rand_hermit_item(
+                                self.hermit_pos.0 + i,
+                                self.hermit_pos.1 + j,
+                            )),
                         );
                     }
                     _ => {}
@@ -124,7 +132,8 @@ impl Feature {
                 map[self.hermit_pos.1 + j][self.hermit_pos.0 + i] = ch_to_enum(ch);
             }
         }
-        self.items = items;
+        // self.items = items;
+        self.hermit_shop = Shop::new_hermit(items);
         self.env_inters = env_inters;
         self.hermit_map = map;
     }
@@ -182,11 +191,11 @@ impl Features {
                 pos,
                 map,
                 items,
-                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
                 hermit: false,
+                hermit_shop: Shop::default(),
                 hermit_pos: (0, 0),
                 hermit_map: Vec::new(),
             },
@@ -202,11 +211,11 @@ impl Features {
                 pos,
                 map,
                 items,
-                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
                 hermit: false,
+                hermit_shop: Shop::default(),
                 hermit_pos: (0, 0),
                 hermit_map: Vec::new(),
             },
@@ -222,11 +231,11 @@ impl Features {
                 pos,
                 map,
                 items,
-                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
                 hermit: false,
+                hermit_shop: Shop::default(),
                 hermit_pos: (0, 0),
                 hermit_map: Vec::new(),
             },
@@ -242,11 +251,11 @@ impl Features {
                 pos,
                 map,
                 items,
-                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
                 hermit: false,
+                hermit_shop: Shop::default(),
                 hermit_pos: (0, 0),
                 hermit_map: Vec::new(),
             },
@@ -262,11 +271,11 @@ impl Features {
                 pos,
                 map,
                 items,
-                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
                 hermit: false,
+                hermit_shop: Shop::default(),
                 hermit_pos: (0, 0),
                 hermit_map: Vec::new(),
             },
@@ -282,11 +291,11 @@ impl Features {
                 pos,
                 map,
                 items,
-                sitems: HashMap::new(),
                 npcs,
                 env_inters,
                 cont_sent: false,
                 hermit: false,
+                hermit_shop: Shop::default(),
                 hermit_pos: (0, 0),
                 hermit_map: Vec::new(),
             },
