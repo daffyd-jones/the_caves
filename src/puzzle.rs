@@ -993,6 +993,7 @@ enum PDoorHV {
 
 struct PuzzleKey {
     set: u8,
+    // state:
 }
 
 struct PuzzleDoor {
@@ -1023,190 +1024,146 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             idxs: vec![(15, 7), (15, 8)],
             set,
         }),
-        RuinRoom::TB => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
-                    set,
-                },
-            ]
-        }
-        RuinRoom::LR => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(0, 7), (0, 8)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(15, 7), (15, 8)],
-                    set,
-                },
-            ]
-        }
-        RuinRoom::TL => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(0, 7), (0, 8)],
-                    set,
-                },
-            ]
-        }
-        RuinRoom::TR => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(15, 7), (15, 8)],
-                    set,
-                },
-            ]
-        }
-        RuinRoom::BL => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(0, 7), (0, 8)],
-                    set,
-                },
-            ]
-        }
-        RuinRoom::BR => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(15, 7), (15, 8)],
-                    set,
-                },
-            ]
-        }
-        RuinRoom::TBL => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(0, 7), (0, 8)],
-                    set,
-                },
-            ]
-        }
-        RuinRoom::TBR => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(15, 7), (15, 8)],
-                    set,
-                },
-            ]
-        }
-        RuinRoom::LRT => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(0, 7), (0, 8)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(15, 7), (15, 8)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
-                    set,
-                },
-            ]
-        }
-        RuinRoom::LRB => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(0, 7), (0, 8)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(15, 7), (15, 8)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
-                    set,
-                },
-            ]
-        }
-        RuinRoom::All => {
-            vec![
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(0, 7), (0, 8)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Vert,
-                    idxs: vec![(15, 7), (15, 8)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
-                    set,
-                },
-                PuzzleDoor {
-                    orient: PDoorHV::Horiz,
-                    idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
-                    set,
-                },
-            ]
-        }
+        (RuinRoom::TB, pos) if pos.1 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
+            set,
+        }),
+        (RuinRoom::TB, pos) if pos.1 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
+            set,
+        }),
+        (RuinRoom::LR, pos) if pos.0 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(0, 7), (0, 8)],
+            set,
+        }),
+        (RuinRoom::LR, pos) if pos.0 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(15, 7), (15, 8)],
+            set,
+        }),
+        (RuinRoom::TL, pos) if pos.1 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
+            set,
+        }),
+        (RuinRoom::TL, pos) if pos.0 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(0, 7), (0, 8)],
+            set,
+        }),
+        (RuinRoom::TR, pos) if pos.1 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
+            set,
+        }),
+        (RuinRoom::TR, pos) if pos.0 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(15, 7), (15, 8)],
+            set,
+        }),
+        (RuinRoom::BL, pos) if pos.1 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
+            set,
+        }),
+        (RuinRoom::BL, pos) if pos.0 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(0, 7), (0, 8)],
+            set,
+        }),
+        (RuinRoom::BR, pos) if pos.1 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
+            set,
+        }),
+        (RuinRoom::BR, pos) if pos.0 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(15, 7), (15, 8)],
+            set,
+        }),
+        (RuinRoom::TBL, pos) if pos.1 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
+            set,
+        }),
+        (RuinRoom::TBL, pos) if pos.1 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
+            set,
+        }),
+        (RuinRoom::TBL, pos) if pos.0 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(0, 7), (0, 8)],
+            set,
+        }),
+        (RuinRoom::TBR, pos) if pos.1 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
+            set,
+        }),
+        (RuinRoom::TBR, pos) if pos.1 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
+            set,
+        }),
+        (RuinRoom::TBR, pos) if pos.0 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(15, 7), (15, 8)],
+            set,
+        }),
+        (RuinRoom::LRT, pos) if pos.0 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(0, 7), (0, 8)],
+            set,
+        }),
+        (RuinRoom::LRT, pos) if pos.0 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(15, 7), (15, 8)],
+            set,
+        }),
+        (RuinRoom::LRT, pos) if pos.1 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
+            set,
+        }),
+        (RuinRoom::LRB, pos) if pos.0 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(0, 7), (0, 8)],
+            set,
+        }),
+        (RuinRoom::LRB, pos) if pos.0 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(15, 7), (15, 8)],
+            set,
+        }),
+        (RuinRoom::LRB, pos) if pos.1 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
+            set,
+        }),
+        (RuinRoom::All, pos) if pos.0 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(0, 7), (0, 8)],
+            set,
+        }),
+        (RuinRoom::All, pos) if pos.0 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Vert,
+            idxs: vec![(15, 7), (15, 8)],
+            set,
+        }),
+        (RuinRoom::All, pos) if pos.1 > 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 0), (21, 0), (22, 0), (23, 0)],
+            set,
+        }),
+        (RuinRoom::All, pos) if pos.1 < 0 => Some(PuzzleDoor {
+            orient: PDoorHV::Horiz,
+            idxs: vec![(20, 15), (21, 15), (22, 15), (23, 15)],
+            set,
+        }),
         _ => todo!(),
     }
 }
@@ -1217,14 +1174,6 @@ fn make_ruin_key(map: Vec<Vec<RuinRoom>>) {
     // let mut keys = Vec::new();
     for d in 0..3 {
         match d {
-            // 0 => {
-            //     let mut depth_rooms = HashMap::new();
-            //     depth_rooms.insert(
-            //         (center.0, center.1),
-            //         map_room_doors(map[center.1][center.0], d),
-            //     );
-            //     doors.push(depth_rooms);
-            // }
             0 => {
                 let room_idx = [(0, -1), (-1, 0), (1, 0), (0, 1)];
                 let mut depth_rooms = HashMap::new();
@@ -1324,6 +1273,16 @@ fn make_ruin() -> (
     HashMap<(usize, usize), EnvInter>,
 ) {
     let cells = vec![vec![Cells::Empty; 294]; 112];
+    parse_map(&build_ruin().0, cells)
+}
+
+fn make_key_ruin() -> (
+    Vec<Vec<Cells>>,
+    HashMap<(usize, usize), NPCWrap>,
+    HashMap<(usize, usize), Item>,
+    HashMap<(usize, usize), EnvInter>,
+) {
+    let cells = vec![vec![Cells::Empty; 294]; 112];
     let (ruin_map, rooms): (String, Vec<Vec<RuinRoom>>) = build_ruin();
     parse_map(&ruin_map, cells)
 }
@@ -1390,9 +1349,7 @@ impl Puzzle {
     pub fn new_ruin(pos: (i16, i16)) -> Self {
         let (map, npcs, items, env_inters) = make_ruin();
         let portals = HashMap::new();
-        // let items = HashMap::new();
         let enemies = HashMap::new();
-        // let npcs = HashMap::new();
         let prize = Item::new_health_potion(112, 42);
         Self {
             ptype: PuzzleType::Maze,

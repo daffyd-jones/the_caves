@@ -95,7 +95,7 @@ fn main() {
     GameState::start_update_threads(Arc::clone(&game_state));
 
     let mut previous = Instant::now();
-    let timestep = Duration::from_millis(1000 / 10);
+    let timestep = Duration::from_millis(1000 / 8);
 
     loop {
         let now = Instant::now();

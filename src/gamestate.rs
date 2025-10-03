@@ -133,7 +133,7 @@ impl GameState {
             items,
             npcs,
             env_inters,
-            key_debounce_dur: Duration::from_millis(60),
+            key_debounce_dur: Duration::from_millis(125),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
             location: Location::Null,
@@ -350,7 +350,7 @@ impl GameState {
     }
 
     fn play_update(&mut self) -> bool {
-        if poll(std::time::Duration::from_millis(5)).unwrap() {
+        if poll(std::time::Duration::from_millis(50)).unwrap() {
             if let Event::Key(event) = read().unwrap() {
                 match event.kind {
                     KeyEventKind::Press => {
@@ -522,7 +522,7 @@ impl GameState {
                     }
                 }
             }
-            thread::sleep(Duration::from_millis(30));
+            thread::sleep(Duration::from_millis(125));
         });
     }
 
