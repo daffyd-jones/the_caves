@@ -34,6 +34,9 @@ impl GameState {
             if let Some(env_inter) = self.env_inters.get(&(*x, *y)) {
                 adj_inter.insert((*x, *y), Some(Interactable::EnvInter(*env_inter)));
             }
+            if let Some(puz_piece) = self.puzzle_pieces.get(&(*x, *y)) {
+                adj_inter.insert((*x, *y), Some(Interactable::PuzzlePiece(puz_piece.clone())));
+            }
             if self.location != Location::Null {
                 let st = loc_shop_items(self.dist_fo, self.location.clone());
                 if let Some(sitm) = st.get(&(*x, *y)) {
@@ -59,6 +62,8 @@ impl GameState {
             Some(Interactable::NPC(npc.clone()))
         } else if let Some(env_inter) = self.env_inters.get(&pos) {
             Some(Interactable::EnvInter(*env_inter))
+        } else if let Some(puz_piece) = self.puzzle_pieces.get(&pos) {
+            Some(Interactable::PuzzlePiece(puz_piece.clone()))
         } else {
             Some(Interactable::Null)
         }
@@ -80,6 +85,7 @@ impl GameState {
             Interactable::Enemy(enemy) => {}
             Interactable::NPC(npc) => {}
             Interactable::EnvInter(env_inter) => {}
+            Interactable::PuzzlePiece(puz_piece) => {}
             Interactable::Null => {}
             _ => todo!(),
         }
@@ -120,7 +126,7 @@ impl GameState {
                 npcs: &self.npcs,
                 env_inter: Some(&self.env_inters),
                 litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                portals: Some(&self.portals),
+                puzzle_pieces: Some(&self.puzzle_pieces),
                 animate: None,
                 ascii: None,
                 ani_stats: &self.get_ani_stats(),
@@ -154,7 +160,7 @@ impl GameState {
                 npcs: &self.npcs,
                 env_inter: Some(&self.env_inters),
                 litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                portals: Some(&self.portals),
+                puzzle_pieces: Some(&self.puzzle_pieces),
                 animate: None,
                 ascii: None,
                 ani_stats: &self.get_ani_stats(),
@@ -175,7 +181,7 @@ impl GameState {
         }
 
         let intee = self.interactee.clone();
-        log::info!("intee1: {:#?}", intee);
+        // log::info!("intee1: {:#?}", intee);
         let res = match intee {
             Interactable::Item(_) => self.item_interaction(),
             Interactable::ShopItem(si) => self.shop_item_interaction(si),
@@ -185,6 +191,7 @@ impl GameState {
                 self.enemy_encounter(e)
             }
             Interactable::EnvInter(env_inter) => self.env_interaction(env_inter),
+            Interactable::PuzzlePiece(puz_piece) => self.puzzle_piece_interaction(puz_piece),
             Interactable::Null => false,
             _ => todo!(),
         };

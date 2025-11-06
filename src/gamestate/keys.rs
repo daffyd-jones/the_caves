@@ -14,8 +14,8 @@ impl GameState {
                         self.shift_enemies("UP");
                         self.shift_items("UP");
                         self.shift_npcs("UP");
+                        self.shift_puzzle_pieces("UP");
                         self.shift_env_inters("UP");
-                        self.shift_portals("UP");
                         self.map.shift("UP");
                         self.dist_fo.1 += 1;
                         self.gui.set_comp_head((
@@ -37,8 +37,8 @@ impl GameState {
                         self.shift_enemies("DN");
                         self.shift_items("DN");
                         self.shift_npcs("DN");
+                        self.shift_puzzle_pieces("DN");
                         self.shift_env_inters("DN");
-                        self.shift_portals("DN");
                         self.map.shift("DN");
                         self.dist_fo.1 -= 1;
                         self.gui.set_comp_head((
@@ -57,8 +57,8 @@ impl GameState {
                         self.shift_enemies("LF");
                         self.shift_items("LF");
                         self.shift_npcs("LF");
+                        self.shift_puzzle_pieces("LF");
                         self.shift_env_inters("LF");
-                        self.shift_portals("LF");
                         self.map.shift("LF");
                         self.dist_fo.0 += 1;
                         self.gui.set_comp_head((
@@ -80,8 +80,8 @@ impl GameState {
                         self.shift_enemies("RT");
                         self.shift_items("RT");
                         self.shift_npcs("RT");
+                        self.shift_puzzle_pieces("RT");
                         self.shift_env_inters("RT");
-                        self.shift_portals("RT");
                         self.map.shift("RT");
                         self.dist_fo.0 -= 1;
                         self.gui.set_comp_head((

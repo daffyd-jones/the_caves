@@ -13,48 +13,60 @@ impl GameState {
                     COLLISION_CELLS.contains(&self.map.cells[self.player.y - 1][self.player.x]);
                 let item_coll = self.items.contains_key(&(self.player.x, self.player.y - 1));
                 let npc_coll = self.npcs.contains_key(&(self.player.x, self.player.y - 1));
+                let puz_coll = self
+                    .puzzle_pieces
+                    .contains_key(&(self.player.x, self.player.y - 1));
                 let env_inter_coll = COLLISION_INTERS.contains(
                     self.env_inters
                         .get(&(self.player.x, self.player.y - 1))
                         .unwrap_or(&EnvInter::Null),
                 );
-                map_coll || item_coll || npc_coll || env_inter_coll
+                map_coll || item_coll || npc_coll || env_inter_coll || puz_coll
             }
             "DN" => {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[self.player.y + 1][self.player.x]);
                 let item_coll = self.items.contains_key(&(self.player.x, self.player.y + 1));
                 let npc_coll = self.npcs.contains_key(&(self.player.x, self.player.y + 1));
+                let puz_coll = self
+                    .puzzle_pieces
+                    .contains_key(&(self.player.x, self.player.y + 1));
                 let env_inter_coll = COLLISION_INTERS.contains(
                     self.env_inters
                         .get(&(self.player.x, self.player.y + 1))
                         .unwrap_or(&EnvInter::Null),
                 );
-                map_coll || item_coll || npc_coll || env_inter_coll
+                map_coll || item_coll || npc_coll || env_inter_coll || puz_coll
             }
             "LF" => {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[self.player.y][self.player.x - 1]);
                 let item_coll = self.items.contains_key(&(self.player.x - 1, self.player.y));
                 let npc_coll = self.npcs.contains_key(&(self.player.x - 1, self.player.y));
+                let puz_coll = self
+                    .puzzle_pieces
+                    .contains_key(&(self.player.x - 1, self.player.y));
                 let env_inter_coll = COLLISION_INTERS.contains(
                     self.env_inters
                         .get(&(self.player.x - 1, self.player.y))
                         .unwrap_or(&EnvInter::Null),
                 );
-                map_coll || item_coll || npc_coll || env_inter_coll
+                map_coll || item_coll || npc_coll || env_inter_coll || puz_coll
             }
             "RT" => {
                 let map_coll =
                     COLLISION_CELLS.contains(&self.map.cells[self.player.y][self.player.x + 1]);
                 let item_coll = self.items.contains_key(&(self.player.x + 1, self.player.y));
                 let npc_coll = self.npcs.contains_key(&(self.player.x + 1, self.player.y));
+                let puz_coll = self
+                    .puzzle_pieces
+                    .contains_key(&(self.player.x + 1, self.player.y));
                 let env_inter_coll = COLLISION_INTERS.contains(
                     self.env_inters
                         .get(&(self.player.x + 1, self.player.y))
                         .unwrap_or(&EnvInter::Null),
                 );
-                map_coll || item_coll || npc_coll || env_inter_coll
+                map_coll || item_coll || npc_coll || env_inter_coll || puz_coll
             }
             _ => false,
         }
@@ -151,38 +163,38 @@ impl GameState {
         self.items = new_i;
     }
 
-    pub fn shift_portals(&mut self, dir: &str) {
-        let temp_p = self.portals.clone();
-        let mut new_p = HashMap::new();
-        let mw = self.map.cells[0].len();
-        let mh = self.map.cells.len();
-        for ((ix, iy), (ox, oy)) in temp_p {
-            match dir {
-                "UP" => {
-                    if iy < mh && oy < mh {
-                        new_p.insert((ix, iy + 1), (ox, oy + 1));
-                    }
-                }
-                "DN" => {
-                    if iy > 0 && oy > 0 {
-                        new_p.insert((ix, iy - 1), (ox, oy - 1));
-                    }
-                }
-                "LF" => {
-                    if ix < mw && ox < mw {
-                        new_p.insert((ix + 1, iy), (ox + 1, oy));
-                    }
-                }
-                "RT" => {
-                    if ix > 0 && ox > 0 {
-                        new_p.insert((ix - 1, iy), (ox - 1, oy));
-                    }
-                }
-                _ => todo!(),
-            };
-        }
-        self.portals = new_p;
-    }
+    // pub fn shift_portals(&mut self, dir: &str) {
+    //     let temp_p = self.portals.clone();
+    //     let mut new_p = HashMap::new();
+    //     let mw = self.map.cells[0].len();
+    //     let mh = self.map.cells.len();
+    //     for ((ix, iy), (ox, oy)) in temp_p {
+    //         match dir {
+    //             "UP" => {
+    //                 if iy < mh && oy < mh {
+    //                     new_p.insert((ix, iy + 1), (ox, oy + 1));
+    //                 }
+    //             }
+    //             "DN" => {
+    //                 if iy > 0 && oy > 0 {
+    //                     new_p.insert((ix, iy - 1), (ox, oy - 1));
+    //                 }
+    //             }
+    //             "LF" => {
+    //                 if ix < mw && ox < mw {
+    //                     new_p.insert((ix + 1, iy), (ox + 1, oy));
+    //                 }
+    //             }
+    //             "RT" => {
+    //                 if ix > 0 && ox > 0 {
+    //                     new_p.insert((ix - 1, iy), (ox - 1, oy));
+    //                 }
+    //             }
+    //             _ => todo!(),
+    //         };
+    //     }
+    //     self.portals = new_p;
+    // }
 
     pub fn shift_env_inters(&mut self, dir: &str) {
         let temp_ei = self.env_inters.clone();

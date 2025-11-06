@@ -19,11 +19,10 @@ impl Puzzles {
     }
 
     pub fn demo_self() -> Self {
-        // let pos = (100, 0);
-        let pos = (-100, -500);
-        let puzzle = Puzzle::new_ruin(pos);
-        // let puzzle = Puzzle::new_teleport(pos);
-        // log::info!("\nPuzzleFound: {:?}", puzzle);
+        let pos = (-100, -400);
+        // let pos = (-100, -400);
+        let puzzle = Puzzle::new_key_ruin(pos);
+        // let puzzle = Puzzle::new_ruin(pos);
         let mut puzzles = HashMap::new();
         puzzles.insert(pos, puzzle);
         Self { puzzles }
@@ -34,8 +33,8 @@ impl Puzzles {
             match &ptype {
                 PuzzleType::Maze => Puzzle::new_maze(pos),
                 PuzzleType::Ruin => Puzzle::new_ruin(pos),
-                PuzzleType::Teleport => Puzzle::new_ruin(pos),
-                PuzzleType::Inverted => Puzzle::new_maze(pos),
+                PuzzleType::Flip => Puzzle::new_flip(pos),
+                PuzzleType::KeyRuin => Puzzle::new_key_ruin(pos),
             }
         };
         self.puzzles.insert(pos, puzzle.clone());
@@ -57,20 +56,29 @@ impl Puzzles {
     }
 
     pub fn spawn_node_puzzle(&mut self, pos: (i16, i16)) {
-        let choice = PuzzleType::Ruin;
+        let choice = PuzzleType::KeyRuin;
+        // let choice = [
+        //     PuzzleType::Maze,
+        //     PuzzleType::Ruin,
+        //     PuzzleType::Flip,
+        //     PuzzleType::KeyRuin,
+        // ];
         let puzzle = match choice {
             PuzzleType::Maze => Puzzle::new_maze(pos),
             PuzzleType::Ruin => Puzzle::new_ruin(pos),
-            PuzzleType::Teleport => Puzzle::new_ruin(pos),
-            PuzzleType::Inverted => Puzzle::new_maze(pos),
+            PuzzleType::Flip => Puzzle::new_flip(pos),
+            PuzzleType::KeyRuin => Puzzle::new_key_ruin(pos),
         };
         self.puzzles.insert(pos, puzzle.clone());
     }
 
     pub fn check_location(&self, bpos: (i16, i16), rad: u16) -> Option<Puzzle> {
         for (ppos, p) in &self.puzzles {
-            let xx = (ppos.0 - -bpos.0) as i32;
-            let yy = (ppos.1 - -bpos.1) as i32;
+            let xx = (ppos.0 - (-bpos.0 + 224)) as i32;
+            let yy = (ppos.1 - (-bpos.1 + 147)) as i32;
+
+            // let xx = (ppos.0 - -bpos.0) as i32;
+            // let yy = (ppos.1 - -bpos.1) as i32;
             let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u16;
             if hyp <= rad.into() {
                 return Some(p.clone());

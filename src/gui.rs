@@ -502,6 +502,10 @@ impl GUI {
                             Span::styled((gui_args.items.len()).to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
+                            Span::styled("puzzle pieces: ", Style::default().fg(Color::White)),
+                            Span::styled((gui_args.puzzle_pieces.unwrap().len()).to_string(), Style::default().fg(Color::Yellow)),
+                        ]),
+                        Row::new(vec![
                             Span::styled("dfo: ", Style::default().fg(Color::White)),
                             Span::styled(debug.0, Style::default().fg(Color::Yellow)),
                          ]),

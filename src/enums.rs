@@ -3,7 +3,7 @@ use crate::enemy::Enemy;
 use crate::features::Feature;
 use crate::item::Item;
 use crate::npc::{BaseNPC, CommNPC, ConvNPC, ShopNPC, SpawnNPC, TaskNPC, TradeNPC};
-use crate::puzzle::Puzzle;
+use crate::puzzle::{Puzzle, PuzzleDoor, PuzzleKey};
 use crate::settlement::Settlement;
 use std::fmt;
 // Define the Cell enum
@@ -526,7 +526,14 @@ pub enum Interactable {
     NPC(NPCWrap),
     Enemy(Enemy),
     EnvInter(EnvInter),
+    PuzzlePiece(PuzzlePiece),
     Null,
+}
+
+#[derive(Clone, PartialEq, Debug)]
+pub enum PuzzlePiece {
+    PuzzleDoor(PuzzleDoor),
+    PuzzleKey(PuzzleKey),
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -673,8 +680,8 @@ pub enum CompMode {
 pub enum PuzzleType {
     Maze,
     Ruin,
-    Teleport,
-    Inverted,
+    Flip,
+    KeyRuin,
 }
 
 #[derive(Clone, Debug, PartialEq)]

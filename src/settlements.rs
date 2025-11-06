@@ -33,8 +33,8 @@ impl Settlements {
 
     pub fn check_location(&self, bpos: (i16, i16), rad: u16) -> Option<Settlement> {
         for (spos, s) in &self.settlements {
-            let xx = (spos.0 - bpos.0 * -1) as i32;
-            let yy = (spos.1 - bpos.1 * -1) as i32;
+            let xx = (spos.0 - (-bpos.0 + 224)) as i32;
+            let yy = (spos.1 - (-bpos.1 + 147)) as i32;
             let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u64;
             if hyp <= rad.into() {
                 return Some(s.clone());

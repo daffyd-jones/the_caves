@@ -14,9 +14,9 @@ impl GameState {
                     let m = settle.map;
                     (p, m)
                 }
-                Location::Puzzle(puzzle) => {
-                    let p = puzzle.pos;
-                    let m = puzzle.map;
+                Location::Puzzle(mut puzzle) => {
+                    let p = puzzle.get_pos();
+                    let m = puzzle.get_map();
                     (p, m)
                 }
                 Location::Feature(feature) => {

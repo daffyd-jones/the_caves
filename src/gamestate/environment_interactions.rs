@@ -7,10 +7,12 @@ use crate::assets::{
 use crate::gamestate::GameState;
 
 use crate::enums::{
-    Door, EnvInter, GameMode, Interactable, Items, Location, Plants, PuzzleType, Shops, TaskEnv,
+    Door, EnvInter, GameMode, Interactable, Items, Location, Plants, PuzzlePiece, PuzzleType,
+    Shops, TaskEnv,
 };
 use crate::gui_utils::{DisplayStats, GuiArgs};
 use crate::item::Item;
+use crate::puzzle::{Puzzle, PuzzleDoor, PuzzleKey};
 use crate::shop::Shop;
 use crate::tasks::{self, Task, TaskType};
 use crate::utils::comb_conv;
@@ -36,7 +38,7 @@ impl GameState {
                 npcs: &self.npcs,
                 env_inter: Some(&self.env_inters),
                 litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                portals: Some(&self.portals),
+                puzzle_pieces: Some(&self.puzzle_pieces),
                 animate: None,
                 ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
                 ani_stats: &self.get_ani_stats(),
@@ -91,7 +93,7 @@ impl GameState {
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: None,
                     ani_stats: &self.get_ani_stats(),
@@ -135,13 +137,12 @@ impl GameState {
                 (xdir, ydir) if xdir > 0 && ydir > 0 => "South West".to_string(),
                 _ => "dunno".to_string(),
             };
-            let ptype_string = {
-                match p.get_ptype() {
-                    PuzzleType::Maze => "Maze".to_string(),
-                    PuzzleType::Teleport => "Teleport".to_string(),
-                    PuzzleType::Inverted => "Inverted".to_string(),
-                    _ => "dunno".to_string(),
-                }
+            let ptype_string = match p {
+                Puzzle::Maze { .. } => "Maze".to_string(),
+                Puzzle::Ruin { .. } => "Ruin".to_string(),
+                Puzzle::Flip { .. } => "Flip".to_string(),
+                Puzzle::KeyRuin { .. } => "KeyRuin".to_string(),
+                _ => "dunno".to_string(),
             };
             ppost_strings.push(format!(
                 r#"
@@ -175,7 +176,7 @@ A couple guild members checked it out earlier, but didn't find anything. nl
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: None,
                     ani_stats: &self.get_ani_stats(),
@@ -273,7 +274,7 @@ Direction:
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: None,
                     ani_stats: &self.get_ani_stats(),
@@ -344,7 +345,7 @@ Direction:
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: Some(&get_ascii(Ascii::EnvInter(EnvInter::Cauldron))),
                     ani_stats: &self.get_ani_stats(),
@@ -428,7 +429,7 @@ Direction:
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Herbalist))),
                     ani_stats: &self.get_ani_stats(),
@@ -482,7 +483,7 @@ Direction:
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Herbalist))),
                     ani_stats: &self.get_ani_stats(),
@@ -536,7 +537,7 @@ Direction:
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Herbalist))),
                     ani_stats: &self.get_ani_stats(),
@@ -582,7 +583,7 @@ Direction:
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Herbalist))),
                     ani_stats: &self.get_ani_stats(),
@@ -645,7 +646,7 @@ Direction:
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
                     ani_stats: &self.get_ani_stats(),
@@ -694,7 +695,7 @@ Direction:
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
                     ani_stats: &self.get_ani_stats(),
@@ -828,7 +829,7 @@ Direction:
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: None,
                     ani_stats: &self.get_ani_stats(),
@@ -869,7 +870,7 @@ Direction:
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
                     ani_stats: &self.get_ani_stats(),
@@ -960,7 +961,7 @@ Direction:
     }
 
     pub fn env_interaction(&mut self, env_inter: EnvInter) -> bool {
-        log::info!("intee2: {:?}", env_inter);
+        // log::info!("intee2: {:?}", env_inter);
         match env_inter {
             EnvInter::Records => self.save_game(),
             EnvInter::Clinic => self.clinic(),

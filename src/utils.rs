@@ -1,6 +1,7 @@
 use crate::enemy::Enemy;
-use crate::enums::{Cells, Door, Enemies, EnvInter, Items, Location, ShopItem};
+use crate::enums::{Cells, Door, Enemies, EnvInter, Items, Location, PuzzlePiece, ShopItem};
 use crate::item::Item;
+use crate::puzzle::{PDoorHV, PuzzleDoor, PuzzleKey};
 use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::collections::HashMap;
@@ -185,6 +186,25 @@ pub const COLLISION_INTERS: [EnvInter; 24] = [
     EnvInter::GuildPost,
     EnvInter::ChurchPost,
 ];
+
+// pub const COLLISION_PUZZLE_PIECE: [PuzzlePiece; 3] = [
+//     PuzzlePiece::PuzzleDoor(()),
+//     PuzzlePiece::PuzzleDoor(()),
+//     PuzzlePiece::PuzzleKey(PuzzleKey { set: 0 }),
+//     // PuzzlePiece::PuzzleDoor(PuzzleDoor {
+//     //     id: String::from(""),
+//     //     orient: PDoorHV::Vert,
+//     //     idxs: [(0, 0), (0, 0)].to_vec(),
+//     //     set: 0,
+//     // }),
+//     // PuzzlePiece::PuzzleDoor(PuzzleDoor {
+//     //     id: "".to_string(),
+//     //     orient: PDoorHV::Horiz,
+//     //     idxs: [(0, 0), (0, 0), (0, 0), (0, 0)].to_vec(),
+//     //     set: 0,
+//     // }),
+//     // PuzzlePiece::PuzzleKey(PuzzleKey { set: 0 }),
+// ];
 
 pub fn in_range(pos1: (i16, i16), pos2: (i16, i16), rad: u16) -> bool {
     let xx = (pos1.0 - pos2.0) as i32;

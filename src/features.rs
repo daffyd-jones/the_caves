@@ -159,18 +159,18 @@ impl Features {
     }
 
     pub fn new_rand_feature(&mut self, pos: (i16, i16)) {
-        // let mut rng = rand::thread_rng();
-        // let choice = *[
-        //     FeatureType::AbandonedShack,
-        //     FeatureType::Field,
-        //     FeatureType::Ruin,
-        //     FeatureType::Stream,
-        //     FeatureType::Construction,
-        //     FeatureType::Pond,
-        // ]
-        // .choose(&mut rng)
-        // .unwrap_or(&FeatureType::AbandonedShack);
-        let choice = FeatureType::Construction;
+        let mut rng = rand::thread_rng();
+        let choice = *[
+            FeatureType::AbandonedShack,
+            FeatureType::Field,
+            FeatureType::Ruin,
+            FeatureType::Stream,
+            FeatureType::Construction,
+            FeatureType::Pond,
+        ]
+        .choose(&mut rng)
+        .unwrap_or(&FeatureType::AbandonedShack);
+        // let choice = FeatureType::Construction;
         match choice {
             FeatureType::AbandonedShack => self.new_abandoned_shack(pos),
             FeatureType::Field => self.new_field_feature(pos),
@@ -304,8 +304,11 @@ impl Features {
 
     pub fn check_location(&self, bpos: (i16, i16), rad: u16) -> Option<Feature> {
         for (spos, s) in &self.features {
-            let xx = (spos.0 - bpos.0 * -1) as i32;
-            let yy = (spos.1 - bpos.1 * -1) as i32;
+            let xx = (spos.0 - (-bpos.0 + 224)) as i32;
+            let yy = (spos.1 - (-bpos.1 + 147)) as i32;
+
+            // let xx = (spos.0 - bpos.0 * -1) as i32;
+            // let yy = (spos.1 - bpos.1 * -1) as i32;
             let hyp = ((xx.pow(2) + yy.pow(2)) as f64).sqrt() as u64;
             if hyp <= rad.into() {
                 return Some(s.clone());

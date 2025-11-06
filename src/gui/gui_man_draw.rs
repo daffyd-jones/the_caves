@@ -1,5 +1,7 @@
 use crate::assets::{get_ascii, Ascii, Npcs};
-use crate::enums::{Door, EnvInter, InterOpt, Interactable, NPCWrap, ShopItem, Shops, TaskEnv};
+use crate::enums::{
+    Door, EnvInter, InterOpt, Interactable, NPCWrap, PuzzlePiece, ShopItem, Shops, TaskEnv,
+};
 use crate::gui::GUI;
 use crate::gui_utils::{draw_map, GuiArgs};
 use crate::npc::NPC;
@@ -480,7 +482,26 @@ impl GUI {
                                 "Tim".to_string(),
                                 Ascii::EnvInter(*env_inter),
                             )),
+                            // EnvInter::PuzzleDoor(_) => adj_list.push((
+                            //     *pos,
+                            //     "Door".to_string(),
+                            //     Ascii::EnvInter(*env_inter),
+                            // )),
                             _ => todo!(),
+                        },
+                        Interactable::PuzzlePiece(puz_piece) => match puz_piece {
+                            PuzzlePiece::PuzzleDoor(door) => adj_list.push((
+                                *pos,
+                                "Door".to_string(),
+                                Ascii::PuzzlePiece(puz_piece.clone()),
+                                // Ascii::PuzzlePiece(*door),
+                            )),
+                            PuzzlePiece::PuzzleKey(key) => adj_list.push((
+                                *pos,
+                                "Key".to_string(),
+                                Ascii::PuzzlePiece(puz_piece.clone()),
+                                // Ascii::PuzzlePiece(*key),
+                            )),
                         },
                         _ => todo!(),
                     }
@@ -490,10 +511,10 @@ impl GUI {
                 for (idx, entity) in adj_list.iter().enumerate() {
                     if idx < 3 {
                         vec1[idx] = (entity.0, entity.1.clone());
-                        ascii1[idx] = get_ascii(entity.2);
+                        ascii1[idx] = get_ascii(entity.2.clone());
                     } else {
                         vec2[idx - 3] = (entity.0, entity.1.clone());
-                        ascii2[idx] = get_ascii(entity.2);
+                        ascii2[idx] = get_ascii(entity.2.clone());
                     }
                 }
                 let inter_entities = [vec1.clone(), vec2.clone()];

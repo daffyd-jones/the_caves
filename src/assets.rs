@@ -12,7 +12,7 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use serde_json::StreamDeserializer;
 
-use crate::enums::{Enemies, EnvInter, Items, Plants};
+use crate::enums::{Enemies, EnvInter, Items, Plants, PuzzlePiece};
 use crate::npc::{Convo, ShopConvos, ShopData};
 use std::collections::HashMap;
 use std::fs;
@@ -33,7 +33,8 @@ pub struct ConvoDialogue {
     pub cult: Vec<Convo>,
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug)]
+// #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum AssetType {
     Comms(Comms),
     Convos(Convos),
@@ -72,12 +73,20 @@ pub enum Convos {
     ObsidianObsidians,
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+// #[derive(Clone, Copy, PartialEq, Debug)]
+// pub enum PuzzlePieces {
+//     PuzzleDoor,
+//     PuzzleKey,
+// }
+
+#[derive(Clone, PartialEq, Debug)]
+// #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Ascii {
     Npcs(Npcs),
     Enemies(Enemies),
     Items(Items),
     EnvInter(EnvInter),
+    PuzzlePiece(PuzzlePiece),
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -405,12 +414,21 @@ pub fn env_inter_ascii(env: EnvInter) -> String {
     }
 }
 
+pub fn puzzle_piece_ascii(puz_piece: PuzzlePiece) -> String {
+    match puz_piece {
+        PuzzlePiece::PuzzleDoor(_) => "puzzle-door".to_string(),
+        PuzzlePiece::PuzzleKey(_) => "puzzle-key".to_string(),
+        _ => "".to_string(),
+    }
+}
+
 pub fn get_ascii(ascii: Ascii) -> String {
     let ascii_asset = match ascii {
         Ascii::Npcs(_) => Asset::get("prefix/ascii/npc_asciis.json").unwrap(),
         Ascii::Enemies(_) => Asset::get("prefix/ascii/enemy_asciis.json").unwrap(),
         Ascii::Items(_) => Asset::get("prefix/ascii/item_asciis.json").unwrap(),
         Ascii::EnvInter(_) => Asset::get("prefix/ascii/env_inter_asciis.json").unwrap(),
+        Ascii::PuzzlePiece(_) => Asset::get("prefix/ascii/puzzle_piece_asciis.json").unwrap(),
     };
     let ascii_str = std::str::from_utf8(ascii_asset.data.as_ref());
     let asciis: HashMap<String, String> = match ascii_str {
@@ -436,6 +454,21 @@ pub fn get_ascii(ascii: Ascii) -> String {
         Ascii::EnvInter(env_inter) => asciis
             .get(&env_inter_ascii(env_inter))
             .unwrap_or_else(|| asciis.get(&env_inter_ascii(EnvInter::Records)).unwrap())
+            .clone(),
+        Ascii::PuzzlePiece(puzz_piece) => asciis
+            .get(&puzzle_piece_ascii(puzz_piece))
+            .unwrap_or_else(|| {
+                asciis
+                    .get(&puzzle_piece_ascii(PuzzlePiece::PuzzleDoor(
+                        crate::puzzle::PuzzleDoor {
+                            id: "".to_string(),
+                            orient: crate::puzzle::PDoorHV::Vert,
+                            idxs: [(0, 0)].to_vec(),
+                            set: 0,
+                        },
+                    )))
+                    .unwrap()
+            })
             .clone(),
     }
 }

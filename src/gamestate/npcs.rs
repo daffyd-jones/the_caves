@@ -173,9 +173,14 @@ impl GameState {
                     }
                     NPCs::SpawnNPC => {
                         let mut puzzle = self.puzzles.nearest_puzzle(self.dist_fo);
-                        let ptype = puzzle.1.get_ptype();
-                        let parts = match ptype {
-                            PuzzleType::Maze => self.build_maze_npc(puzzle),
+                        // let ptype = puzzle.1.get_ptype();
+                        let (ptype, parts) = match puzzle.1 {
+                            Puzzle::Maze { .. } => (PuzzleType::Maze, self.build_maze_npc(puzzle)),
+                            Puzzle::Ruin { .. } => (PuzzleType::Ruin, self.build_maze_npc(puzzle)),
+                            Puzzle::Flip { .. } => (PuzzleType::Flip, self.build_maze_npc(puzzle)),
+                            Puzzle::KeyRuin { .. } => {
+                                (PuzzleType::KeyRuin, self.build_maze_npc(puzzle))
+                            }
                             // PuzzleType::Teleport => self.build_teleport_npc(puzzle),
                             // PuzzleType::Inverted => self.build_inverted_npc(puzzle),
                             _ => todo!(),

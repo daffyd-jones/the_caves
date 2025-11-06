@@ -1,6 +1,6 @@
 //player
 // mod enums;
-use crate::enums::{EncOpt, Equip, ItemEffect};
+use crate::enums::{EncOpt, EnvInter, Equip, ItemEffect, PuzzlePiece};
 use crate::item::Item;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
@@ -23,12 +23,13 @@ pub struct Player {
     dodge: bool,
     enc_last_turn: (EncOpt, u16),
     enc_opt: HashMap<EncOpt, String>,
-    // pub inventory: HashMap<Item, u16>,
+    pub puzzle_pieces: Vec<PuzzlePiece>,
 }
 
 impl Player {
     pub fn new(x: usize, y: usize) -> Self {
         let inventory: Vec<Item> = Vec::new();
+        let puzzle_pieces: Vec<PuzzlePiece> = Vec::new();
         let equipped: HashMap<Equip, Item> = HashMap::new();
         let mut enc_opt = HashMap::new();
         enc_opt.insert(EncOpt::Attack, "Attack".to_string());
@@ -47,6 +48,7 @@ impl Player {
             dodge: false,
             enc_last_turn: (EncOpt::Null, 0),
             enc_opt,
+            puzzle_pieces,
         }
     }
 

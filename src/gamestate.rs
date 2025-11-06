@@ -4,7 +4,7 @@ use crate::dialogue::Dialogue;
 use crate::enemy::Enemy;
 use crate::enums::{
     Cells, CompMode, EncMode, EncOpt, Enemies, EnvInter, FightSteps, GameMode, Interactable, Items,
-    Location, NPCWrap, NodeType,
+    Location, NPCWrap, NodeType, PuzzlePiece,
 };
 use crate::features::Features;
 use crate::gui::GUI;
@@ -82,7 +82,7 @@ pub struct GameState {
     last_event_time: Instant,
     interactee: Interactable,
     location: Location,
-    portals: HashMap<(usize, usize), (usize, usize)>,
+    puzzle_pieces: HashMap<(usize, usize), PuzzlePiece>,
     portal_cool: Instant,
     loc_map: Option<Vec<Vec<Cells>>>,
     enc: EncOpt,
@@ -100,7 +100,7 @@ impl GameState {
         let items = HashMap::new();
         let npcs = HashMap::new();
         let env_inters = HashMap::new();
-        let portals = HashMap::new();
+        let puzzle_pieces = HashMap::new();
         let notebook = Notebook::new().unwrap();
         let nodemap = NodeMap::new();
         let settles = Settlements::demo_self();
@@ -137,7 +137,7 @@ impl GameState {
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
             location: Location::Null,
-            portals,
+            puzzle_pieces,
             portal_cool: Instant::now(),
             loc_map: None,
             enc: EncOpt::Null,
@@ -171,7 +171,7 @@ impl GameState {
         let items = HashMap::new();
         let npcs = HashMap::new();
         let env_inters = HashMap::new();
-        let portals = HashMap::new();
+        let puzzle_pieces = HashMap::new();
         let notebook = Notebook::new().unwrap();
         let l_rate = 100 as u64;
 
@@ -263,7 +263,7 @@ impl GameState {
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
             location: Location::Null,
-            portals,
+            puzzle_pieces,
             portal_cool: Instant::now(),
             loc_map: None,
             enc: EncOpt::Null,
@@ -315,7 +315,7 @@ impl GameState {
                 npcs: &self.npcs,
                 env_inter: Some(&self.env_inters),
                 litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                portals: Some(&self.portals),
+                puzzle_pieces: Some(&self.puzzle_pieces),
                 animate: None,
                 ascii: None,
                 ani_stats: &self.get_ani_stats(),
@@ -435,7 +435,7 @@ impl GameState {
                     npcs: &self.npcs,
                     env_inter: Some(&self.env_inters),
                     litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
-                    portals: Some(&self.portals),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
                     animate: None,
                     ascii: None,
                     ani_stats: &self.get_ani_stats(),
@@ -654,7 +654,7 @@ impl GameState {
                 npcs: &self.npcs,
                 env_inter: Some(&self.env_inters),
                 litems: Some(&litems),
-                portals: Some(&self.portals),
+                puzzle_pieces: Some(&self.puzzle_pieces),
                 animate: None,
                 ascii: None,
                 ani_stats: &self.get_ani_stats(),

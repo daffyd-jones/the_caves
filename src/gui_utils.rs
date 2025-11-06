@@ -1,11 +1,15 @@
 //gui_utils
 use crate::enemy::Enemy;
-use crate::enums::{AniType, Cells, Door, Enemies, EnvInter, Month, NPCWrap, ShopItem, TaskEnv};
+use crate::enums::{
+    AniType, Cells, Door, Enemies, EnvInter, Month, NPCWrap, PuzzlePiece, ShopItem, TaskEnv,
+};
 use crate::item::Item;
 use crate::map::Map;
 use crate::player::Player;
+use crate::puzzle::PDoorHV;
 use crate::stats::Season;
 use rand::Rng;
+use ratatui::crossterm::event::KeyCode;
 use ratatui::layout::{Constraint, Direction, Layout, Margin};
 use ratatui::prelude::Alignment;
 use ratatui::prelude::Line;
@@ -105,7 +109,7 @@ pub struct GuiArgs<'a> {
     pub npcs: &'a HashMap<(usize, usize), NPCWrap>,
     pub env_inter: Option<&'a HashMap<(usize, usize), EnvInter>>,
     pub litems: Option<&'a HashMap<(usize, usize), ShopItem>>,
-    pub portals: Option<&'a HashMap<(usize, usize), (usize, usize)>>,
+    pub puzzle_pieces: Option<&'a HashMap<(usize, usize), PuzzlePiece>>,
     pub animate: Option<&'a Animation>,
     pub ascii: Option<&'a String>,
     pub ani_stats: &'a AniStats,
@@ -196,8 +200,24 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         Enemies::Golem => ('Ṏ', Color::Red),
                         _ => todo!(),
                     }
-                } else if gui_args.portals.unwrap().contains_key(&(ix, jy)) {
-                    ('@', Color::Blue)
+                } else if let Some(piece) = gui_args.puzzle_pieces.unwrap().get(&(ix, jy)) {
+                    match piece {
+                        PuzzlePiece::PuzzleDoor(door) => match (door.set, door.orient) {
+                            (0, PDoorHV::Horiz) => ('═', Color::LightYellow),
+                            (1, PDoorHV::Horiz) => ('═', Color::LightBlue),
+                            (2, PDoorHV::Horiz) => ('═', Color::LightGreen),
+                            (0, PDoorHV::Vert) => ('║', Color::LightYellow),
+                            (1, PDoorHV::Vert) => ('║', Color::LightBlue),
+                            (2, PDoorHV::Vert) => ('║', Color::LightGreen),
+                            _ => todo!(),
+                        },
+                        PuzzlePiece::PuzzleKey(key) => match key.set {
+                            0 => ('⚷', Color::LightYellow),
+                            1 => ('⚷', Color::LightBlue),
+                            2 => ('⚷', Color::LightGreen),
+                            _ => todo!(),
+                        },
+                    }
                 } else if let Some(npcw) = gui_args.npcs.get(&(ix, jy)) {
                     // ï î ì í  Í Î Ï Ì
                     match npcw {
@@ -243,9 +263,9 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::Hermit => ('Ý', Color::Yellow),
                         EnvInter::WoodenHatch => ('▥', Color::Yellow),
                         EnvInter::Door(Door::VLocked(_)) => ('╎', Color::White),
-                        EnvInter::Door(Door::VOpen) => ('🮀', Color::White),
+                        EnvInter::Door(Door::VOpen) => ('╵', Color::White),
                         EnvInter::Door(Door::HLocked(_)) => ('╌', Color::White),
-                        EnvInter::Door(Door::HOpen) => ('̸', Color::White),
+                        EnvInter::Door(Door::HOpen) => ('╴', Color::White),
                         EnvInter::ShopNPC(_) => ('ì', Color::Yellow),
                         EnvInter::TaskEnv(TaskEnv::Null) => ('ì', Color::Blue),
                         EnvInter::TaskEnv(TaskEnv::BoardGoalEntity) => ('ì', Color::Yellow),
