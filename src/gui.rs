@@ -673,16 +673,14 @@ impl GUI {
                             Span::styled(gui_args.player.defence.to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Defence xp: ", Style::default().fg(Color::White)),
                             Span::styled(stats.player[2].to_string(), Style::default().fg(Color::Yellow)),
-                            Span::styled("Navigation xp: ", Style::default().fg(Color::White)),
-                            Span::styled(stats.player[6].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled("Luck xp: ", Style::default().fg(Color::White)),
+                            Span::styled(stats.player[3].to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("Money: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.money.to_string(), Style::default().fg(Color::Yellow)),
-                            Span::styled("Luck xp: ", Style::default().fg(Color::White)),
-                            Span::styled(stats.player[3].to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Herbalism xp: ", Style::default().fg(Color::White)),
-                            Span::styled(stats.player[7].to_string(), Style::default().fg(Color::Yellow)),
+                            Span::styled(stats.player[6].to_string(), Style::default().fg(Color::Yellow)),
                         ]),
                         Row::new(vec![
                             Span::styled("", Style::default().fg(Color::White)),
@@ -693,7 +691,7 @@ impl GUI {
                             Span::styled("", Style::default().fg(Color::Yellow)),
                         ]),
                     ];
-                    let stats = Table::new(rows, &[
+                    let plyr_stats = Table::new(rows, &[
                         Constraint::Percentage(15),
                         Constraint::Percentage(7),
                         Constraint::Percentage(25),
@@ -702,20 +700,25 @@ impl GUI {
                         Constraint::Percentage(10)])
                         .block(stat_block);
 
+                    // let enchant_data = [
+                    //     vec!["", "", ""],
+                    // ];
+                    
                     let enchant_data = [
-                        vec!["", "", ""],
+                        stats.buffs,
                     ];
+                    
                     let en_rows: Vec<Row> = enchant_data.iter().enumerate().map(|(j, row)| {
-                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, &cell)| {
+                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
                             if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
                                 Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
                             } else {
-                                Cell::from(cell)
+                                Cell::from(cell.clone())
                             }
                         }).collect();
                         Row::new(cells)
                     }).collect();
-                    let en_table = Table::new(en_rows, &[Constraint::Percentage(33), Constraint::Percentage(33), Constraint::Percentage(33)])
+                    let en_table = Table::new(en_rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
                         .block(enchant_block);
                     
                     let mut equip_items = HashMap::new();
@@ -764,7 +767,7 @@ impl GUI {
                   
                     f.render_widget(h_block, normal_info[0]);
                     f.render_widget(h_gauge, normal_info[0]);
-                    f.render_widget(stats, normal_info[1]);
+                    f.render_widget(plyr_stats, normal_info[1]);
                     f.render_widget(en_table, normal_info[2]);
                     //f.render_widget(eq_table, normal_info[3]);
                 },

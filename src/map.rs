@@ -274,7 +274,7 @@ impl Map {
                         cells[y][x]
                     }
                 };
-                h_flip[y][cells[0].len() - x - 1] = {
+                h_flip[cells.len() - y - 1][x] = {
                     if ul_cells.contains(&cells[y][x]) {
                         *ur_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
                     } else if ur_cells.contains(&cells[y][x]) {
@@ -287,7 +287,7 @@ impl Map {
                         cells[y][x]
                     }
                 };
-                d_flip[y][cells[0].len() - x - 1] = {
+                d_flip[cells.len() - y - 1][cells[0].len() - x - 1] = {
                     if ul_cells.contains(&cells[y][x]) {
                         *dr_cells.choose(&mut rng).unwrap_or(&Cells::Empty)
                     } else if ur_cells.contains(&cells[y][x]) {

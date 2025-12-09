@@ -133,7 +133,7 @@ impl GameState {
             items,
             npcs,
             env_inters,
-            key_debounce_dur: Duration::from_millis(125),
+            key_debounce_dur: Duration::from_millis(150),
             last_event_time: Instant::now(),
             interactee: Interactable::Null,
             location: Location::Null,
@@ -350,7 +350,7 @@ impl GameState {
     }
 
     fn play_update(&mut self) -> bool {
-        if poll(std::time::Duration::from_millis(50)).unwrap() {
+        if poll(std::time::Duration::from_millis(100)).unwrap() {
             if let Event::Key(event) = read().unwrap() {
                 match event.kind {
                     KeyEventKind::Press => {
@@ -597,6 +597,8 @@ impl GameState {
             self.stats.roll_world_stats();
         }
 
+        self.stats.update_buffs();
+
         self.compass_check();
         true
     }
@@ -644,6 +646,7 @@ impl GameState {
             DisplayStats {
                 player: self.stats.player_xp.get_xps(),
                 notes: self.stats.get_display_stats(),
+                buffs: self.stats.get_display_buffs(),
             },
             &mut GuiArgs {
                 map: &self.map,

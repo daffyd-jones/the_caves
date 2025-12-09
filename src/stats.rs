@@ -1,8 +1,11 @@
 //stats
 
-use crate::enums::{ExpType, Month, NPCIntros, Plants, PlayerTraits, ToggleState};
+use crate::enums::{ExpType, Items, Month, NPCIntros, Plants, PlayerTraits, ToggleState};
 use rand::Rng;
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    time::{Duration, Instant},
+};
 
 pub struct Season {
     pub year: u16,
@@ -85,7 +88,6 @@ pub struct Experience {
     luck: (u16, u16, u16),
     trading: (u16, u16, u16),
     lockpicking: (u16, u16, u16),
-    navigation: (u16, u16, u16),
     herbalism: (u16, u16, u16),
 }
 
@@ -98,7 +100,6 @@ impl Experience {
             luck: (1, 0, 10),
             trading: (1, 0, 10),
             lockpicking: (10, 0, 10),
-            navigation: (1, 0, 10),
             herbalism: (1, 0, 10),
         }
     }
@@ -111,7 +112,6 @@ impl Experience {
             ExpType::Luck => self.luck,
             ExpType::Trading => self.trading,
             ExpType::Lockpicking => self.lockpicking,
-            ExpType::Navigation => self.navigation,
             ExpType::Herbalism => self.herbalism,
         };
 
@@ -127,7 +127,6 @@ impl Experience {
             ExpType::Luck => self.luck = new,
             ExpType::Trading => self.trading = new,
             ExpType::Lockpicking => self.lockpicking = new,
-            ExpType::Navigation => self.navigation = new,
             ExpType::Herbalism => self.herbalism = new,
         }
     }
@@ -140,7 +139,6 @@ impl Experience {
             ExpType::Luck => self.luck,
             ExpType::Trading => self.trading,
             ExpType::Lockpicking => self.lockpicking,
-            ExpType::Navigation => self.navigation,
             ExpType::Herbalism => self.herbalism,
         }
     }
@@ -153,10 +151,40 @@ impl Experience {
             self.luck.0,
             self.trading.0,
             self.lockpicking.0,
-            self.navigation.0,
             self.herbalism.0,
         ]
     }
+}
+
+#[derive(Clone, Debug)]
+pub enum BuffType {
+    Agility,
+    Vitality,
+    Strength,
+    Attack,
+    Damage,
+    Defence,
+    Luck,
+    Trading,
+    Lockpicking,
+    Herbalism,
+}
+#[derive(Clone, Debug)]
+pub enum Buff {
+    Equip {
+        item: Items,
+        item_str: String,
+        buffs: HashMap<BuffType, i8>,
+    },
+    DurEffect {
+        src: String,
+        buffs: HashMap<BuffType, i8>,
+        end: Instant,
+    },
+    Effect {
+        src: String,
+        buffs: HashMap<BuffType, i8>,
+    },
 }
 
 pub struct Stats {
@@ -164,6 +192,7 @@ pub struct Stats {
     pub state_toggle: HashMap<ToggleState, bool>,
     pub player_stats: PlayerStats,
     pub player_xp: Experience,
+    pub buffs: Vec<Buff>,
 }
 
 fn build_state_toggle() -> HashMap<ToggleState, bool> {
@@ -190,6 +219,7 @@ impl Stats {
             state_toggle: build_state_toggle(),
             player_stats: PlayerStats::new(),
             player_xp: Experience::new(),
+            buffs: Vec::new(),
         }
     }
 
@@ -207,7 +237,70 @@ impl Stats {
         (date, economy)
     }
 
+    fn btype_to_string(&self, btype: BuffType) -> String {
+        match btype {
+            BuffType::Attack => "Attack".to_string(),
+            BuffType::Damage => "Damage".to_string(),
+            BuffType::Defence => "Defence".to_string(),
+            BuffType::Luck => "Luck".to_string(),
+            BuffType::Trading => "Trading".to_string(),
+            BuffType::Lockpicking => "Lockpicking".to_string(),
+            BuffType::Herbalism => "Herbalism".to_string(),
+            BuffType::Agility => "Agility".to_string(),
+            BuffType::Vitality => "Vitality".to_string(),
+            BuffType::Strength => "Strength".to_string(),
+        }
+    }
+
+    pub fn get_display_buffs(&self) -> Vec<String> {
+        let mut temp = Vec::new();
+        for i in &self.buffs {
+            match i {
+                Buff::DurEffect { btype, amt, end } => {
+                    let bt_str = self.btype_to_string(btype.clone());
+                    let dur = *end - Instant::now();
+                    let dur_sec = dur.as_secs();
+                    let min = dur_sec / 60;
+                    let sec = dur_sec % 60;
+                    let sign = if *amt > 0 { "+" } else { " " };
+                    let str = format!("{}: {}{} - {}:{}", bt_str, sign, amt, min, sec);
+                    temp.push(str);
+                }
+                _ => todo!(),
+            }
+        }
+        temp
+    }
+
+    pub fn update_buffs(&mut self) {
+        let mut temp = Vec::new();
+        for (idx, buff) in self.buffs.iter().enumerate() {
+            match buff {
+                Buff::DurEffect { btype, amt, end } => {
+                    if *end < Instant::now() {
+                        temp.push(idx);
+                    }
+                }
+                _ => todo!(),
+            }
+        }
+        temp.reverse();
+        temp.iter().for_each(|i| {
+            self.buffs.remove(*i);
+        });
+    }
+
     pub fn next_day(&mut self) {
         self.world_stats.date.next_day();
+    }
+
+    pub fn add_timed_buff(&mut self, btype: BuffType, amt: i8, dur: Duration) {
+        let now = Instant::now();
+        let temp = now.checked_add(dur);
+        self.buffs.push(Buff::DurEffect {
+            btype,
+            amt,
+            end: temp.unwrap_or(now),
+        });
     }
 }

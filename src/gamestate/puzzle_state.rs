@@ -62,7 +62,7 @@ impl GameState {
                 nbox.set_pos(nwpos);
                 self.npcs.insert(nwpos, wrap_nbox(nbox));
             }
-            log::info!("updating puzzle!!!");
+            // log::info!("updating puzzle!!!");
             if let Some(doors) = puzzle.get_doors() {
                 for (_, d) in doors {
                     let drs = d.idxs.clone();
@@ -110,7 +110,7 @@ impl GameState {
         let mw = self.map.cells[0].len();
         let mh = self.map.cells.len();
         for ((x, y), pp) in temp_pp {
-            log::info!("pp-[{:#?}]: ({}, {})", pp, x, y);
+            // log::info!("pp-[{:#?}]: ({}, {})", pp, x, y);
             match dir {
                 "UP" => {
                     if y < mh {
@@ -163,11 +163,36 @@ impl GameState {
         for pos in drs {
             self.puzzle_pieces.remove(&pos);
         }
+        self.game_mode = GameMode::Play;
         true
     }
 
     pub fn puzzle_key(&mut self, key: PuzzleKey) -> bool {
         self.player.puzzle_pieces.push(PuzzlePiece::PuzzleKey(key));
+        for (x, y) in [(0, 1), (0, -1), (-1, 0), (1, 0)] {
+            let (px, py) = self.player.pos();
+            // log::info!(
+            //     "ppos: ({}, {})\nkey: ({}, {})",
+            //     px,
+            //     py,
+            //     (x + px as i16) as usize,
+            //     (y + py as i16) as usize
+            // );
+            if let Some(_pp) = self
+                .puzzle_pieces
+                .clone()
+                .get(&((x + px as i16) as usize, (y + py as i16) as usize))
+            {
+                // log::info!(
+                //     "key: ({}, {})",
+                //     (x + px as i16) as usize,
+                //     (y + py as i16) as usize
+                // );
+                self.puzzle_pieces
+                    .remove(&((x + px as i16) as usize, (y + py as i16) as usize));
+            }
+        }
+        self.game_mode = GameMode::Play;
         true
     }
 

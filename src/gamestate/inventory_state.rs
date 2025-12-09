@@ -1,13 +1,13 @@
 //inventory_state
 
-use crate::enums::{GUIMode, GameMode, InterOpt, ItemOpt};
+use crate::enums::{GUIMode, GameMode, InterOpt, ItemEffect, ItemOpt, ToggleState};
 use crate::gamestate::GameState;
 use crate::gui_utils::GuiArgs;
 use crate::item::Item;
 use crate::utils::loc_shop_items;
 
 use ratatui::crossterm::event::{poll, read, Event, KeyCode};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 impl GameState {
     pub fn inv_use_opt(&mut self, mut item: Item) -> ItemOpt {
@@ -71,6 +71,35 @@ impl GameState {
         }
     }
 
+    fn apply_item_effect(&mut self, item: Item) {
+        match item.effect {
+            ItemEffect::Health => {
+                self.player.apply_item_effect(item.clone());
+            }
+            ItemEffect::Antidote => {
+                self.stats.state_toggle.insert(
+                    ToggleState::PlayerTraits(crate::enums::PlayerTraits::Poisoned),
+                    false,
+                );
+            }
+            ItemEffect::Attack => {
+                self.stats.add_timed_buff(
+                    crate::stats::BuffType::Attack,
+                    *item.properties.get("Attack").unwrap() as i8,
+                    Duration::from_secs(120),
+                );
+            }
+            ItemEffect::Damage => todo!(),
+            ItemEffect::Defence => todo!(),
+            ItemEffect::Luck => todo!(),
+            ItemEffect::Gold => todo!(),
+            ItemEffect::Null => todo!(),
+            ItemEffect::Agility => todo!(),
+            ItemEffect::Vitality => todo!(),
+            ItemEffect::Strength => todo!(),
+        }
+    }
+
     pub fn use_inv_item(&mut self) {
         let (idx, mut item) = self.gui.get_inv_opt();
         //gui, using item
@@ -88,7 +117,7 @@ impl GameState {
         } else {
             match self.inv_use_opt(item.clone()) {
                 ItemOpt::Use => {
-                    self.player.apply_item_effect(item.clone());
+                    self.apply_item_effect(item.clone());
                     self.player.rem_inv_item(idx);
                     self.gui.set_inventory(self.player.get_inventory());
                 }

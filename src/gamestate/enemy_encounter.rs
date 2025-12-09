@@ -20,10 +20,12 @@ use std::time::Instant;
 impl GameState {
     pub fn enemy_turn(&mut self, e: Enemy) -> u16 {
         let (atk, mut dmg) = e.fight_turn();
-        let pdef = self.player.get_defence();
+        let pdef = self
+            .player
+            .get_defence(self.stats.player_xp.get_xp(ExpType::Defence).0);
         let dodge = self.player.get_dodge();
-        let def_xp = self.stats.player_xp.get_xp(ExpType::Defence);
-        if atk > pdef + def_xp.0 {
+        // let def_xp = self.stats.player_xp.get_xp(ExpType::Defence);
+        if atk > pdef {
             if dodge {
                 self.player.toggle_dodge();
                 dmg /= 2;
@@ -532,15 +534,19 @@ impl GameState {
     }
 
     pub fn player_attack(&mut self) {
-        let (atk, dmg) = self.player.get_enc_turn();
+        let (atk, dmg) = self.player.get_enc_turn(
+            self.stats.player_xp.get_xp(ExpType::Attack).0,
+            self.stats.player_xp.get_xp(ExpType::Damage).0,
+        );
+        // let (atk, dmg) = self.player.get_enc_turn();
         let Interactable::Enemy(mut enemy) = self.interactee.clone() else {
             todo!()
         };
         let endef = enemy.get_defence();
-        let atk_xp = self.stats.player_xp.get_xp(ExpType::Attack);
-        if atk + atk_xp.0 > endef {
-            let dmg_xp = self.stats.player_xp.get_xp(ExpType::Damage);
-            enemy.apply_attack(dmg + dmg_xp.0);
+        // let atk_xp = self.stats.player_xp.get_xp(ExpType::Attack);
+        if atk > endef {
+            // let dmg_xp = self.stats.player_xp.get_xp(ExpType::Damage);
+            enemy.apply_attack(dmg);
             self.player.set_enc_last_turn((EncOpt::Attack, dmg));
             self.interactee = Interactable::Enemy(enemy.clone());
             self.stats.player_xp.inc_xp(ExpType::Attack, atk);

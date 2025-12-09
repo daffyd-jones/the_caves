@@ -860,7 +860,7 @@ fn build_ruin() -> (String, Vec<Vec<RuinRoom>>) {
                                     .choose(&mut rng)
                                     .unwrap_or(&RuinRoom::TBR)
                             } else {
-                                RuinRoom::All
+                                RuinRoom::BR
                             }
                         } else {
                             if RUIN_TOP_OPEN.contains(&up) && RUIN_LEFT_OPEN.contains(&left) {
@@ -986,48 +986,13 @@ pub struct PuzzleDoor {
     pub set: u8,
 }
 
-// impl PuzzlePiece {
-//     pub fn move_piece(&mut self, dir: &str) {
-//         match self {
-//             PuzzlePiece::PuzzleDoor(door) => {
-//                 let idxs = door.idxs.clone();
-//                 match dir {
-//                     "UP" => {
-//                         // let mut temp = Vec::new();
-//                         for (i, (x, y)) in idxs.iter().enumerate() {
-//                             door.idxs[i] = (*x, *y + 1);
-//                         }
-//                     }
-//                     "DN" => {
-//                         let mut temp = Vec::new();
-//                         for (x, y) in idxs {
-//                             temp.push((x, y - 1));
-//                         }
-//                     }
-//                     "LF" => {
-//                         let mut temp = Vec::new();
-//                         for (x, y) in idxs {
-//                             temp.push((x + 1, y));
-//                         }
-//                     }
-//                     "RT" => {
-//                         let mut temp = Vec::new();
-//                         for (x, y) in idxs {
-//                             temp.push((x - 1, y));
-//                         }
-//                     }
-//                     _ => todo!(),
-//                 };
-//             }
-//             PuzzlePiece::PuzzleKey(key) => {}
-//         }
-//     }
-// }
-
 fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> {
-    let (xoff, yoff) = (((3 + pos.0) as usize * 42), ((3 + pos.1) as usize * 16));
+    let (xoff, yoff) = (
+        ((3 + pos.0) as usize * 42 + 4),
+        ((3 + pos.1) as usize * 16 + 2),
+    );
     match (room, pos) {
-        (RuinRoom::B, pos) if pos.1 < 0 => Some(PuzzleDoor {
+        (RuinRoom::B, pos) if pos.1 < 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff + 15),
@@ -1044,7 +1009,7 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::T, pos) if pos.1 > 0 => Some(PuzzleDoor {
+        (RuinRoom::T, pos) if pos.1 > 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff),
@@ -1061,19 +1026,19 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::L, pos) if pos.0 > 0 => Some(PuzzleDoor {
-            id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
+        (RuinRoom::L, pos) if pos.0 > 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
+            id: format!("{:?}-{:?}", (xoff, yoff + 7), (xoff, yoff + 8)),
             orient: PDoorHV::Vert,
-            idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
+            idxs: vec![(xoff, yoff + 7), (xoff, yoff + 8)],
             set,
         }),
-        (RuinRoom::R, pos) if pos.0 < 0 => Some(PuzzleDoor {
+        (RuinRoom::R, pos) if pos.0 < 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
             orient: PDoorHV::Vert,
             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
             set,
         }),
-        (RuinRoom::TB, pos) if pos.1 > 0 => Some(PuzzleDoor {
+        (RuinRoom::TB, pos) if pos.1 > 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff),
@@ -1090,7 +1055,7 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::TB, pos) if pos.1 < 0 => Some(PuzzleDoor {
+        (RuinRoom::TB, pos) if pos.1 < 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff + 15),
@@ -1107,19 +1072,19 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::LR, pos) if pos.0 > 0 => Some(PuzzleDoor {
-            id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
+        (RuinRoom::LR, pos) if pos.0 > 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
+            id: format!("{:?}-{:?}", (xoff, yoff + 7), (xoff, yoff + 8)),
             orient: PDoorHV::Vert,
-            idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
+            idxs: vec![(xoff, yoff + 7), (xoff, yoff + 8)],
             set,
         }),
-        (RuinRoom::LR, pos) if pos.0 < 0 => Some(PuzzleDoor {
+        (RuinRoom::LR, pos) if pos.0 < 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
             orient: PDoorHV::Vert,
             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
             set,
         }),
-        (RuinRoom::TL, pos) if pos.1 > 0 => Some(PuzzleDoor {
+        (RuinRoom::TL, pos) if pos.1 > 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff),
@@ -1136,13 +1101,13 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::TL, pos) if pos.0 > 0 => Some(PuzzleDoor {
-            id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
+        (RuinRoom::TL, pos) if pos.0 > 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
+            id: format!("{:?}-{:?}", (xoff, yoff + 7), (xoff, yoff + 8)),
             orient: PDoorHV::Vert,
-            idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
+            idxs: vec![(xoff, yoff + 7), (xoff, yoff + 8)],
             set,
         }),
-        (RuinRoom::TR, pos) if pos.1 > 0 => Some(PuzzleDoor {
+        (RuinRoom::TR, pos) if pos.1 > 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff),
@@ -1159,13 +1124,13 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::TR, pos) if pos.0 < 0 => Some(PuzzleDoor {
+        (RuinRoom::TR, pos) if pos.0 < 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
             orient: PDoorHV::Vert,
             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
             set,
         }),
-        (RuinRoom::BL, pos) if pos.1 < 0 => Some(PuzzleDoor {
+        (RuinRoom::BL, pos) if pos.1 < 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff + 15),
@@ -1182,13 +1147,13 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::BL, pos) if pos.0 > 0 => Some(PuzzleDoor {
-            id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
+        (RuinRoom::BL, pos) if pos.0 > 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
+            id: format!("{:?}-{:?}", (xoff, yoff + 7), (xoff, yoff + 8)),
             orient: PDoorHV::Vert,
-            idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
+            idxs: vec![(xoff, yoff + 7), (xoff, yoff + 8)],
             set,
         }),
-        (RuinRoom::BR, pos) if pos.1 < 0 => Some(PuzzleDoor {
+        (RuinRoom::BR, pos) if pos.1 < 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff + 15),
@@ -1205,13 +1170,13 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::BR, pos) if pos.0 < 0 => Some(PuzzleDoor {
+        (RuinRoom::BR, pos) if pos.0 < 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
             orient: PDoorHV::Vert,
             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
             set,
         }),
-        (RuinRoom::TBL, pos) if pos.1 > 0 => Some(PuzzleDoor {
+        (RuinRoom::TBL, pos) if pos.1 > 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff),
@@ -1228,7 +1193,7 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::TBL, pos) if pos.1 < 0 => Some(PuzzleDoor {
+        (RuinRoom::TBL, pos) if pos.1 < 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff + 15),
@@ -1245,13 +1210,13 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::TBL, pos) if pos.0 > 0 => Some(PuzzleDoor {
-            id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
+        (RuinRoom::TBL, pos) if pos.0 > 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
+            id: format!("{:?}-{:?}", (xoff, yoff + 7), (xoff, yoff + 8)),
             orient: PDoorHV::Vert,
-            idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
+            idxs: vec![(xoff, yoff + 7), (xoff, yoff + 8)],
             set,
         }),
-        (RuinRoom::TBR, pos) if pos.1 > 0 => Some(PuzzleDoor {
+        (RuinRoom::TBR, pos) if pos.1 > 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff),
@@ -1268,7 +1233,7 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::TBR, pos) if pos.1 < 0 => Some(PuzzleDoor {
+        (RuinRoom::TBR, pos) if pos.1 < 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff + 15),
@@ -1285,25 +1250,25 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::TBR, pos) if pos.0 < 0 => Some(PuzzleDoor {
+        (RuinRoom::TBR, pos) if pos.0 < 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
             orient: PDoorHV::Vert,
             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
             set,
         }),
-        (RuinRoom::LRT, pos) if pos.0 > 0 => Some(PuzzleDoor {
-            id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
+        (RuinRoom::LRT, pos) if pos.0 > 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
+            id: format!("{:?}-{:?}", (xoff, yoff + 7), (xoff, yoff + 8)),
             orient: PDoorHV::Vert,
-            idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
+            idxs: vec![(xoff, yoff + 7), (xoff, yoff + 8)],
             set,
         }),
-        (RuinRoom::LRT, pos) if pos.0 < 0 => Some(PuzzleDoor {
+        (RuinRoom::LRT, pos) if pos.0 < 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
             orient: PDoorHV::Vert,
             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
             set,
         }),
-        (RuinRoom::LRT, pos) if pos.1 > 0 => Some(PuzzleDoor {
+        (RuinRoom::LRT, pos) if pos.1 > 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff),
@@ -1320,19 +1285,19 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::LRB, pos) if pos.0 > 0 => Some(PuzzleDoor {
-            id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
+        (RuinRoom::LRB, pos) if pos.0 > 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
+            id: format!("{:?}-{:?}", (xoff, yoff + 7), (xoff, yoff + 8)),
             orient: PDoorHV::Vert,
-            idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
+            idxs: vec![(xoff, yoff + 7), (xoff, yoff + 8)],
             set,
         }),
-        (RuinRoom::LRB, pos) if pos.0 < 0 => Some(PuzzleDoor {
+        (RuinRoom::LRB, pos) if pos.0 < 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
             orient: PDoorHV::Vert,
             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
             set,
         }),
-        (RuinRoom::LRB, pos) if pos.1 < 0 => Some(PuzzleDoor {
+        (RuinRoom::LRB, pos) if pos.1 < 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff + 15),
@@ -1349,19 +1314,19 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::All, pos) if pos.0 > 0 => Some(PuzzleDoor {
-            id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
+        (RuinRoom::All, pos) if pos.0 > 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
+            id: format!("{:?}-{:?}", (xoff, yoff + 7), (xoff, yoff + 8)),
             orient: PDoorHV::Vert,
-            idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
+            idxs: vec![(xoff, yoff + 7), (xoff, yoff + 8)],
             set,
         }),
-        (RuinRoom::All, pos) if pos.0 < 0 => Some(PuzzleDoor {
+        (RuinRoom::All, pos) if pos.0 < 0 && pos.0.abs() > pos.1.abs() => Some(PuzzleDoor {
             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
             orient: PDoorHV::Vert,
             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
             set,
         }),
-        (RuinRoom::All, pos) if pos.1 > 0 => Some(PuzzleDoor {
+        (RuinRoom::All, pos) if pos.1 > 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff),
@@ -1378,7 +1343,7 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             ],
             set,
         }),
-        (RuinRoom::All, pos) if pos.1 < 0 => Some(PuzzleDoor {
+        (RuinRoom::All, pos) if pos.1 < 0 && pos.1.abs() > pos.0.abs() => Some(PuzzleDoor {
             id: format!(
                 "{:?}-{:?}-{:?}-{:?}",
                 (xoff + 19, yoff + 15),
@@ -1396,385 +1361,8 @@ fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> 
             set,
         }),
         _ => None,
-        // _ => todo!(),
     }
 }
-
-// fn map_room_doors(room: RuinRoom, set: u8, pos: (i8, i8)) -> Option<PuzzleDoor> {
-//     let (xoff, yoff) = (((3 + pos.0) as usize * 42), ((3 + pos.1) as usize * 16));
-//     match (room, pos) {
-//         (RuinRoom::B, pos) if pos.1 < 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::T, pos) if pos.1 > 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::L, pos) if pos.0 > 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::R, pos) if pos.0 < 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::TB, pos) if pos.1 > 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::TB, pos) if pos.1 < 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::LR, pos) if pos.0 > 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::LR, pos) if pos.0 < 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::TL, pos) if pos.1 > 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::TL, pos) if pos.0 > 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::TR, pos) if pos.1 > 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::TR, pos) if pos.0 < 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::BL, pos) if pos.1 < 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::BL, pos) if pos.0 > 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::BR, pos) if pos.1 < 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::BR, pos) if pos.0 < 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::TBL, pos) if pos.1 > 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::TBL, pos) if pos.1 < 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::TBL, pos) if pos.0 > 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::TBR, pos) if pos.1 > 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::TBR, pos) if pos.1 < 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::TBR, pos) if pos.0 < 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::LRT, pos) if pos.0 > 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::LRT, pos) if pos.0 < 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::LRT, pos) if pos.1 > 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::LRB, pos) if pos.0 > 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::LRB, pos) if pos.0 < 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::LRB, pos) if pos.1 < 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::All, pos) if pos.0 > 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 0, yoff + 7), (xoff + 0, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 0, yoff + 7), (xoff + 0, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::All, pos) if pos.0 < 0 => Some(PuzzleDoor {
-//             id: format!("{:?}-{:?}", (xoff + 41, yoff + 7), (xoff + 41, yoff + 8)),
-//             orient: PDoorHV::Vert,
-//             idxs: vec![(xoff + 41, yoff + 7), (xoff + 41, yoff + 8)],
-//             set,
-//         }),
-//         (RuinRoom::All, pos) if pos.1 > 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff),
-//                 (xoff + 20, yoff),
-//                 (xoff + 21, yoff),
-//                 (xoff + 22, yoff),
-//             ],
-//             set,
-//         }),
-//         (RuinRoom::All, pos) if pos.1 < 0 => Some(PuzzleDoor {
-//             id: format!(
-//                 "{:?}-{:?}-{:?}-{:?}",
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15)
-//             ),
-//             orient: PDoorHV::Horiz,
-//             idxs: vec![
-//                 (xoff + 19, yoff + 15),
-//                 (xoff + 20, yoff + 15),
-//                 (xoff + 21, yoff + 15),
-//                 (xoff + 22, yoff + 15),
-//             ],
-//             set,
-//         }),
-//         _ => None,
-//         // _ => todo!(),
-//     }
-// }
 
 fn make_ruin_key(
     map: Vec<Vec<RuinRoom>>,

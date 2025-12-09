@@ -239,10 +239,10 @@ impl Enemy {
         let mut rng = rand::thread_rng();
         let steps = rng.gen_range(0..19);
         let step_grp = rng.gen_range(0..15);
-        let health = 30 * lvl;
-        let attack = 17 * lvl;
-        let defence = 17 * lvl;
-        let damage = 12 * lvl;
+        let health = 55 * lvl;
+        let attack = 25 * lvl;
+        let defence = 25 * lvl;
+        let damage = 17 * lvl;
         let drop = vec![
             Items::Guts,
             Items::Gold,

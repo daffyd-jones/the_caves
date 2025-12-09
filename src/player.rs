@@ -41,7 +41,7 @@ impl Player {
             health: 100,
             inventory,
             equipped,
-            attack: 20,
+            attack: 10,
             defence: 10,
             damage: 10,
             money: 100,
@@ -69,10 +69,10 @@ impl Player {
         self.enc_last_turn
     }
 
-    pub fn get_enc_turn(&mut self) -> (u16, u16) {
+    pub fn get_enc_turn(&mut self, atk_xp: u16, dmg_xp: u16) -> (u16, u16) {
         let mut rng = rand::thread_rng();
-        let attack = rng.gen_range((self.attack / 2)..self.attack);
-        let damage = rng.gen_range((self.damage / 2)..self.damage);
+        let attack = rng.gen_range((self.attack + atk_xp / 2)..self.attack + atk_xp);
+        let damage = rng.gen_range((self.damage + dmg_xp / 2)..self.damage + dmg_xp);
         let attack_added = {
             let mut att_acc = attack;
             for (_k, v) in &self.equipped {
@@ -114,8 +114,8 @@ impl Player {
         }
     }
 
-    pub fn get_defence(&mut self) -> u16 {
-        let mut def_acc = self.defence;
+    pub fn get_defence(&mut self, def_xp: u16) -> u16 {
+        let mut def_acc = self.defence + def_xp;
         for (_k, v) in &self.equipped {
             if let Some(val) = v.properties.get("defence") {
                 def_acc += val;

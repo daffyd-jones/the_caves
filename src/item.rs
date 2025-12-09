@@ -351,6 +351,7 @@ impl Item {
     pub fn new_agility_potion(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("Attack"), 5);
+        prop.insert(String::from("Defence"), 5);
         //prop.insert(String::from("effect"), 30);
         prop.insert(String::from("value"), 50);
         let mut iopts = HashMap::new();
@@ -369,7 +370,7 @@ impl Item {
             craft: false,
             produces: Items::Null,
             equip_type: Equip::Null,
-            effect: ItemEffect::Attack,
+            effect: ItemEffect::Agility,
             x,
             y,
             properties: prop,

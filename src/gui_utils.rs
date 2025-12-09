@@ -94,6 +94,7 @@ pub fn wrap_text(text: &str, max_width: usize) -> Text {
 pub struct DisplayStats {
     pub player: Vec<u16>,
     pub notes: (String, String),
+    pub buffs: Vec<String>,
 }
 
 pub struct AniStats {

@@ -382,7 +382,6 @@ pub enum ExpType {
     Luck,
     Trading,
     Lockpicking,
-    Navigation,
     Herbalism,
 }
 
@@ -420,6 +419,10 @@ pub enum ItemEffect {
     Defence,
     Luck,
     Gold,
+    Antidote,
+    Agility,
+    Vitality,
+    Strength,
     Null,
 }
 

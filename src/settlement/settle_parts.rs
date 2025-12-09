@@ -395,7 +395,7 @@ pub(crate) const OPENS: [&str; 1] = [OPEN_1];
 
 const PALETTE: &str = "empty: ' . , ' * | wall: ▒ | other ▓ ░ ~ | pipes: ═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬   ┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │ ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©";
 
-pub(crate) const CAVE_O1: &str = r#"ShopNPC|HealthPotion BronzeLongsword ShieldingPendant Salve LightArmour Dowel SmallWoodShield BronzePickHammer BronzeShortsword Apple|Apple Gold:20
+pub(crate) const CAVE_O1: &str = r#"ShopNPC|AgilityPotion BronzeLongsword ShieldingPendant Salve LightArmour Dowel SmallWoodShield BronzePickHammer BronzeShortsword Apple|Apple Gold:20
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_________########______________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_________########______________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_______

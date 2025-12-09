@@ -516,6 +516,7 @@ fn parse_map(
             if ch == 'o' {
                 let sitm = match sitem_types[sicount] {
                     "HealthPotion" => Item::new_health_potion(x, y),
+                    "AgilityPotion" => Item::new_agility_potion(x, y),
                     "Salve" => Item::new_salve(x, y),
                     "Dowel" => Item::new_dowel(x, y),
                     "SmallWoodShield" => Item::new_small_wood_shield(x, y),
