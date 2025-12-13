@@ -704,37 +704,49 @@ impl GUI {
                     //     vec!["", "", ""],
                     // ];
                     
-                    let mut temp = Vec::new();
-                    for i in &stats.buffs {
-                        let mut btemp = Vec::new();
-                        let bchunks: Vec<String> = i.split("%").map(|s| s.to_string()).collect();
-                        let buffs: Vec<String> = bchunks[2].split("#").map(|s| s.to_string()).collect();
-                        btemp.push(bchunks[0].clone());
-                        for j in buffs {
-                            btemp.push(j);
-                        }
-                        btemp.push(bchunks[1].clone());
-                        
-                        temp.push(btemp);
-                    }
-                    
-                    let enchant_data = [
-                        // temp,
-                        stats.buffs,
-                    ];
-                    
-                    let en_rows: Vec<Row> = enchant_data.iter().enumerate().map(|(j, row)| {
-                        let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
-                            if i == self.cursor_pos.0 && j == self.cursor_pos.1 {
-                                Cell::from(Span::styled(cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
-                            } else {
-                                Cell::from(cell.clone())
+                    let buff_strs = if stats.buffs.len() > 0 {
+                        let mut temp = Vec::new();
+                        for i in &stats.buffs {
+                            let mut btemp = Vec::new();
+                            let bchunks: Vec<String> = i.split("%").map(|s| s.to_string()).collect();
+                            let buffs: Vec<String> = bchunks[2].split("#").map(|s| s.to_string()).collect();
+                            btemp.push(bchunks[0].clone());
+                            for j in buffs {
+                                btemp.push(j);
                             }
+                            btemp.push(bchunks[1].clone());
+                        
+                            temp.push(btemp);
+                        }
+                        temp
+                    } else {
+                        vec![vec![]]
+                    };
+                    
+                    // let enchant_data = [
+                    //     stats.buffs,
+                    // ];
+                    
+                    let max_lines = buff_strs.iter().map(|c| c.len()).max().unwrap_or(0);
+
+                    let mut rows = Vec::new();
+                    for line_idx in 0..max_lines {
+                        let cells: Vec<Cell> = buff_strs.iter().map(|chunk| {
+                            chunk.get(line_idx)
+                                .map(|s| Cell::from(s.as_str()))
+                                .unwrap_or_else(|| Cell::from(""))
                         }).collect();
-                        Row::new(cells)
-                    }).collect();
-                    let en_table = Table::new(en_rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
+                        rows.push(Row::new(cells));
+                    }
+
+                    let column_constraints = vec![Constraint::Percentage(100 / buff_strs.len() as u16); buff_strs.len()];
+    
+                    let buff_table = Table::new(rows, column_constraints)
                         .block(enchant_block);
+                        // .block(Block::default().borders(Borders::ALL).title("Active Effects"))
+                        // .style(Style::default().fg(Color::White));
+
+                    
                     
                     let mut equip_items = HashMap::new();
                     //let mut equip_buff = Vec::new();
@@ -783,8 +795,8 @@ impl GUI {
                     f.render_widget(h_block, normal_info[0]);
                     f.render_widget(h_gauge, normal_info[0]);
                     f.render_widget(plyr_stats, normal_info[1]);
-                    f.render_widget(en_table, normal_info[2]);
-                    //f.render_widget(eq_table, normal_info[3]);
+                    f.render_widget(buff_table, normal_info[2]);
+                    // f.render_widget(eq_table, normal_info[3]);
                 },
                 GUIMode::Map => {
                     let normal_info = Layout::default()
