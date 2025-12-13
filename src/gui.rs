@@ -704,7 +704,22 @@ impl GUI {
                     //     vec!["", "", ""],
                     // ];
                     
+                    let mut temp = Vec::new();
+                    for i in &stats.buffs {
+                        let mut btemp = Vec::new();
+                        let bchunks: Vec<String> = i.split("%").map(|s| s.to_string()).collect();
+                        let buffs: Vec<String> = bchunks[2].split("#").map(|s| s.to_string()).collect();
+                        btemp.push(bchunks[0].clone());
+                        for j in buffs {
+                            btemp.push(j);
+                        }
+                        btemp.push(bchunks[1].clone());
+                        
+                        temp.push(btemp);
+                    }
+                    
                     let enchant_data = [
+                        // temp,
                         stats.buffs,
                     ];
                     

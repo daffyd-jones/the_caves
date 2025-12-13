@@ -7,6 +7,7 @@ use crate::item::Item;
 use crate::utils::loc_shop_items;
 
 use ratatui::crossterm::event::{poll, read, Event, KeyCode};
+use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
 impl GameState {
@@ -83,18 +84,32 @@ impl GameState {
                 );
             }
             ItemEffect::Attack => {
-                self.stats.add_timed_buff(
+                let mut temp = HashMap::new();
+                temp.insert(
                     crate::stats::BuffType::Attack,
                     *item.properties.get("Attack").unwrap() as i8,
-                    Duration::from_secs(120),
                 );
+                self.stats
+                    .add_timed_buff(item.sname, temp, Duration::from_secs(120));
             }
             ItemEffect::Damage => todo!(),
             ItemEffect::Defence => todo!(),
             ItemEffect::Luck => todo!(),
             ItemEffect::Gold => todo!(),
             ItemEffect::Null => todo!(),
-            ItemEffect::Agility => todo!(),
+            ItemEffect::Agility => {
+                let mut temp = HashMap::new();
+                temp.insert(
+                    crate::stats::BuffType::Attack,
+                    *item.properties.get("Attack").unwrap() as i8,
+                );
+                temp.insert(
+                    crate::stats::BuffType::Defence,
+                    *item.properties.get("Defence").unwrap() as i8,
+                );
+                self.stats
+                    .add_timed_buff(item.sname, temp, Duration::from_secs(120));
+            }
             ItemEffect::Vitality => todo!(),
             ItemEffect::Strength => todo!(),
         }

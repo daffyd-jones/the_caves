@@ -156,7 +156,7 @@ impl Experience {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum BuffType {
     Agility,
     Vitality,
@@ -256,14 +256,23 @@ impl Stats {
         let mut temp = Vec::new();
         for i in &self.buffs {
             match i {
-                Buff::DurEffect { btype, amt, end } => {
-                    let bt_str = self.btype_to_string(btype.clone());
+                Buff::DurEffect { src, buffs, end } => {
+                    let mut btemp = Vec::new();
+                    for (btype, amt) in buffs {
+                        let sig = if *amt > 0 { "+" } else { " " };
+                        btemp.push(format!(
+                            "{}: {}{}",
+                            self.btype_to_string(btype.clone()),
+                            sig,
+                            amt
+                        ));
+                    }
                     let dur = *end - Instant::now();
                     let dur_sec = dur.as_secs();
                     let min = dur_sec / 60;
                     let sec = dur_sec % 60;
-                    let sign = if *amt > 0 { "+" } else { " " };
-                    let str = format!("{}: {}{} - {}:{}", bt_str, sign, amt, min, sec);
+                    let btemp_join = btemp.join("#");
+                    let str = format!("{}%{}:{}%{}", src, min, sec, btemp_join);
                     temp.push(str);
                 }
                 _ => todo!(),
@@ -276,7 +285,7 @@ impl Stats {
         let mut temp = Vec::new();
         for (idx, buff) in self.buffs.iter().enumerate() {
             match buff {
-                Buff::DurEffect { btype, amt, end } => {
+                Buff::DurEffect { src, buffs, end } => {
                     if *end < Instant::now() {
                         temp.push(idx);
                     }
@@ -294,12 +303,12 @@ impl Stats {
         self.world_stats.date.next_day();
     }
 
-    pub fn add_timed_buff(&mut self, btype: BuffType, amt: i8, dur: Duration) {
+    pub fn add_timed_buff(&mut self, src: String, buffs: HashMap<BuffType, i8>, dur: Duration) {
         let now = Instant::now();
         let temp = now.checked_add(dur);
         self.buffs.push(Buff::DurEffect {
-            btype,
-            amt,
+            src,
+            buffs,
             end: temp.unwrap_or(now),
         });
     }
