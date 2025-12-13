@@ -34,4 +34,26 @@ cd rust_dungeon
 cargo run
 ```
 
+**Controls**:
+
+Movement - Arrow Keys
+Interact - Space
+
+Main - q
+Compass - w
+Inventory - e
+Notes - r
+
+*Menu Navigation*
+
+Left - a
+Down - s
+Up - d
+Right - f
+Select - Enter
+Back - Backspace (sometimes, generally indicated)
+
+Help - h
+
+
 ![ghoul](pics/ghoul.png)
