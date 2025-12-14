@@ -65,12 +65,12 @@ fn draw_setup(f: &mut Frame) -> (std::rc::Rc<[ratatui::layout::Rect]>, ratatui::
     .margin(1)
     .constraints(
         [
-            Constraint::Percentage(5),
-            Constraint::Percentage(90),
-            Constraint::Percentage(5)
-            // Constraint::Percentage(10),
-            // Constraint::Percentage(80),
-            // Constraint::Percentage(10)
+            // Constraint::Percentage(5),
+            // Constraint::Percentage(90),
+            // Constraint::Percentage(5)
+            Constraint::Percentage(10),
+            Constraint::Percentage(80),
+            Constraint::Percentage(10)
         ].as_ref()
     )
     .split(f.area());

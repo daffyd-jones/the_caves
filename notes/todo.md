@@ -6,9 +6,9 @@
   - [+] create EnvInter
   - [+] implement convos
   - [+] create Task
-  - [ ] implement task creation
-  - [ ] implement task completion
-  - [ ] implement completion convo/reward
+  - [+] implement task creation
+  - [+] implement task completion
+  - [+] implement completion convo/reward
 
 - [ ] make experience handling/upgrading
   - [+] implement xp_inc
@@ -40,9 +40,9 @@
 - [ ] enchantments
   - [ ] implement enchanted equip items
   - [ ] finish player effects
-    - [ ] add effect check/toggle
-    - [ ] add item>toggle effect
-    - [ ] add timer for effects
+    - [+] add effect check/toggle
+    - [+] add item>toggle effect
+    - [+] add timer for effects
 
 - [ ] add notes for settlements, cave knowledge, discoveries (puzzles, intresting features)
   - [+] add get_info for settlement
