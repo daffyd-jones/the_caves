@@ -65,9 +65,12 @@ fn draw_setup(f: &mut Frame) -> (std::rc::Rc<[ratatui::layout::Rect]>, ratatui::
     .margin(1)
     .constraints(
         [
-            Constraint::Percentage(10),
-            Constraint::Percentage(80),
-            Constraint::Percentage(10)
+            Constraint::Percentage(5),
+            Constraint::Percentage(90),
+            Constraint::Percentage(5)
+            // Constraint::Percentage(10),
+            // Constraint::Percentage(80),
+            // Constraint::Percentage(10)
         ].as_ref()
     )
     .split(f.area());
@@ -581,36 +584,37 @@ impl GUI {
                     )
                     .split(game_chunks[1]);
                     let h_block = Block::default()
-                        .title(Span::styled("Health", Style::default().fg(Color::DarkGray)))
+                        .title(Span::styled("Health", Style::default()))
+                        // .title(Span::styled("Health", Style::default().fg(Color::DarkGray)))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
                     let stat_block = Block::default()
-                        .title(Span::styled("Stats", Style::default().fg(Color::DarkGray)))
+                        .title(Span::styled("Stats", Style::default()))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
                     let enchant_block = Block::default()
-                        .title(Span::styled("Enchantments", Style::default().fg(Color::DarkGray)))
+                        .title(Span::styled("Enchantments", Style::default()))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
                     let weapon_block = Block::default()
-                        .title(Span::styled("Weapon", Style::default().fg(Color::DarkGray)))
+                        .title(Span::styled("Weapon", Style::default()))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
                     let shield_block = Block::default()
-                        .title(Span::styled("Shield", Style::default().fg(Color::DarkGray)))
+                        .title(Span::styled("Shield", Style::default()))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
                     let armour_block = Block::default()
-                        .title(Span::styled("Armour", Style::default().fg(Color::DarkGray)))
+                        .title(Span::styled("Armour", Style::default()))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
                     let wearing_block = Block::default()
-                        .title(Span::styled("Wearing", Style::default().fg(Color::DarkGray)))
+                        .title(Span::styled("Wearing", Style::default()))
                         .borders(Borders::ALL)
                         .style(Style::default().bg(Color::Black));
 
@@ -651,6 +655,9 @@ impl GUI {
                         .gauge_style(Style::new().light_red().on_black().italic())
                         .percent(gui_args.player.health);
 
+                    let inner_area = stat_block.inner(normal_info[1]);
+                    let block_height = inner_area.height;
+                    let row_height = block_height / 4;
                     let rows = vec![
                         Row::new(vec![
                             Span::styled("Attack: ", Style::default().fg(Color::White)),
@@ -659,7 +666,7 @@ impl GUI {
                             Span::styled(stats.player[0].to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Trading xp: ", Style::default().fg(Color::White)),
                             Span::styled(stats.player[4].to_string(), Style::default().fg(Color::Yellow)),
-                        ]),
+                        ]).height(row_height),
                         Row::new(vec![
                             Span::styled("Damage: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.damage.to_string(), Style::default().fg(Color::Yellow)),
@@ -667,7 +674,7 @@ impl GUI {
                             Span::styled(stats.player[1].to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Lockpicking xp: ", Style::default().fg(Color::White)),
                             Span::styled(stats.player[5].to_string(), Style::default().fg(Color::Yellow)),
-                        ]),
+                        ]).height(row_height),
                         Row::new(vec![
                             Span::styled("Defence: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.defence.to_string(), Style::default().fg(Color::Yellow)),
@@ -675,21 +682,21 @@ impl GUI {
                             Span::styled(stats.player[2].to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Luck xp: ", Style::default().fg(Color::White)),
                             Span::styled(stats.player[3].to_string(), Style::default().fg(Color::Yellow)),
-                        ]),
+                        ]).height(row_height),
                         Row::new(vec![
                             Span::styled("Money: ", Style::default().fg(Color::White)),
                             Span::styled(gui_args.player.money.to_string(), Style::default().fg(Color::Yellow)),
                             Span::styled("Herbalism xp: ", Style::default().fg(Color::White)),
                             Span::styled(stats.player[6].to_string(), Style::default().fg(Color::Yellow)),
-                        ]),
-                        Row::new(vec![
-                            Span::styled("", Style::default().fg(Color::White)),
-                            Span::styled("", Style::default().fg(Color::Yellow)),
-                            Span::styled("", Style::default().fg(Color::White)),
-                            Span::styled("", Style::default().fg(Color::Yellow)),
-                            Span::styled("", Style::default().fg(Color::White)),
-                            Span::styled("", Style::default().fg(Color::Yellow)),
-                        ]),
+                        ]).height(row_height),
+                        // Row::new(vec![
+                        //     Span::styled("", Style::default().fg(Color::White)),
+                        //     Span::styled("", Style::default().fg(Color::Yellow)),
+                        //     Span::styled("", Style::default().fg(Color::White)),
+                        //     Span::styled("", Style::default().fg(Color::Yellow)),
+                        //     Span::styled("", Style::default().fg(Color::White)),
+                        //     Span::styled("", Style::default().fg(Color::Yellow)),
+                        // ]),
                     ];
                     let plyr_stats = Table::new(rows, &[
                         Constraint::Percentage(15),

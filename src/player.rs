@@ -44,7 +44,7 @@ impl Player {
             attack: 10,
             defence: 10,
             damage: 10,
-            money: 100,
+            money: 200,
             dodge: false,
             enc_last_turn: (EncOpt::Null, 0),
             enc_opt,

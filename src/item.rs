@@ -324,7 +324,7 @@ impl Item {
 
     pub fn new_luck_potion(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
-        prop.insert(String::from("luck"), 3);
+        prop.insert(String::from("Luck"), 3);
         //prop.insert(String::from("effect"), 30);
         prop.insert(String::from("value"), 50);
         let mut iopts = HashMap::new();
@@ -363,7 +363,7 @@ impl Item {
             sname: "Agility Potion".to_string(),
             icon: ('ṓ', Color::Blue),
             desc:
-                "A light green liquid with swirls of blue. Increases ability to land attack hits."
+                "A light green liquid with swirls of blue. Increases ability to land attack hits, and dodge enemies."
                     .to_string(),
             iopts,
             equip: false,
@@ -371,6 +371,59 @@ impl Item {
             produces: Items::Null,
             equip_type: Equip::Null,
             effect: ItemEffect::Agility,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_strength_potion(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("Damage"), 5);
+        prop.insert(String::from("value"), 50);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        Self {
+            itype: Items::StrengthPotion,
+            sname: "Strength Potion".to_string(),
+            icon: ('ṓ', Color::Red),
+            desc: "A rich red liquid with flecks of purple. Increases ability to do damage."
+                .to_string(),
+            iopts,
+            equip: false,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Damage,
+            x,
+            y,
+            properties: prop,
+        }
+    }
+
+    pub fn new_vitality_potion(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("Defence"), 5);
+        prop.insert(String::from("value"), 50);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        Self {
+            itype: Items::VitalityPotion,
+            sname: "Vitality Potion".to_string(),
+            icon: ('ṓ', Color::Red),
+            desc: "A smooth green liquid with swirls of red. Makes the drinker harder to hurt."
+                .to_string(),
+            iopts,
+            equip: false,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Null,
+            // effect: ItemEffect::Vitality,
+            effect: ItemEffect::Defence,
             x,
             y,
             properties: prop,

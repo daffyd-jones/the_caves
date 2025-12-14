@@ -92,9 +92,33 @@ impl GameState {
                 self.stats
                     .add_timed_buff(item.sname, temp, Duration::from_secs(120));
             }
-            ItemEffect::Damage => todo!(),
-            ItemEffect::Defence => todo!(),
-            ItemEffect::Luck => todo!(),
+            ItemEffect::Damage => {
+                let mut temp = HashMap::new();
+                temp.insert(
+                    crate::stats::BuffType::Damage,
+                    *item.properties.get("Damage").unwrap() as i8,
+                );
+                self.stats
+                    .add_timed_buff(item.sname, temp, Duration::from_secs(120));
+            }
+            ItemEffect::Defence => {
+                let mut temp = HashMap::new();
+                temp.insert(
+                    crate::stats::BuffType::Defence,
+                    *item.properties.get("Defence").unwrap() as i8,
+                );
+                self.stats
+                    .add_timed_buff(item.sname, temp, Duration::from_secs(120));
+            }
+            ItemEffect::Luck => {
+                let mut temp = HashMap::new();
+                temp.insert(
+                    crate::stats::BuffType::Luck,
+                    *item.properties.get("Luck").unwrap() as i8,
+                );
+                self.stats
+                    .add_timed_buff(item.sname, temp, Duration::from_secs(120));
+            }
             ItemEffect::Gold => todo!(),
             ItemEffect::Null => todo!(),
             ItemEffect::Agility => {

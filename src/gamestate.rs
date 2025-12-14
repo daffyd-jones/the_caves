@@ -166,6 +166,10 @@ impl GameState {
         player.inventory.push(Item::new_lampen_flower(0, 0));
         player.inventory.push(Item::new_lucky_clover(0, 0));
         player.inventory.push(Item::new_shroom(0, 0));
+        player.inventory.push(Item::new_agility_potion(0, 0));
+        player.inventory.push(Item::new_strength_potion(0, 0));
+        player.inventory.push(Item::new_vitality_potion(0, 0));
+        player.inventory.push(Item::new_luck_potion(0, 0));
         let stats = Stats::new();
         let enemies = HashMap::new();
         let items = HashMap::new();

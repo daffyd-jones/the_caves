@@ -313,6 +313,7 @@ fn item_ascii(item: Items) -> String {
         Items::Antidote => "antidote".to_string(),
         Items::LuckPotion => "luck-potion".to_string(),
         Items::AgilityPotion => "agility-potion".to_string(),
+        Items::StrengthPotion => "strength-potion".to_string(),
         Items::Salve => "salve".to_string(),
         Items::Dowel => "dowel".to_string(),
         Items::WoodenBoard => "wooden-board".to_string(),
