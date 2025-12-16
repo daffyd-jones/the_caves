@@ -652,6 +652,19 @@ fn parse_map(
                     EnvInter::Door(Door::VLocked(rng.gen_range(0..10) as u8)),
                 );
             }
+            if ch == 'z' {
+                env_inters.insert((x, y), EnvInter::Crate(crate::enums::Items::HealthPotion));
+            }
+            if ch == 'Z' {
+                env_inters.insert(
+                    (x, y),
+                    EnvInter::Cabinet([
+                        crate::enums::Items::HealthPotion,
+                        crate::enums::Items::LuckPotion,
+                        crate::enums::Items::IronClaymore,
+                    ]),
+                );
+            }
         }
     }
     (cells, npcs, sitems, items, env_inters, shop_npcs)

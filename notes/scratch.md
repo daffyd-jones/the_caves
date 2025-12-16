@@ -24,7 +24,6 @@ _drawer/cabinet_
 ```rust
 enum DocType {
   Book,
-  Enscription,
   PaperScrap
 }
 
@@ -35,6 +34,12 @@ struct Document {
   content: String
   icon: (char, Color)
 }
+
+Inventory::Item()
+Inventory::Document()
+
+
+
 ```
 
 ```rust
@@ -53,22 +58,6 @@ impl Document {
 let book = Document::new_book((0, 0), "Title".to_string(), "This is a bunch of text that the player can read".to_string());
 
 //----- 🕮 𜸂 ≚ ⋿  
-
-impl Document {
-  pub fn new_enscription(pos: (usize, usize), title: String, content: String) -> Self {
-    Self {
-      dtype: DocType::Enscription,
-      pos,
-      title,
-      content,
-      icon: ('≋', Color::Green)
-    }
-  }
-}
-
-let enscription = Document::new_enscription((0, 0), "".to_string(), "This is a bunch of text that the player can read".to_string());
-
-//----
 
 impl Document {
   pub fn new_paper_scrap(pos: (usize, usize), title: String, content: String) -> Self {

@@ -960,6 +960,11 @@ Direction:
         true
     }
 
+    fn crates(&mut self, item: Items) -> bool {
+        // self.player.add_to_inv(item);
+        true
+    }
+
     pub fn env_interaction(&mut self, env_inter: EnvInter) -> bool {
         // log::info!("intee2: {:?}", env_inter);
         match env_inter {
@@ -971,6 +976,7 @@ Direction:
             EnvInter::Herbalist => self.herbalist(),
             EnvInter::Hermit => self.hermit(),
             EnvInter::Door(door) => self.locked_door(door),
+            EnvInter::Crate(item) => self.crates(item),
             EnvInter::Construction => self.construction(),
             EnvInter::ShopNPC(shop_type) => self.shop_npc(shop_type),
             EnvInter::TaskEnv(TaskEnv::BoardGoalEntity) => self.task_board_goal(),

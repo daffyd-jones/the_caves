@@ -268,6 +268,8 @@ pub fn draw_map<'a>(gui_args: &GuiArgs, ani_cnt: u8) -> Paragraph<'a> {
                         EnvInter::Door(Door::HLocked(_)) => ('╌', Color::White),
                         EnvInter::Door(Door::HOpen) => ('╴', Color::White),
                         EnvInter::ShopNPC(_) => ('ì', Color::Yellow),
+                        EnvInter::Crate(_) => ('≡', Color::Green),
+                        EnvInter::Cabinet(_) => ('⌹', Color::Green),
                         EnvInter::TaskEnv(TaskEnv::Null) => ('ì', Color::Blue),
                         EnvInter::TaskEnv(TaskEnv::BoardGoalEntity) => ('ì', Color::Yellow),
                         _ => todo!(),

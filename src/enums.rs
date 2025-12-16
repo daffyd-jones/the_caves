@@ -556,6 +556,8 @@ pub enum EnvInter {
     Hermit,
     TaskEnv(TaskEnv),
     WoodenHatch,
+    Crate(Items),
+    Cabinet([Items; 3]),
     Null,
 }
 
