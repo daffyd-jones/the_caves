@@ -411,6 +411,8 @@ pub fn env_inter_ascii(env: EnvInter) -> String {
         EnvInter::Hermit => "hermit".to_string(),
         EnvInter::TaskEnv(task_env) => "settler".to_string(),
         EnvInter::WoodenHatch => "wooden-hatch".to_string(),
+        EnvInter::Crate(_) => "crate".to_string(),
+        EnvInter::Cabinet(_) => "cabinet".to_string(),
         EnvInter::Null => "".to_string(),
     }
 }

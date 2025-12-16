@@ -15,8 +15,8 @@ use crate::item::Item;
 use crate::puzzle::{Puzzle, PuzzleDoor, PuzzleKey};
 use crate::shop::Shop;
 use crate::tasks::{self, Task, TaskType};
-use crate::utils::comb_conv;
 use crate::utils::loc_shop_items;
+use crate::utils::{comb_conv, enum_to_item};
 use ratatui::crossterm::event::{poll, read, Event, KeyCode};
 use std::collections::HashMap;
 use std::time::Instant;
@@ -960,8 +960,15 @@ Direction:
         true
     }
 
-    fn crates(&mut self, item: Items) -> bool {
-        // self.player.add_to_inv(item);
+    fn cabinet(&mut self, item_enums: [Items; 3]) -> bool {
+        for item in item_enums {
+            self.player.add_to_inv(enum_to_item(item, 0, 0));
+        }
+        true
+    }
+
+    fn crates(&mut self, item_enum: Items) -> bool {
+        self.player.add_to_inv(enum_to_item(item_enum, 0, 0));
         true
     }
 
@@ -977,6 +984,7 @@ Direction:
             EnvInter::Hermit => self.hermit(),
             EnvInter::Door(door) => self.locked_door(door),
             EnvInter::Crate(item) => self.crates(item),
+            EnvInter::Cabinet(items) => self.cabinet(items),
             EnvInter::Construction => self.construction(),
             EnvInter::ShopNPC(shop_type) => self.shop_npc(shop_type),
             EnvInter::TaskEnv(TaskEnv::BoardGoalEntity) => self.task_board_goal(),

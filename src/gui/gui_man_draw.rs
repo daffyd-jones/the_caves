@@ -482,6 +482,16 @@ impl GUI {
                                 "Tim".to_string(),
                                 Ascii::EnvInter(*env_inter),
                             )),
+                            EnvInter::Crate(_) => adj_list.push((
+                                *pos,
+                                "Crate".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
+                            EnvInter::Cabinet(_) => adj_list.push((
+                                *pos,
+                                "Cabinet".to_string(),
+                                Ascii::EnvInter(*env_inter),
+                            )),
                             // EnvInter::PuzzleDoor(_) => adj_list.push((
                             //     *pos,
                             //     "Door".to_string(),
