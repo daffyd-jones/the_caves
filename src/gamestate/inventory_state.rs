@@ -74,6 +74,9 @@ impl GameState {
 
     fn apply_item_effect(&mut self, item: Item) {
         match item.effect {
+            ItemEffect::Read => {
+                // self.read_document(item);
+            }
             ItemEffect::Health => {
                 self.player.apply_item_effect(item.clone());
             }

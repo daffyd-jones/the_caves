@@ -960,15 +960,124 @@ Direction:
         true
     }
 
-    fn cabinet(&mut self, item_enums: [Items; 3]) -> bool {
-        for item in item_enums {
-            self.player.add_to_inv(enum_to_item(item, 0, 0));
+    fn cabinet(&mut self, mut item_enums: [Items; 3]) -> bool {
+        self.gui.reset_cursor();
+        loop {
+            let mut temp = Vec::new();
+            item_enums.iter().for_each(|i| {
+                temp.push(format! {"{i}"});
+            });
+            self.gui.cabinet_draw(
+                temp.join("#"),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
+                    animate: None,
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
+                    ani_stats: &self.get_ani_stats(),
+                },
+            );
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Enter => {
+                                let cur = self.gui.get_cursor();
+                                if cur.0 == 0 && item_enums[cur.1] != Items::Null {
+                                    self.player
+                                        .add_to_inv(enum_to_item(item_enums[cur.1], 0, 0));
+                                    item_enums[cur.1] = Items::Null;
+                                } else {
+                                    break;
+                                }
+                            }
+                            _ => {
+                                let _ = self.key(event.code);
+                            }
+                        }
+                    }
+                }
+            }
         }
+        let adj = [
+            (self.player.x + 1, self.player.y),
+            (self.player.x - 1, self.player.y),
+            (self.player.x, self.player.y + 1),
+            (self.player.x, self.player.y - 1),
+        ];
+        for i in adj {
+            if self.env_inters.contains_key(&i) {
+                self.env_inters.insert(i, EnvInter::Cabinet(item_enums));
+                break;
+            }
+        }
+        self.game_mode = GameMode::Play;
         true
     }
 
     fn crates(&mut self, item_enum: Items) -> bool {
-        self.player.add_to_inv(enum_to_item(item_enum, 0, 0));
+        self.gui.reset_cursor();
+        loop {
+            self.gui.crates_draw(
+                format!("{item_enum}"),
+                // item_enum,
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
+                    animate: None,
+                    ascii: Some(&get_ascii(Ascii::Npcs(Npcs::Settler))),
+                    ani_stats: &self.get_ani_stats(),
+                },
+            );
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Enter => {
+                                if self.gui.get_cursor().0 == 0 {
+                                    self.player.add_to_inv(enum_to_item(item_enum, 0, 0));
+                                    break;
+                                } else {
+                                    break;
+                                }
+                            }
+                            _ => {
+                                let _ = self.key(event.code);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        let adj = [
+            (self.player.x + 1, self.player.y),
+            (self.player.x - 1, self.player.y),
+            (self.player.x, self.player.y + 1),
+            (self.player.x, self.player.y - 1),
+        ];
+        for i in adj {
+            if self.env_inters.contains_key(&i) {
+                self.env_inters.insert(i, EnvInter::Crate(Items::Null));
+                break;
+            }
+        }
+        self.game_mode = GameMode::Play;
         true
     }
 

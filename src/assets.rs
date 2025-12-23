@@ -308,6 +308,8 @@ fn enemy_ascii(enemy: Enemies) -> String {
 
 fn item_ascii(item: Items) -> String {
     match item {
+        Items::Book => "book".to_string(),
+        Items::PaperScrap => "paper-scrap".to_string(),
         Items::HealthPotion => "health-potion".to_string(),
         Items::VitalityPotion => "vitality-potion".to_string(),
         Items::Antidote => "antidote".to_string(),

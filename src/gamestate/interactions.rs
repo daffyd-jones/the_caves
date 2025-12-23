@@ -74,7 +74,7 @@ impl GameState {
         let Some(intee) = self.get_interactee(pos) else {
             todo!()
         };
-        log::info!("intee: {:?}", intee);
+        log::info!("intee: {:?} pos: {:?}", intee, pos);
         self.interactee = intee.clone();
         match intee {
             Interactable::Item(item) => {

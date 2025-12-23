@@ -534,6 +534,206 @@ impl GUI {
         }).unwrap();
     }
 
+    pub fn crates_draw(&mut self, item: String, gui_args: &mut GuiArgs) {
+        self.terminal.draw(|f| {
+            let entire_screen_block = Block::default()
+                .style(Style::default().bg(Color::Black))
+                .borders(Borders::NONE);
+            f.render_widget(entire_screen_block, f.area());
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                // map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(gui_args, self.ani_cnt);
+            // let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+
+            let paragraph_block = Block::default()
+                .title("Crates")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+            let opts = [item];
+            self.cursor_bounds = vec![2];
+            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                let cell = if j == self.cursor_pos.1 {
+                    Cell::from(Span::styled(row.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                } else {
+                    Cell::from(row.clone())
+                };
+                Row::new(vec![cell])
+            }).collect();
+            let item_table = Table::new(rows, &[Constraint::Percentage(100)])
+                .block(paragraph_block);
+           
+            let vec1 = vec!["Take", "Leave"];
+            let opts = [vec1.clone()];
+            self.cursor_bounds = vec![2];
+            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
+                    if i == self.cursor_pos.0 {
+                        Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                    } else {
+                        Cell::from(*cell)
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
+                .block(table_block);
+            f.render_widget(table, normal_info[1]);
+            f.render_widget(item_table, normal_info[0]);
+        }).unwrap();
+    }
+
+    pub fn cabinet_draw(&mut self, items: String, gui_args: &mut GuiArgs) {
+        self.terminal.draw(|f| {
+            let entire_screen_block = Block::default()
+                .style(Style::default().bg(Color::Black))
+                .borders(Borders::NONE);
+            f.render_widget(entire_screen_block, f.area());
+            let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints(
+                [
+                    Constraint::Percentage(10),
+                    Constraint::Percentage(80),
+                    Constraint::Percentage(10)
+                ].as_ref()
+            )
+            .split(f.area());
+
+            let game_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(chunks[1]);
+
+            let block = Block::default()
+                        .title("Game")
+                        .borders(Borders::ALL);
+            f.render_widget(block.clone(), game_chunks[0]);
+            let block_area = game_chunks[0];
+            f.render_widget(block.clone(), block_area);
+            let inner_area = block_area.inner(Margin::default());
+            let in_h = inner_area.height as usize;
+            let in_w = inner_area.width as usize;
+
+            if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                // map.set_viewport(in_h, in_w);
+                self.viewport_dim = (in_w, in_h);
+            }
+            let paragraph = draw_map(gui_args, self.ani_cnt);
+            // let paragraph = draw_map(map.clone(), player.clone(), portals.clone(), enemies.clone(), items.clone(), npcs.clone(), litems.clone(), env_inter.clone(), self.ani_cnt);
+            f.render_widget(paragraph, inner_area);
+
+
+            let normal_info = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage(70),
+                    Constraint::Percentage(30)
+                ].as_ref()
+            )
+            .split(game_chunks[1]);
+
+
+            let paragraph_block = Block::default()
+                .title("Crates")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+            let table_block = Block::default()
+                .title("")
+                .borders(Borders::ALL)
+                .style(Style::default().bg(Color::Black));
+
+            let itm_splt: Vec<&str> = items.split("#").collect();
+            // self.cursor_bounds = vec![1; 3];
+            let rows: Vec<Row> = itm_splt.iter().enumerate().map(|(j, row)| {
+                let cell = if j == self.cursor_pos.1 {
+                    Cell::from(Span::styled(row.clone(), ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                } else {
+                    Cell::from(row.clone())
+                };
+                Row::new(vec![cell])
+            }).collect();
+            let item_table = Table::new(rows, &[Constraint::Percentage(100)])
+                .block(paragraph_block);
+           
+            let vec1 = vec!["Take", "Leave"];
+            let opts = [vec1.clone()];
+            self.cursor_bounds = vec![2; 3];
+            let rows: Vec<Row> = opts.iter().enumerate().map(|(j, row)| {
+                let cells: Vec<Cell> = row.iter().enumerate().map(|(i, cell)| {
+                    if i == self.cursor_pos.0 {
+                        Cell::from(Span::styled(*cell, ratatui::style::Style::default().fg(ratatui::style::Color::Yellow)))
+                    } else {
+                        Cell::from(*cell)
+                    }
+                }).collect();
+                Row::new(cells)
+            }).collect();
+            let table = Table::new(rows, &[Constraint::Percentage(50), Constraint::Percentage(50)])
+                .block(table_block);
+            f.render_widget(table, normal_info[1]);
+            f.render_widget(item_table, normal_info[0]);
+        }).unwrap();
+    }
+
     pub fn locked_draw(&mut self, result: String, gui_args: &mut GuiArgs) {
         self.terminal.draw(|f| {
             let entire_screen_block = Block::default()

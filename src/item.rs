@@ -21,6 +21,8 @@ pub struct Item {
     pub x: usize,
     pub y: usize,
     pub properties: HashMap<String, u16>,
+    pub title: String,
+    pub content: String,
 }
 
 impl Default for Item {
@@ -43,6 +45,8 @@ impl Default for Item {
             x: 0,
             y: 0,
             properties: p,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 }
@@ -92,6 +96,8 @@ impl Item {
             x,
             y,
             properties,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -117,6 +123,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -141,6 +149,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -166,6 +176,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -190,6 +202,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -215,6 +229,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -240,6 +256,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -267,6 +285,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -293,6 +313,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -319,6 +341,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -345,6 +369,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -374,6 +400,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -400,6 +428,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -427,6 +457,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -454,6 +486,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -481,6 +515,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -509,6 +545,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -537,6 +575,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -565,6 +605,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -593,6 +635,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -621,6 +665,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -649,6 +695,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -677,6 +725,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -705,6 +755,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -733,6 +785,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -761,6 +815,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -789,6 +845,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -817,6 +875,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -845,6 +905,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -873,6 +935,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -901,6 +965,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -929,6 +995,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -957,6 +1025,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -986,6 +1056,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1013,6 +1085,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1040,6 +1114,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1067,6 +1143,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1094,6 +1172,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1121,6 +1201,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1148,6 +1230,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1176,6 +1260,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1203,6 +1289,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1230,6 +1318,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1257,6 +1347,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1282,6 +1374,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1333,6 +1427,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1358,6 +1454,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1384,6 +1482,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1409,6 +1509,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1435,6 +1537,8 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
         }
     }
 
@@ -1460,6 +1564,35 @@ impl Item {
             x,
             y,
             properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
+        }
+    }
+
+    pub fn new_book(x: usize, y: usize, title: String, content: String) -> Self {
+        let mut prop = HashMap::new();
+        // prop.insert(String::from("value"), 10);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::Use), String::from("Use"));
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        Self {
+            itype: Items::Book,
+            sname: "Book".to_string(),
+            icon: ('🕮', Color::LightBlue),
+            desc: "A stack of paper that is stuck to together on one side. It contains text."
+                .to_string(),
+            iopts,
+            equip: false,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Null,
+            effect: ItemEffect::Read,
+            x,
+            y,
+            properties: prop,
+            title,
+            content,
         }
     }
 

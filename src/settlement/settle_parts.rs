@@ -395,7 +395,7 @@ pub(crate) const OPENS: [&str; 1] = [OPEN_1];
 
 const PALETTE: &str = "empty: ' . , ' * | wall: ▒ | other ▓ ░ ~ | pipes: ═ ║ ╣ ╠ ╩ ╦ ╗ ╝ ╚ ╔ ╬   ┐ └ ┴ ┬ ├ ─ ┼ ┘ ┌ ┤ │ ≡ ° × ¤ ¸ ¨ · ■ ¦ ± ¡ ø Ø ©";
 
-pub(crate) const CAVE_O1: &str = r#"ShopNPC|AgilityPotion BronzeLongsword ShieldingPendant Salve LightArmour Dowel SmallWoodShield BronzePickHammer BronzeShortsword Apple|Apple Gold:20
+pub(crate) const CAVE_O1: &str = r#"ShopNPC|AgilityPotion BronzeLongsword ShieldingPendant Salve LightArmour Dowel SmallWoodShield BronzePickHammer BronzeShortsword Apple|Book Apple Gold:20
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_________########______________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒_________########______________▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
 ▒▒▒▒_____________________________▒▒▒▒___________________________▒▒▒▒_______
@@ -406,7 +406,7 @@ pub(crate) const CAVE_O1: &str = r#"ShopNPC|AgilityPotion BronzeLongsword Shield
 ▒▒▒▒_______________________________________________________________________
 ▒▒▒▒_______________:_________,."________,",',________________________,.____
 ▒▒▒▒_________________________'▒▒▒▒▒▒__▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"____
-__________________________┌───▒⚱ṑ℧       π⑁ │  ║  D    ≡≡    ≡≡≡   ≡≡▒_____
+__________________________┌───▒⚱ṑ℧       π⑁ │  ║  D    ≡≡    ≡≡≡   ≡≡▒O____
 __________________________│_,'▒ṑ            │  ║  │≡≡≡     ≡     ≡  ≡▒_____
 ▒▒▒▒______________________│',"▒⚗    ┌───────┘  ║≡ ├───────┤≡≡≡≡≡≡≡≡ ≡▒_____
 ▒▒▒▒______________________│','▒π      h        ║       ≡≡≡│         z▒X____
