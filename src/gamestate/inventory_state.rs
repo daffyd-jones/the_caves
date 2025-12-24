@@ -1,5 +1,6 @@
 //inventory_state
 
+use crate::assets::{get_ascii, Ascii, Npcs};
 use crate::enums::{GUIMode, GameMode, InterOpt, ItemEffect, ItemOpt, ToggleState};
 use crate::gamestate::GameState;
 use crate::gui_utils::GuiArgs;
@@ -72,10 +73,51 @@ impl GameState {
         }
     }
 
+    fn read_document(&mut self, doc: Item) -> bool {
+        self.gui.reset_cursor();
+        loop {
+            self.gui.doc_read_draw(
+                format!("{}#{}", doc.title, doc.content),
+                &mut GuiArgs {
+                    map: &self.map,
+                    player: &self.player,
+                    // stats: &self.stats.player_xp.get_xps(),
+                    enemies: &self.enemies,
+                    items: &self.items,
+                    npcs: &self.npcs,
+                    env_inter: Some(&self.env_inters),
+                    litems: Some(&loc_shop_items(self.dist_fo, self.location.clone())),
+                    puzzle_pieces: Some(&self.puzzle_pieces),
+                    animate: None,
+                    ascii: Some(&get_ascii(Ascii::Items(crate::enums::Items::Book))),
+                    ani_stats: &self.get_ani_stats(),
+                },
+            );
+            if poll(std::time::Duration::from_millis(100)).unwrap() {
+                if let Event::Key(event) = read().unwrap() {
+                    // log::info!("keykind {:?}", event.kind.clone());
+                    let now = Instant::now();
+                    if now.duration_since(self.last_event_time) > self.key_debounce_dur {
+                        self.last_event_time = now;
+                        match event.code {
+                            KeyCode::Enter => {
+                                return true;
+                            }
+                            _ => {
+                                let _ = self.key(event.code);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fn apply_item_effect(&mut self, item: Item) {
         match item.effect {
             ItemEffect::Read => {
-                // self.read_document(item);
+                self.read_document(item.clone());
+                self.notebook.enter_knowledge(item.title, item.content);
             }
             ItemEffect::Health => {
                 self.player.apply_item_effect(item.clone());

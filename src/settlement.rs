@@ -437,8 +437,16 @@ fn parse_map(
                         let ti = Item::new_book(
                             x,
                             y,
-                            "Book Title".to_string(),
-                            "This is book text".to_string(),
+                            "Book Titleet libero dictum, tempus mi vehicula, facilisis elit.".to_string(),
+                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eget dolor sapien. Sed at odio congue, placerat purus vitae, malesuada erat. Aliquam rutrum ipsum non enim ornare elementum. Nulla ac magna magna. Etiam mollis, enim id ullamcorper luctus, quam mi accumsan augue, in mollis orci lectus at nisl. Nulla id massa velit. Nam pulvinar, felis ut sodales dictum, nunc risus ornare augue, sit amet rutrum odio sem iaculis justo. Cras nunc lorem, iaculis ac ante ac, tristique egestas nisl. Phasellus et libero dictum, tempus mi vehicula, facilisis elit.
+
+Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nunc vitae sollicitudin risus. Donec iaculis, augue eget maximus rutrum, lorem risus malesuada leo, eu rutrum ex diam et purus. Ut luctus volutpat lacus ut sollicitudin. Maecenas vel rutrum sapien, in aliquam enim. Aenean justo leo, ullamcorper nec sodales sit amet, congue sed tellus. Curabitur lacinia enim sit amet mi semper sodales. Cras placerat, odio in dapibus pellentesque, risus eros suscipit metus, id finibus nisl mauris sed nisi. Nunc pharetra ipsum interdum fringilla tempor. Donec elementum magna ex, eget commodo purus sodales vel. Mauris mollis eros nec egestas tempor. Nunc convallis accumsan porta. Nulla facilisis quam ut lectus bibendum sagittis. Suspendisse congue, lacus id tincidunt fermentum, ex arcu efficitur lectus, faucibus mollis nulla orci non lectus. Aliquam auctor sapien a finibus vulputate.
+
+Aliquam erat volutpat. Curabitur lorem metus, hendrerit non leo id, laoreet ornare tortor. Pellentesque tincidunt nibh arcu, id fringilla odio vehicula vel. Praesent eleifend luctus purus a tincidunt. Sed eget leo id justo ultrices dictum. Cras vitae dictum turpis, nec efficitur est. Donec id nisl vitae lorem suscipit interdum. Sed at turpis nec sapien laoreet eleifend at quis ipsum. Sed tristique erat a consectetur porta.
+
+In a pharetra felis. Ut metus est, rhoncus ut vehicula quis, consequat in nibh. Maecenas cursus neque id dui ornare, a pellentesque massa placerat. Maecenas consequat ante vel enim tempor, sed euismod sapien eleifend. Nulla pulvinar odio eu gravida lobortis. Nullam fringilla nisi lectus, in sagittis quam hendrerit at. Pellentesque in nunc sodales, porttitor dolor id, dictum ante. Curabitur posuere orci ac metus dapibus, vel sodales erat ultricies.
+
+Praesent eu ligula porttitor, pellentesque sem eget, vulputate urna. Pellentesque dignissim volutpat auctor. Vestibulum dictum risus vitae est porta volutpat. Vivamus ac euismod neque, vel sagittis lorem. Maecenas scelerisque at neque ut aliquam. Nunc vel nisl leo. Phasellus non pharetra odio. Nam luctus risus eros, quis vestibulum lorem ullamcorper ut. Maecenas efficitur dolor eget odio elementum, nec imperdiet massa placerat. Nam nulla urna, varius eget pharetra nec, accumsan in nisi. Donec aliquam nisi ut diam dignissim facilisis. Donec finibus mi condimentum vestibulum venenatis. Fusce malesuada at augue nec luctus. Duis id leo diam. Praesent eu iaculis enim.".to_string(),
                         );
                         items.insert((x, y), ti.clone());
                     }

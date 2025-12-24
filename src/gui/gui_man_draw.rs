@@ -988,4 +988,119 @@ impl GUI {
             })
             .unwrap();
     }
+
+    pub fn doc_read_draw(&mut self, doc: String, gui_args: &mut GuiArgs) {
+        self.terminal
+            .draw(|f| {
+                let entire_screen_block = Block::default()
+                    .style(Style::default().bg(Color::Black))
+                    .borders(Borders::NONE);
+                f.render_widget(entire_screen_block, f.area());
+                let chunks = Layout::default()
+                    .direction(Direction::Vertical)
+                    .margin(1)
+                    .constraints(
+                        [
+                            Constraint::Percentage(10),
+                            Constraint::Percentage(80),
+                            Constraint::Percentage(10),
+                        ]
+                        .as_ref(),
+                    )
+                    .split(f.area());
+
+                let game_chunks = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
+                    .split(chunks[1]);
+
+                let block = Block::default().title("Game").borders(Borders::ALL);
+                f.render_widget(block.clone(), game_chunks[0]);
+                let block_area = game_chunks[0];
+                f.render_widget(block.clone(), block_area);
+                let inner_area = block_area.inner(Margin::default());
+                let in_h = inner_area.height as usize;
+                let in_w = inner_area.width as usize;
+                if in_h != self.viewport_dim.1 && in_w != self.viewport_dim.0 {
+                    // map.set_viewport(in_h, in_w);
+                    self.viewport_dim = (in_w, in_h);
+                }
+
+                let paragraph = draw_map(gui_args, self.ani_cnt);
+                f.render_widget(paragraph, inner_area);
+
+                let info_block = Block::default()
+                    .title("")
+                    .borders(Borders::ALL)
+                    .style(Style::default().bg(Color::Black));
+                f.render_widget(info_block, game_chunks[1]);
+
+                let a = f.area();
+                let b = Block::bordered()
+                    .title("")
+                    .style(Style::default().bg(Color::Black));
+                let (xper, yper) = (80, 20);
+                let harea = |a, xper, yper| {
+                    let vertical =
+                        Layout::vertical([Constraint::Percentage(yper)]).flex(Flex::Center);
+                    let horizontal =
+                        Layout::horizontal([Constraint::Percentage(xper)]).flex(Flex::Center);
+                    let [area] = vertical.areas(a);
+                    let [area] = horizontal.areas(a);
+                    area
+                };
+                let h_area = harea(a, xper, yper);
+                f.render_widget(Clear, h_area);
+                f.render_widget(b, h_area);
+
+                let doc_str: Vec<&str> = doc.split("#").collect();
+
+                let paragraph = Paragraph::new(doc_str[0])
+                    .block(Block::bordered())
+                    .style(Style::default().bg(Color::Black))
+                    .wrap(ratatui::widgets::Wrap { trim: true });
+                let para_area = Rect {
+                    x: h_area.x + 2,
+                    y: h_area.y + 2,
+                    width: h_area.width / 2 - 3,
+                    height: 5,
+                };
+                f.render_widget(paragraph, para_area);
+
+                let opts = Paragraph::new(doc_str[1])
+                    .block(Block::bordered())
+                    .style(Style::default().bg(Color::Black))
+                    .wrap(ratatui::widgets::Wrap { trim: true })
+                    .scroll((self.cursor_pos.1.try_into().expect("oope"), 0));
+
+                let opts_area = Rect {
+                    x: h_area.x + 2,
+                    y: h_area.y + 2 + 5,
+                    width: h_area.width / 2 - 3,
+                    height: h_area.height - 9,
+                };
+                f.render_widget(opts, opts_area);
+
+                let table_area = Rect {
+                    x: h_area.x + h_area.width / 2 + 2,
+                    y: h_area.y + 2,
+                    width: h_area.width / 2 - 4,
+                    height: h_area.height - 4,
+                };
+                let mut ascii_str = Vec::new();
+                let padding = " ".repeat((table_area.width.saturating_sub(60) / 2) as usize);
+                let ascii = gui_args.ascii.unwrap();
+                for i in 0..(ascii.len() / 60) {
+                    let line = &ascii[i * 60..(i * 60 + 60)];
+                    let padded_line = format!("{}{}", padding, line);
+                    ascii_str.push(Span::styled(padded_line, Style::default().white()));
+                }
+                let f_ascii: Text = ascii_str.into_iter().collect();
+                let plyr = Paragraph::new(f_ascii)
+                    .block(Block::bordered())
+                    .style(Style::default().bg(Color::Black));
+                f.render_widget(plyr, table_area);
+            })
+            .unwrap();
+    }
 }
