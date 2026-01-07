@@ -8,6 +8,7 @@ use crate::enums::{ShopItem, Shops};
 use crate::item::Item;
 use crate::npc::{new_comm_npc, new_conv_npc, new_shop_npc, Convo, ShopConvos, ShopData, ShopNPC};
 use crate::npc_utils::box_npc;
+use crate::parsing::item_parse;
 use crate::settlement::guild_settle::build_guild_settle;
 use crate::settlement::med_settle::build_med_settle;
 use crate::settlement::obsidian_settle::build_obsidian_settle;
@@ -397,27 +398,7 @@ fn parse_map(
                 ncount += 1;
             }
             if ch == 'o' {
-                let sitm = match sitem_types[sicount] {
-                    "HealthPotion" => Item::new_health_potion(x, y),
-                    "AgilityPotion" => Item::new_agility_potion(x, y),
-                    "Salve" => Item::new_salve(x, y),
-                    "Dowel" => Item::new_dowel(x, y),
-                    "SmallWoodShield" => Item::new_small_wood_shield(x, y),
-                    "Apple" => Item::new_apple(x, y),
-                    "BronzeClaymore" => Item::new_bronze_claymore(x, y),
-                    "BronzeShortsword" => Item::new_bronze_shortsword(x, y),
-                    "BronzeLongsword" => Item::new_bronze_longsword(x, y),
-                    "BronzeLightAxe" => Item::new_bronze_light_axe(x, y),
-                    "BronzeHeavyAxe" => Item::new_bronze_heavy_axe(x, y),
-                    "BronzeWarAxe" => Item::new_bronze_war_axe(x, y),
-                    "BronzePickHammer" => Item::new_bronze_pick_hammer(x, y),
-                    "WoodStaff" => Item::new_wood_staff(x, y),
-                    "LightArmour" => Item::new_light_armour(x, y),
-                    "ShieldingPendant" => Item::new_shielding_pendant(x, y),
-                    "StrengthPendant" => Item::new_strength_pendant(x, y),
-                    "AgilityPendant" => Item::new_agility_pendant(x, y),
-                    _ => Item::new_agility_pendant(x, y),
-                };
+                let sitm = item_parse(sitem_types[sicount], x, y);
                 sitems.insert(
                     (x, y),
                     match shop_type {
@@ -432,92 +413,8 @@ fn parse_map(
                 sicount += 1;
             }
             if ch == 'O' {
-                match item_types[icount] {
-                    "Book" => {
-                        let ti = Item::new_book(
-                            x,
-                            y,
-                            "Book Titleet libero dictum, tempus mi vehicula, facilisis elit.".to_string(),
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eget dolor sapien. Sed at odio congue, placerat purus vitae, malesuada erat. Aliquam rutrum ipsum non enim ornare elementum. Nulla ac magna magna. Etiam mollis, enim id ullamcorper luctus, quam mi accumsan augue, in mollis orci lectus at nisl. Nulla id massa velit. Nam pulvinar, felis ut sodales dictum, nunc risus ornare augue, sit amet rutrum odio sem iaculis justo. Cras nunc lorem, iaculis ac ante ac, tristique egestas nisl. Phasellus et libero dictum, tempus mi vehicula, facilisis elit.
-
-Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nunc vitae sollicitudin risus. Donec iaculis, augue eget maximus rutrum, lorem risus malesuada leo, eu rutrum ex diam et purus. Ut luctus volutpat lacus ut sollicitudin. Maecenas vel rutrum sapien, in aliquam enim. Aenean justo leo, ullamcorper nec sodales sit amet, congue sed tellus. Curabitur lacinia enim sit amet mi semper sodales. Cras placerat, odio in dapibus pellentesque, risus eros suscipit metus, id finibus nisl mauris sed nisi. Nunc pharetra ipsum interdum fringilla tempor. Donec elementum magna ex, eget commodo purus sodales vel. Mauris mollis eros nec egestas tempor. Nunc convallis accumsan porta. Nulla facilisis quam ut lectus bibendum sagittis. Suspendisse congue, lacus id tincidunt fermentum, ex arcu efficitur lectus, faucibus mollis nulla orci non lectus. Aliquam auctor sapien a finibus vulputate.
-
-Aliquam erat volutpat. Curabitur lorem metus, hendrerit non leo id, laoreet ornare tortor. Pellentesque tincidunt nibh arcu, id fringilla odio vehicula vel. Praesent eleifend luctus purus a tincidunt. Sed eget leo id justo ultrices dictum. Cras vitae dictum turpis, nec efficitur est. Donec id nisl vitae lorem suscipit interdum. Sed at turpis nec sapien laoreet eleifend at quis ipsum. Sed tristique erat a consectetur porta.
-
-In a pharetra felis. Ut metus est, rhoncus ut vehicula quis, consequat in nibh. Maecenas cursus neque id dui ornare, a pellentesque massa placerat. Maecenas consequat ante vel enim tempor, sed euismod sapien eleifend. Nulla pulvinar odio eu gravida lobortis. Nullam fringilla nisi lectus, in sagittis quam hendrerit at. Pellentesque in nunc sodales, porttitor dolor id, dictum ante. Curabitur posuere orci ac metus dapibus, vel sodales erat ultricies.
-
-Praesent eu ligula porttitor, pellentesque sem eget, vulputate urna. Pellentesque dignissim volutpat auctor. Vestibulum dictum risus vitae est porta volutpat. Vivamus ac euismod neque, vel sagittis lorem. Maecenas scelerisque at neque ut aliquam. Nunc vel nisl leo. Phasellus non pharetra odio. Nam luctus risus eros, quis vestibulum lorem ullamcorper ut. Maecenas efficitur dolor eget odio elementum, nec imperdiet massa placerat. Nam nulla urna, varius eget pharetra nec, accumsan in nisi. Donec aliquam nisi ut diam dignissim facilisis. Donec finibus mi condimentum vestibulum venenatis. Fusce malesuada at augue nec luctus. Duis id leo diam. Praesent eu iaculis enim.".to_string(),
-                        );
-                        items.insert((x, y), ti.clone());
-                    }
-                    "HealthPotion" => {
-                        let ti = Item::new_health_potion(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "HealthPotion" => {
-                        let ti = Item::new_health_potion(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "Salve" => {
-                        let ti = Item::new_salve(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "Dowel" => {
-                        let ti = Item::new_dowel(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "SmallWoodShield" => {
-                        let ti = Item::new_small_wood_shield(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "Apple" => {
-                        let ti = Item::new_apple(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "BronzeClaymore" => {
-                        let ti = Item::new_bronze_claymore(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "BronzeShortsword" => {
-                        let ti = Item::new_bronze_shortsword(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "BronzeLongsword" => {
-                        let ti = Item::new_bronze_longsword(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "BronzeLightAxe" => {
-                        let ti = Item::new_bronze_light_axe(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "BronzeHeavyAxe" => {
-                        let ti = Item::new_bronze_heavy_axe(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "BronzeWarAxe" => {
-                        let ti = Item::new_bronze_war_axe(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "BronzePickHammer" => {
-                        let ti = Item::new_bronze_pick_hammer(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "WoodStaff" => {
-                        let ti = Item::new_wood_staff(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    "LightArmour" => {
-                        let ti = Item::new_light_armour(x, y);
-                        items.insert((x, y), ti.clone());
-                    }
-                    item if item.contains("Gold") => {
-                        let gsplit: Vec<&str> = item.split(":").collect();
-                        items.insert((x, y), Item::new_gold(x, y, gsplit[1].parse().unwrap()));
-                    }
-                    _ => {
-                        log::info!("itm {:?}", item_types[icount]);
-                    }
-                }
+                let itm = item_parse(item_types[icount], x, y);
+                items.insert((x, y), itm);
                 icount += 1;
             }
             if ch == 'l' {

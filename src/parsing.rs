@@ -435,3 +435,76 @@ pub fn ch_to_enum(ch: char) -> Cells {
         _ => Cells::Empty,
     }
 }
+
+
+pub fn item_parse(itm_str: &str, x: usize, y: usize) -> Item {
+    match itm_str {
+        "Book" => Item::new_book(
+                x,
+                y,
+                "Book Titleet libero dictum, tempus mi vehicula, facilisis elit.".to_string(),
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eget dolor sapien. Sed at odio congue, placerat purus vitae, malesuada erat. Aliquam rutrum ipsum non enim ornare elementum. Nulla ac magna magna. Etiam mollis, enim id ullamcorper luctus, quam mi accumsan augue, in mollis orci lectus at nisl. Nulla id massa velit. Nam pulvinar, felis ut sodales dictum, nunc risus ornare augue, sit amet rutrum odio sem iaculis justo. Cras nunc lorem, iaculis ac ante ac, tristique egestas nisl. Phasellus et libero dictum, tempus mi vehicula, facilisis elit.
+
+    Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nunc vitae sollicitudin risus. Donec iaculis, augue eget maximus rutrum, lorem risus malesuada leo, eu rutrum ex diam et purus. Ut luctus volutpat lacus ut sollicitudin. Maecenas vel rutrum sapien, in aliquam enim. Aenean justo leo, ullamcorper nec sodales sit amet, congue sed tellus. Curabitur lacinia enim sit amet mi semper sodales. Cras placerat, odio in dapibus pellentesque, risus eros suscipit metus, id finibus nisl mauris sed nisi. Nunc pharetra ipsum interdum fringilla tempor. Donec elementum magna ex, eget commodo purus sodales vel. Mauris mollis eros nec egestas tempor. Nunc convallis accumsan porta. Nulla facilisis quam ut lectus bibendum sagittis. Suspendisse congue, lacus id tincidunt fermentum, ex arcu efficitur lectus, faucibus mollis nulla orci non lectus. Aliquam auctor sapien a finibus vulputate.
+
+    Aliquam erat volutpat. Curabitur lorem metus, hendrerit non leo id, laoreet ornare tortor. Pellentesque tincidunt nibh arcu, id fringilla odio vehicula vel. Praesent eleifend luctus purus a tincidunt. Sed eget leo id justo ultrices dictum. Cras vitae dictum turpis, nec efficitur est. Donec id nisl vitae lorem suscipit interdum. Sed at turpis nec sapien laoreet eleifend at quis ipsum. Sed tristique erat a consectetur porta.
+
+    In a pharetra felis. Ut metus est, rhoncus ut vehicula quis, consequat in nibh. Maecenas cursus neque id dui ornare, a pellentesque massa placerat. Maecenas consequat ante vel enim tempor, sed euismod sapien eleifend. Nulla pulvinar odio eu gravida lobortis. Nullam fringilla nisi lectus, in sagittis quam hendrerit at. Pellentesque in nunc sodales, porttitor dolor id, dictum ante. Curabitur posuere orci ac metus dapibus, vel sodales erat ultricies.
+
+    Praesent eu ligula porttitor, pellentesque sem eget, vulputate urna. Pellentesque dignissim volutpat auctor. Vestibulum dictum risus vitae est porta volutpat. Vivamus ac euismod neque, vel sagittis lorem. Maecenas scelerisque at neque ut aliquam. Nunc vel nisl leo. Phasellus non pharetra odio. Nam luctus risus eros, quis vestibulum lorem ullamcorper ut. Maecenas efficitur dolor eget odio elementum, nec imperdiet massa placerat. Nam nulla urna, varius eget pharetra nec, accumsan in nisi. Donec aliquam nisi ut diam dignissim facilisis. Donec finibus mi condimentum vestibulum venenatis. Fusce malesuada at augue nec luctus. Duis id leo diam. Praesent eu iaculis enim.".to_string(),
+            ),
+        "HealthPotion" => Item::new_health_potion(x, y),
+        "AgilityPotion" => Item::new_agility_potion(x, y),
+        "StrengthPotion" => Item::new_strength_potion(x, y),
+        "Salve" => Item::new_salve(x, y),
+        "Dowel" => Item::new_dowel(x, y),
+        "Apple" => Item::new_apple(x, y),
+
+        "BronzeClaymore" => Item::new_bronze_claymore(x, y),
+        "BronzeShortsword" => Item::new_bronze_shortsword(x, y),
+        "BronzeLongsword" => Item::new_bronze_longsword(x, y),
+        "BronzeLightAxe" => Item::new_bronze_light_axe(x, y),
+        "BronzeHeavyAxe" => Item::new_bronze_heavy_axe(x, y),
+        "BronzeWarAxe" => Item::new_bronze_war_axe(x, y),
+        "BronzePickHammer" => Item::new_bronze_pick_hammer(x, y),
+        "BronzePickAxe" => Item::new_bronze_pick_axe(x, y),
+
+        "IronClaymore" => Item::new_iron_claymore(x, y),
+        "IronShortsword" => Item::new_iron_shortsword(x, y),
+        "IronLongsword" => Item::new_iron_longsword(x, y),
+        "IronLightAxe" => Item::new_iron_light_axe(x, y),
+        "IronHeavyAxe" => Item::new_iron_heavy_axe(x, y),
+        // "IronWarAxe" => Item::new_iron_war_axe(x, y),
+        // "IronPickHammer" => Item::new_iron_pick_hammer(x, y),
+        // "IronPickAxe" => Item::new_iron_pick_axe(x, y),
+
+        "SteelClaymore" => Item::new_steel_claymore(x, y),
+        "SteelShortsword" => Item::new_steel_shortsword(x, y),
+        "SteelLongsword" => Item::new_steel_longsword(x, y),
+        "SteelLightAxe" => Item::new_steel_light_axe(x, y),
+        "SteelHeavyAxe" => Item::new_steel_heavy_axe(x, y),
+        // "SteelWarAxe" => Item::new_steel_war_axe(x, y),
+        // "SteelPickHammer" => Item::new_steel_pick_hammer(x, y),
+        // "SteelPickAxe" => Item::new_steel_pick_axe(x, y),
+
+        "WoodStaff" => Item::new_wood_staff(x, y),
+        "BludgeonStaff" => Item::new_bludgeon_staff(x, y),
+        "GemStaff" => Item::new_gem_staff(x, y),
+        "LightArmour" => Item::new_light_armour(x, y),
+        "MediumArmour" => Item::new_medium_armour(x, y),
+        "HeavyArmour" => Item::new_heavy_armour(x, y),
+        "ShieldingPendant" => Item::new_shielding_pendant(x, y),
+        "StrengthPendant" => Item::new_strength_pendant(x, y),
+        "AgilityPendant" => Item::new_agility_pendant(x, y),
+        "SmallWoodShield" => Item::new_small_wood_shield(x, y),
+        "LargeWoodShield" => Item::new_large_wood_shield(x, y),
+        "IronShield" => Item::new_iron_shield(x, y),
+        "SteelShield" => Item::new_steel_shield(x, y),
+        item if item.contains("Gold") => {
+            let gsplit: Vec<&str> = item.split(":").collect();
+            Item::new_gold(x, y, gsplit[1].parse().unwrap())
+        },
+        _ => Item::new_gold(x, y, 0)
+    
+    }
+}

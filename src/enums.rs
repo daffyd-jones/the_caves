@@ -219,10 +219,6 @@ pub enum Items {
     IronLongsword,
     SteelLongsword,
 
-    BronzeGreatsword,
-    IronGreatsword,
-    SteelGreatsword,
-
     BronzeShortsword,
     IronShortsword,
     SteelShortsword,
@@ -290,6 +286,7 @@ impl fmt::Display for Items {
             Items::LuckPotion => write!(f, "Luck Potion"),
             Items::AgilityPotion => write!(f, "Agility Potion"),
             Items::StrengthPotion => write!(f, "Strength Potion"),
+
             Items::Salve => write!(f, "Salve"),
             Items::Dowel => write!(f, "Dowel"),
             Items::WoodenBoard => write!(f, "Wooden Board"),
@@ -298,18 +295,19 @@ impl fmt::Display for Items {
             Items::EdibleRoot => write!(f, "Edible Root"),
             Items::Guts => write!(f, "Guts"),
             Items::Rock => write!(f, "Rock"),
+
             Items::BronzeClaymore => write!(f, "Bronze Claymore"),
             Items::IronClaymore => write!(f, "Iron Claymore"),
             Items::SteelClaymore => write!(f, "Steel Claymore"),
+
             Items::BronzeLongsword => write!(f, "Bronze Longsword"),
             Items::IronLongsword => write!(f, "Iron Longsword"),
             Items::SteelLongsword => write!(f, "Steel Longsword"),
-            Items::BronzeGreatsword => write!(f, "Bronze Greatsword"),
-            Items::IronGreatsword => write!(f, "Iron Greatsword"),
-            Items::SteelGreatsword => write!(f, "Steel Greatsword"),
+
             Items::BronzeShortsword => write!(f, "Bronze Shortsword"),
             Items::IronShortsword => write!(f, "Iron Shortsword"),
             Items::SteelShortsword => write!(f, "Steel Shortsword"),
+
             Items::BasicStaff => write!(f, "Basic Staff"),
             Items::PineStaff => write!(f, "Pine Staff"),
             Items::WoodStaff => write!(f, "Wood Staff"),
@@ -317,25 +315,33 @@ impl fmt::Display for Items {
             Items::OakStaff => write!(f, "Oak Staff"),
             Items::BludgeonStaff => write!(f, "Bludgeon Staff"),
             Items::GemStaff => write!(f, "Gem Staff"),
+
             Items::BronzeHeavyAxe => write!(f, "Bronze Heavy Axe"),
             Items::IronHeavyAxe => write!(f, "Iron Heavy Axe"),
             Items::SteelHeavyAxe => write!(f, "Steel Heavy Axe"),
+
             Items::BronzeLightAxe => write!(f, "Bronze Light Axe"),
             Items::IronLightAxe => write!(f, "Iron Light Axe"),
             Items::SteelLightAxe => write!(f, "Steel Light Axe"),
+
             Items::BronzePickAxe => write!(f, "Bronze Pick Axe"),
             Items::IronPickAxe => write!(f, "Iron Pick Axe"),
             Items::SteelPickAxe => write!(f, "Steel Pick Axe"),
+
             Items::BronzePickHammer => write!(f, "Bronze Pick Hammer"),
             Items::IronPickHammer => write!(f, "Iron Pick Hammer"),
             Items::SteelPickHammer => write!(f, "Steel Pick Hammer"),
+
             Items::ShadowAxe => write!(f, "Shadow Axe"),
+
             Items::BronzeWarAxe => write!(f, "Bronze War Axe"),
             Items::IronWarAxe => write!(f, "Iron War Axe"),
             Items::SteelWarAxe => write!(f, "Steel War Axe"),
+
             Items::LightArmour => write!(f, "Light Armour"),
             Items::MediumArmour => write!(f, "Medium Armour"),
             Items::HeavyArmour => write!(f, "Heavy Armour"),
+
             Items::SmallWoodShield => write!(f, "Small Wood Shield"),
             Items::LargeWoodShield => write!(f, "Large Wood Shield"),
             Items::IronShield => write!(f, "Iron Shield"),

@@ -34,11 +34,11 @@ pub struct ConvoDialogue {
 }
 
 #[derive(Clone, PartialEq, Debug)]
-// #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum AssetType {
     Comms(Comms),
     Convos(Convos),
     Ascii(Ascii),
+    Documents(Documents),
 }
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -73,14 +73,7 @@ pub enum Convos {
     ObsidianObsidians,
 }
 
-// #[derive(Clone, Copy, PartialEq, Debug)]
-// pub enum PuzzlePieces {
-//     PuzzleDoor,
-//     PuzzleKey,
-// }
-
 #[derive(Clone, PartialEq, Debug)]
-// #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Ascii {
     Npcs(Npcs),
     Enemies(Enemies),
@@ -102,6 +95,12 @@ pub enum Npcs {
     WeaponSmith,
     Armorer,
     Terminal,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Documents {
+    LoremIpsum,
+    Null,
 }
 
 pub fn get_npc_name() -> String {
@@ -306,6 +305,13 @@ fn enemy_ascii(enemy: Enemies) -> String {
     }
 }
 
+fn documents(doc: Documents) -> String {
+    match doc {
+        Documents::LoremIpsum => "lorem-ipsum".to_string(),
+        Documents::Null => "null".to_string(),
+    }
+}
+
 fn item_ascii(item: Items) -> String {
     match item {
         Items::Book => "book".to_string(),
@@ -331,9 +337,6 @@ fn item_ascii(item: Items) -> String {
         Items::BronzeLongsword => "bronze-longsword".to_string(),
         Items::IronLongsword => "iron-longsword".to_string(),
         Items::SteelLongsword => "steel-longsword".to_string(),
-        Items::BronzeGreatsword => "bronze-greatsword".to_string(),
-        Items::IronGreatsword => "iron-greatsword".to_string(),
-        Items::SteelGreatsword => "steel-greatsword".to_string(),
         Items::BronzeShortsword => "bronze-shortsword".to_string(),
         Items::IronShortsword => "iron-shortsword".to_string(),
         Items::SteelShortsword => "steel-shortsword".to_string(),
@@ -581,192 +584,3 @@ pub fn load_convos(ntype: &String) -> ConvoDialogue {
         cult,
     }
 }
-
-// impl Dialogue {
-//     pub fn new() -> Self {
-//         let ntypes = ["cave".to_string(), "guild".to_string(), "cult".to_string()];
-//         let mut comm_dialogue = Vec::new();
-//         for ntype in &ntypes {
-//             comm_dialogue.push(load_comms(ntype));
-//         }
-
-//         let mut convo_dialogue = Vec::new();
-//         for ntype in &ntypes {
-//             convo_dialogue.push(load_convos(ntype));
-//         }
-
-//         Self {
-//             cave_comms: comm_dialogue[0].clone(),
-//             cave_convos: convo_dialogue[0].clone(),
-//             guild_comms: comm_dialogue[1].clone(),
-//             guild_convos: convo_dialogue[1].clone(),
-//             cult_comms: comm_dialogue[2].clone(),
-//             cult_convos: convo_dialogue[2].clone(),
-//             file_paths: HashMap::new(),
-//         }
-//     }
-
-//     pub fn get_cave_comm(&mut self) -> &String {
-//         let mut rng = rand::thread_rng();
-//         match rng.gen_range(0..3) {
-//             0 => self
-//                 .cave_comms
-//                 .city
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cave_comms.city[0]),
-//             1 => self
-//                 .cave_comms
-//                 .engine
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cave_comms.engine[0]),
-//             2 => self
-//                 .cave_comms
-//                 .guild
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cave_comms.guild[0]),
-//             3 => self
-//                 .cave_comms
-//                 .cult
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cave_comms.cult[0]),
-//             _ => todo!(),
-//         }
-//     }
-
-//     pub fn get_guild_comm(&mut self) -> &String {
-//         let mut rng = rand::thread_rng();
-//         match rng.gen_range(0..3) {
-//             0 => self
-//                 .guild_comms
-//                 .city
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.guild_comms.city[0]),
-//             1 => self
-//                 .guild_comms
-//                 .engine
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.guild_comms.engine[0]),
-//             2 => self
-//                 .guild_comms
-//                 .guild
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.guild_comms.guild[0]),
-//             3 => self
-//                 .guild_comms
-//                 .cult
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.guild_comms.cult[0]),
-//             _ => todo!(),
-//         }
-//     }
-
-//     pub fn get_cult_comm(&mut self) -> &String {
-//         let mut rng = rand::thread_rng();
-//         match rng.gen_range(0..3) {
-//             0 => self
-//                 .cult_comms
-//                 .city
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cult_comms.city[0]),
-//             1 => self
-//                 .cult_comms
-//                 .engine
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cult_comms.engine[0]),
-//             2 => self
-//                 .cult_comms
-//                 .cult
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cult_comms.guild[0]),
-//             3 => self
-//                 .cult_comms
-//                 .cult
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cult_comms.cult[0]),
-//             _ => todo!(),
-//         }
-//     }
-
-//     pub fn get_cave_convo(&mut self) -> &Convo {
-//         let mut rng = rand::thread_rng();
-//         match rng.gen_range(0..3) {
-//             0 => self
-//                 .cave_convos
-//                 .city
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cave_convos.city[0]),
-//             1 => self
-//                 .cave_convos
-//                 .engine
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cave_convos.engine[0]),
-//             2 => self
-//                 .cave_convos
-//                 .guild
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cave_convos.guild[0]),
-//             3 => self
-//                 .cave_convos
-//                 .cult
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cave_convos.cult[0]),
-//             _ => todo!(),
-//         }
-//     }
-
-//     pub fn get_guild_convo(&mut self) -> &Convo {
-//         let mut rng = rand::thread_rng();
-//         match rng.gen_range(0..3) {
-//             0 => self
-//                 .guild_convos
-//                 .city
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.guild_convos.city[0]),
-//             1 => self
-//                 .guild_convos
-//                 .engine
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.guild_convos.engine[0]),
-//             2 => self
-//                 .guild_convos
-//                 .guild
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.guild_convos.guild[0]),
-//             3 => self
-//                 .guild_convos
-//                 .guild
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.guild_convos.cult[0]),
-//             _ => todo!(),
-//         }
-//     }
-
-//     pub fn get_cult_convo(&mut self) -> &Convo {
-//         let mut rng = rand::thread_rng();
-//         match rng.gen_range(0..3) {
-//             0 => self
-//                 .cult_convos
-//                 .city
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cult_convos.city[0]),
-//             1 => self
-//                 .cult_convos
-//                 .engine
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cult_convos.engine[0]),
-//             2 => self
-//                 .cult_convos
-//                 .cult
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cult_convos.guild[0]),
-//             3 => self
-//                 .cult_convos
-//                 .cult
-//                 .choose(&mut rng)
-//                 .unwrap_or(&self.cult_convos.cult[0]),
-//             _ => todo!(),
-//         }
-//     }
-
-//     pub fn retrieve_new_dialogue(&mut self) {}
-// }

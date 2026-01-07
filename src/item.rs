@@ -670,22 +670,22 @@ impl Item {
         }
     }
 
-    pub fn new_bronze_greatsword(x: usize, y: usize) -> Self {
+    pub fn new_steel_longsword(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 17);
         prop.insert(String::from("attack"), 17);
         //prop.insert(String::from("effect"), 5);
-        prop.insert(String::from("value"), 50);
+        prop.insert(String::from("value"), 75);
         let mut iopts = HashMap::new();
         iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
         iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
         iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
 
         Self {
-            itype: Items::BronzeGreatsword,
-            sname: "Bronze Greatsword".to_string(),
-            icon: ('ϯ', Color::Yellow),
-            desc: "A bronze greatword".to_string(),
+            itype: Items::SteelLongsword,
+            sname: "Steel Longsword".to_string(),
+            icon: ('†', Color::Gray),
+            desc: "A steel longsword".to_string(),
             iopts,
             equip: true,
             craft: false,
@@ -716,6 +716,66 @@ impl Item {
             sname: "Bronze Shortsword".to_string(),
             icon: ('Ϯ', Color::Yellow),
             desc: "A bronze shortsword".to_string(),
+            iopts,
+            equip: true,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Weapon,
+            effect: ItemEffect::Damage,
+            x,
+            y,
+            properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
+        }
+    }
+
+    pub fn new_iron_shortsword(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("damage"), 7);
+        prop.insert(String::from("attack"), 7);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 40);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::IronShortsword,
+            sname: "Iron Shortsword".to_string(),
+            icon: ('Ϯ', Color::Yellow),
+            desc: "An iron shortsword".to_string(),
+            iopts,
+            equip: true,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Weapon,
+            effect: ItemEffect::Damage,
+            x,
+            y,
+            properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
+        }
+    }
+
+    pub fn new_steel_shortsword(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("damage"), 7);
+        prop.insert(String::from("attack"), 7);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 40);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::SteelShortsword,
+            sname: "Steel Shortsword".to_string(),
+            icon: ('Ϯ', Color::Yellow),
+            desc: "A steel shortsword".to_string(),
             iopts,
             equip: true,
             craft: false,
@@ -880,6 +940,66 @@ impl Item {
         }
     }
 
+    pub fn new_iron_heavy_axe(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("damage"), 15);
+        prop.insert(String::from("attack"), 15);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 60);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::IronHeavyAxe,
+            sname: "Iron Heavy Axe".to_string(),
+            icon: ('Ͳ', Color::Yellow),
+            desc: "An iron heavy axe".to_string(),
+            iopts,
+            equip: true,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Weapon,
+            effect: ItemEffect::Damage,
+            x,
+            y,
+            properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
+        }
+    }
+
+    pub fn new_steel_heavy_axe(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("damage"), 15);
+        prop.insert(String::from("attack"), 15);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 60);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::SteelHeavyAxe,
+            sname: "Steel Heavy Axe".to_string(),
+            icon: ('Ͳ', Color::Yellow),
+            desc: "A steel heavy axe".to_string(),
+            iopts,
+            equip: true,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Weapon,
+            effect: ItemEffect::Damage,
+            x,
+            y,
+            properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
+        }
+    }
+
     pub fn new_bronze_light_axe(x: usize, y: usize) -> Self {
         let mut prop = HashMap::new();
         prop.insert(String::from("damage"), 15);
@@ -896,6 +1016,66 @@ impl Item {
             sname: "Bronze Light Axe".to_string(),
             icon: ('ͳ', Color::Yellow),
             desc: "A bronze light axe".to_string(),
+            iopts,
+            equip: true,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Weapon,
+            effect: ItemEffect::Damage,
+            x,
+            y,
+            properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
+        }
+    }
+
+    pub fn new_iron_light_axe(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("damage"), 15);
+        prop.insert(String::from("attack"), 15);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 50);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::IronLightAxe,
+            sname: "Iron Light Axe".to_string(),
+            icon: ('ͳ', Color::Yellow),
+            desc: "An iron light axe".to_string(),
+            iopts,
+            equip: true,
+            craft: false,
+            produces: Items::Null,
+            equip_type: Equip::Weapon,
+            effect: ItemEffect::Damage,
+            x,
+            y,
+            properties: prop,
+            title: "".to_string(),
+            content: "".to_string(),
+        }
+    }
+
+    pub fn new_steel_light_axe(x: usize, y: usize) -> Self {
+        let mut prop = HashMap::new();
+        prop.insert(String::from("damage"), 15);
+        prop.insert(String::from("attack"), 15);
+        //prop.insert(String::from("effect"), 5);
+        prop.insert(String::from("value"), 50);
+        let mut iopts = HashMap::new();
+        iopts.insert(InterOpt::Item(ItemOpt::PickUp), String::from("Pick Up"));
+        iopts.insert(InterOpt::Item(ItemOpt::Drp), String::from("Drop"));
+        iopts.insert(InterOpt::Item(ItemOpt::Equip), String::from("Equip"));
+
+        Self {
+            itype: Items::SteelLightAxe,
+            sname: "Steel Light Axe".to_string(),
+            icon: ('ͳ', Color::Yellow),
+            desc: "A steel light axe".to_string(),
             iopts,
             equip: true,
             craft: false,
