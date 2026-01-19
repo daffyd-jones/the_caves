@@ -2,13 +2,6 @@
 
 ### Hi
 
-- [ ] implement Tasks (EnvInter) - for retrieving items (will require persistance, best for settles/features)
-  - [+] create EnvInter
-  - [+] implement convos
-  - [+] create Task
-  - [+] implement task creation
-  - [+] implement task completion
-  - [+] implement completion convo/reward
 
 - [ ] make experience handling/upgrading
   - [+] implement xp_inc
@@ -17,6 +10,46 @@
 
 ### Lo
 
+- [ ] implement puzzles
+  - [+] keys
+  - [ ] door toggle
+
+- [ ] fix big wall in map
+- [ ] fix cornercell orientation
+
+- [ ] Grading for weapons/enemies
+
+- [ ] add more equips
+  - [ ] unique weapons
+  - [ ] buffed weapons
+  - [ ] cursed weapons
+
+- [ ] Task weapons
+  - starts debuff/weak => better once lifted
+  - kill x enemies
+  - bring to place
+  - assemble set
+  - combined item: 5 => 1
+
+- [ ] implement timed effects/buffs
+  - [ ] venom - slime, spider, snake, bug
+  - [ ] shroom - take .25 HP, XP+: if below .75 HP => insta death, or .5 HP
+  - [+] vitality potion
+  - [+] agility potion
+  - [+] strength potion
+  - [+] luck potion
+  - [ ] fire shield - lava areas
+
+- [ ] tasks
+  - [+] give item
+  - [ ] bring item
+  - [ ] deliver message
+  - [ ] lost item
+  - [ ] defeat enemy => item
+  - [ ] monster hunter
+  - [ ] lost convoy
+
+
 - [ ] capsite
  - [ ] add item
  - [ ] tent envinter - take down, sleep
@@ -24,10 +57,6 @@
  - [ ] 1 a day
 
 - [ ] lockpicking activity
-
-- [ ] treasure chest/crates
-  - [ ] icon
-  - [ ] enum
 
 - [ ] small map
   - [ ] switch map - store current, swap to small
@@ -38,8 +67,8 @@
   - [ ] need to talk to person at guild_settle to get access
 
 - [ ] enchantments
-  - [ ] implement enchanted equip items
-  - [ ] finish player effects
+  - [+] implement enchanted equip items
+  - [+] finish player effects
     - [+] add effect check/toggle
     - [+] add item>toggle effect
     - [+] add timer for effects
@@ -53,19 +82,6 @@
 - [ ] implement ascii
   - [ ] implement variations for npcs
   - [ ] implement variations for items
-
-- [ ] implement features - creation/nodemap placement
-  - [+] nodemap creation
-  - [+] feature creation
-  - [+] add feature types
-    - [+] Abandoned Shack
-    - [+] Ruins
-    - [+] Pond
-    - [+] Field
-    - [+] Stream
-    - [+] Construction
-  - [ ] implement Hermit
-    - hermit overlay in features
 
 ## entities
 
@@ -88,6 +104,10 @@
 
 ## Done
 
+
+- [+] treasure chest/crates
+  - [+] icon
+  - [+] enum
 - [+] cursor limit
 - [+] fix wall corners
 - [+] fix collisions
@@ -107,3 +127,32 @@
 - [+] fixed inventory bug
 - [+] 
 
+- [+] implement features - creation/nodemap placement
+  - [+] nodemap creation
+  - [+] feature creation
+  - [+] add feature types
+    - [+] Abandoned Shack
+    - [+] Ruins
+    - [+] Pond
+    - [+] Field
+    - [+] Stream
+    - [+] Construction
+  - [+] implement Hermit
+    - hermit overlay in features
+
+- [+] finish hermit
+  - [+] EnvInter convo
+  - [+] Shop interaction
+
+- [+] finish item task
+  - [+] give item to goal
+  - [+] populate complete task
+  - [+] Steward convo + reward
+
+- [+] implement Tasks (EnvInter) - for retrieving items (will require persistance, best for settles/features)
+  - [+] create EnvInter
+  - [+] implement convos
+  - [+] create Task
+  - [+] implement task creation
+  - [+] implement task completion
+  - [+] implement completion convo/reward
