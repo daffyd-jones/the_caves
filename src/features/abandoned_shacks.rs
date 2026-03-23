@@ -247,7 +247,7 @@ __║_____│_________║_____├ʬʬʬʬʬʬʬʬʬʬʬ┤_##
 #####________#######______________######
 "#;
 
-const ABANDONED_SHACK_: &str = r#"Null|Null|BronzeClaymore
+const ABANDONED_SHACK_16: &str = r#"Null|Null|BronzeClaymore
 ##########__________#####____________###
 ##_______'____________'____________,_###
 ##_____________,_____╔═══════╤═════╗____
@@ -262,7 +262,7 @@ _____├┬┬┬┐_┌┬┬┬┤_____║≡≡≡_______,_____##
 #####________#######______________######
 "#;
 
-const ABANDONED_SHACK_: &str = r#"Null|Null|BronzeClaymore
+const ABANDONED_SHACK_17: &str = r#"Null|Null|BronzeClaymore
 ##########__________#####____________###
 ##_________________________________,_###
 ##__╔═══╤═════════╗_____________________
@@ -277,7 +277,7 @@ ____║___≡≡≡║___,_________~~~~~~~~_____##
 #####________#######______________######
 "#;
 
-const ABANDONED_SHACK_: &str = r#"Null|Null|BronzeClaymore
+const ABANDONED_SHACK_18: &str = r#"Null|Null|BronzeClaymore
 ##########__________#####____________###
 ##_________________________________,_###
 ##_____.┌───┐_______.___________________
@@ -292,7 +292,7 @@ ___________│~~~~~~~~│,___║_ṑ│___🁢_║___##
 #####________#######______________######
 "#;
 
-const ABANDONED_SHACKS: [&str; 15] = [
+const ABANDONED_SHACKS: [&str; 18] = [
     ABANDONED_SHACK_1,
     ABANDONED_SHACK_2,
     ABANDONED_SHACK_3,
@@ -308,6 +308,9 @@ const ABANDONED_SHACKS: [&str; 15] = [
     ABANDONED_SHACK_13,
     ABANDONED_SHACK_14,
     ABANDONED_SHACK_15,
+    ABANDONED_SHACK_16,
+    ABANDONED_SHACK_17,
+    ABANDONED_SHACK_18,
 ];
 
 pub fn make_abandoned_shack() -> (
