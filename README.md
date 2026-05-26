@@ -4,6 +4,8 @@
 
 Procedurally generated terminal RPG
 
+**NOTE: Development on this repo will be halted for a while, I am looking to implement an egui frontend for a desktop version, and have some major structural changes that I want to make. Once the changes are made, and the egui frontend is caught up to this version, development will continue. The game runs, and should be reasonably usable for now**
+
 The Caves are the remnants of the ever changing maze that was used to protect the ancient underground city of Obsidian. The city had an engine that they used to form and shift the passages in the vast cave system into an ever changing maze, protecting the city from intruders. The city is rumored to have been lost for ages, and the caves have become worn down in that time. Much of the ever changing maze persists, but many of the walls have deteriorated, leaving the caves easier to navigate.
 
 Over the years, the caves have become inhabited by explorers and those looking for meaning in the caves. Many have settled in the ancient maze and established towns that spread throughout and provide support for those that explore the caves for resources and treasure. The towns generally have shops and a guild that support the exploration effort and distribute supplies throughout the settlements.
